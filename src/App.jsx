@@ -337,6 +337,10 @@ export default function App() {
           subfamilies={subfamilies}
           stock={filteredStock}
           locations={locations}
+          movements={filteredMovements}
+          events={events}
+          eventPacking={eventPacking}
+          userRole={userRole}
           onReload={loadAll}
           onToast={showToast}
         />

@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
+import ProductDetail from './ProductDetail'
 
-export default function Products({ products, families, subfamilies, stock, locations, onReload, onToast }) {
+export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, onReload, onToast }) {
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [filterSubfam, setFilterSubfam] = useState('all')
@@ -144,12 +145,17 @@ export default function Products({ products, families, subfamilies, stock, locat
         </div>
       )}
 
-      {/* ─── Product Detail Modal ─── */}
+      {/* ─── Product Detail (full screen) ─── */}
       {modal?.type === 'detail' && (
         <ProductDetail
           product={modal.product}
+          products={products}
           stock={stock}
           locations={locations}
+          movements={movements || []}
+          events={events || []}
+          eventPacking={eventPacking || []}
+          userRole={userRole}
           onClose={() => setModal(null)}
           onEdit={() => setModal({ type: 'edit', product: modal.product })}
           onDelete={() => setConfirm({
@@ -157,6 +163,7 @@ export default function Products({ products, families, subfamilies, stock, locat
             detail: 'Le produit, son stock et son historique de mouvements seront supprimés. Cette action est irréversible.',
             onConfirm: () => handleDelete(modal.product),
           })}
+          onToast={onToast}
         />
       )}
 
@@ -197,111 +204,6 @@ export default function Products({ products, families, subfamilies, stock, locat
         />
       )}
     </div>
-  )
-}
-
-// ─── Product Detail ───
-function ProductDetail({ product, stock, locations, onClose, onEdit, onDelete }) {
-  const cat = getCat(product.category)
-  const productStock = stock.filter(s => s.product_id === product.id)
-  const totalQty = productStock.reduce((sum, s) => sum + (s.quantity || 0), 0)
-
-  return (
-    <Modal title={product.name} onClose={onClose}>
-      {/* Header info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
-        <div style={{
-          width: 56, height: 56, borderRadius: 16, background: cat.bg,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28,
-        }}>{product.image || cat.icon}</div>
-        <div>
-          <Badge color={cat.color}>{cat.name}</Badge>
-          <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>SKU: {product.sku}</div>
-          {product.variants && <div style={{ fontSize: 12, color: '#9A8B94' }}>Variantes: {product.variants}</div>}
-        </div>
-      </div>
-
-      {/* Total stock */}
-      <div className="card" style={{ textAlign: 'center', marginBottom: 16, padding: 20, background: totalQty === 0 ? '#FDF0F4' : '#EDF7F2' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
-        <div style={{ fontSize: 36, fontWeight: 900, color: totalQty === 0 ? '#D4648A' : '#5DAB8B' }}>{totalQty}</div>
-        <div style={{ fontSize: 12, color: '#9A8B94' }}>Seuil min: {product.min_stock || 5}</div>
-      </div>
-
-      {/* Stock by location */}
-      <div className="section-title">Stock par lieu</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-        {locations.map(loc => {
-          const s = productStock.find(st => st.location_id === loc.id)
-          const qty = s?.quantity || 0
-          return (
-            <div key={loc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F0E8E4' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 16 }}>{loc.icon || '📍'}</span>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{loc.name}</span>
-              </div>
-              <span style={{ fontSize: 16, fontWeight: 800, color: qty > 0 ? '#3D3042' : '#B8A0AE' }}>{qty}</span>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Depreciation info */}
-      {product.cost_ht > 0 && (
-        <div style={{ marginBottom: 20 }}>
-          <div className="section-title">Comptabilité</div>
-          <div className="card" style={{ padding: '12px 16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-              <span style={{ fontSize: 12, color: '#9A8B94' }}>Coût HT</span>
-              <span style={{ fontSize: 14, fontWeight: 800 }}>{product.cost_ht.toFixed(2)} €</span>
-            </div>
-            {product.purchase_date && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: '#9A8B94' }}>Achat</span>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{new Date(product.purchase_date).toLocaleDateString('fr-FR')}</span>
-              </div>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-              <span style={{ fontSize: 12, color: '#9A8B94' }}>Régime</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: product.cost_ht >= 500 ? '#5B8DB8' : '#E8935A' }}>
-                {product.cost_ht >= 500 ? 'Immobilisation' : 'Charge'}
-              </span>
-            </div>
-            {product.cost_ht >= 500 && product.useful_life_months && product.purchase_date && (() => {
-              const months = product.useful_life_months
-              const monthsElapsed = Math.max(0,
-                (new Date().getFullYear() - new Date(product.purchase_date).getFullYear()) * 12
-                + new Date().getMonth() - new Date(product.purchase_date).getMonth()
-              )
-              const cumDepr = Math.min(product.cost_ht, (product.cost_ht / months) * monthsElapsed)
-              const nbv = Math.max(0, product.cost_ht - cumDepr)
-              const pct = Math.round((cumDepr / product.cost_ht) * 100)
-              return (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, color: '#9A8B94' }}>Durée</span>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{months} mois ({Math.round(months/12)} ans)</span>
-                  </div>
-                  <div style={{ height: 6, borderRadius: 3, background: '#F0E8E4', overflow: 'hidden', marginBottom: 6 }}>
-                    <div style={{ height: '100%', width: `${pct}%`, borderRadius: 3, background: 'linear-gradient(90deg, #5B8DB8, #5DAB8B)' }} />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 12, color: '#9A8B94' }}>VNC</span>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: nbv > 0 ? '#5DAB8B' : '#D4648A' }}>{nbv.toFixed(2)} € ({pct}% amorti)</span>
-                  </div>
-                </>
-              )
-            })()}
-          </div>
-        </div>
-      )}
-
-      {/* Actions */}
-      <div style={{ display: 'flex', gap: 10 }}>
-        <button className="btn-secondary" style={{ flex: 1 }} onClick={onEdit}>✏️ Modifier</button>
-        <button className="btn-secondary" style={{ flex: 1, borderColor: '#D4648A30', color: '#D4648A' }} onClick={onDelete}>🗑️ Supprimer</button>
-      </div>
-    </Modal>
   )
 }
 
