@@ -3,7 +3,7 @@ import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
 
-export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, userRole, onQuickAction, onNavigate, onReload, onToast }) {
+export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, onQuickAction, onNavigate, onReload, onToast }) {
   const [selectedEvent, setSelectedEvent] = useState(null)
 
   // ─── Role config ───
@@ -317,10 +317,25 @@ export default function Board({ products, locations, stock, movements, alerts, e
         </>
       )}
 
-      {/* ─── Event Detail Modal ─── */}
+      {/* ─── Tournée shortcut ─── */}
+      {events.length > 0 && (
+        <button onClick={() => onNavigate('tournee')} style={{
+          width: '100%', marginTop: 16, padding: '14px', borderRadius: 14,
+          background: 'linear-gradient(135deg, #E8735A08, #9B7DC418)',
+          border: '1.5px solid #E8735A25', cursor: 'pointer', textAlign: 'center',
+        }}>
+          <span style={{ fontSize: 14 }}>🎪</span>
+          <span style={{ fontSize: 13, fontWeight: 800, color: '#E8735A', marginLeft: 8 }}>
+            Voir toute la tournée ({events.length} dates)
+          </span>
+        </button>
+      )}
+
+      {/* ─── Event Detail Full Screen ─── */}
       {selectedEvent && (
         <EventDetail
           event={selectedEvent}
+          events={events}
           products={products}
           stock={stock}
           locations={locations}
@@ -329,9 +344,12 @@ export default function Board({ products, locations, stock, movements, alerts, e
           checklists={checklists}
           roles={roles}
           eventPacking={eventPacking}
+          userProfiles={userProfiles || []}
+          userRole={userRole}
           onClose={() => setSelectedEvent(null)}
           onReload={onReload}
           onToast={onToast}
+          onNavigateEvent={(ev) => setSelectedEvent(ev)}
         />
       )}
     </div>

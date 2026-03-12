@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { auth, db, safe } from './lib/supabase'
+import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs } from './modules/registry'
+
+// ─── Components ───
 import Auth from './components/Auth'
 import Board from './components/Board'
 import Products from './components/Products'
@@ -10,49 +13,55 @@ import Alerts from './components/Alerts'
 import Scanner from './components/Scanner'
 import MovementModal from './components/MovementModal'
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
+import Tour from './components/Tour'
+import Depots from './components/Depots'
+import Equipe from './components/Equipe'
+import Finance from './components/Finance'
 import Forecast from './components/Forecast'
+import Settings from './modules/Settings'
 import { Toast } from './components/UI'
-
-// ─── Tab config (6 tabs now) ───
-const TABS = [
-  { id: 'board', icon: '📊', label: 'Board' },
-  { id: 'products', icon: '📦', label: 'Produits' },
-  { id: 'stocks', icon: '🏭', label: 'Stocks' },
-  { id: 'movements', icon: '📋', label: 'Mouvements' },
-  { id: 'forecast', icon: '📈', label: 'Forecast' },
-  { id: 'alerts', icon: '🔔', label: 'Alertes' },
-  { id: 'checklists', icon: '✅', label: 'Checks' },
-]
 
 // Admin role codes that see everything
 const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
 
 export default function App() {
   // ─── Auth state ───
-  const [user, setUser] = useState(undefined) // undefined=checking, null=logged out, object=logged in
-  const [tab, setTab] = useState('board')
+  const [user, setUser] = useState(undefined)
   const [toast, setToast] = useState(null)
 
+  // ─── Module state ───
+  const [activeModuleIds, setActiveModules] = useState(getActiveModuleIds)
+  const [tab, setTab] = useState('board')
+
   // ─── Role state ───
-  const [userRole, setUserRole] = useState(undefined) // undefined=loading, null=no role, object=role
+  const [userRole, setUserRole] = useState(undefined)
   const [userProfile, setUserProfile] = useState(null)
 
-  // ─── Data state ───
-  const [products, setProducts] = useState([])
-  const [locations, setLocations] = useState([])
-  const [stock, setStock] = useState([])
-  const [movements, setMovements] = useState([])
-  const [events, setEvents] = useState([])
-  const [families, setFamilies] = useState([])
-  const [subfamilies, setSubfamilies] = useState([])
-  const [checklists, setChecklists] = useState([])
-  const [roles, setRoles] = useState([])
-  const [eventPacking, setEventPacking] = useState([])
+  // ─── Data state (flat store — modules pull what they need) ───
+  const [data, setData] = useState({
+    products: [], families: [], subfamilies: [],
+    locations: [],
+    stock: [], movements: [],
+    events: [], checklists: [], event_packing: [],
+    user_profiles: [], roles: [],
+    product_depreciation: [],
+  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // ─── Scanner state ───
+  // ─── Scanner & modal state ───
   const [showScanner, setShowScanner] = useState(false)
+  const [moveModal, setMoveModal] = useState(null)
+
+  // ─── Offline ───
+  const [offline, setOffline] = useState(!navigator.onLine)
+  useEffect(() => {
+    const on = () => setOffline(false)
+    const off = () => setOffline(true)
+    window.addEventListener('online', on)
+    window.addEventListener('offline', off)
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
+  }, [])
 
   // ─── Scroll position per tab (BUG-009) ───
   const scrollPositions = useRef({})
@@ -64,32 +73,37 @@ export default function App() {
     })
   }, [tab])
 
-  // ─── Offline detection ───
-  const [offline, setOffline] = useState(!navigator.onLine)
-  useEffect(() => {
-    const on = () => setOffline(false)
-    const off = () => setOffline(true)
-    window.addEventListener('online', on)
-    window.addEventListener('offline', off)
-    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
-  }, [])
-
-  // ─── Movement modal ───
-  const [moveModal, setMoveModal] = useState(null) // null | {type, preselectedLocation?}
-
   // ─── Toast helper ───
   const showToast = useCallback((message, color) => {
     setToast({ message, color: color || '#5DAB8B' })
   }, [])
 
+  // ─── Active tabs from registry ───
+  const tabs = useMemo(() => {
+    const moduleTabs = getActiveTabs(activeModuleIds)
+    // Always add settings tab at the end
+    return [...moduleTabs, { id: 'settings', label: 'Réglages', icon: '⚙️', moduleId: 'settings' }]
+  }, [activeModuleIds])
+
+  // ─── Ensure current tab is valid when modules change ───
+  useEffect(() => {
+    if (!tabs.find(t => t.id === tab)) {
+      setTab('board')
+    }
+  }, [tabs, tab])
+
+  // ─── Required tables based on active modules ───
+  const requiredTables = useMemo(() =>
+    getRequiredTables(activeModuleIds),
+    [activeModuleIds]
+  )
+
   // ─── Auth check ───
   useEffect(() => {
-    auth.getUser().then(u => {
-      setUser(u || null)
-    })
+    auth.getUser().then(u => setUser(u || null))
   }, [])
 
-  // ─── Load user profile & role after auth ───
+  // ─── Load user profile & role ───
   const loadUserProfile = useCallback(async (userId, rolesData) => {
     try {
       const profiles = await db.get('user_profiles', `user_id=eq.${userId}`)
@@ -97,8 +111,7 @@ export default function App() {
         const profile = profiles[0]
         setUserProfile(profile)
         if (profile.role_id && rolesData && rolesData.length > 0) {
-          const role = rolesData.find(r => r.id === profile.role_id)
-          setUserRole(role || null)
+          setUserRole(rolesData.find(r => r.id === profile.role_id) || null)
         } else {
           setUserRole(null)
         }
@@ -107,55 +120,43 @@ export default function App() {
         setUserRole(null)
       }
     } catch {
-      // If user_profiles table doesn't exist or query fails, no role
       setUserProfile(null)
       setUserRole(null)
     }
   }, [])
 
-  // ─── Load all data ───
+  // ─── Load data (only tables required by active modules) ───
   const loadAll = useCallback(async () => {
     if (!user) return
     setLoading(true)
     setError(null)
     try {
-      const [p, l, s, m, e, f, sf, cl, ro, ep] = await Promise.all([
-        safe('products', 'order=name.asc'),
-        safe('locations', 'order=name.asc'),
-        safe('stock'),
-        safe('movements', 'order=created_at.desc&limit=200'),
-        safe('events', 'order=date.asc'),
-        safe('families', 'order=name.asc'),
-        safe('subfamilies', 'order=name.asc'),
-        safe('checklists', 'order=category.asc,item.asc'),
-        safe('roles', 'order=code.asc'),
-        safe('event_packing', 'order=role_code.asc,created_at.asc'),
-      ])
-      setProducts(p)
-      setLocations(l)
-      setStock(s)
-      setMovements(m)
-      setEvents(e)
-      setFamilies(f)
-      setSubfamilies(sf)
-      setChecklists(cl)
-      setRoles(ro)
-      setEventPacking(ep)
+      const tableEntries = Object.entries(requiredTables)
+      const results = await Promise.all(
+        tableEntries.map(([table, query]) => safe(table, query))
+      )
+      setData(prev => {
+        const next = { ...prev }
+        tableEntries.forEach(([table], i) => { next[table] = results[i] })
+        return next
+      })
 
-      // Load user profile after roles are available
-      await loadUserProfile(user.id, ro)
+      // Load user profile — find roles in results
+      const rolesIdx = tableEntries.findIndex(([t]) => t === 'roles')
+      const rolesData = rolesIdx >= 0 ? results[rolesIdx] : []
+      await loadUserProfile(user.id, rolesData)
     } catch (e) {
       setError(e.message)
     } finally {
       setLoading(false)
     }
-  }, [user, loadUserProfile])
+  }, [user, requiredTables, loadUserProfile])
 
   useEffect(() => {
     if (user) loadAll()
   }, [user, loadAll])
 
-  // Auto-refresh every 30 seconds (skip if modal is open — BUG-008)
+  // Auto-refresh every 30 seconds
   useEffect(() => {
     if (!user) return
     const interval = setInterval(() => {
@@ -166,65 +167,59 @@ export default function App() {
 
   // ─── Filtered data based on user role ───
   const isAdmin = useMemo(() => {
-    if (!userRole) return true // No role = show all (fallback)
+    if (!userRole) return true
     return ADMIN_CODES.includes(userRole.code)
   }, [userRole])
 
   const filteredProducts = useMemo(() => {
-    if (isAdmin || !userRole) return products
+    if (isAdmin || !userRole) return data.products
     const subfamIds = userRole.subfamily_ids || []
-    if (subfamIds.length === 0) return products
-    return products.filter(p => {
-      if (!p.subfamily_id) return false
-      return subfamIds.includes(p.subfamily_id)
-    })
-  }, [products, userRole, isAdmin])
+    if (subfamIds.length === 0) return data.products
+    return data.products.filter(p => p.subfamily_id && subfamIds.includes(p.subfamily_id))
+  }, [data.products, userRole, isAdmin])
 
   const filteredStock = useMemo(() => {
-    if (isAdmin || !userRole) return stock
-    const filteredProductIds = new Set(filteredProducts.map(p => p.id))
-    return stock.filter(s => filteredProductIds.has(s.product_id))
-  }, [stock, filteredProducts, userRole, isAdmin])
+    if (isAdmin || !userRole) return data.stock
+    const ids = new Set(filteredProducts.map(p => p.id))
+    return data.stock.filter(s => ids.has(s.product_id))
+  }, [data.stock, filteredProducts, userRole, isAdmin])
 
   const filteredMovements = useMemo(() => {
-    if (isAdmin || !userRole) return movements
-    const filteredProductIds = new Set(filteredProducts.map(p => p.id))
-    return movements.filter(m => filteredProductIds.has(m.product_id))
-  }, [movements, filteredProducts, userRole, isAdmin])
+    if (isAdmin || !userRole) return data.movements
+    const ids = new Set(filteredProducts.map(p => p.id))
+    return data.movements.filter(m => ids.has(m.product_id))
+  }, [data.movements, filteredProducts, userRole, isAdmin])
 
-  // ─── Compute alerts (based on filtered products) ───
-  const alerts = filteredProducts.map(p => {
-    const totalStock = filteredStock.filter(s => s.product_id === p.id).reduce((sum, s) => sum + (s.quantity || 0), 0)
-    const minStock = p.min_stock || 5
-    if (totalStock <= 0) return { ...p, currentStock: totalStock, minStock, level: 'rupture' }
-    if (totalStock <= minStock) return { ...p, currentStock: totalStock, minStock, level: 'alerte' }
-    return null
-  }).filter(Boolean)
+  // ─── Alerts ───
+  const alerts = useMemo(() =>
+    filteredProducts.map(p => {
+      const totalStock = filteredStock.filter(s => s.product_id === p.id).reduce((sum, s) => sum + (s.quantity || 0), 0)
+      const minStock = p.min_stock || 5
+      if (totalStock <= 0) return { ...p, currentStock: totalStock, minStock, level: 'rupture' }
+      if (totalStock <= minStock) return { ...p, currentStock: totalStock, minStock, level: 'alerte' }
+      return null
+    }).filter(Boolean),
+    [filteredProducts, filteredStock]
+  )
 
-  // ─── Handle role selected from picker ───
-  const handleRoleSelected = useCallback((role) => {
-    setUserRole(role)
+  // ─── Module change handler ───
+  const handleModulesChanged = useCallback((newIds) => {
+    setActiveModules(newIds)
   }, [])
+
+  // ─── Check if a module is active ───
+  const isModuleActive = useCallback((moduleId) =>
+    activeModuleIds.includes(moduleId),
+    [activeModuleIds]
+  )
 
   // ─── Screens ───
 
-  // Checking auth
-  if (user === undefined) {
-    return <SplashScreen text="Vérification..." />
-  }
+  if (user === undefined) return <SplashScreen text="Vérification..." />
+  if (user === null) return <Auth onAuth={(u) => setUser(u)} />
+  if (loading && data.products.length === 0) return <SplashScreen text="Chargement des modules..." />
 
-  // Not logged in
-  if (user === null) {
-    return <Auth onAuth={(u) => setUser(u)} />
-  }
-
-  // Loading data
-  if (loading && products.length === 0) {
-    return <SplashScreen text="Chargement des données..." />
-  }
-
-  // Error (but no data loaded)
-  if (error && products.length === 0) {
+  if (error && data.products.length === 0) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
@@ -235,19 +230,17 @@ export default function App() {
     )
   }
 
-  // Role picker (no role assigned yet)
-  if (userRole === null && roles.length > 0) {
+  if (userRole === null && data.roles.length > 0) {
     return (
       <RolePicker
-        roles={roles}
+        roles={data.roles}
         userId={user.id}
-        onRoleSelected={handleRoleSelected}
+        onRoleSelected={(role) => setUserRole(role)}
         onToast={showToast}
       />
     )
   }
 
-  // Role badge info
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#9A8B94', label: userRole.name }) : null
 
   return (
@@ -263,7 +256,9 @@ export default function App() {
           }}>🎪</div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>STAGE STOCK</div>
-            <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>v9.0 — EK TOUR 25 ANS</div>
+            <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>
+              v10.0 — Modulaire
+            </div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -273,14 +268,15 @@ export default function App() {
               border: '1.5px solid #F0D78C', color: '#856404', fontSize: 11, fontWeight: 800,
             }}>Hors ligne</span>
           )}
-          {/* Scanner button */}
-          <button onClick={() => setShowScanner(true)} style={{
-            width: 36, height: 36, borderRadius: 10, background: '#EEF4FA',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
-            border: '1.5px solid #5B8DB830', cursor: 'pointer',
-          }}>📷</button>
-          {alerts.filter(a => a.level === 'rupture').length > 0 && (
-            <button onClick={() => handleTabChange('alerts')} style={{
+          {isModuleActive('stock') && (
+            <button onClick={() => setShowScanner(true)} style={{
+              width: 36, height: 36, borderRadius: 10, background: '#EEF4FA',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
+              border: '1.5px solid #5B8DB830', cursor: 'pointer',
+            }}>📷</button>
+          )}
+          {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('alertes') && (
+            <button onClick={() => handleTabChange('alertes')} style={{
               padding: '5px 12px', borderRadius: 10, background: '#FDF0F4',
               border: '1.5px solid #F5C4BC', color: '#D4648A', fontSize: 11, fontWeight: 800,
               animation: 'pulse 2s infinite',
@@ -288,12 +284,10 @@ export default function App() {
               {alerts.filter(a => a.level === 'rupture').length} 🚨
             </button>
           )}
-          {/* Role badge */}
           {roleConf && (
             <span style={{
               padding: '5px 10px', borderRadius: 10,
-              background: `${roleConf.color}12`,
-              border: `1.5px solid ${roleConf.color}30`,
+              background: `${roleConf.color}12`, border: `1.5px solid ${roleConf.color}30`,
               color: roleConf.color, fontSize: 11, fontWeight: 800,
               display: 'flex', alignItems: 'center', gap: 4,
             }}>
@@ -308,100 +302,34 @@ export default function App() {
         </div>
       </header>
 
-      {/* ─── Tab Content ─── */}
-      {tab === 'board' && (
-        <Board
-          products={filteredProducts}
-          locations={locations}
-          stock={filteredStock}
-          movements={filteredMovements}
-          alerts={alerts}
-          events={events}
-          families={families}
-          subfamilies={subfamilies}
-          checklists={checklists}
-          roles={roles}
-          eventPacking={eventPacking}
-          userRole={userRole}
-          onQuickAction={(type) => setMoveModal({ type })}
-          onNavigate={handleTabChange}
-          onReload={loadAll}
-          onToast={showToast}
-        />
-      )}
+      {/* ─── Tab Content (module-driven) ─── */}
+      <TabContent
+        tab={tab}
+        activeModuleIds={activeModuleIds}
+        data={data}
+        filteredProducts={filteredProducts}
+        filteredStock={filteredStock}
+        filteredMovements={filteredMovements}
+        alerts={alerts}
+        user={user}
+        userRole={userRole}
+        userProfile={userProfile}
+        isAdmin={isAdmin}
+        onNavigate={handleTabChange}
+        onReload={loadAll}
+        onToast={showToast}
+        onQuickAction={(type) => setMoveModal({ type })}
+        onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
+        onModulesChanged={handleModulesChanged}
+      />
 
-      {tab === 'products' && (
-        <Products
-          products={filteredProducts}
-          families={families}
-          subfamilies={subfamilies}
-          stock={filteredStock}
-          locations={locations}
-          movements={filteredMovements}
-          events={events}
-          eventPacking={eventPacking}
-          userRole={userRole}
-          onReload={loadAll}
-          onToast={showToast}
-        />
-      )}
-
-      {tab === 'stocks' && (
-        <Stocks
-          products={filteredProducts}
-          locations={locations}
-          stock={filteredStock}
-          onReload={loadAll}
-          onToast={showToast}
-          onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
-        />
-      )}
-
-      {tab === 'movements' && (
-        <Movements
-          movements={filteredMovements}
-          products={filteredProducts}
-          locations={locations}
-          onToast={showToast}
-        />
-      )}
-
-      {tab === 'forecast' && (
-        <Forecast
-          products={filteredProducts}
-          stock={filteredStock}
-          events={events}
-          locations={locations}
-        />
-      )}
-
-      {tab === 'alerts' && (
-        <Alerts
-          alerts={alerts}
-          events={events}
-          products={filteredProducts}
-          stock={filteredStock}
-          locations={locations}
-          userRole={userRole}
-        />
-      )}
-
-      {tab === 'checklists' && (
-        <Checklists
-          checklists={checklists}
-          events={events}
-          onReload={loadAll}
-          onToast={showToast}
-        />
-      )}
-
-      {/* ─── Bottom Nav (scrollable for 6 tabs) ─── */}
+      {/* ─── Bottom Nav ─── */}
       <nav className="bottom-nav">
-        {TABS.map(t => (
+        {tabs.map(t => (
           <button key={t.id} className={`nav-tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTabChange(t.id)}>
             <span className="nav-icon">{t.icon}</span>
             <span>{t.label}</span>
-            {t.id === 'alerts' && alerts.length > 0 && (
+            {t.id === 'alertes' && alerts.length > 0 && (
               <span className="nav-badge">{alerts.length}</span>
             )}
           </button>
@@ -412,7 +340,7 @@ export default function App() {
       {showScanner && (
         <Scanner
           products={filteredProducts}
-          locations={locations}
+          locations={data.locations}
           stock={filteredStock}
           onMovement={(type) => { setShowScanner(false); setMoveModal({ type }) }}
           onClose={() => setShowScanner(false)}
@@ -425,7 +353,7 @@ export default function App() {
         <MovementModal
           type={moveModal.type}
           products={filteredProducts}
-          locations={locations}
+          locations={data.locations}
           stock={filteredStock}
           preselectedLocation={moveModal.preselectedLocation}
           onClose={() => setMoveModal(null)}
@@ -436,6 +364,189 @@ export default function App() {
 
       {/* ─── Toast ─── */}
       {toast && <Toast message={toast.message} color={toast.color} onDone={() => setToast(null)} />}
+    </div>
+  )
+}
+
+// ─── Tab Content Router (module-driven) ───
+function TabContent({
+  tab, activeModuleIds, data,
+  filteredProducts, filteredStock, filteredMovements, alerts,
+  user, userRole, userProfile, isAdmin,
+  onNavigate, onReload, onToast, onQuickAction, onMovement, onModulesChanged,
+}) {
+  switch (tab) {
+    case 'board':
+      return (
+        <Board
+          products={filteredProducts}
+          locations={data.locations}
+          stock={filteredStock}
+          movements={filteredMovements}
+          alerts={alerts}
+          events={data.events}
+          families={data.families}
+          subfamilies={data.subfamilies}
+          checklists={data.checklists}
+          roles={data.roles}
+          eventPacking={data.event_packing}
+          userProfiles={data.user_profiles}
+          userRole={userRole}
+          onQuickAction={onQuickAction}
+          onNavigate={onNavigate}
+          onReload={onReload}
+          onToast={onToast}
+        />
+      )
+    case 'tournee':
+      return (
+        <Tour
+          events={data.events}
+          products={filteredProducts}
+          stock={filteredStock}
+          locations={data.locations}
+          families={data.families}
+          subfamilies={data.subfamilies}
+          checklists={data.checklists}
+          roles={data.roles}
+          eventPacking={data.event_packing}
+          userProfiles={data.user_profiles}
+          userRole={userRole}
+          onReload={onReload}
+          onToast={onToast}
+        />
+      )
+    case 'articles':
+      return (
+        <Products
+          products={filteredProducts}
+          families={data.families}
+          subfamilies={data.subfamilies}
+          stock={filteredStock}
+          locations={data.locations}
+          movements={filteredMovements}
+          events={data.events}
+          eventPacking={data.event_packing}
+          userRole={userRole}
+          onReload={onReload}
+          onToast={onToast}
+        />
+      )
+    case 'depots':
+      return (
+        <Depots
+          locations={data.locations}
+          stock={filteredStock}
+          products={filteredProducts}
+          onReload={onReload}
+          onToast={onToast}
+        />
+      )
+    case 'stock':
+      return (
+        <StockModule
+          products={filteredProducts}
+          locations={data.locations}
+          stock={filteredStock}
+          movements={filteredMovements}
+          onReload={onReload}
+          onToast={onToast}
+          onMovement={onMovement}
+        />
+      )
+    case 'equipe':
+      return (
+        <Equipe
+          roles={data.roles}
+          userProfiles={data.user_profiles}
+          eventPacking={data.event_packing}
+          events={data.events}
+          userRole={userRole}
+        />
+      )
+    case 'finance':
+      return (
+        <Finance
+          products={filteredProducts}
+          stock={filteredStock}
+          events={data.events}
+          locations={data.locations}
+          depreciation={data.product_depreciation}
+        />
+      )
+    case 'alertes':
+      return (
+        <Alerts
+          alerts={alerts}
+          events={data.events}
+          products={filteredProducts}
+          stock={filteredStock}
+          locations={data.locations}
+          userRole={userRole}
+        />
+      )
+    case 'forecast':
+      return (
+        <Forecast
+          products={filteredProducts}
+          stock={filteredStock}
+          events={data.events}
+          locations={data.locations}
+        />
+      )
+    case 'settings':
+      return (
+        <Settings
+          activeModuleIds={activeModuleIds}
+          onModulesChanged={onModulesChanged}
+          onToast={onToast}
+        />
+      )
+    default:
+      return null
+  }
+}
+
+// ─── Stock Module (combines Stock view + Movements with sub-tabs) ───
+function StockModule({ products, locations, stock, movements, onReload, onToast, onMovement }) {
+  const [subTab, setSubTab] = useState('stock') // stock | mouvements
+
+  return (
+    <div>
+      {/* Sub-tab switcher */}
+      <div style={{ display: 'flex', gap: 8, padding: '0 16px 12px' }}>
+        {[
+          { id: 'stock', label: 'Niveaux de stock', color: '#5DAB8B' },
+          { id: 'mouvements', label: 'Mouvements', color: '#5B8DB8' },
+        ].map(s => (
+          <button key={s.id} onClick={() => setSubTab(s.id)} style={{
+            flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+            cursor: 'pointer', textAlign: 'center',
+            background: subTab === s.id ? `${s.color}15` : 'white',
+            color: subTab === s.id ? s.color : '#9A8B94',
+            border: `1.5px solid ${subTab === s.id ? s.color + '40' : '#E8DED8'}`,
+          }}>{s.label}</button>
+        ))}
+      </div>
+
+      {subTab === 'stock' && (
+        <Stocks
+          products={products}
+          locations={locations}
+          stock={stock}
+          onReload={onReload}
+          onToast={onToast}
+          onMovement={onMovement}
+        />
+      )}
+      {subTab === 'mouvements' && (
+        <Movements
+          movements={movements}
+          products={products}
+          locations={locations}
+          onToast={onToast}
+        />
+      )}
     </div>
   )
 }
