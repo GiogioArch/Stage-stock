@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Modal, Badge, getCat, CATEGORIES, fmtDate } from './UI'
+import PackingList from './PackingList'
 
 const CHECK_CATS = {
   son:          { icon: '🔊', color: '#5B8DB8', label: 'Son' },
@@ -12,8 +13,8 @@ const CHECK_CATS = {
   consommables: { icon: '🔋', color: '#8BAB5D', label: 'Consommables' },
 }
 
-export default function EventDetail({ event, products, stock, locations, families, subfamilies, checklists, onClose, onReload, onToast }) {
-  const [section, setSection] = useState('overview') // overview | merch | materiel | consommables | checklist
+export default function EventDetail({ event, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, onClose, onReload, onToast }) {
+  const [section, setSection] = useState('overview') // overview | merch | materiel | consommables | checklist | packing
 
   // Products by category with stock
   const productsByCategory = useMemo(() => {
@@ -102,6 +103,7 @@ export default function EventDetail({ event, products, stock, locations, familie
     { id: 'materiel', label: 'Matériel', icon: '🎸' },
     { id: 'consommables', label: 'Conso', icon: '🔋' },
     { id: 'checklist', label: `Check (${checkDone}/${checkTotal})`, icon: '✅' },
+    { id: 'packing', label: 'Packing', icon: '📦' },
   ]
 
   return (
@@ -335,6 +337,20 @@ export default function EventDetail({ event, products, stock, locations, familie
             }}>+</button>
           </div>
         </div>
+      )}
+
+      {/* ─── Packing section ─── */}
+      {section === 'packing' && (
+        <PackingList
+          event={event}
+          products={products}
+          stock={stock}
+          locations={locations}
+          roles={roles || []}
+          eventPacking={eventPacking || []}
+          onReload={onReload}
+          onToast={onToast}
+        />
       )}
     </Modal>
   )

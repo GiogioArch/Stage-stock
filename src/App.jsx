@@ -31,6 +31,8 @@ export default function App() {
   const [families, setFamilies] = useState([])
   const [subfamilies, setSubfamilies] = useState([])
   const [checklists, setChecklists] = useState([])
+  const [roles, setRoles] = useState([])
+  const [eventPacking, setEventPacking] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -76,7 +78,7 @@ export default function App() {
     setError(null)
     try {
       // Each query in its own try/catch — resilient loading
-      const [p, l, s, m, e, f, sf, cl] = await Promise.all([
+      const [p, l, s, m, e, f, sf, cl, ro, ep] = await Promise.all([
         safe('products', 'order=name.asc'),
         safe('locations', 'order=name.asc'),
         safe('stock'),
@@ -85,6 +87,8 @@ export default function App() {
         safe('families', 'order=name.asc'),
         safe('subfamilies', 'order=name.asc'),
         safe('checklists', 'order=category.asc,item.asc'),
+        safe('roles', 'order=code.asc'),
+        safe('event_packing', 'order=role_code.asc,created_at.asc'),
       ])
       setProducts(p)
       setLocations(l)
@@ -94,6 +98,8 @@ export default function App() {
       setFamilies(f)
       setSubfamilies(sf)
       setChecklists(cl)
+      setRoles(ro)
+      setEventPacking(ep)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -203,6 +209,8 @@ export default function App() {
           families={families}
           subfamilies={subfamilies}
           checklists={checklists}
+          roles={roles}
+          eventPacking={eventPacking}
           onQuickAction={(type) => setMoveModal({ type })}
           onNavigate={handleTabChange}
           onReload={loadAll}

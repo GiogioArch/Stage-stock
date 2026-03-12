@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge } from './UI'
 import EventDetail from './EventDetail'
 
-export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, onQuickAction, onNavigate, onReload, onToast }) {
+export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, onQuickAction, onNavigate, onReload, onToast }) {
   const [selectedEvent, setSelectedEvent] = useState(null)
   // ─── KPI calculations ───
   const totalProducts = products.length
@@ -229,6 +229,8 @@ export default function Board({ products, locations, stock, movements, alerts, e
           families={families}
           subfamilies={subfamilies}
           checklists={checklists}
+          roles={roles}
+          eventPacking={eventPacking}
           onClose={() => setSelectedEvent(null)}
           onReload={onReload}
           onToast={onToast}
