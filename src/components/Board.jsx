@@ -1,9 +1,15 @@
 import React, { useState } from 'react'
 import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge } from './UI'
+import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
 
-export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, onQuickAction, onNavigate, onReload, onToast }) {
+export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, userRole, onQuickAction, onNavigate, onReload, onToast }) {
   const [selectedEvent, setSelectedEvent] = useState(null)
+
+  // ─── Role config ───
+  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#9A8B94', label: userRole.name }) : null
+  const isAdmin = !userRole || ['TM', 'PM', 'LOG', 'PA'].includes(userRole?.code)
+
   // ─── KPI calculations ───
   const totalProducts = products.length
   const totalStock = stock.reduce((sum, s) => sum + (s.quantity || 0), 0)
@@ -33,21 +39,111 @@ export default function Board({ products, locations, stock, movements, alerts, e
   const upcomingEvents = events.filter(e => e.date >= now)
   const nextEvent = upcomingEvents[0]
 
+  // ─── Role-specific packing stats ───
+  const myPackingItems = userRole
+    ? eventPacking.filter(ep => ep.role_code === userRole.code)
+    : []
+  const nextEventPacking = nextEvent
+    ? myPackingItems.filter(ep => ep.event_id === nextEvent.id)
+    : []
+  const packingDone = nextEventPacking.filter(ep => ep.packed).length
+  const packingTotal = nextEventPacking.length
+  const packingPct = packingTotal > 0 ? Math.round((packingDone / packingTotal) * 100) : 0
+
+  // ─── Low stock items for my role ───
+  const myLowStock = alerts.slice(0, 5)
+
   // Product name helper
   const pName = (id) => products.find(p => p.id === id)?.name || '?'
   const lName = (id) => locations.find(l => l.id === id)?.name || '?'
 
   return (
     <div style={{ padding: '0 16px 24px' }}>
-      {/* KPI Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-        <KpiCard icon="📦" value={totalProducts} label="Produits" color="#E8735A" />
-        <KpiCard icon="📊" value={totalStock} label="Stock total" color="#5B8DB8" />
-        <KpiCard icon="⚠️" value={totalAlerts} label={`Alerte${totalAlerts > 1 ? 's' : ''}`} color={totalAlerts > 0 ? '#E8935A' : '#5DAB8B'} />
-        <KpiCard icon="🚨" value={criticalAlerts.length} label="Rupture(s)" color={criticalAlerts.length > 0 ? '#D4648A' : '#5DAB8B'} />
-      </div>
 
-      {/* Next Event */}
+      {/* ─── Role Welcome Card ─── */}
+      {roleConf && (
+        <div className="card" style={{
+          marginBottom: 16, padding: '18px 16px',
+          background: `linear-gradient(135deg, ${roleConf.color}08, ${roleConf.color}18)`,
+          border: `1.5px solid ${roleConf.color}25`,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 14,
+              background: `linear-gradient(135deg, ${roleConf.color}, ${roleConf.color}CC)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 24, color: 'white',
+              boxShadow: `0 4px 16px ${roleConf.color}30`,
+            }}>{roleConf.icon}</div>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>
+                {roleConf.label}
+              </div>
+              <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>
+                {isAdmin ? 'Vue complète — tous les stocks' : `${totalProducts} produit${totalProducts > 1 ? 's' : ''} sous ta responsabilité`}
+              </div>
+            </div>
+          </div>
+
+          {/* Role KPI row */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <MiniKpi label="Stock" value={totalStock} color={roleConf.color} />
+            <MiniKpi label="Alertes" value={totalAlerts} color={totalAlerts > 0 ? '#E8935A' : '#5DAB8B'} />
+            <MiniKpi label="Ruptures" value={criticalAlerts.length} color={criticalAlerts.length > 0 ? '#D4648A' : '#5DAB8B'} />
+            {packingTotal > 0 && (
+              <MiniKpi label="Packing" value={`${packingPct}%`} color={packingPct === 100 ? '#5DAB8B' : '#5B8DB8'} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── My Packing Progress (if next event has items for my role) ─── */}
+      {packingTotal > 0 && nextEvent && (
+        <div className="card" style={{ marginBottom: 16, padding: '14px 16px', borderLeft: `4px solid ${roleConf?.color || '#5B8DB8'}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042' }}>
+                Mon packing — {nextEvent.name || nextEvent.lieu}
+              </div>
+              <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                {packingDone}/{packingTotal} items prêts
+              </div>
+            </div>
+            <div style={{
+              fontSize: 20, fontWeight: 900,
+              color: packingPct === 100 ? '#5DAB8B' : packingPct >= 50 ? '#E8935A' : '#D4648A',
+            }}>{packingPct}%</div>
+          </div>
+          <div style={{
+            height: 6, borderRadius: 3, background: '#F0E8E4',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              width: `${packingPct}%`, height: '100%', borderRadius: 3,
+              background: packingPct === 100 ? '#5DAB8B' : roleConf?.color || '#5B8DB8',
+              transition: 'width 0.3s',
+            }} />
+          </div>
+          {/* Show first unpacked items */}
+          {nextEventPacking.filter(ep => !ep.packed).slice(0, 3).map((ep, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
+              fontSize: 12, color: '#9A8B94',
+            }}>
+              <span style={{ color: '#D4648A' }}>○</span>
+              <span>{pName(ep.product_id)}</span>
+              <span style={{ marginLeft: 'auto', fontWeight: 700 }}>×{ep.quantity_needed}</span>
+            </div>
+          ))}
+          {nextEventPacking.filter(ep => !ep.packed).length > 3 && (
+            <div style={{ fontSize: 11, color: '#B8A0AE', marginTop: 6, textAlign: 'center' }}>
+              +{nextEventPacking.filter(ep => !ep.packed).length - 3} autres items...
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── Next Event ─── */}
       {nextEvent && (
         <div className="card" style={{ marginBottom: 16, borderLeft: '4px solid #E8735A', cursor: 'pointer' }}
           onClick={() => setSelectedEvent(nextEvent)}>
@@ -69,7 +165,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
         </div>
       )}
 
-      {/* Quick Actions */}
+      {/* ─── Quick Actions ─── */}
       <div className="section-title">Actions rapides</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
         <QuickBtn icon="📥" label="Entrée" color="#5DAB8B" bg="#EDF7F2" onClick={() => onQuickAction('in')} />
@@ -77,10 +173,46 @@ export default function Board({ products, locations, stock, movements, alerts, e
         <QuickBtn icon="🔄" label="Transfert" color="#5B8DB8" bg="#EEF4FA" onClick={() => onQuickAction('transfer')} />
       </div>
 
-      {/* Stock by Category */}
+      {/* ─── Alerts (priority display) ─── */}
+      {alerts.length > 0 && (
+        <>
+          <div className="section-title">
+            {isAdmin ? 'Alertes stock' : 'Mes alertes'}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+            {myLowStock.map((a, i) => (
+              <div key={i} className="card" style={{
+                padding: '10px 14px',
+                borderLeft: `4px solid ${a.level === 'rupture' ? '#D4648A' : '#E8935A'}`,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700 }}>{a.name}</div>
+                    <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                      Stock: {a.currentStock} / Seuil: {a.minStock}
+                    </div>
+                  </div>
+                  <Badge color={a.level === 'rupture' ? '#D4648A' : '#E8935A'}>
+                    {a.level === 'rupture' ? '🚨 Rupture' : '⚠️ Alerte'}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+            {alerts.length > 5 && (
+              <button onClick={() => onNavigate('stocks')} style={{
+                fontSize: 13, fontWeight: 700, color: '#E8735A', padding: 8, textAlign: 'center',
+              }}>
+                Voir les {alerts.length} alertes →
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* ─── Stock by Category ─── */}
       <div className="section-title">Stock par catégorie</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-        {stockByCategory.map(cat => (
+        {stockByCategory.filter(c => c.count > 0).map(cat => (
           <div key={cat.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
             <div style={{
               width: 42, height: 42, borderRadius: 12, background: cat.bg,
@@ -95,10 +227,10 @@ export default function Board({ products, locations, stock, movements, alerts, e
         ))}
       </div>
 
-      {/* Stock by Location */}
+      {/* ─── Stock by Location ─── */}
       <div className="section-title">Stock par lieu</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-        {stockByLocation.map(loc => (
+        {stockByLocation.filter(l => l.qty > 0).map(loc => (
           <div key={loc.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
             <div style={{
               width: 42, height: 42, borderRadius: 12,
@@ -114,7 +246,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
         ))}
       </div>
 
-      {/* Recent Movements */}
+      {/* ─── Recent Movements ─── */}
       <div className="section-title">Derniers mouvements</div>
       {recentMoves.length === 0 ? (
         <div className="empty-state" style={{ padding: 24 }}>
@@ -122,7 +254,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
           <div className="empty-text">Aucun mouvement enregistré</div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
           {recentMoves.map(m => {
             const conf = getMoveConf(m.type)
             return (
@@ -154,44 +286,10 @@ export default function Board({ products, locations, stock, movements, alerts, e
         </div>
       )}
 
-      {/* Alerts preview */}
-      {alerts.length > 0 && (
-        <>
-          <div className="section-title" style={{ marginTop: 20 }}>Alertes stock</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {alerts.slice(0, 3).map((a, i) => (
-              <div key={i} className="card" style={{
-                padding: '10px 14px',
-                borderLeft: `4px solid ${a.level === 'rupture' ? '#D4648A' : '#E8935A'}`,
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{a.name}</div>
-                    <div style={{ fontSize: 11, color: '#9A8B94' }}>
-                      Stock: {a.currentStock} / Seuil: {a.minStock}
-                    </div>
-                  </div>
-                  <Badge color={a.level === 'rupture' ? '#D4648A' : '#E8935A'}>
-                    {a.level === 'rupture' ? '🚨 Rupture' : '⚠️ Alerte'}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-            {alerts.length > 3 && (
-              <button onClick={() => onNavigate('stocks')} style={{
-                fontSize: 13, fontWeight: 700, color: '#E8735A', padding: 8, textAlign: 'center',
-              }}>
-                Voir les {alerts.length} alertes →
-              </button>
-            )}
-          </div>
-        </>
-      )}
-
-      {/* Upcoming events */}
+      {/* ─── Upcoming events ─── */}
       {upcomingEvents.length > 1 && (
         <>
-          <div className="section-title" style={{ marginTop: 20 }}>Événements à venir</div>
+          <div className="section-title">Événements à venir</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {upcomingEvents.slice(1, 6).map(ev => {
               const d = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
@@ -219,7 +317,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
         </>
       )}
 
-      {/* Event Detail Modal */}
+      {/* ─── Event Detail Modal ─── */}
       {selectedEvent && (
         <EventDetail
           event={selectedEvent}
@@ -241,12 +339,15 @@ export default function Board({ products, locations, stock, movements, alerts, e
 }
 
 // ─── Sub-components ───
-function KpiCard({ icon, value, label, color }) {
+function MiniKpi({ label, value, color }) {
   return (
-    <div className="card" style={{ textAlign: 'center', padding: '16px 12px' }}>
-      <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
-      <div style={{ fontSize: 28, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 11, color: '#9A8B94', fontWeight: 700, marginTop: 4 }}>{label}</div>
+    <div style={{
+      flex: 1, textAlign: 'center', padding: '8px 4px',
+      background: 'white', borderRadius: 10,
+      border: '1px solid #F0E8E4',
+    }}>
+      <div style={{ fontSize: 18, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

@@ -5,15 +5,20 @@ import Board from './components/Board'
 import Products from './components/Products'
 import Stocks from './components/Stocks'
 import Checklists from './components/Checklists'
+import Movements from './components/Movements'
+import Alerts from './components/Alerts'
+import Scanner from './components/Scanner'
 import MovementModal from './components/MovementModal'
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
 import { Toast } from './components/UI'
 
-// ─── Tab config ───
+// ─── Tab config (6 tabs now) ───
 const TABS = [
   { id: 'board', icon: '📊', label: 'Board' },
   { id: 'products', icon: '📦', label: 'Produits' },
   { id: 'stocks', icon: '🏭', label: 'Stocks' },
+  { id: 'movements', icon: '📋', label: 'Mouvements' },
+  { id: 'alerts', icon: '🔔', label: 'Alertes' },
   { id: 'checklists', icon: '✅', label: 'Checks' },
 ]
 
@@ -43,6 +48,9 @@ export default function App() {
   const [eventPacking, setEventPacking] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // ─── Scanner state ───
+  const [showScanner, setShowScanner] = useState(false)
 
   // ─── Scroll position per tab (BUG-009) ───
   const scrollPositions = useRef({})
@@ -109,12 +117,11 @@ export default function App() {
     setLoading(true)
     setError(null)
     try {
-      // Each query in its own try/catch — resilient loading
       const [p, l, s, m, e, f, sf, cl, ro, ep] = await Promise.all([
         safe('products', 'order=name.asc'),
         safe('locations', 'order=name.asc'),
         safe('stock'),
-        safe('movements', 'order=created_at.desc&limit=50'),
+        safe('movements', 'order=created_at.desc&limit=200'),
         safe('events', 'order=date.asc'),
         safe('families', 'order=name.asc'),
         safe('subfamilies', 'order=name.asc'),
@@ -150,10 +157,10 @@ export default function App() {
   useEffect(() => {
     if (!user) return
     const interval = setInterval(() => {
-      if (!moveModal) loadAll()
+      if (!moveModal && !showScanner) loadAll()
     }, 30000)
     return () => clearInterval(interval)
-  }, [user, loadAll, moveModal])
+  }, [user, loadAll, moveModal, showScanner])
 
   // ─── Filtered data based on user role ───
   const isAdmin = useMemo(() => {
@@ -166,7 +173,6 @@ export default function App() {
     const subfamIds = userRole.subfamily_ids || []
     if (subfamIds.length === 0) return products
     return products.filter(p => {
-      // Include products whose subfamily_id is in the role's subfamily_ids
       if (!p.subfamily_id) return false
       return subfamIds.includes(p.subfamily_id)
     })
@@ -255,7 +261,7 @@ export default function App() {
           }}>🎪</div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>STAGE STOCK</div>
-            <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>v8.0 — EK TOUR 25 ANS</div>
+            <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>v9.0 — EK TOUR 25 ANS</div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -265,8 +271,14 @@ export default function App() {
               border: '1.5px solid #F0D78C', color: '#856404', fontSize: 11, fontWeight: 800,
             }}>Hors ligne</span>
           )}
+          {/* Scanner button */}
+          <button onClick={() => setShowScanner(true)} style={{
+            width: 36, height: 36, borderRadius: 10, background: '#EEF4FA',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
+            border: '1.5px solid #5B8DB830', cursor: 'pointer',
+          }}>📷</button>
           {alerts.filter(a => a.level === 'rupture').length > 0 && (
-            <button onClick={() => handleTabChange('board')} style={{
+            <button onClick={() => handleTabChange('alerts')} style={{
               padding: '5px 12px', borderRadius: 10, background: '#FDF0F4',
               border: '1.5px solid #F5C4BC', color: '#D4648A', fontSize: 11, fontWeight: 800,
               animation: 'pulse 2s infinite',
@@ -308,6 +320,7 @@ export default function App() {
           checklists={checklists}
           roles={roles}
           eventPacking={eventPacking}
+          userRole={userRole}
           onQuickAction={(type) => setMoveModal({ type })}
           onNavigate={handleTabChange}
           onReload={loadAll}
@@ -338,6 +351,26 @@ export default function App() {
         />
       )}
 
+      {tab === 'movements' && (
+        <Movements
+          movements={filteredMovements}
+          products={filteredProducts}
+          locations={locations}
+          onToast={showToast}
+        />
+      )}
+
+      {tab === 'alerts' && (
+        <Alerts
+          alerts={alerts}
+          events={events}
+          products={filteredProducts}
+          stock={filteredStock}
+          locations={locations}
+          userRole={userRole}
+        />
+      )}
+
       {tab === 'checklists' && (
         <Checklists
           checklists={checklists}
@@ -347,18 +380,30 @@ export default function App() {
         />
       )}
 
-      {/* ─── Bottom Nav ─── */}
+      {/* ─── Bottom Nav (scrollable for 6 tabs) ─── */}
       <nav className="bottom-nav">
         {TABS.map(t => (
           <button key={t.id} className={`nav-tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTabChange(t.id)}>
             <span className="nav-icon">{t.icon}</span>
             <span>{t.label}</span>
-            {t.id === 'stocks' && alerts.length > 0 && (
+            {t.id === 'alerts' && alerts.length > 0 && (
               <span className="nav-badge">{alerts.length}</span>
             )}
           </button>
         ))}
       </nav>
+
+      {/* ─── Scanner Overlay ─── */}
+      {showScanner && (
+        <Scanner
+          products={filteredProducts}
+          locations={locations}
+          stock={filteredStock}
+          onMovement={(type) => { setShowScanner(false); setMoveModal({ type }) }}
+          onClose={() => setShowScanner(false)}
+          onToast={showToast}
+        />
+      )}
 
       {/* ─── Movement Modal ─── */}
       {moveModal && (

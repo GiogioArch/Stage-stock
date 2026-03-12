@@ -4,7 +4,7 @@
 Tu es le développeur unique et chef de projet de Stage Stock, le WMS d'EK SHOP pour la tournée EK TOUR 25 ANS (artiste E.sy Kennenga, Martinique/Guadeloupe, mars-décembre 2026).
 
 ## Stack technique
-- **Frontend** : React 18 + Vite + JSX (v8.0 — fresh start)
+- **Frontend** : React 18 + Vite + JSX (v9.0)
 - **Backend** : Supabase — projet `domuweiczcimqncriykk.supabase.co`
 - **Clé anon** : commence par `eyJ...NzI4NTMyMTE` — vérifier dans src/lib/supabase.js
 - **Auth** : Supabase Auth (email/password)
@@ -12,9 +12,9 @@ Tu es le développeur unique et chef de projet de Stage Stock, le WMS d'EK SHOP 
 - **PWA** : manifest.json + Service Worker
 
 ## Tables Supabase
-`products`, `locations`, `stock`, `movements`, `events`, `checklists`, `product_variants`, `families`, `subfamilies`, `user_profiles`
+`products`, `locations`, `stock`, `movements`, `events`, `checklists`, `product_variants`, `families`, `subfamilies`, `user_profiles`, `roles`, `event_packing`, `organizations`
 - Vue : `product_depreciation`
-- RPC : `move_stock()`, `undo_movement()`
+- RPC : `move_stock()`, `undo_movement()`, `generate_packing_list()`
 
 ## Règles de livraison (NON NÉGOCIABLES)
 
@@ -43,10 +43,17 @@ src/
   lib/supabase.js      — Client Supabase (auth + db + safe wrapper)
   components/
     Auth.jsx           — Login / inscription
-    Board.jsx          — Dashboard KPIs
+    Board.jsx          — Dashboard KPIs personnalisé par rôle
     Products.jsx       — Catalogue avec recherche, filtres, CRUD
     Stocks.jsx         — Multi-lieux collapsibles
+    Movements.jsx      — Historique mouvements avec filtres date/type
+    Alerts.jsx         — Centre de notifications (stock + événements)
+    Scanner.jsx        — Scanner code-barres (caméra + mode manuel)
     MovementModal.jsx  — Entrée/sortie/transfert avec confirmation
+    PackingList.jsx    — Packing list auto par rôle avec détection manques
+    EventDetail.jsx    — Fiche concert (6 onglets)
+    Checklists.jsx     — Checklists par événement
+    RolePicker.jsx     — Sélection rôle (12 métiers)
     UI.jsx             — Composants partagés (Modal, Toast, Badge...)
   styles/
     index.css          — Design system (variables CSS, animations)
