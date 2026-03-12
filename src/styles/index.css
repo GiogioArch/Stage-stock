@@ -1,0 +1,380 @@
+/* ─── Stage Stock Design System ─── */
+
+:root {
+  /* Colors */
+  --corail: #E8735A;
+  --rose: #D4648A;
+  --bleu: #5B8DB8;
+  --vert: #5DAB8B;
+  --orange: #E8935A;
+  --prune: #3D3042;
+  --prune-light: #9A8B94;
+  --prune-lighter: #B8A0AE;
+  --prune-lightest: #C4A8B6;
+  
+  /* Backgrounds */
+  --bg-gradient: linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%);
+  --bg-card: #FFFFFF;
+  --bg-input: #FFFCFA;
+  --bg-page: #FFF8F0;
+  
+  /* Borders */
+  --border-light: #F0E8E4;
+  --border-input: #E8DED8;
+  
+  /* Category colors */
+  --merch-color: #D4648A;
+  --merch-bg: #FDF0F4;
+  --mat-color: #5B8DB8;
+  --mat-bg: #EEF4FA;
+  --conso-color: #5DAB8B;
+  --conso-bg: #EDF7F2;
+  
+  /* Shadows */
+  --shadow-card: 0 2px 12px rgba(180,150,130,0.08);
+  --shadow-card-hover: 0 4px 20px rgba(180,150,130,0.12);
+  --shadow-modal: 0 -8px 40px rgba(180,150,130,0.15);
+  
+  /* Radii */
+  --radius-card: 18px;
+  --radius-btn: 14px;
+  --radius-input: 14px;
+  --radius-badge: 8px;
+  --radius-modal: 24px;
+  
+  /* Font */
+  --font: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ─── Reset & Base ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--font);
+  color: var(--prune);
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+input, select, textarea, button {
+  font-family: var(--font);
+  font-size: 14px;
+}
+
+button { cursor: pointer; border: none; background: none; }
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Utility ─── */
+.fade-in { animation: fadeIn 0.2s ease-out; }
+.slide-up { animation: slideUp 0.3s ease-out; }
+
+/* ─── Card ─── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ─── Input ─── */
+.input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--border-input);
+  background: var(--bg-input);
+  color: var(--prune);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--corail); }
+.input::placeholder { color: var(--prune-lighter); }
+
+/* ─── Label ─── */
+.label {
+  font-size: 12px;
+  color: var(--prune-light);
+  font-weight: 700;
+  margin-bottom: 5px;
+  display: block;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Section title ─── */
+.section-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--prune-lighter);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* ─── Badge ─── */
+.badge {
+  padding: 4px 11px;
+  border-radius: var(--radius-badge);
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* ─── Primary button ─── */
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-btn);
+  background: linear-gradient(135deg, var(--corail), #D4648A);
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ─── Secondary button ─── */
+.btn-secondary {
+  padding: 10px 18px;
+  border-radius: var(--radius-btn);
+  background: transparent;
+  border: 1.5px solid var(--border-input);
+  color: var(--prune);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--corail); color: var(--corail); }
+
+/* ─── Loader ─── */
+.loader {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--corail);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ─── Toast ─── */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 14px;
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  z-index: 200;
+  animation: slideDown 0.3s ease-out;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  max-width: 90vw;
+  text-align: center;
+}
+
+/* ─── Modal backdrop ─── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(61,48,66,0.35);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+
+/* ─── Modal sheet ─── */
+.modal-sheet {
+  background: var(--bg-input);
+  border-radius: var(--radius-modal) var(--radius-modal) 0 0;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  animation: slideUp 0.3s ease-out;
+  box-shadow: var(--shadow-modal);
+}
+
+/* ─── Confirm dialog ─── */
+.confirm-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(61,48,66,0.5);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s;
+  padding: 24px;
+}
+
+.confirm-box {
+  background: var(--bg-input);
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(61,48,66,0.2);
+}
+
+/* ─── Bottom nav ─── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,252,250,0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  z-index: 50;
+}
+
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--prune-lighter);
+  transition: all 0.2s;
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.nav-tab.active { color: var(--corail); }
+.nav-tab .nav-icon { font-size: 22px; }
+.nav-tab .nav-badge {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  background: var(--rose);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ─── Empty state ─── */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--prune-lighter);
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state .empty-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; color: var(--prune-light); }
+.empty-state .empty-text { font-size: 13px; }
+
+/* ─── Search bar ─── */
+.search-bar {
+  position: relative;
+  margin-bottom: 16px;
+}
+.search-bar input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--border-input);
+  background: var(--bg-card);
+  font-size: 14px;
+  color: var(--prune);
+  outline: none;
+}
+.search-bar input:focus { border-color: var(--corail); }
+.search-bar .search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  opacity: 0.5;
+}
+
+/* ─── Quantity buttons ─── */
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.qty-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1.5px solid var(--border-input);
+  background: var(--bg-card);
+  color: var(--prune);
+}
+.qty-btn:active { transform: scale(0.92); }
+.qty-value {
+  font-size: 20px;
+  font-weight: 900;
+  min-width: 40px;
+  text-align: center;
+}

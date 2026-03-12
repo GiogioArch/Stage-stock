@@ -1,0 +1,122 @@
+import React, { useState } from 'react'
+import { auth } from '../lib/supabase'
+
+export default function Auth({ onAuth }) {
+  const [mode, setMode] = useState('login') // login | signup
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async () => {
+    if (!email || !password) return setError('Email et mot de passe requis')
+    if (password.length < 6) return setError('Mot de passe : 6 caractères minimum')
+    
+    setLoading(true)
+    setError('')
+    
+    try {
+      const data = mode === 'login'
+        ? await auth.signIn(email, password)
+        : await auth.signUp(email, password)
+
+      if (data.error) {
+        setError(data.error_description || data.error || 'Erreur de connexion')
+      } else if (data.access_token) {
+        onAuth(data.user)
+      } else if (data.id && mode === 'signup') {
+        setError('Compte créé ! Vérifie ton email si la confirmation est activée, sinon connecte-toi.')
+        setMode('login')
+      }
+    } catch (e) {
+      setError(e.message || 'Erreur réseau')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    }}>
+      <div style={{ width: '100%', maxWidth: 380 }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: 22,
+            background: 'linear-gradient(135deg, #F7A072, #E8735A)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 36, boxShadow: '0 8px 32px rgba(232,115,90,0.25)',
+            marginBottom: 16,
+          }}>🎪</div>
+          <div style={{ fontSize: 28, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>STAGE STOCK</div>
+          <div style={{ fontSize: 11, color: '#B8A0AE', letterSpacing: 3, textTransform: 'uppercase', fontWeight: 700, marginTop: 4 }}>
+            WMS pour artistes
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="card" style={{ padding: 24 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 20, textAlign: 'center' }}>
+            {mode === 'login' ? 'Connexion' : 'Créer un compte'}
+          </h2>
+
+          {error && (
+            <div style={{
+              padding: 12, borderRadius: 12, background: '#FDF0F4',
+              border: '1px solid #F5C4BC', color: '#D4648A',
+              fontSize: 13, fontWeight: 600, marginBottom: 16,
+            }}>{error}</div>
+          )}
+
+          <div style={{ marginBottom: 14 }}>
+            <label className="label">Email</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="ton@email.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <label className="label">Mot de passe</label>
+            <input
+              className="input"
+              type="password"
+              placeholder="6 caractères minimum"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            />
+          </div>
+
+          <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+            {loading ? '⏳ Chargement...' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}
+          </button>
+
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <button
+              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError('') }}
+              style={{ fontSize: 13, color: '#E8735A', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              {mode === 'login' ? 'Pas encore de compte ? Créer' : 'Déjà un compte ? Se connecter'}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: '#C4A8B6' }}>
+          v8.0 — EK TOUR 25 ANS
+        </div>
+      </div>
+    </div>
+  )
+}
