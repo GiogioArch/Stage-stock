@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge } from './UI'
+import EventDetail from './EventDetail'
 
-export default function Board({ products, locations, stock, movements, alerts, events, onQuickAction, onNavigate }) {
+export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, onQuickAction, onNavigate, onReload, onToast }) {
+  const [selectedEvent, setSelectedEvent] = useState(null)
   // ─── KPI calculations ───
   const totalProducts = products.length
   const totalStock = stock.reduce((sum, s) => sum + (s.quantity || 0), 0)
@@ -26,9 +28,10 @@ export default function Board({ products, locations, stock, movements, alerts, e
   // Last 5 movements
   const recentMoves = movements.slice(0, 5)
 
-  // Next event
+  // Upcoming events
   const now = new Date().toISOString().split('T')[0]
-  const nextEvent = events.find(e => e.date >= now)
+  const upcomingEvents = events.filter(e => e.date >= now)
+  const nextEvent = upcomingEvents[0]
 
   // Product name helper
   const pName = (id) => products.find(p => p.id === id)?.name || '?'
@@ -46,7 +49,8 @@ export default function Board({ products, locations, stock, movements, alerts, e
 
       {/* Next Event */}
       {nextEvent && (
-        <div className="card" style={{ marginBottom: 16, borderLeft: '4px solid #E8735A' }}>
+        <div className="card" style={{ marginBottom: 16, borderLeft: '4px solid #E8735A', cursor: 'pointer' }}
+          onClick={() => setSelectedEvent(nextEvent)}>
           <div className="section-title">Prochain concert</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
@@ -59,6 +63,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
               <div style={{ fontSize: 13, fontWeight: 800, color: '#E8735A' }}>
                 {new Date(nextEvent.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
+              <div style={{ fontSize: 10, color: '#B8A0AE', marginTop: 2 }}>Voir fiche →</div>
             </div>
           </div>
         </div>
@@ -181,6 +186,53 @@ export default function Board({ products, locations, stock, movements, alerts, e
             )}
           </div>
         </>
+      )}
+
+      {/* Upcoming events */}
+      {upcomingEvents.length > 1 && (
+        <>
+          <div className="section-title" style={{ marginTop: 20 }}>Événements à venir</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {upcomingEvents.slice(1, 6).map(ev => {
+              const d = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
+              return (
+                <div key={ev.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', cursor: 'pointer' }}
+                  onClick={() => setSelectedEvent(ev)}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 12, background: '#E8735A15',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 900, color: '#E8735A', lineHeight: 1.1, textAlign: 'center',
+                  }}>
+                    {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {ev.name || ev.lieu}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#9A8B94' }}>{ev.ville} · {ev.format}</div>
+                  </div>
+                  <Badge color={d <= 7 ? '#E8935A' : '#5B8DB8'}>J-{d}</Badge>
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Event Detail Modal */}
+      {selectedEvent && (
+        <EventDetail
+          event={selectedEvent}
+          products={products}
+          stock={stock}
+          locations={locations}
+          families={families}
+          subfamilies={subfamilies}
+          checklists={checklists}
+          onClose={() => setSelectedEvent(null)}
+          onReload={onReload}
+          onToast={onToast}
+        />
       )}
     </div>
   )

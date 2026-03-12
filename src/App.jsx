@@ -200,8 +200,13 @@ export default function App() {
           movements={movements}
           alerts={alerts}
           events={events}
+          families={families}
+          subfamilies={subfamilies}
+          checklists={checklists}
           onQuickAction={(type) => setMoveModal({ type })}
           onNavigate={handleTabChange}
+          onReload={loadAll}
+          onToast={showToast}
         />
       )}
 
