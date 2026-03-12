@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { auth, db, safe } from './lib/supabase'
 import Auth from './components/Auth'
 import Board from './components/Board'
@@ -6,7 +6,8 @@ import Products from './components/Products'
 import Stocks from './components/Stocks'
 import Checklists from './components/Checklists'
 import MovementModal from './components/MovementModal'
-import { Toast, fmtDate } from './components/UI'
+import RolePicker, { ROLE_CONF } from './components/RolePicker'
+import { Toast } from './components/UI'
 
 // ─── Tab config ───
 const TABS = [
@@ -16,11 +17,18 @@ const TABS = [
   { id: 'checklists', icon: '✅', label: 'Checks' },
 ]
 
+// Admin role codes that see everything
+const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
+
 export default function App() {
   // ─── Auth state ───
   const [user, setUser] = useState(undefined) // undefined=checking, null=logged out, object=logged in
   const [tab, setTab] = useState('board')
   const [toast, setToast] = useState(null)
+
+  // ─── Role state ───
+  const [userRole, setUserRole] = useState(undefined) // undefined=loading, null=no role, object=role
+  const [userProfile, setUserProfile] = useState(null)
 
   // ─── Data state ───
   const [products, setProducts] = useState([])
@@ -71,6 +79,30 @@ export default function App() {
     })
   }, [])
 
+  // ─── Load user profile & role after auth ───
+  const loadUserProfile = useCallback(async (userId, rolesData) => {
+    try {
+      const profiles = await db.get('user_profiles', `user_id=eq.${userId}`)
+      if (profiles && profiles.length > 0) {
+        const profile = profiles[0]
+        setUserProfile(profile)
+        if (profile.role_id && rolesData && rolesData.length > 0) {
+          const role = rolesData.find(r => r.id === profile.role_id)
+          setUserRole(role || null)
+        } else {
+          setUserRole(null)
+        }
+      } else {
+        setUserProfile(null)
+        setUserRole(null)
+      }
+    } catch {
+      // If user_profiles table doesn't exist or query fails, no role
+      setUserProfile(null)
+      setUserRole(null)
+    }
+  }, [])
+
   // ─── Load all data ───
   const loadAll = useCallback(async () => {
     if (!user) return
@@ -100,12 +132,15 @@ export default function App() {
       setChecklists(cl)
       setRoles(ro)
       setEventPacking(ep)
+
+      // Load user profile after roles are available
+      await loadUserProfile(user.id, ro)
     } catch (e) {
       setError(e.message)
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [user, loadUserProfile])
 
   useEffect(() => {
     if (user) loadAll()
@@ -120,14 +155,48 @@ export default function App() {
     return () => clearInterval(interval)
   }, [user, loadAll, moveModal])
 
-  // ─── Compute alerts ───
-  const alerts = products.map(p => {
-    const totalStock = stock.filter(s => s.product_id === p.id).reduce((sum, s) => sum + (s.quantity || 0), 0)
+  // ─── Filtered data based on user role ───
+  const isAdmin = useMemo(() => {
+    if (!userRole) return true // No role = show all (fallback)
+    return ADMIN_CODES.includes(userRole.code)
+  }, [userRole])
+
+  const filteredProducts = useMemo(() => {
+    if (isAdmin || !userRole) return products
+    const subfamIds = userRole.subfamily_ids || []
+    if (subfamIds.length === 0) return products
+    return products.filter(p => {
+      // Include products whose subfamily_id is in the role's subfamily_ids
+      if (!p.subfamily_id) return false
+      return subfamIds.includes(p.subfamily_id)
+    })
+  }, [products, userRole, isAdmin])
+
+  const filteredStock = useMemo(() => {
+    if (isAdmin || !userRole) return stock
+    const filteredProductIds = new Set(filteredProducts.map(p => p.id))
+    return stock.filter(s => filteredProductIds.has(s.product_id))
+  }, [stock, filteredProducts, userRole, isAdmin])
+
+  const filteredMovements = useMemo(() => {
+    if (isAdmin || !userRole) return movements
+    const filteredProductIds = new Set(filteredProducts.map(p => p.id))
+    return movements.filter(m => filteredProductIds.has(m.product_id))
+  }, [movements, filteredProducts, userRole, isAdmin])
+
+  // ─── Compute alerts (based on filtered products) ───
+  const alerts = filteredProducts.map(p => {
+    const totalStock = filteredStock.filter(s => s.product_id === p.id).reduce((sum, s) => sum + (s.quantity || 0), 0)
     const minStock = p.min_stock || 5
     if (totalStock <= 0) return { ...p, currentStock: totalStock, minStock, level: 'rupture' }
     if (totalStock <= minStock) return { ...p, currentStock: totalStock, minStock, level: 'alerte' }
     return null
   }).filter(Boolean)
+
+  // ─── Handle role selected from picker ───
+  const handleRoleSelected = useCallback((role) => {
+    setUserRole(role)
+  }, [])
 
   // ─── Screens ───
 
@@ -157,6 +226,21 @@ export default function App() {
       </div>
     )
   }
+
+  // Role picker (no role assigned yet)
+  if (userRole === null && roles.length > 0) {
+    return (
+      <RolePicker
+        roles={roles}
+        userId={user.id}
+        onRoleSelected={handleRoleSelected}
+        onToast={showToast}
+      />
+    )
+  }
+
+  // Role badge info
+  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#9A8B94', label: userRole.name }) : null
 
   return (
     <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)', paddingBottom: 80 }}>
@@ -190,7 +274,20 @@ export default function App() {
               {alerts.filter(a => a.level === 'rupture').length} 🚨
             </button>
           )}
-          <button onClick={() => { auth.signOut(); setUser(null) }} style={{
+          {/* Role badge */}
+          {roleConf && (
+            <span style={{
+              padding: '5px 10px', borderRadius: 10,
+              background: `${roleConf.color}12`,
+              border: `1.5px solid ${roleConf.color}30`,
+              color: roleConf.color, fontSize: 11, fontWeight: 800,
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              <span style={{ fontSize: 14 }}>{roleConf.icon}</span>
+              {userRole.code}
+            </span>
+          )}
+          <button onClick={() => { auth.signOut(); setUser(null); setUserRole(undefined); setUserProfile(null) }} style={{
             width: 36, height: 36, borderRadius: 10, background: '#F8F0FA',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
           }}>🚪</button>
@@ -200,10 +297,10 @@ export default function App() {
       {/* ─── Tab Content ─── */}
       {tab === 'board' && (
         <Board
-          products={products}
+          products={filteredProducts}
           locations={locations}
-          stock={stock}
-          movements={movements}
+          stock={filteredStock}
+          movements={filteredMovements}
           alerts={alerts}
           events={events}
           families={families}
@@ -220,10 +317,10 @@ export default function App() {
 
       {tab === 'products' && (
         <Products
-          products={products}
+          products={filteredProducts}
           families={families}
           subfamilies={subfamilies}
-          stock={stock}
+          stock={filteredStock}
           locations={locations}
           onReload={loadAll}
           onToast={showToast}
@@ -232,9 +329,9 @@ export default function App() {
 
       {tab === 'stocks' && (
         <Stocks
-          products={products}
+          products={filteredProducts}
           locations={locations}
-          stock={stock}
+          stock={filteredStock}
           onReload={loadAll}
           onToast={showToast}
           onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
@@ -267,9 +364,9 @@ export default function App() {
       {moveModal && (
         <MovementModal
           type={moveModal.type}
-          products={products}
+          products={filteredProducts}
           locations={locations}
-          stock={stock}
+          stock={filteredStock}
           preselectedLocation={moveModal.preselectedLocation}
           onClose={() => setMoveModal(null)}
           onDone={() => { setMoveModal(null); loadAll() }}
