@@ -173,7 +173,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
               </div>
             ))}
             {alerts.length > 3 && (
-              <button onClick={() => onNavigate('alerts')} style={{
+              <button onClick={() => onNavigate('stocks')} style={{
                 fontSize: 13, fontWeight: 700, color: '#E8735A', padding: 8, textAlign: 'center',
               }}>
                 Voir les {alerts.length} alertes →

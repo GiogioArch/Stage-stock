@@ -1,6 +1,6 @@
 // ─── Supabase Configuration ───
 const SUPABASE_URL = 'https://domuweiczcimqncriykk.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvbXV3ZWljemNpbXFuY3JpeWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEzNzI5MTEsImV4cCI6MjA1Njk0ODkxMX0.yj4yaNzI4NTMyMTE'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvbXV3ZWljemNpbXFuY3JpeWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NTMyMTEsImV4cCI6MjA4ODQyOTIxMX0.fqkP4jYa1Q_Y6jQGDwSV_sAfQV0lkDQvgZI445Q-u30'
 
 // NOTE: If the key above stops working (401 errors), check INSTRUCTIONS-PROJET.md
 // The anon key starts with eyJ...NzI4NTMyMTE

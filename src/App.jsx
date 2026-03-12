@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { auth, db, safe } from './lib/supabase'
 import Auth from './components/Auth'
 import Board from './components/Board'
 import Products from './components/Products'
 import Stocks from './components/Stocks'
+import Checklists from './components/Checklists'
 import MovementModal from './components/MovementModal'
 import { Toast, fmtDate } from './components/UI'
 
@@ -12,6 +13,7 @@ const TABS = [
   { id: 'board', icon: '📊', label: 'Board' },
   { id: 'products', icon: '📦', label: 'Produits' },
   { id: 'stocks', icon: '🏭', label: 'Stocks' },
+  { id: 'checklists', icon: '✅', label: 'Checks' },
 ]
 
 export default function App() {
@@ -28,8 +30,29 @@ export default function App() {
   const [events, setEvents] = useState([])
   const [families, setFamilies] = useState([])
   const [subfamilies, setSubfamilies] = useState([])
+  const [checklists, setChecklists] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // ─── Scroll position per tab (BUG-009) ───
+  const scrollPositions = useRef({})
+  const handleTabChange = useCallback((newTab) => {
+    scrollPositions.current[tab] = window.scrollY
+    setTab(newTab)
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollPositions.current[newTab] || 0)
+    })
+  }, [tab])
+
+  // ─── Offline detection ───
+  const [offline, setOffline] = useState(!navigator.onLine)
+  useEffect(() => {
+    const on = () => setOffline(false)
+    const off = () => setOffline(true)
+    window.addEventListener('online', on)
+    window.addEventListener('offline', off)
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
+  }, [])
 
   // ─── Movement modal ───
   const [moveModal, setMoveModal] = useState(null) // null | {type, preselectedLocation?}
@@ -53,7 +76,7 @@ export default function App() {
     setError(null)
     try {
       // Each query in its own try/catch — resilient loading
-      const [p, l, s, m, e, f, sf] = await Promise.all([
+      const [p, l, s, m, e, f, sf, cl] = await Promise.all([
         safe('products', 'order=name.asc'),
         safe('locations', 'order=name.asc'),
         safe('stock'),
@@ -61,6 +84,7 @@ export default function App() {
         safe('events', 'order=date.asc'),
         safe('families', 'order=name.asc'),
         safe('subfamilies', 'order=name.asc'),
+        safe('checklists', 'order=category.asc,item.asc'),
       ])
       setProducts(p)
       setLocations(l)
@@ -69,6 +93,7 @@ export default function App() {
       setEvents(e)
       setFamilies(f)
       setSubfamilies(sf)
+      setChecklists(cl)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -80,12 +105,14 @@ export default function App() {
     if (user) loadAll()
   }, [user, loadAll])
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh every 30 seconds (skip if modal is open — BUG-008)
   useEffect(() => {
     if (!user) return
-    const interval = setInterval(loadAll, 30000)
+    const interval = setInterval(() => {
+      if (!moveModal) loadAll()
+    }, 30000)
     return () => clearInterval(interval)
-  }, [user, loadAll])
+  }, [user, loadAll, moveModal])
 
   // ─── Compute alerts ───
   const alerts = products.map(p => {
@@ -142,8 +169,14 @@ export default function App() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {offline && (
+            <span style={{
+              padding: '5px 10px', borderRadius: 10, background: '#FEF3CD',
+              border: '1.5px solid #F0D78C', color: '#856404', fontSize: 11, fontWeight: 800,
+            }}>Hors ligne</span>
+          )}
           {alerts.filter(a => a.level === 'rupture').length > 0 && (
-            <button onClick={() => setTab('board')} style={{
+            <button onClick={() => handleTabChange('board')} style={{
               padding: '5px 12px', borderRadius: 10, background: '#FDF0F4',
               border: '1.5px solid #F5C4BC', color: '#D4648A', fontSize: 11, fontWeight: 800,
               animation: 'pulse 2s infinite',
@@ -168,7 +201,7 @@ export default function App() {
           alerts={alerts}
           events={events}
           onQuickAction={(type) => setMoveModal({ type })}
-          onNavigate={setTab}
+          onNavigate={handleTabChange}
         />
       )}
 
@@ -195,10 +228,19 @@ export default function App() {
         />
       )}
 
+      {tab === 'checklists' && (
+        <Checklists
+          checklists={checklists}
+          events={events}
+          onReload={loadAll}
+          onToast={showToast}
+        />
+      )}
+
       {/* ─── Bottom Nav ─── */}
       <nav className="bottom-nav">
         {TABS.map(t => (
-          <button key={t.id} className={`nav-tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+          <button key={t.id} className={`nav-tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTabChange(t.id)}>
             <span className="nav-icon">{t.icon}</span>
             <span>{t.label}</span>
             {t.id === 'stocks' && alerts.length > 0 && (

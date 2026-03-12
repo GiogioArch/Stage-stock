@@ -246,6 +246,56 @@ function ProductDetail({ product, stock, locations, onClose, onEdit, onDelete })
         })}
       </div>
 
+      {/* Depreciation info */}
+      {product.cost_ht > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <div className="section-title">Comptabilité</div>
+          <div className="card" style={{ padding: '12px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 12, color: '#9A8B94' }}>Coût HT</span>
+              <span style={{ fontSize: 14, fontWeight: 800 }}>{product.cost_ht.toFixed(2)} €</span>
+            </div>
+            {product.purchase_date && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 12, color: '#9A8B94' }}>Achat</span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{new Date(product.purchase_date).toLocaleDateString('fr-FR')}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 12, color: '#9A8B94' }}>Régime</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: product.cost_ht >= 500 ? '#5B8DB8' : '#E8935A' }}>
+                {product.cost_ht >= 500 ? 'Immobilisation' : 'Charge'}
+              </span>
+            </div>
+            {product.cost_ht >= 500 && product.useful_life_months && product.purchase_date && (() => {
+              const months = product.useful_life_months
+              const monthsElapsed = Math.max(0,
+                (new Date().getFullYear() - new Date(product.purchase_date).getFullYear()) * 12
+                + new Date().getMonth() - new Date(product.purchase_date).getMonth()
+              )
+              const cumDepr = Math.min(product.cost_ht, (product.cost_ht / months) * monthsElapsed)
+              const nbv = Math.max(0, product.cost_ht - cumDepr)
+              const pct = Math.round((cumDepr / product.cost_ht) * 100)
+              return (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: 12, color: '#9A8B94' }}>Durée</span>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{months} mois ({Math.round(months/12)} ans)</span>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 3, background: '#F0E8E4', overflow: 'hidden', marginBottom: 6 }}>
+                    <div style={{ height: '100%', width: `${pct}%`, borderRadius: 3, background: 'linear-gradient(90deg, #5B8DB8, #5DAB8B)' }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 12, color: '#9A8B94' }}>VNC</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: nbv > 0 ? '#5DAB8B' : '#D4648A' }}>{nbv.toFixed(2)} € ({pct}% amorti)</span>
+                  </div>
+                </>
+              )
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* Actions */}
       <div style={{ display: 'flex', gap: 10 }}>
         <button className="btn-secondary" style={{ flex: 1 }} onClick={onEdit}>✏️ Modifier</button>
@@ -267,6 +317,9 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
   const [minStock, setMinStock] = useState(String(product?.min_stock ?? 5))
   const [variants, setVariants] = useState(product?.variants || '')
   const [image, setImage] = useState(product?.image || '')
+  const [costHt, setCostHt] = useState(product?.cost_ht != null ? String(product.cost_ht) : '')
+  const [purchaseDate, setPurchaseDate] = useState(product?.purchase_date || '')
+  const [usefulLife, setUsefulLife] = useState(product?.useful_life_months != null ? String(product.useful_life_months) : '')
 
   const availableSubfams = familyId ? subfamilies.filter(sf => sf.family_id === familyId) : []
 
@@ -282,6 +335,9 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
       min_stock: parseInt(minStock) || 5,
       variants: variants.trim(),
       image: image || '📦',
+      cost_ht: costHt ? parseFloat(costHt) : null,
+      purchase_date: purchaseDate || null,
+      useful_life_months: usefulLife ? parseInt(usefulLife) : null,
     })
   }
 
@@ -347,6 +403,40 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
         <div>
           <label className="label">Emoji / Image</label>
           <input className="input" value={image} onChange={e => setImage(e.target.value)} placeholder="👕 ou URL d'image" />
+        </div>
+
+        {/* Amortissement */}
+        <div style={{ borderTop: '1px solid #F0E8E4', paddingTop: 14, marginTop: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            Comptabilité
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div>
+              <label className="label">Coût HT (€)</label>
+              <input className="input" type="number" min="0" step="0.01" value={costHt}
+                onChange={e => setCostHt(e.target.value)} placeholder="0.00" />
+            </div>
+            <div>
+              <label className="label">Date d'achat</label>
+              <input className="input" type="date" value={purchaseDate}
+                onChange={e => setPurchaseDate(e.target.value)} />
+            </div>
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <label className="label">Durée amortissement (mois)</label>
+            <input className="input" type="number" min="0" step="1" value={usefulLife}
+              onChange={e => setUsefulLife(intOnly(e.target.value))} placeholder="Ex: 36 (3 ans)" />
+          </div>
+          {costHt && parseFloat(costHt) > 0 && parseFloat(costHt) < 500 && (
+            <div style={{ fontSize: 11, color: '#E8935A', marginTop: 6, fontWeight: 600 }}>
+              Sous le seuil de 500€ HT → comptabilisé en charge
+            </div>
+          )}
+          {costHt && parseFloat(costHt) >= 500 && !usefulLife && (
+            <div style={{ fontSize: 11, color: '#5B8DB8', marginTop: 6, fontWeight: 600 }}>
+              Immobilisation → renseigner la durée d'amortissement
+            </div>
+          )}
         </div>
 
         <button className="btn-primary" onClick={handleSave} disabled={!name.trim() || !sku.trim()}>
