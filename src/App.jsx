@@ -10,6 +10,7 @@ import Alerts from './components/Alerts'
 import Scanner from './components/Scanner'
 import MovementModal from './components/MovementModal'
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
+import Forecast from './components/Forecast'
 import { Toast } from './components/UI'
 
 // ─── Tab config (6 tabs now) ───
@@ -18,6 +19,7 @@ const TABS = [
   { id: 'products', icon: '📦', label: 'Produits' },
   { id: 'stocks', icon: '🏭', label: 'Stocks' },
   { id: 'movements', icon: '📋', label: 'Mouvements' },
+  { id: 'forecast', icon: '📈', label: 'Forecast' },
   { id: 'alerts', icon: '🔔', label: 'Alertes' },
   { id: 'checklists', icon: '✅', label: 'Checks' },
 ]
@@ -357,6 +359,15 @@ export default function App() {
           products={filteredProducts}
           locations={locations}
           onToast={showToast}
+        />
+      )}
+
+      {tab === 'forecast' && (
+        <Forecast
+          products={filteredProducts}
+          stock={filteredStock}
+          events={events}
+          locations={locations}
         />
       )}
 
