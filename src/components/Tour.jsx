@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import { Badge } from './UI'
+import { db } from '../lib/supabase'
+import { Modal, Confirm, Badge, intOnly } from './UI'
 import EventDetail from './EventDetail'
 
 const FORMAT_CONF = {
@@ -21,6 +22,8 @@ export default function Tour({ events, products, stock, locations, families, sub
   const [filter, setFilter] = useState('upcoming') // upcoming | past | all
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [search, setSearch] = useState('')
+  const [eventModal, setEventModal] = useState(null) // null | {type:'add'} | {type:'edit', event}
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -87,6 +90,8 @@ export default function Tour({ events, products, stock, locations, families, sub
         onReload={onReload}
         onToast={onToast}
         onNavigateEvent={(ev) => setSelectedEvent(ev)}
+        onEdit={(ev) => { setSelectedEvent(null); setEventModal({ type: 'edit', event: ev }) }}
+        onDelete={(ev) => setConfirmDelete(ev)}
       />
     )
   }
@@ -188,6 +193,13 @@ export default function Tour({ events, products, stock, locations, families, sub
           }}>{f.label}</button>
         ))}
       </div>
+
+      {/* Add event button */}
+      <button onClick={() => setEventModal({ type: 'add' })} style={{
+        width: '100%', padding: '12px 16px', borderRadius: 14, marginBottom: 16,
+        background: 'white', border: '1.5px dashed #E8735A40', cursor: 'pointer',
+        fontSize: 13, fontWeight: 700, color: '#E8735A',
+      }}>+ Ajouter un événement</button>
 
       {/* Event list grouped by month */}
       {filteredEvents.length === 0 ? (
@@ -325,6 +337,40 @@ export default function Tour({ events, products, stock, locations, families, sub
           </div>
         ))
       )}
+      {/* Event form modal */}
+      {eventModal && (
+        <EventFormModal
+          event={eventModal.type === 'edit' ? eventModal.event : null}
+          orgId={orgId}
+          onClose={() => setEventModal(null)}
+          onSave={() => { setEventModal(null); onReload() }}
+          onToast={onToast}
+        />
+      )}
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <Confirm
+          message="Supprimer cet événement ?"
+          detail={`${confirmDelete.name || confirmDelete.lieu} — ${new Date(confirmDelete.date).toLocaleDateString('fr-FR')}`}
+          confirmLabel="Supprimer"
+          confirmColor="#D4648A"
+          onConfirm={async () => {
+            try {
+              await db.delete('event_packing', `event_id=eq.${confirmDelete.id}`)
+              await db.delete('checklists', `event_id=eq.${confirmDelete.id}`)
+              await db.delete('events', `id=eq.${confirmDelete.id}`)
+              onToast('Événement supprimé')
+              setConfirmDelete(null)
+              setSelectedEvent(null)
+              onReload()
+            } catch (e) {
+              onToast('Erreur: ' + e.message, '#D4648A')
+            }
+          }}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
     </div>
   )
 }
@@ -357,5 +403,109 @@ function ProgressMini({ label, done, total, color }) {
         }} />
       </div>
     </div>
+  )
+}
+
+// ─── Event Form Modal (Add/Edit) ───
+const FORMATS = ['concert live', 'sound system', 'impro', 'festival', 'showcase']
+const TERRITOIRES = ['martinique', 'guadeloupe', 'guyane', 'reunion']
+
+function EventFormModal({ event, orgId, onClose, onSave, onToast }) {
+  const [name, setName] = useState(event?.name || '')
+  const [date, setDate] = useState(event?.date || '')
+  const [lieu, setLieu] = useState(event?.lieu || '')
+  const [ville, setVille] = useState(event?.ville || '')
+  const [territoire, setTerritoire] = useState(event?.territoire || 'martinique')
+  const [format, setFormat] = useState(event?.format || 'concert live')
+  const [capacite, setCapacite] = useState(event?.capacite?.toString() || '')
+  const [transport, setTransport] = useState(event?.transport_inter_iles || false)
+  const [notes, setNotes] = useState(event?.notes || '')
+  const [saving, setSaving] = useState(false)
+
+  const canSave = name.trim() && date && lieu.trim() && ville.trim()
+
+  const handleSave = async () => {
+    if (!canSave) return
+    setSaving(true)
+    try {
+      const data = {
+        name: name.trim(),
+        date,
+        lieu: lieu.trim(),
+        ville: ville.trim(),
+        territoire,
+        format,
+        capacite: parseInt(capacite) || null,
+        transport_inter_iles: transport,
+        notes: notes.trim() || null,
+        org_id: orgId,
+      }
+      if (event) {
+        await db.update('events', `id=eq.${event.id}`, data)
+        onToast('Événement modifié')
+      } else {
+        await db.insert('events', data)
+        onToast('Événement ajouté')
+      }
+      onSave()
+    } catch (e) {
+      onToast('Erreur: ' + e.message, '#D4648A')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal title={event ? 'Modifier l\'événement' : 'Nouvel événement'} onClose={onClose}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>
+          <label className="label">Nom *</label>
+          <input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="Triple 8 Ducos" />
+        </div>
+        <div>
+          <label className="label">Date *</label>
+          <input className="input" type="date" value={date} onChange={e => setDate(e.target.value)} />
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ flex: 1 }}>
+            <label className="label">Lieu *</label>
+            <input className="input" value={lieu} onChange={e => setLieu(e.target.value)} placeholder="Salle Triple 8" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label className="label">Ville *</label>
+            <input className="input" value={ville} onChange={e => setVille(e.target.value)} placeholder="Ducos" />
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ flex: 1 }}>
+            <label className="label">Territoire</label>
+            <select className="input" value={territoire} onChange={e => setTerritoire(e.target.value)}>
+              {TERRITOIRES.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+            </select>
+          </div>
+          <div style={{ flex: 1 }}>
+            <label className="label">Format</label>
+            <select className="input" value={format} onChange={e => setFormat(e.target.value)}>
+              {FORMATS.map(f => <option key={f} value={f}>{f.charAt(0).toUpperCase() + f.slice(1)}</option>)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label className="label">Capacité (pers.)</label>
+          <input className="input" type="number" value={capacite} onChange={e => setCapacite(intOnly(e.target.value))} placeholder="500" />
+        </div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#3D3042', fontWeight: 600, cursor: 'pointer' }}>
+          <input type="checkbox" checked={transport} onChange={e => setTransport(e.target.checked)} />
+          Transport inter-îles
+        </label>
+        <div>
+          <label className="label">Notes</label>
+          <textarea className="input" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Infos supplémentaires..." rows={2} style={{ resize: 'vertical' }} />
+        </div>
+        <button className="btn-primary" onClick={handleSave} disabled={!canSave || saving}>
+          {saving ? '⏳...' : event ? 'Enregistrer' : 'Créer l\'événement'}
+        </button>
+      </div>
+    </Modal>
   )
 }

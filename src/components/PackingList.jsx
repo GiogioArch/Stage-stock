@@ -63,6 +63,54 @@ export default function PackingList({ event, products, stock, locations, roles, 
     }
   }, [event.id, onReload, onToast])
 
+  // Print / export packing list
+  const handlePrint = useCallback(() => {
+    const roleEntries = Object.entries(groupedByRole)
+    const dateStr = new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Packing - ${event.name || event.lieu}</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 20px; color: #333; font-size: 12px; }
+      h1 { font-size: 18px; margin-bottom: 4px; }
+      h2 { font-size: 14px; margin: 16px 0 6px; border-bottom: 2px solid #E8735A; padding-bottom: 4px; }
+      .sub { color: #888; font-size: 11px; margin-bottom: 16px; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+      th { text-align: left; font-size: 10px; text-transform: uppercase; color: #888; border-bottom: 1px solid #ccc; padding: 4px 6px; }
+      td { padding: 4px 6px; border-bottom: 1px solid #eee; }
+      .check { width: 20px; text-align: center; }
+      .qty { text-align: right; width: 50px; }
+      .shortage { color: #D4648A; font-weight: bold; }
+      @media print { body { padding: 0; } }
+    </style></head><body>`
+    html += `<h1>Packing List — ${event.name || event.lieu}</h1>`
+    html += `<div class="sub">${dateStr} · ${event.lieu} · ${event.ville} (${event.territoire}) · ${event.format} · ${event.capacite || '?'} pers.</div>`
+
+    roleEntries.forEach(([role, items]) => {
+      const rc = ROLE_CONF[role] || { label: role }
+      const done = items.filter(i => i.packed).length
+      html += `<h2>${rc.label || role} (${done}/${items.length})</h2>`
+      html += `<table><tr><th class="check">OK</th><th>Produit</th><th class="qty">Besoin</th><th class="qty">Préparé</th><th class="qty">Manque</th></tr>`
+      items.forEach(item => {
+        const p = products.find(pr => pr.id === item.product_id)
+        html += `<tr>
+          <td class="check">${item.packed ? '✓' : '☐'}</td>
+          <td>${p?.name || '?'}</td>
+          <td class="qty">${item.quantity_needed}</td>
+          <td class="qty">${item.quantity_packed}</td>
+          <td class="qty ${item.shortage > 0 ? 'shortage' : ''}">${item.shortage > 0 ? '-' + item.shortage : '—'}</td>
+        </tr>`
+      })
+      html += `</table>`
+    })
+
+    html += `<div style="margin-top:20px;font-size:10px;color:#aaa">Généré le ${new Date().toLocaleDateString('fr-FR')} — Stage Stock</div></body></html>`
+
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write(html)
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
+  }, [event, groupedByRole, products])
+
   // Toggle packed status
   const togglePacked = useCallback(async (item) => {
     const newPacked = !item.packed
@@ -169,6 +217,19 @@ export default function PackingList({ event, products, stock, locations, roles, 
               : 'linear-gradient(90deg, #E8735A, #D4648A)',
           }} />
         </div>
+      </div>
+
+      {/* Print / regenerate buttons */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+        <button onClick={handlePrint} style={{
+          flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
+          background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+        }}>🖨️ Imprimer / PDF</button>
+        <button onClick={handleGenerate} disabled={generating} style={{
+          flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
+          background: '#FDF0F4', border: '1.5px solid #D4648A30', color: '#D4648A', cursor: 'pointer',
+          opacity: generating ? 0.5 : 1,
+        }}>{generating ? '⏳...' : '🔄 Recalculer'}</button>
       </div>
 
       {/* Shortage warning */}

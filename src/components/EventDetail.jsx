@@ -47,7 +47,7 @@ const SECTIONS = [
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
   checklists, roles, eventPacking, userProfiles, userRole, orgId,
-  onClose, onReload, onToast, onNavigateEvent,
+  onClose, onReload, onToast, onNavigateEvent, onEdit, onDelete,
 }) {
   const [section, setSection] = useState('resume')
 
@@ -115,6 +115,20 @@ export default function EventDetail({
         <Badge color={isPast ? '#B8A0AE' : daysUntil <= 3 ? '#D4648A' : daysUntil <= 7 ? '#E8935A' : '#5DAB8B'}>
           {isPast ? 'Terminé' : daysUntil === 0 ? "Aujourd'hui" : `J-${daysUntil}`}
         </Badge>
+        {onEdit && (
+          <button onClick={() => onEdit(event)} style={{
+            width: 36, height: 36, borderRadius: 10, background: '#EEF4FA',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 14, cursor: 'pointer', border: '1px solid #5B8DB830',
+          }}>✏️</button>
+        )}
+        {onDelete && (
+          <button onClick={() => onDelete(event)} style={{
+            width: 36, height: 36, borderRadius: 10, background: '#FDF0F4',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 14, cursor: 'pointer', border: '1px solid #F5C4BC',
+          }}>🗑️</button>
+        )}
       </div>
 
       {/* ─── Event hero ─── */}
