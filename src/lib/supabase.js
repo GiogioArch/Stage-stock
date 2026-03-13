@@ -83,6 +83,18 @@ export const auth = {
     }
   },
 
+  async resetPassword(email) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+    if (!res.ok) {
+      const data = await res.json()
+      throw new Error(data.error_description || data.msg || 'Erreur')
+    }
+  },
+
   async refresh() {
     const rt = localStorage.getItem('sb_refresh')
     if (!rt) return false

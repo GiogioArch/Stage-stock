@@ -2,19 +2,37 @@ import React, { useState } from 'react'
 import { auth } from '../lib/supabase'
 
 export default function Auth({ onAuth }) {
-  const [mode, setMode] = useState('login') // login | signup
+  const [mode, setMode] = useState('login') // login | signup | forgot
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const handleSubmit = async () => {
+    if (mode === 'forgot') {
+      if (!email) return setError('Email requis')
+      setLoading(true)
+      setError('')
+      setSuccess('')
+      try {
+        await auth.resetPassword(email)
+        setSuccess('Email de réinitialisation envoyé ! Vérifie ta boîte mail.')
+      } catch (e) {
+        setError(e.message || 'Erreur réseau')
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
     if (!email || !password) return setError('Email et mot de passe requis')
     if (password.length < 6) return setError('Mot de passe : 6 caractères minimum')
-    
+
     setLoading(true)
     setError('')
-    
+    setSuccess('')
+
     try {
       const data = mode === 'login'
         ? await auth.signIn(email, password)
@@ -25,7 +43,7 @@ export default function Auth({ onAuth }) {
       } else if (data.access_token) {
         onAuth(data.user)
       } else if (data.id && mode === 'signup') {
-        setError('Compte créé ! Vérifie ton email si la confirmation est activée, sinon connecte-toi.')
+        setSuccess('Compte créé ! Vérifie ton email si la confirmation est activée, sinon connecte-toi.')
         setMode('login')
       }
     } catch (e) {
@@ -63,7 +81,7 @@ export default function Auth({ onAuth }) {
         {/* Form */}
         <div className="card" style={{ padding: 24 }}>
           <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 20, textAlign: 'center' }}>
-            {mode === 'login' ? 'Connexion' : 'Créer un compte'}
+            {mode === 'forgot' ? 'Mot de passe oublié' : mode === 'login' ? 'Connexion' : 'Créer un compte'}
           </h2>
 
           {error && (
@@ -72,6 +90,14 @@ export default function Auth({ onAuth }) {
               border: '1px solid #F5C4BC', color: '#D4648A',
               fontSize: 13, fontWeight: 600, marginBottom: 16,
             }}>{error}</div>
+          )}
+
+          {success && (
+            <div style={{
+              padding: 12, borderRadius: 12, background: '#F0FAF4',
+              border: '1px solid #B8E0C8', color: '#5DAB8B',
+              fontSize: 13, fontWeight: 600, marginBottom: 16,
+            }}>{success}</div>
           )}
 
           <div style={{ marginBottom: 14 }}>
@@ -86,35 +112,45 @@ export default function Auth({ onAuth }) {
             />
           </div>
 
-          <div style={{ marginBottom: 20 }}>
-            <label className="label">Mot de passe</label>
-            <input
-              className="input"
-              type="password"
-              placeholder="6 caractères minimum"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            />
-          </div>
+          {mode !== 'forgot' && (
+            <div style={{ marginBottom: 20 }}>
+              <label className="label">Mot de passe</label>
+              <input
+                className="input"
+                type="password"
+                placeholder="6 caractères minimum"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              />
+            </div>
+          )}
 
           <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? '⏳ Chargement...' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}
+            {loading ? '⏳ Chargement...' : mode === 'forgot' ? 'Envoyer le lien' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}
           </button>
 
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <div style={{ textAlign: 'center', marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {mode === 'login' && (
+              <button
+                onClick={() => { setMode('forgot'); setError(''); setSuccess('') }}
+                style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                Mot de passe oublié ?
+              </button>
+            )}
             <button
-              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError('') }}
+              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess('') }}
               style={{ fontSize: 13, color: '#E8735A', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              {mode === 'login' ? 'Pas encore de compte ? Créer' : 'Déjà un compte ? Se connecter'}
+              {mode === 'forgot' ? 'Retour à la connexion' : mode === 'login' ? 'Pas encore de compte ? Créer' : 'Déjà un compte ? Se connecter'}
             </button>
           </div>
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: '#C4A8B6' }}>
-          v8.0 — EK TOUR 25 ANS
+          v10.2 — EK TOUR 25 ANS
         </div>
       </div>
     </div>
