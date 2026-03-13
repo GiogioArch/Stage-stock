@@ -118,6 +118,19 @@ export const auth = {
   },
 }
 
+// ─── Network helpers ───
+async function fetchWithRetry(url, options, retries = 2) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      if (!navigator.onLine) throw new Error('Pas de connexion internet')
+      return await fetch(url, options)
+    } catch (e) {
+      if (i === retries) throw new Error(e.message === 'Failed to fetch' ? 'Erreur réseau — vérifie ta connexion' : e.message)
+      await new Promise(r => setTimeout(r, 1000 * (i + 1)))
+    }
+  }
+}
+
 // ─── Database (safe wrappers) ───
 // Every call is individually try/caught — no Promise.all that fails as a block
 
@@ -138,12 +151,12 @@ async function handleResponse(res) {
 export const db = {
   async get(table, query = '') {
     const url = `${SUPABASE_URL}/rest/v1/${table}${query ? '?' + query : ''}`
-    let res = await fetch(url, { headers: headers() })
+    let res = await fetchWithRetry(url, { headers: headers() })
     try {
       return await handleResponse(res)
     } catch (e) {
       if (e.message === 'RETRY') {
-        res = await fetch(url, { headers: headers() })
+        res = await fetchWithRetry(url, { headers: headers() }, 0)
         return await handleResponse(res)
       }
       throw e
@@ -151,7 +164,7 @@ export const db = {
   },
 
   async insert(table, data) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    const res = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/${table}`, {
       method: 'POST',
       headers: { ...headers(), 'Prefer': 'return=representation' },
       body: JSON.stringify(data),
@@ -160,7 +173,7 @@ export const db = {
   },
 
   async update(table, match, data) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${match}`, {
+    const res = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/${table}?${match}`, {
       method: 'PATCH',
       headers: { ...headers(), 'Prefer': 'return=representation' },
       body: JSON.stringify(data),
@@ -169,7 +182,7 @@ export const db = {
   },
 
   async upsert(table, data) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    const res = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/${table}`, {
       method: 'POST',
       headers: { ...headers(), 'Prefer': 'return=representation,resolution=merge-duplicates' },
       body: JSON.stringify(data),
@@ -178,7 +191,7 @@ export const db = {
   },
 
   async delete(table, match) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${match}`, {
+    const res = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/${table}?${match}`, {
       method: 'DELETE',
       headers: headers(),
     })
@@ -186,7 +199,7 @@ export const db = {
   },
 
   async rpc(fn, params = {}) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    const res = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
       method: 'POST',
       headers: headers(),
       body: JSON.stringify(params),
