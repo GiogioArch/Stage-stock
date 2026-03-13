@@ -110,24 +110,29 @@ export default function ProfilePage({
     }
   }
 
+  // inline = rendered as a tab (no fixed overlay)
+  const inline = !selectedOrg && !membership
+
   // ─── Render ───
   return (
-    <div style={{
+    <div style={inline ? {} : {
       position: 'fixed', inset: 0, zIndex: 1000,
       background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
       overflow: 'auto',
     }}>
-      {/* Header */}
-      <header style={{
-        padding: '16px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <button onClick={onClose} style={{
-          padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 800,
-          background: 'white', border: '1.5px solid #E8DED8', color: '#9A8B94', cursor: 'pointer',
-        }}>← Retour</button>
-        <div style={{ fontSize: 15, fontWeight: 900, color: '#9B7DC4' }}>Mon profil</div>
-        <div style={{ width: 80 }} />
-      </header>
+      {/* Header — only show back button when overlay */}
+      {!inline && (
+        <header style={{
+          padding: '16px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <button onClick={onClose} style={{
+            padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 800,
+            background: 'white', border: '1.5px solid #E8DED8', color: '#9A8B94', cursor: 'pointer',
+          }}>← Retour</button>
+          <div style={{ fontSize: 15, fontWeight: 900, color: '#9B7DC4' }}>Mon profil</div>
+          <div style={{ width: 80 }} />
+        </header>
+      )}
 
       {/* Avatar + name banner */}
       <div style={{ textAlign: 'center', padding: '20px 16px 8px' }}>
@@ -198,22 +203,24 @@ export default function ProfilePage({
         {tab === 'finances' && <PlaceholderTab icon="💰" title="Mes finances" desc="Suivi des cachets, factures, notes de frais et revenus." />}
       </div>
 
-      {/* Bottom actions */}
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
-        padding: '12px 16px', display: 'flex', gap: 8,
-        background: 'linear-gradient(180deg, transparent 0%, #FFF8F0 30%)',
-        paddingTop: 24,
-      }}>
-        <button onClick={onSwitchProject} style={{
-          flex: 1, padding: '12px 8px', borderRadius: 14, fontSize: 12, fontWeight: 700,
-          background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
-        }}>🔄 Changer projet</button>
-        <button onClick={() => { onClose(); onLogout() }} style={{
-          flex: 1, padding: '12px 8px', borderRadius: 14, fontSize: 12, fontWeight: 700,
-          background: '#FDF0F4', border: '1.5px solid #D4648A30', color: '#D4648A', cursor: 'pointer',
-        }}>🚪 Déconnexion</button>
-      </div>
+      {/* Bottom actions — only in overlay mode */}
+      {!inline && (
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0,
+          padding: '12px 16px', display: 'flex', gap: 8,
+          background: 'linear-gradient(180deg, transparent 0%, #FFF8F0 30%)',
+          paddingTop: 24,
+        }}>
+          <button onClick={onSwitchProject} style={{
+            flex: 1, padding: '12px 8px', borderRadius: 14, fontSize: 12, fontWeight: 700,
+            background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+          }}>🔄 Changer projet</button>
+          <button onClick={() => { onClose(); onLogout() }} style={{
+            flex: 1, padding: '12px 8px', borderRadius: 14, fontSize: 12, fontWeight: 700,
+            background: '#FDF0F4', border: '1.5px solid #D4648A30', color: '#D4648A', cursor: 'pointer',
+          }}>🚪 Déconnexion</button>
+        </div>
+      )}
     </div>
   )
 }

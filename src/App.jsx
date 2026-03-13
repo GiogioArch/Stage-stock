@@ -4,7 +4,6 @@ import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, get
 
 // ─── Components ───
 import Auth from './components/Auth'
-import ProjectPicker from './components/ProjectPicker'
 import Board from './components/Board'
 import Products from './components/Products'
 import Stocks from './components/Stocks'
@@ -21,12 +20,22 @@ import Finance from './components/Finance'
 import Forecast from './components/Forecast'
 import Settings from './modules/Settings'
 import ProfilePage from './components/ProfilePage'
+import PersonalDashboard from './components/PersonalDashboard'
+import MyProjects from './components/MyProjects'
 import Landing from './components/Landing'
 import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
 
 // Admin role codes that see everything
 const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
+
+// Personal layer tabs
+const PERSONAL_TABS = [
+  { id: 'home', label: 'Accueil', icon: '🏠' },
+  { id: 'projects', label: 'Projets', icon: '📁' },
+  { id: 'calendar', label: 'Calendrier', icon: '📅' },
+  { id: 'profile', label: 'Profil', icon: '👤' },
+]
 
 export default function App() {
   // ─── Auth state ───
@@ -35,18 +44,26 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false)
   const [legalPage, setLegalPage] = useState(null) // 'cgu' | 'privacy' | null
 
+  // ─── Layer navigation: 'personal' (couche 2) | 'project' (couche 3) ───
+  const [layer, setLayer] = useState('personal')
+  const [personalTab, setPersonalTab] = useState('home')
+
+  // ─── Personal layer data ───
+  const [allProjects, setAllProjects] = useState([])
+  const [userDetails, setUserDetails] = useState(null)
+  const [personalLoading, setPersonalLoading] = useState(true)
+
   // ─── Module state ───
   const [activeModuleIds, setActiveModules] = useState(getActiveModuleIds)
   const [tab, setTab] = useState('board')
 
-  // ─── Project state ───
-  const [membership, setMembership] = useState(undefined) // current project_members record
+  // ─── Project state (couche 3) ───
+  const [membership, setMembership] = useState(undefined)
   const [selectedOrg, setSelectedOrg] = useState(null)
 
   // ─── Role state ───
   const [userRole, setUserRole] = useState(undefined)
   const [userProfile, setUserProfile] = useState(null)
-  const [userDetails, setUserDetails] = useState(null)
 
   // ─── Data state (flat store — modules pull what they need) ───
   const [data, setData] = useState({
@@ -64,7 +81,6 @@ export default function App() {
   // ─── Scanner & modal state ───
   const [showScanner, setShowScanner] = useState(false)
   const [moveModal, setMoveModal] = useState(null)
-  const [showProfile, setShowProfile] = useState(false)
 
   // ─── Offline ───
   const [offline, setOffline] = useState(!navigator.onLine)
@@ -98,15 +114,60 @@ export default function App() {
     setToast({ message, color: color || '#5DAB8B' })
   }, [])
 
+  // ─── Auth check ───
+  useEffect(() => {
+    auth.getUser().then(u => setUser(u || null))
+  }, [])
+
+  // ═══════════════════════════════════════════════
+  // COUCHE 2 — Personal layer data loading
+  // ═══════════════════════════════════════════════
+
+  const loadPersonalData = useCallback(async () => {
+    if (!user) return
+    setPersonalLoading(true)
+    try {
+      // Load projects (memberships enriched with org)
+      const memberships = await safe('project_members', `user_id=eq.${user.id}&status=neq.disabled`)
+      let enriched = []
+      try {
+        const orgs = await db.get('organizations')
+        const orgMap = {}
+        ;(orgs || []).forEach(o => { orgMap[o.id] = o })
+        enriched = (memberships || []).map(m => ({ ...m, org: orgMap[m.org_id] || { name: 'Projet', slug: 'default' } }))
+      } catch {
+        enriched = (memberships || []).map(m => ({ ...m, org: { name: 'Projet', slug: 'default' } }))
+      }
+      setAllProjects(enriched)
+
+      // Load user_details
+      try {
+        const detailsRows = await safe('user_details', `user_id=eq.${user.id}`)
+        setUserDetails(detailsRows && detailsRows.length > 0 ? detailsRows[0] : null)
+      } catch { setUserDetails(null) }
+    } catch {
+      setAllProjects([])
+      setUserDetails(null)
+    } finally {
+      setPersonalLoading(false)
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (user) loadPersonalData()
+  }, [user, loadPersonalData])
+
+  // ═══════════════════════════════════════════════
+  // COUCHE 3 — Project layer
+  // ═══════════════════════════════════════════════
+
   // ─── Active tabs from registry (filtered by user's module_access) ───
   const tabs = useMemo(() => {
     const moduleTabs = getActiveTabs(activeModuleIds)
-    // If membership has module_access, filter tabs to only those the user can see
     const allowedModules = membership?.module_access
     const filtered = allowedModules
       ? moduleTabs.filter(t => allowedModules.includes(t.moduleId || t.id))
       : moduleTabs
-    // Always add settings tab at the end (admin only) or if user is admin
     const result = [...filtered]
     if (!allowedModules || membership?.is_admin) {
       result.push({ id: 'settings', label: 'Réglages', icon: '⚙️', moduleId: 'settings' })
@@ -116,21 +177,16 @@ export default function App() {
 
   // ─── Ensure current tab is valid when modules change ───
   useEffect(() => {
-    if (!tabs.find(t => t.id === tab)) {
+    if (layer === 'project' && !tabs.find(t => t.id === tab)) {
       setTab('board')
     }
-  }, [tabs, tab])
+  }, [tabs, tab, layer])
 
   // ─── Required tables based on active modules ───
   const requiredTables = useMemo(() =>
     getRequiredTables(activeModuleIds),
     [activeModuleIds]
   )
-
-  // ─── Auth check ───
-  useEffect(() => {
-    auth.getUser().then(u => setUser(u || null))
-  }, [])
 
   // ─── Load user profile & role ───
   const loadUserProfile = useCallback(async (userId, rolesData) => {
@@ -154,17 +210,15 @@ export default function App() {
     }
   }, [])
 
-  // ─── Load data (only tables required by active modules) ───
+  // ─── Load project data (only tables required by active modules) ───
   const loadAll = useCallback(async () => {
     if (!user || !selectedOrg) return
     setLoading(true)
     setError(null)
     try {
       const tableEntries = Object.entries(requiredTables)
-      // Also load project_members for this org
       const [mainResults, members] = await Promise.all([
         Promise.all(tableEntries.map(([table, query]) => {
-          // Filter all tables by org_id (except roles/views which are global)
           if (table === 'roles' || table === 'product_depreciation') return safe(table, query)
           const orgFilter = `org_id=eq.${selectedOrg.id}`
           const combined = query ? `${orgFilter}&${query}` : orgFilter
@@ -178,16 +232,14 @@ export default function App() {
         return next
       })
 
-      // Update membership record (in case admin changed it)
       const myMembership = members.find(m => m.user_id === user.id)
       if (myMembership) setMembership(myMembership)
 
-      // Load user profile — find roles in results
       const rolesIdx = tableEntries.findIndex(([t]) => t === 'roles')
       const rolesData = rolesIdx >= 0 ? mainResults[rolesIdx] : []
       await loadUserProfile(user.id, rolesData)
 
-      // Load user_details (personal profile)
+      // Also refresh user_details
       try {
         const detailsRows = await safe('user_details', `user_id=eq.${user.id}`)
         setUserDetails(detailsRows && detailsRows.length > 0 ? detailsRows[0] : null)
@@ -203,14 +255,14 @@ export default function App() {
     if (user && selectedOrg) loadAll()
   }, [user, selectedOrg, loadAll])
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh every 30 seconds (project layer only)
   useEffect(() => {
-    if (!user) return
+    if (!user || layer !== 'project') return
     const interval = setInterval(() => {
       if (!moveModal && !showScanner) loadAll()
     }, 30000)
     return () => clearInterval(interval)
-  }, [user, loadAll, moveModal, showScanner])
+  }, [user, layer, loadAll, moveModal, showScanner])
 
   // ─── Filtered data based on user role ───
   const isAdmin = useMemo(() => {
@@ -260,13 +312,44 @@ export default function App() {
     [activeModuleIds]
   )
 
-  // ─── Screens ───
-
-  // ─── Project selection handler ───
-  const handleProjectSelected = useCallback((projectMembership) => {
+  // ─── Enter a project (couche 2 → couche 3) ───
+  const enterProject = useCallback((projectMembership) => {
     setMembership(projectMembership)
     setSelectedOrg(projectMembership.org)
+    setLayer('project')
+    setTab('board')
+    setUserRole(undefined) // will be loaded by loadAll
   }, [])
+
+  // ─── Return to personal layer (couche 3 → couche 2) ───
+  const backToPersonal = useCallback(() => {
+    setLayer('personal')
+    setSelectedOrg(null)
+    setMembership(undefined)
+    setShowScanner(false)
+    setMoveModal(null)
+    window.scrollTo(0, 0)
+    // Refresh personal data
+    loadPersonalData()
+  }, [loadPersonalData])
+
+  // ─── Logout ───
+  const handleLogout = useCallback(() => {
+    auth.signOut()
+    setUser(null)
+    setUserRole(undefined)
+    setUserProfile(null)
+    setUserDetails(null)
+    setMembership(undefined)
+    setSelectedOrg(null)
+    setAllProjects([])
+    setLayer('personal')
+    setPersonalTab('home')
+  }, [])
+
+  // ═══════════════════════════════════════════════
+  // ROUTING
+  // ═══════════════════════════════════════════════
 
   if (user === undefined) return <SplashScreen text="Vérification..." />
 
@@ -279,13 +362,121 @@ export default function App() {
     if (showAuth) return <Auth onAuth={(u) => setUser(u)} onBack={() => setShowAuth(false)} />
     return <Landing onGetStarted={() => setShowAuth(true)} />
   }
-  if (user && !selectedOrg) return (
-    <ProjectPicker
-      userId={user.id}
-      onProjectSelected={handleProjectSelected}
-      onToast={showToast}
-    />
-  )
+
+  // Loading personal data
+  if (personalLoading && allProjects.length === 0) return <SplashScreen text="Chargement..." />
+
+  // ═══════════════════════════════════════════════
+  // COUCHE 2 — Espace personnel
+  // ═══════════════════════════════════════════════
+  if (layer === 'personal') {
+    return (
+      <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)', paddingBottom: 80 }}>
+        {/* Header */}
+        <header style={{ padding: '16px 18px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+            <div style={{
+              width: 42, height: 42, borderRadius: 14,
+              background: 'linear-gradient(135deg, #F7A072, #E8735A)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 22, boxShadow: '0 4px 16px rgba(232,115,90,0.25)',
+            }}>🎪</div>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>STAGE STOCK</div>
+              <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>
+                Mon espace
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {offline && (
+              <span style={{
+                padding: '5px 10px', borderRadius: 10, background: '#FEF3CD',
+                border: '1.5px solid #F0D78C', color: '#856404', fontSize: 11, fontWeight: 800,
+              }}>Hors ligne</span>
+            )}
+            <button onClick={handleLogout} style={{
+              width: 36, height: 36, borderRadius: 10, background: '#FDF0F4',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer',
+              border: '1.5px solid #D4648A30',
+            }}>🚪</button>
+          </div>
+        </header>
+
+        {/* Personal tab content */}
+        {personalTab === 'home' && (
+          <PersonalDashboard
+            user={user}
+            userDetails={userDetails}
+            allProjects={allProjects}
+            onOpenProject={enterProject}
+            onNavigate={setPersonalTab}
+            onToast={showToast}
+          />
+        )}
+        {personalTab === 'projects' && (
+          <MyProjects
+            userId={user.id}
+            allProjects={allProjects}
+            onOpenProject={enterProject}
+            onProjectsChanged={loadPersonalData}
+            onToast={showToast}
+          />
+        )}
+        {personalTab === 'calendar' && (
+          <div style={{ padding: '0 16px' }}>
+            <div className="card" style={{ padding: '32px 20px', textAlign: 'center', opacity: 0.6 }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>📅</div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042', marginBottom: 6 }}>Mon calendrier</div>
+              <div style={{ fontSize: 13, color: '#9A8B94', lineHeight: 1.5, marginBottom: 12 }}>
+                Toutes tes dates de concert, tous projets confondus.
+              </div>
+              <span style={{
+                display: 'inline-block', padding: '4px 14px', borderRadius: 8,
+                background: '#E8DED8', color: '#9A8B94', fontSize: 11, fontWeight: 800,
+              }}>Bientôt disponible</span>
+            </div>
+          </div>
+        )}
+        {personalTab === 'profile' && (
+          <ProfilePage
+            user={user}
+            userProfile={userProfile}
+            userRole={userRole}
+            userDetails={userDetails}
+            membership={membership}
+            selectedOrg={selectedOrg}
+            roles={data.roles}
+            onClose={() => setPersonalTab('home')}
+            onToast={showToast}
+            onReload={loadPersonalData}
+            onLogout={handleLogout}
+            onSwitchProject={() => setPersonalTab('projects')}
+          />
+        )}
+
+        {/* Personal bottom nav */}
+        {personalTab !== 'profile' && (
+          <nav className="bottom-nav">
+            {PERSONAL_TABS.map(t => (
+              <button key={t.id} className={`nav-tab ${personalTab === t.id ? 'active' : ''}`} onClick={() => setPersonalTab(t.id)}>
+                <span className="nav-icon">{t.icon}</span>
+                <span>{t.label}</span>
+              </button>
+            ))}
+          </nav>
+        )}
+
+        {/* Toast */}
+        {toast && <Toast message={toast.message} color={toast.color} onDone={() => setToast(null)} />}
+      </div>
+    )
+  }
+
+  // ═══════════════════════════════════════════════
+  // COUCHE 3 — Projet
+  // ═══════════════════════════════════════════════
+
   if (loading && data.products.length === 0) return <SplashScreen text="Chargement des modules..." />
 
   if (error && data.products.length === 0) {
@@ -294,7 +485,13 @@ export default function App() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
         <div style={{ color: '#D4648A', fontWeight: 800, fontSize: 16, marginBottom: 8 }}>Erreur de connexion</div>
         <div style={{ color: '#9A8B94', fontSize: 13, marginBottom: 20 }}>{error}</div>
-        <button className="btn-primary" style={{ maxWidth: 200 }} onClick={loadAll}>Réessayer</button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button className="btn-primary" style={{ maxWidth: 200 }} onClick={loadAll}>Réessayer</button>
+          <button onClick={backToPersonal} style={{
+            padding: '10px 20px', borderRadius: 14, fontSize: 13, fontWeight: 700,
+            background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+          }}>← Mon Espace</button>
+        </div>
       </div>
     )
   }
@@ -315,19 +512,20 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)', paddingBottom: 80 }}>
-      {/* ─── Header ─── */}
+      {/* ─── Header (Couche 3) ─── */}
       <header style={{ padding: '16px 18px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-          <div style={{
-            width: 42, height: 42, borderRadius: 14,
-            background: 'linear-gradient(135deg, #F7A072, #E8735A)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 22, boxShadow: '0 4px 16px rgba(232,115,90,0.25)',
-          }}>🎪</div>
+          {/* Back to personal layer */}
+          <button onClick={backToPersonal} style={{
+            padding: '8px 12px', borderRadius: 12, fontSize: 12, fontWeight: 800,
+            background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}>
+            ← Mon Espace
+          </button>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>STAGE STOCK</div>
-            <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>
-              {selectedOrg?.name || 'v10.1'}
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042', letterSpacing: 0.3 }}>
+              {selectedOrg?.name || 'Projet'}
             </div>
           </div>
         </div>
@@ -355,22 +553,15 @@ export default function App() {
             </button>
           )}
           {roleConf && (
-            <button onClick={() => setShowProfile(true)} style={{
+            <span style={{
               padding: '5px 10px', borderRadius: 10,
               background: `${roleConf.color}12`, border: `1.5px solid ${roleConf.color}30`,
               color: roleConf.color, fontSize: 11, fontWeight: 800,
-              display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 4,
             }}>
               <span style={{ fontSize: 14 }}>{roleConf.icon}</span>
               {userRole.code}
-            </button>
-          )}
-          {!roleConf && (
-            <button onClick={() => setShowProfile(true)} style={{
-              width: 36, height: 36, borderRadius: 10, background: '#F0E8E4',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, cursor: 'pointer',
-              border: '1.5px solid #E8DED8',
-            }}>👤</button>
+            </span>
           )}
         </div>
       </header>
@@ -398,7 +589,7 @@ export default function App() {
         onModulesChanged={handleModulesChanged}
       />
 
-      {/* ─── Bottom Nav ─── */}
+      {/* ─── Bottom Nav (Couche 3) ─── */}
       <nav className="bottom-nav">
         {tabs.map(t => (
           <button key={t.id} className={`nav-tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTabChange(t.id)}>
@@ -435,24 +626,6 @@ export default function App() {
           onClose={() => setMoveModal(null)}
           onDone={() => { setMoveModal(null); loadAll() }}
           onToast={showToast}
-        />
-      )}
-
-      {/* ─── Profile Page ─── */}
-      {showProfile && (
-        <ProfilePage
-          user={user}
-          userProfile={userProfile}
-          userRole={userRole}
-          userDetails={userDetails}
-          membership={membership}
-          selectedOrg={selectedOrg}
-          roles={data.roles}
-          onClose={() => setShowProfile(false)}
-          onToast={showToast}
-          onReload={loadAll}
-          onLogout={() => { auth.signOut(); setUser(null); setUserRole(undefined); setUserProfile(null); setUserDetails(null); setMembership(undefined); setSelectedOrg(null) }}
-          onSwitchProject={() => { setSelectedOrg(null); setMembership(undefined); setShowProfile(false) }}
         />
       )}
 
