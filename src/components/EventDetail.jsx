@@ -46,7 +46,7 @@ const SECTIONS = [
 
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
-  checklists, roles, eventPacking, userProfiles, userRole,
+  checklists, roles, eventPacking, userProfiles, userRole, orgId,
   onClose, onReload, onToast, onNavigateEvent,
 }) {
   const [section, setSection] = useState('resume')
@@ -517,6 +517,7 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, onRelo
         item: addItem.trim(),
         category: addCat,
         checked: false,
+        org_id: orgId,
       })
       setAddItem('')
       onToast('Item ajouté')

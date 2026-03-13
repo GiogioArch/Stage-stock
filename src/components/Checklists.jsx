@@ -16,7 +16,7 @@ function getCatConf(cat) {
   return CAT_CONFIG[cat] || { icon: '📋', color: '#9A8B94', label: cat || 'Autre' }
 }
 
-export default function Checklists({ checklists, events, onReload, onToast }) {
+export default function Checklists({ checklists, events, orgId, onReload, onToast }) {
   const [selectedEventId, setSelectedEventId] = useState('all')
   const [filterCat, setFilterCat] = useState('all')
   const [addModal, setAddModal] = useState(false)
@@ -224,7 +224,7 @@ export default function Checklists({ checklists, events, onReload, onToast }) {
           onClose={() => setAddModal(false)}
           onSave={async (data) => {
             try {
-              await db.insert('checklists', data)
+              await db.insert('checklists', { ...data, org_id: orgId })
               onToast('Item ajouté')
               setAddModal(false)
               onReload()

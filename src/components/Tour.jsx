@@ -17,7 +17,7 @@ function getFormatConf(format) {
   return FORMAT_CONF[format.toLowerCase().trim()] || { icon: '🎵', color: '#E8735A' }
 }
 
-export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, onReload, onToast }) {
+export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, onReload, onToast }) {
   const [filter, setFilter] = useState('upcoming') // upcoming | past | all
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [search, setSearch] = useState('')
@@ -82,6 +82,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         eventPacking={eventPacking}
         userProfiles={userProfiles}
         userRole={userRole}
+        orgId={orgId}
         onClose={() => setSelectedEvent(null)}
         onReload={onReload}
         onToast={onToast}

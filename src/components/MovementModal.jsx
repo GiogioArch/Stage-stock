@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, getMoveConf, intOnly } from './UI'
 
-export default function MovementModal({ type, products, locations, stock, preselectedLocation, onClose, onDone, onToast }) {
+export default function MovementModal({ type, products, locations, stock, preselectedLocation, orgId, onClose, onDone, onToast }) {
   const conf = getMoveConf(type)
   const [productId, setProductId] = useState('')
   const [fromLoc, setFromLoc] = useState(type === 'out' ? (preselectedLocation || '') : '')
@@ -34,10 +34,10 @@ export default function MovementModal({ type, products, locations, stock, presel
       // Use RPC for atomic operation
       if (type === 'in') {
         try { await db.rpc('move_stock', { p_product_id: productId, p_location_id: toLoc, p_delta: qty }) }
-        catch { await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: availableStock + qty }) }
+        catch { await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: availableStock + qty, org_id: orgId }) }
       } else if (type === 'out') {
         try { await db.rpc('move_stock', { p_product_id: productId, p_location_id: fromLoc, p_delta: -qty }) }
-        catch { await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, availableStock - qty) }) }
+        catch { await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, availableStock - qty), org_id: orgId }) }
       } else {
         // Transfer = out from source + in to destination
         try {
@@ -46,8 +46,8 @@ export default function MovementModal({ type, products, locations, stock, presel
         } catch {
           const srcStock = stock.find(s => s.product_id === productId && s.location_id === fromLoc)?.quantity || 0
           const dstStock = stock.find(s => s.product_id === productId && s.location_id === toLoc)?.quantity || 0
-          await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, srcStock - qty) })
-          await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: dstStock + qty })
+          await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, srcStock - qty), org_id: orgId })
+          await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: dstStock + qty, org_id: orgId })
         }
       }
 
@@ -59,6 +59,7 @@ export default function MovementModal({ type, products, locations, stock, presel
         to_loc: type === 'out' ? null : toLoc,
         quantity: qty,
         note: note.trim() || null,
+        org_id: orgId,
       })
 
       onToast(`${conf.label} : ${qty}× ${selectedProduct?.name}`)

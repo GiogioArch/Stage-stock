@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Badge } from './UI'
 
-export default function Depots({ locations, stock, products, onReload, onToast }) {
+export default function Depots({ locations, stock, products, orgId, onReload, onToast }) {
   const [showAdd, setShowAdd] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
 
@@ -68,7 +68,7 @@ export default function Depots({ locations, stock, products, onReload, onToast }
         </button>
       </div>
 
-      {showAdd && <AddLocationForm onDone={() => { setShowAdd(false); onReload() }} onToast={onToast} />}
+      {showAdd && <AddLocationForm onDone={() => { setShowAdd(false); onReload() }} onToast={onToast} orgId={orgId} />}
 
       {/* Locations list */}
       {locationStats.length === 0 ? (
@@ -168,7 +168,7 @@ export default function Depots({ locations, stock, products, onReload, onToast }
   )
 }
 
-function AddLocationForm({ onDone, onToast }) {
+function AddLocationForm({ onDone, onToast, orgId }) {
   const [name, setName] = useState('')
   const [icon, setIcon] = useState('📍')
   const [color, setColor] = useState('#5B8DB8')
@@ -187,6 +187,7 @@ function AddLocationForm({ onDone, onToast }) {
         icon,
         color,
         description: description.trim() || null,
+        org_id: orgId,
       })
       onToast('Dépôt créé')
       onDone()

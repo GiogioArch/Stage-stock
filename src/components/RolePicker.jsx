@@ -17,7 +17,7 @@ export const ROLE_CONF = {
   PA:   { icon: '📋', color: '#8BAB5D', label: 'Assistant Production' },
 }
 
-export default function RolePicker({ roles, userId, onRoleSelected, onToast }) {
+export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToast }) {
   const [selected, setSelected] = useState(null)
   const [saving, setSaving] = useState(false)
 
@@ -29,6 +29,7 @@ export default function RolePicker({ roles, userId, onRoleSelected, onToast }) {
       await db.upsert('user_profiles', {
         user_id: userId,
         role_id: selected.id,
+        org_id: orgId,
       })
     } catch (e1) {
       // If upsert fails, try insert then update approach
@@ -38,7 +39,7 @@ export default function RolePicker({ roles, userId, onRoleSelected, onToast }) {
         if (existing && existing.length > 0) {
           await db.update('user_profiles', `user_id=eq.${userId}`, { role_id: selected.id })
         } else {
-          await db.insert('user_profiles', { user_id: userId, role_id: selected.id })
+          await db.insert('user_profiles', { user_id: userId, role_id: selected.id, org_id: orgId })
         }
       } catch (e2) {
         onToast('Erreur: ' + e2.message, '#D4648A')

@@ -3,7 +3,7 @@ import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
 import ProductDetail from './ProductDetail'
 
-export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, onReload, onToast }) {
+export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast }) {
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [filterSubfam, setFilterSubfam] = useState('all')
@@ -180,7 +180,7 @@ export default function Products({ products, families, subfamilies, stock, locat
                 await db.update('products', `id=eq.${modal.product.id}`, data)
                 onToast('Produit modifié')
               } else {
-                await db.insert('products', data)
+                await db.insert('products', { ...data, org_id: orgId })
                 onToast('Produit ajouté')
               }
               setModal(null)

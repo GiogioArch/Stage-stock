@@ -149,7 +149,13 @@ export default function App() {
       const tableEntries = Object.entries(requiredTables)
       // Also load project_members for this org
       const [mainResults, members] = await Promise.all([
-        Promise.all(tableEntries.map(([table, query]) => safe(table, query))),
+        Promise.all(tableEntries.map(([table, query]) => {
+          // Filter all tables by org_id (except roles/views which are global)
+          if (table === 'roles' || table === 'product_depreciation') return safe(table, query)
+          const orgFilter = `org_id=eq.${selectedOrg.id}`
+          const combined = query ? `${orgFilter}&${query}` : orgFilter
+          return safe(table, combined)
+        })),
         safe('project_members', `org_id=eq.${selectedOrg.id}`),
       ])
       setData(prev => {
@@ -269,6 +275,7 @@ export default function App() {
       <RolePicker
         roles={data.roles}
         userId={user.id}
+        orgId={selectedOrg?.id}
         onRoleSelected={(role) => setUserRole(role)}
         onToast={showToast}
       />
@@ -350,6 +357,7 @@ export default function App() {
         userProfile={userProfile}
         isAdmin={isAdmin}
         membership={membership}
+        orgId={selectedOrg?.id}
         onNavigate={handleTabChange}
         onReload={loadAll}
         onToast={showToast}
@@ -391,6 +399,7 @@ export default function App() {
           locations={data.locations}
           stock={filteredStock}
           preselectedLocation={moveModal.preselectedLocation}
+          orgId={selectedOrg?.id}
           onClose={() => setMoveModal(null)}
           onDone={() => { setMoveModal(null); loadAll() }}
           onToast={showToast}
@@ -407,7 +416,7 @@ export default function App() {
 function TabContent({
   tab, activeModuleIds, data,
   filteredProducts, filteredStock, filteredMovements, alerts,
-  user, userRole, userProfile, isAdmin, membership,
+  user, userRole, userProfile, isAdmin, membership, orgId,
   onNavigate, onReload, onToast, onQuickAction, onMovement, onModulesChanged,
 }) {
   switch (tab) {
@@ -447,6 +456,7 @@ function TabContent({
           eventPacking={data.event_packing}
           userProfiles={data.user_profiles}
           userRole={userRole}
+          orgId={orgId}
           onReload={onReload}
           onToast={onToast}
         />
@@ -463,6 +473,7 @@ function TabContent({
           events={data.events}
           eventPacking={data.event_packing}
           userRole={userRole}
+          orgId={orgId}
           onReload={onReload}
           onToast={onToast}
         />
@@ -473,6 +484,7 @@ function TabContent({
           locations={data.locations}
           stock={filteredStock}
           products={filteredProducts}
+          orgId={orgId}
           onReload={onReload}
           onToast={onToast}
         />
@@ -484,6 +496,7 @@ function TabContent({
           locations={data.locations}
           stock={filteredStock}
           movements={filteredMovements}
+          orgId={orgId}
           onReload={onReload}
           onToast={onToast}
           onMovement={onMovement}
@@ -547,7 +560,7 @@ function TabContent({
 }
 
 // ─── Stock Module (combines Stock view + Movements with sub-tabs) ───
-function StockModule({ products, locations, stock, movements, onReload, onToast, onMovement }) {
+function StockModule({ products, locations, stock, movements, orgId, onReload, onToast, onMovement }) {
   const [subTab, setSubTab] = useState('stock') // stock | mouvements
 
   return (
@@ -573,6 +586,7 @@ function StockModule({ products, locations, stock, movements, onReload, onToast,
           products={products}
           locations={locations}
           stock={stock}
+          orgId={orgId}
           onReload={onReload}
           onToast={onToast}
           onMovement={onMovement}

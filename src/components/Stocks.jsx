@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge } from './UI'
 
-export default function Stocks({ products, locations, stock, onReload, onToast, onMovement }) {
+export default function Stocks({ products, locations, stock, orgId, onReload, onToast, onMovement }) {
   const [expanded, setExpanded] = useState({})
   const [filterCat, setFilterCat] = useState('all')
   const [modal, setModal] = useState(null) // {type: 'addLocation'} | {type: 'locationDetail', location}
@@ -161,7 +161,7 @@ export default function Stocks({ products, locations, stock, onReload, onToast, 
           onClose={() => setModal(null)}
           onSave={async (data) => {
             try {
-              await db.insert('locations', data)
+              await db.insert('locations', { ...data, org_id: orgId })
               onToast('Lieu ajouté')
               setModal(null)
               onReload()
