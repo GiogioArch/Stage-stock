@@ -20,6 +20,7 @@ import Equipe from './components/Equipe'
 import Finance from './components/Finance'
 import Forecast from './components/Forecast'
 import Settings from './modules/Settings'
+import ProfilePage from './components/ProfilePage'
 import Landing from './components/Landing'
 import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
@@ -45,6 +46,7 @@ export default function App() {
   // ─── Role state ───
   const [userRole, setUserRole] = useState(undefined)
   const [userProfile, setUserProfile] = useState(null)
+  const [userDetails, setUserDetails] = useState(null)
 
   // ─── Data state (flat store — modules pull what they need) ───
   const [data, setData] = useState({
@@ -184,6 +186,12 @@ export default function App() {
       const rolesIdx = tableEntries.findIndex(([t]) => t === 'roles')
       const rolesData = rolesIdx >= 0 ? mainResults[rolesIdx] : []
       await loadUserProfile(user.id, rolesData)
+
+      // Load user_details (personal profile)
+      try {
+        const detailsRows = await safe('user_details', `user_id=eq.${user.id}`)
+        setUserDetails(detailsRows && detailsRows.length > 0 ? detailsRows[0] : null)
+      } catch { setUserDetails(null) }
     } catch (e) {
       setError(e.message)
     } finally {
@@ -430,18 +438,20 @@ export default function App() {
         />
       )}
 
-      {/* ─── Profile Modal ─── */}
+      {/* ─── Profile Page ─── */}
       {showProfile && (
-        <ProfileModal
+        <ProfilePage
           user={user}
           userProfile={userProfile}
           userRole={userRole}
+          userDetails={userDetails}
           membership={membership}
           selectedOrg={selectedOrg}
+          roles={data.roles}
           onClose={() => setShowProfile(false)}
           onToast={showToast}
           onReload={loadAll}
-          onLogout={() => { auth.signOut(); setUser(null); setUserRole(undefined); setUserProfile(null); setMembership(undefined); setSelectedOrg(null) }}
+          onLogout={() => { auth.signOut(); setUser(null); setUserRole(undefined); setUserProfile(null); setUserDetails(null); setMembership(undefined); setSelectedOrg(null) }}
           onSwitchProject={() => { setSelectedOrg(null); setMembership(undefined); setShowProfile(false) }}
         />
       )}
@@ -640,105 +650,6 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
           onToast={onToast}
         />
       )}
-    </div>
-  )
-}
-
-// ─── Profile Modal ───
-function ProfileModal({ user, userProfile, userRole, membership, selectedOrg, onClose, onToast, onReload, onLogout, onSwitchProject }) {
-  const [displayName, setDisplayName] = useState(membership?.display_name || userProfile?.display_name || '')
-  const [saving, setSaving] = useState(false)
-  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#9A8B94', label: userRole.name }) : null
-
-  const handleSave = async () => {
-    if (!displayName.trim()) return
-    setSaving(true)
-    try {
-      // Update both user_profiles and project_members
-      if (userProfile) {
-        await db.update('user_profiles', `user_id=eq.${user.id}`, { display_name: displayName.trim() })
-      }
-      if (membership) {
-        await db.update('project_members', `id=eq.${membership.id}`, {
-          display_name: displayName.trim(),
-          updated_at: new Date().toISOString(),
-        })
-      }
-      onToast('Profil mis à jour')
-      onReload()
-      onClose()
-    } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-sheet" onClick={e => e.stopPropagation()} style={{ maxHeight: '85vh' }}>
-        <div style={{ padding: '24px 20px' }}>
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <div style={{
-              width: 72, height: 72, borderRadius: 22, margin: '0 auto 12px',
-              background: roleConf ? `${roleConf.color}15` : '#F0E8E4',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 36, border: `2px solid ${roleConf?.color || '#E8DED8'}30`,
-            }}>{roleConf?.icon || '👤'}</div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: '#3D3042' }}>
-              {displayName || user.email}
-            </div>
-            {roleConf && (
-              <div style={{ fontSize: 13, color: roleConf.color, fontWeight: 700, marginTop: 4 }}>
-                {roleConf.label}
-              </div>
-            )}
-            <div style={{ fontSize: 11, color: '#B8A0AE', marginTop: 4 }}>{user.email}</div>
-            {selectedOrg && (
-              <div style={{ fontSize: 11, color: '#9A8B94', marginTop: 2 }}>
-                {selectedOrg.name} {membership?.is_admin ? '(Admin)' : ''}
-              </div>
-            )}
-          </div>
-
-          {/* Edit name */}
-          <div style={{ marginBottom: 16 }}>
-            <label className="label">Nom d'affichage</label>
-            <input
-              className="input"
-              value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
-              placeholder="Ton nom..."
-            />
-          </div>
-
-          <button className="btn-primary" onClick={handleSave} disabled={saving || !displayName.trim()}>
-            {saving ? '⏳...' : 'Enregistrer'}
-          </button>
-
-          {/* Actions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 20 }}>
-            <button onClick={onSwitchProject} style={{
-              padding: '12px 16px', borderRadius: 14, fontSize: 13, fontWeight: 700,
-              background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8',
-              cursor: 'pointer', textAlign: 'center',
-            }}>🔄 Changer de projet</button>
-
-            <button onClick={() => { onClose(); onLogout() }} style={{
-              padding: '12px 16px', borderRadius: 14, fontSize: 13, fontWeight: 700,
-              background: '#FDF0F4', border: '1.5px solid #D4648A30', color: '#D4648A',
-              cursor: 'pointer', textAlign: 'center',
-            }}>🚪 Se déconnecter</button>
-          </div>
-
-          {/* Close */}
-          <button onClick={onClose} style={{
-            width: '100%', padding: 12, marginTop: 12, fontSize: 13, fontWeight: 700,
-            color: '#9A8B94', background: 'none', border: 'none', cursor: 'pointer',
-          }}>Fermer</button>
-        </div>
-      </div>
     </div>
   )
 }
