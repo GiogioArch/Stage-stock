@@ -4,6 +4,7 @@ import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, get
 
 // ─── Components ───
 import Auth from './components/Auth'
+import ProjectPicker from './components/ProjectPicker'
 import Board from './components/Board'
 import Products from './components/Products'
 import Stocks from './components/Stocks'
@@ -33,6 +34,10 @@ export default function App() {
   const [activeModuleIds, setActiveModules] = useState(getActiveModuleIds)
   const [tab, setTab] = useState('board')
 
+  // ─── Project state ───
+  const [membership, setMembership] = useState(undefined) // current project_members record
+  const [selectedOrg, setSelectedOrg] = useState(null)
+
   // ─── Role state ───
   const [userRole, setUserRole] = useState(undefined)
   const [userProfile, setUserProfile] = useState(null)
@@ -45,6 +50,7 @@ export default function App() {
     events: [], checklists: [], event_packing: [],
     user_profiles: [], roles: [],
     product_depreciation: [],
+    project_members: [],
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -78,12 +84,21 @@ export default function App() {
     setToast({ message, color: color || '#5DAB8B' })
   }, [])
 
-  // ─── Active tabs from registry ───
+  // ─── Active tabs from registry (filtered by user's module_access) ───
   const tabs = useMemo(() => {
     const moduleTabs = getActiveTabs(activeModuleIds)
-    // Always add settings tab at the end
-    return [...moduleTabs, { id: 'settings', label: 'Réglages', icon: '⚙️', moduleId: 'settings' }]
-  }, [activeModuleIds])
+    // If membership has module_access, filter tabs to only those the user can see
+    const allowedModules = membership?.module_access
+    const filtered = allowedModules
+      ? moduleTabs.filter(t => allowedModules.includes(t.moduleId || t.id))
+      : moduleTabs
+    // Always add settings tab at the end (admin only) or if user is admin
+    const result = [...filtered]
+    if (!allowedModules || membership?.is_admin) {
+      result.push({ id: 'settings', label: 'Réglages', icon: '⚙️', moduleId: 'settings' })
+    }
+    return result
+  }, [activeModuleIds, membership])
 
   // ─── Ensure current tab is valid when modules change ───
   useEffect(() => {
@@ -127,34 +142,40 @@ export default function App() {
 
   // ─── Load data (only tables required by active modules) ───
   const loadAll = useCallback(async () => {
-    if (!user) return
+    if (!user || !selectedOrg) return
     setLoading(true)
     setError(null)
     try {
       const tableEntries = Object.entries(requiredTables)
-      const results = await Promise.all(
-        tableEntries.map(([table, query]) => safe(table, query))
-      )
+      // Also load project_members for this org
+      const [mainResults, members] = await Promise.all([
+        Promise.all(tableEntries.map(([table, query]) => safe(table, query))),
+        safe('project_members', `org_id=eq.${selectedOrg.id}`),
+      ])
       setData(prev => {
-        const next = { ...prev }
-        tableEntries.forEach(([table], i) => { next[table] = results[i] })
+        const next = { ...prev, project_members: members }
+        tableEntries.forEach(([table], i) => { next[table] = mainResults[i] })
         return next
       })
 
+      // Update membership record (in case admin changed it)
+      const myMembership = members.find(m => m.user_id === user.id)
+      if (myMembership) setMembership(myMembership)
+
       // Load user profile — find roles in results
       const rolesIdx = tableEntries.findIndex(([t]) => t === 'roles')
-      const rolesData = rolesIdx >= 0 ? results[rolesIdx] : []
+      const rolesData = rolesIdx >= 0 ? mainResults[rolesIdx] : []
       await loadUserProfile(user.id, rolesData)
     } catch (e) {
       setError(e.message)
     } finally {
       setLoading(false)
     }
-  }, [user, requiredTables, loadUserProfile])
+  }, [user, selectedOrg, requiredTables, loadUserProfile])
 
   useEffect(() => {
-    if (user) loadAll()
-  }, [user, loadAll])
+    if (user && selectedOrg) loadAll()
+  }, [user, selectedOrg, loadAll])
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -215,8 +236,21 @@ export default function App() {
 
   // ─── Screens ───
 
+  // ─── Project selection handler ───
+  const handleProjectSelected = useCallback((projectMembership) => {
+    setMembership(projectMembership)
+    setSelectedOrg(projectMembership.org)
+  }, [])
+
   if (user === undefined) return <SplashScreen text="Vérification..." />
   if (user === null) return <Auth onAuth={(u) => setUser(u)} />
+  if (user && !selectedOrg) return (
+    <ProjectPicker
+      userId={user.id}
+      onProjectSelected={handleProjectSelected}
+      onToast={showToast}
+    />
+  )
   if (loading && data.products.length === 0) return <SplashScreen text="Chargement des modules..." />
 
   if (error && data.products.length === 0) {
@@ -257,7 +291,7 @@ export default function App() {
           <div>
             <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>STAGE STOCK</div>
             <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>
-              v10.0 — Modulaire
+              {selectedOrg?.name || 'v10.1'}
             </div>
           </div>
         </div>
@@ -295,7 +329,7 @@ export default function App() {
               {userRole.code}
             </span>
           )}
-          <button onClick={() => { auth.signOut(); setUser(null); setUserRole(undefined); setUserProfile(null) }} style={{
+          <button onClick={() => { auth.signOut(); setUser(null); setUserRole(undefined); setUserProfile(null); setMembership(undefined); setSelectedOrg(null) }} style={{
             width: 36, height: 36, borderRadius: 10, background: '#F8F0FA',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
           }}>🚪</button>
@@ -315,6 +349,7 @@ export default function App() {
         userRole={userRole}
         userProfile={userProfile}
         isAdmin={isAdmin}
+        membership={membership}
         onNavigate={handleTabChange}
         onReload={loadAll}
         onToast={showToast}
@@ -372,7 +407,7 @@ export default function App() {
 function TabContent({
   tab, activeModuleIds, data,
   filteredProducts, filteredStock, filteredMovements, alerts,
-  user, userRole, userProfile, isAdmin,
+  user, userRole, userProfile, isAdmin, membership,
   onNavigate, onReload, onToast, onQuickAction, onMovement, onModulesChanged,
 }) {
   switch (tab) {
@@ -500,6 +535,10 @@ function TabContent({
           activeModuleIds={activeModuleIds}
           onModulesChanged={onModulesChanged}
           onToast={onToast}
+          membership={membership}
+          roles={data.roles}
+          userProfiles={data.project_members}
+          onReload={onReload}
         />
       )
     default:

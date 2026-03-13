@@ -3,7 +3,10 @@
 -- Better calculation: format-aware, territory-aware, role-aware
 -- ============================================================
 
--- Drop and recreate the function with improved logic
+-- Drop old version first (return type may differ)
+DROP FUNCTION IF EXISTS generate_packing_list(uuid);
+
+-- Recreate with improved logic
 CREATE OR REPLACE FUNCTION generate_packing_list(p_event_id UUID)
 RETURNS VOID AS $$
 DECLARE
