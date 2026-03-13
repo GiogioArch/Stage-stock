@@ -111,7 +111,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
     }
   }
 
-  const sortedModules = [...MODULES].sort((a, b) => a.order - b.order)
+  const sortedModules = Object.values(MODULES).sort((a, b) => a.order - b.order)
 
   return (
     <div style={{ padding: '0 16px 24px' }}>
