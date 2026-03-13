@@ -136,7 +136,10 @@ const STORAGE_KEY = 'stage_stock_modules'
 export function getActiveModuleIds() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) return JSON.parse(stored)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed)) return parsed
+    }
   } catch { /* ignore */ }
   return DEFAULT_ACTIVE
 }

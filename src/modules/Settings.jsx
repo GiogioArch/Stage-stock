@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { MODULES, setActiveModuleIds } from './registry'
+import { MODULES, DEFAULT_ACTIVE, setActiveModuleIds } from './registry'
 import AccessManager from './AccessManager'
 
-export default function Settings({ activeModuleIds, onModulesChanged, onToast, onClose, membership, roles, userProfiles, onReload }) {
+export default function Settings({ activeModuleIds: rawIds, onModulesChanged, onToast, onClose, membership, roles, userProfiles, onReload }) {
+  const activeModuleIds = Array.isArray(rawIds) ? rawIds : DEFAULT_ACTIVE
   const [subTab, setSubTab] = useState('access') // access | modules
-  const [localActive, setLocalActive] = useState(new Set(activeModuleIds))
+  const [localActive, setLocalActive] = useState(() => new Set(activeModuleIds))
 
   const moduleList = Object.values(MODULES).sort((a, b) => a.order - b.order)
 
