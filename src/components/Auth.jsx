@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { auth } from '../lib/supabase'
 
-export default function Auth({ onAuth }) {
+export default function Auth({ onAuth, onBack }) {
   const [mode, setMode] = useState('login') // login | signup | forgot
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -149,8 +149,16 @@ export default function Auth({ onAuth }) {
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: '#C4A8B6' }}>
-          v10.2 — EK TOUR 25 ANS
+        {onBack && (
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <button onClick={onBack} style={{
+              fontSize: 12, color: '#9A8B94', fontWeight: 600,
+              background: 'none', border: 'none', cursor: 'pointer',
+            }}>← Retour à l'accueil</button>
+          </div>
+        )}
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#C4A8B6' }}>
+          v10.5 — Stage Stock
         </div>
       </div>
     </div>

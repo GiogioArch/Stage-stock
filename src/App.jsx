@@ -20,6 +20,8 @@ import Equipe from './components/Equipe'
 import Finance from './components/Finance'
 import Forecast from './components/Forecast'
 import Settings from './modules/Settings'
+import Landing from './components/Landing'
+import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
 
 // Admin role codes that see everything
@@ -29,6 +31,8 @@ export default function App() {
   // ─── Auth state ───
   const [user, setUser] = useState(undefined)
   const [toast, setToast] = useState(null)
+  const [showAuth, setShowAuth] = useState(false)
+  const [legalPage, setLegalPage] = useState(null) // 'cgu' | 'privacy' | null
 
   // ─── Module state ───
   const [activeModuleIds, setActiveModules] = useState(getActiveModuleIds)
@@ -68,6 +72,13 @@ export default function App() {
     window.addEventListener('online', on)
     window.addEventListener('offline', off)
     return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
+  }, [])
+
+  // ─── Legal page listener (from Landing) ───
+  useEffect(() => {
+    const handler = (e) => setLegalPage(e.detail)
+    window.addEventListener('show-legal', handler)
+    return () => window.removeEventListener('show-legal', handler)
   }, [])
 
   // ─── Scroll position per tab (BUG-009) ───
@@ -250,7 +261,16 @@ export default function App() {
   }, [])
 
   if (user === undefined) return <SplashScreen text="Vérification..." />
-  if (user === null) return <Auth onAuth={(u) => setUser(u)} />
+
+  // Legal pages (accessible from landing)
+  if (legalPage === 'cgu') return <CGU onClose={() => setLegalPage(null)} />
+  if (legalPage === 'privacy') return <Privacy onClose={() => setLegalPage(null)} />
+
+  // Not logged in: show landing or auth
+  if (user === null) {
+    if (showAuth) return <Auth onAuth={(u) => setUser(u)} onBack={() => setShowAuth(false)} />
+    return <Landing onGetStarted={() => setShowAuth(true)} />
+  }
   if (user && !selectedOrg) return (
     <ProjectPicker
       userId={user.id}

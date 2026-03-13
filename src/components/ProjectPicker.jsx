@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { db } from '../lib/supabase'
 
+const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
+
 export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showCreate, setShowCreate] = useState(false)
 
   useEffect(() => {
     loadProjects()
@@ -139,15 +142,105 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
         ))}
       </div>
 
-      {/* Create project button (future) */}
-      <div style={{ textAlign: 'center', marginTop: 24 }}>
-        <button style={{
-          padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 700,
-          background: 'transparent', border: '1.5px dashed #E8DED8',
-          color: '#B8A0AE', cursor: 'pointer',
-        }}>
-          + Créer un nouveau projet
-        </button>
+      {/* Create project */}
+      {!showCreate ? (
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <button onClick={() => setShowCreate(true)} style={{
+            padding: '12px 24px', borderRadius: 14, fontSize: 13, fontWeight: 700,
+            background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+            color: 'white', cursor: 'pointer', border: 'none',
+            boxShadow: '0 4px 16px rgba(232,115,90,0.2)',
+          }}>
+            + Créer un nouveau projet
+          </button>
+        </div>
+      ) : (
+        <CreateProjectForm
+          userId={userId}
+          onCreated={() => loadProjects()}
+          onCancel={() => setShowCreate(false)}
+          onToast={onToast}
+        />
+      )}
+    </div>
+  )
+}
+
+// ─── Create Project Form ───
+function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
+  const [name, setName] = useState('')
+  const [slug, setSlug] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const generateSlug = (val) => {
+    setName(val)
+    setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 30))
+  }
+
+  const handleCreate = async () => {
+    if (!name.trim()) return
+    setSaving(true)
+    try {
+      // 1. Create org
+      const orgs = await db.insert('organizations', {
+        name: name.trim(),
+        slug: slug || 'project',
+      })
+      const org = orgs[0]
+
+      // 2. Create membership as admin with all modules
+      await db.insert('project_members', {
+        user_id: userId,
+        org_id: org.id,
+        module_access: ALL_MODULES,
+        is_admin: true,
+        status: 'active',
+      })
+
+      onToast('Projet créé !')
+      onCreated()
+    } catch (e) {
+      onToast('Erreur: ' + e.message, '#D4648A')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div style={{ maxWidth: 400, margin: '24px auto 0', padding: '20px', background: 'white', borderRadius: 18, border: '2px solid #E8735A30', boxShadow: '0 4px 20px rgba(232,115,90,0.1)' }}>
+      <div style={{ fontSize: 16, fontWeight: 800, color: '#3D3042', marginBottom: 16, textAlign: 'center' }}>
+        Nouveau projet
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <label style={{ fontSize: 11, fontWeight: 700, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 4 }}>Nom du projet *</label>
+        <input
+          className="input"
+          value={name}
+          onChange={e => generateSlug(e.target.value)}
+          placeholder="Ma tournée 2026"
+          autoFocus
+        />
+      </div>
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ fontSize: 11, fontWeight: 700, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 4 }}>Identifiant</label>
+        <input
+          className="input"
+          value={slug}
+          onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+          placeholder="ma-tournee-2026"
+          style={{ fontSize: 12, color: '#B8A0AE' }}
+        />
+      </div>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button onClick={onCancel} style={{
+          flex: 1, padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 700,
+          background: '#F0E8E4', color: '#9A8B94', cursor: 'pointer', border: 'none',
+        }}>Annuler</button>
+        <button onClick={handleCreate} disabled={!name.trim() || saving} style={{
+          flex: 2, padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800,
+          background: !name.trim() || saving ? '#E8DED8' : 'linear-gradient(135deg, #E8735A, #D4648A)',
+          color: 'white', cursor: !name.trim() || saving ? 'default' : 'pointer', border: 'none',
+        }}>{saving ? '⏳ Création...' : 'Créer le projet'}</button>
       </div>
     </div>
   )
