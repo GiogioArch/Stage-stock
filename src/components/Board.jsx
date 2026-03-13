@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
@@ -52,6 +52,26 @@ export default function Board({ products, locations, stock, movements, alerts, e
 
   // ─── Low stock items for my role ───
   const myLowStock = alerts.slice(0, 5)
+
+  // ─── Movement trends (last 7 days) ───
+  const moveTrend = useMemo(() => {
+    const days = []
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      const key = d.toISOString().split('T')[0]
+      const label = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0, 3)
+      const dayMoves = movements.filter(m => m.created_at?.startsWith(key))
+      days.push({
+        key, label,
+        in: dayMoves.filter(m => m.type === 'in').reduce((s, m) => s + (m.quantity || 0), 0),
+        out: dayMoves.filter(m => m.type === 'out').reduce((s, m) => s + (m.quantity || 0), 0),
+      })
+    }
+    return days
+  }, [movements])
+
+  const maxMoveVal = Math.max(1, ...moveTrend.map(d => Math.max(d.in, d.out)))
 
   // Product name helper
   const pName = (id) => products.find(p => p.id === id)?.name || '?'
@@ -226,6 +246,74 @@ export default function Board({ products, locations, stock, movements, alerts, e
           </div>
         ))}
       </div>
+
+      {/* ─── Movement Trends (7 days) ─── */}
+      {movements.length > 0 && (
+        <>
+          <div className="section-title">Mouvements — 7 derniers jours</div>
+          <div className="card" style={{ padding: '14px 16px', marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 100 }}>
+              {moveTrend.map((d, i) => (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 80, width: '100%' }}>
+                    <div style={{
+                      flex: 1, borderRadius: '4px 4px 0 0',
+                      background: '#5DAB8B',
+                      height: `${Math.max(2, (d.in / maxMoveVal) * 80)}px`,
+                      transition: 'height 0.3s',
+                    }} title={`Entrées: ${d.in}`} />
+                    <div style={{
+                      flex: 1, borderRadius: '4px 4px 0 0',
+                      background: '#D4648A',
+                      height: `${Math.max(2, (d.out / maxMoveVal) * 80)}px`,
+                      transition: 'height 0.3s',
+                    }} title={`Sorties: ${d.out}`} />
+                  </div>
+                  <div style={{ fontSize: 8, color: '#B8A0AE', fontWeight: 700 }}>{d.label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 10 }}>
+              <span style={{ fontSize: 10, color: '#5DAB8B', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: '#5DAB8B', display: 'inline-block' }} /> Entrées
+              </span>
+              <span style={{ fontSize: 10, color: '#D4648A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: '#D4648A', display: 'inline-block' }} /> Sorties
+              </span>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ─── Stock Distribution Chart ─── */}
+      {totalStock > 0 && (
+        <>
+          <div className="section-title">Répartition du stock</div>
+          <div className="card" style={{ padding: '14px 16px', marginBottom: 20 }}>
+            {/* Horizontal stacked bar */}
+            <div style={{ display: 'flex', height: 24, borderRadius: 12, overflow: 'hidden', marginBottom: 12 }}>
+              {stockByCategory.filter(c => c.qty > 0).map(cat => (
+                <div key={cat.id} style={{
+                  width: `${(cat.qty / totalStock) * 100}%`,
+                  background: cat.color,
+                  transition: 'width 0.3s',
+                  minWidth: 2,
+                }} title={`${cat.name}: ${cat.qty}`} />
+              ))}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+              {stockByCategory.filter(c => c.qty > 0).map(cat => (
+                <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 3, background: cat.color, display: 'inline-block' }} />
+                  <span style={{ fontSize: 11, color: '#3D3042', fontWeight: 600 }}>
+                    {cat.name} <span style={{ color: '#9A8B94' }}>({cat.qty})</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ─── Stock by Location ─── */}
       <div className="section-title">Stock par lieu</div>

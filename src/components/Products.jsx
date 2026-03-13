@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
 import ProductDetail from './ProductDetail'
+import CSVImport from './CSVImport'
 
 export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast }) {
   const [search, setSearch] = useState('')
@@ -96,10 +97,16 @@ export default function Products({ products, families, subfamilies, stock, locat
       {/* Product count + Add button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <span style={{ fontSize: 13, color: '#9A8B94', fontWeight: 600 }}>{filtered.length} produit{filtered.length > 1 ? 's' : ''}</span>
-        <button onClick={() => setModal({ type: 'add' })} style={{
-          padding: '8px 16px', borderRadius: 12, background: 'linear-gradient(135deg, #E8735A, #D4648A)',
-          color: 'white', fontSize: 13, fontWeight: 800,
-        }}>+ Ajouter</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => setModal({ type: 'csv' })} style={{
+            padding: '8px 12px', borderRadius: 12, background: '#EEF4FA',
+            border: '1.5px solid #5B8DB830', color: '#5B8DB8', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+          }}>📄 CSV</button>
+          <button onClick={() => setModal({ type: 'add' })} style={{
+            padding: '8px 16px', borderRadius: 12, background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+            color: 'white', fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer',
+          }}>+ Ajouter</button>
+        </div>
       </div>
 
       {/* Product list */}
@@ -189,6 +196,18 @@ export default function Products({ products, families, subfamilies, stock, locat
               onToast('Erreur: ' + e.message, '#D4648A')
             }
           }}
+        />
+      )}
+
+      {/* CSV Import */}
+      {modal?.type === 'csv' && (
+        <CSVImport
+          families={families}
+          subfamilies={subfamilies}
+          orgId={orgId}
+          onDone={() => { setModal(null); onReload() }}
+          onClose={() => setModal(null)}
+          onToast={onToast}
         />
       )}
 
