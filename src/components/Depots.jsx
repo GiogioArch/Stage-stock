@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Badge } from './UI'
+import DepotDetail from './DepotDetail'
 
-export default function Depots({ locations, stock, products, orgId, onReload, onToast }) {
+export default function Depots({ locations, stock, products, movements, families, subfamilies, orgId, onReload, onToast, onMovement }) {
   const [showAdd, setShowAdd] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
+  const [selectedDepot, setSelectedDepot] = useState(null)
 
   // Stats per location
   const locationStats = useMemo(() => {
@@ -26,6 +28,23 @@ export default function Depots({ locations, stock, products, orgId, onReload, on
 
   const totalStock = locationStats.reduce((s, l) => s + l.totalQty, 0)
   const activeLocations = locationStats.filter(l => l.totalQty > 0).length
+
+  // ─── Depot detail overlay ───
+  if (selectedDepot) {
+    return (
+      <DepotDetail
+        location={selectedDepot}
+        stock={stock}
+        products={products}
+        movements={movements}
+        families={families}
+        subfamilies={subfamilies}
+        onClose={() => setSelectedDepot(null)}
+        onMovement={onMovement}
+        onToast={onToast}
+      />
+    )
+  }
 
   return (
     <div style={{ padding: '0 16px 24px' }}>
@@ -84,7 +103,7 @@ export default function Depots({ locations, stock, products, orgId, onReload, on
             return (
               <div key={loc.id}>
                 <button
-                  onClick={() => setExpandedId(isExpanded ? null : loc.id)}
+                  onClick={() => setSelectedDepot(loc)}
                   className="card"
                   style={{ width: '100%', padding: '14px 16px', cursor: 'pointer', textAlign: 'left' }}
                 >

@@ -18,6 +18,10 @@ import Depots from './components/Depots'
 import Equipe from './components/Equipe'
 import Finance from './components/Finance'
 import Forecast from './components/Forecast'
+import Transport from './components/Transport'
+import ConcertMode from './components/ConcertMode'
+import Achats from './components/Achats'
+import Inventaire from './components/Inventaire'
 import Settings from './modules/Settings'
 import ProfilePage from './components/ProfilePage'
 import PersonalDashboard from './components/PersonalDashboard'
@@ -707,9 +711,13 @@ function TabContent({
           locations={data.locations}
           stock={filteredStock}
           products={filteredProducts}
+          movements={filteredMovements}
+          families={data.families}
+          subfamilies={data.subfamilies}
           orgId={orgId}
           onReload={onReload}
           onToast={onToast}
+          onMovement={onMovement}
         />
       )
     case 'stock':
@@ -743,6 +751,11 @@ function TabContent({
           events={data.events}
           locations={data.locations}
           depreciation={data.product_depreciation}
+          expenses={data.expenses}
+          sales={data.sales}
+          orgId={orgId}
+          onReload={onReload}
+          onToast={onToast}
         />
       )
     case 'alertes':
@@ -763,6 +776,60 @@ function TabContent({
           stock={filteredStock}
           events={data.events}
           locations={data.locations}
+        />
+      )
+    case 'achats':
+      return (
+        <Achats
+          suppliers={data.suppliers}
+          purchaseOrders={data.purchase_orders}
+          purchaseOrderLines={data.purchase_order_lines}
+          products={filteredProducts}
+          locations={data.locations}
+          orgId={orgId}
+          userId={user?.id}
+          onReload={onReload}
+          onToast={onToast}
+        />
+      )
+    case 'inventaire':
+      return (
+        <Inventaire
+          products={filteredProducts}
+          stock={filteredStock}
+          locations={data.locations}
+          orgId={orgId}
+          onReload={onReload}
+          onToast={onToast}
+        />
+      )
+    case 'ventes':
+      return (
+        <ConcertMode
+          products={filteredProducts}
+          stock={filteredStock}
+          locations={data.locations}
+          events={data.events}
+          orgId={orgId}
+          userId={user?.id}
+          onClose={() => onNavigate('board')}
+          onReload={onReload}
+          onToast={onToast}
+        />
+      )
+    case 'transport':
+      return (
+        <Transport
+          events={data.events}
+          transportProviders={data.transport_providers}
+          vehicles={data.vehicles}
+          transportRoutes={data.transport_routes}
+          transportNeeds={data.transport_needs}
+          transportBookings={data.transport_bookings}
+          transportManifests={data.transport_manifests}
+          transportCosts={data.transport_costs}
+          onReload={onReload}
+          onToast={onToast}
         />
       )
     case 'settings':

@@ -314,16 +314,8 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
         </div>
       )}
 
-      {/* Résultats réels */}
-      {(event.ventes_reelles != null || event.ca_reel != null) && (
-        <div className="card" style={{ padding: '14px 16px', marginBottom: 12, borderLeft: '4px solid #5DAB8B' }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Résultats réels</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {event.ventes_reelles != null && <KpiCell label="Ventes réelles" value={event.ventes_reelles} color="#5DAB8B" />}
-            {event.ca_reel != null && <KpiCell label="CA réel" value={`${event.ca_reel}€`} color="#5DAB8B" />}
-          </div>
-        </div>
-      )}
+      {/* Résultats réels — Saisie post-concert */}
+      <ResultsSection event={event} onReload={onReload} onToast={onToast} />
 
       {/* Progression checklist & packing */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
@@ -780,6 +772,140 @@ function KpiCell({ label, value, color }) {
     <div style={{ textAlign: 'center' }}>
       <div style={{ fontSize: 20, fontWeight: 900, color, lineHeight: 1.1 }}>{value}</div>
       <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600, marginTop: 2 }}>{label}</div>
+    </div>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Résultats réels post-concert
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function ResultsSection({ event, onReload, onToast }) {
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState({
+    ventes_reelles: event.ventes_reelles ?? '',
+    ca_reel: event.ca_reel ?? '',
+    budget: event.budget ?? '',
+    ticket_revenue: event.ticket_revenue ?? '',
+    sponsor_revenue: event.sponsor_revenue ?? '',
+  })
+
+  const isPast = event.date < new Date().toISOString().split('T')[0]
+  const hasResults = event.ventes_reelles != null || event.ca_reel != null
+  const set = (key, val) => setForm(prev => ({ ...prev, [key]: val }))
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await db.update('events', `id=eq.${event.id}`, {
+        ventes_reelles: form.ventes_reelles !== '' ? parseInt(String(form.ventes_reelles).replace(/[^0-9]/g, '')) || 0 : null,
+        ca_reel: form.ca_reel !== '' ? parseFloat(form.ca_reel) || 0 : null,
+        budget: form.budget !== '' ? parseFloat(form.budget) || 0 : null,
+        ticket_revenue: form.ticket_revenue !== '' ? parseFloat(form.ticket_revenue) || 0 : null,
+        sponsor_revenue: form.sponsor_revenue !== '' ? parseFloat(form.sponsor_revenue) || 0 : null,
+      })
+      onToast('Résultats enregistrés')
+      setEditing(false)
+      if (onReload) onReload()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#D4648A')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Read-only mode
+  if (!editing) {
+    if (!hasResults && !isPast) return null
+
+    // Comparison with forecast
+    const ecartVentes = (event.ventes_prevues && event.ventes_reelles != null)
+      ? event.ventes_reelles - event.ventes_prevues : null
+    const ecartCA = (event.ca_prevu && event.ca_reel != null)
+      ? event.ca_reel - event.ca_prevu : null
+
+    return (
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 12, borderLeft: `4px solid ${hasResults ? '#5DAB8B' : '#E8935A'}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1 }}>
+            {hasResults ? 'Résultats réels' : 'Saisir les résultats'}
+          </div>
+          <button onClick={() => setEditing(true)} style={{
+            padding: '4px 12px', borderRadius: 8, fontSize: 11, fontWeight: 800,
+            background: '#5DAB8B15', border: '1.5px solid #5DAB8B30', color: '#5DAB8B', cursor: 'pointer',
+          }}>{hasResults ? 'Modifier' : 'Saisir'}</button>
+        </div>
+
+        {hasResults ? (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: ecartVentes != null || ecartCA != null ? 10 : 0 }}>
+              {event.ventes_reelles != null && <KpiCell label="Ventes réelles" value={event.ventes_reelles} color="#5DAB8B" />}
+              {event.ca_reel != null && <KpiCell label="CA réel" value={`${event.ca_reel}€`} color="#5DAB8B" />}
+              {event.ticket_revenue > 0 && <KpiCell label="Billetterie" value={`${event.ticket_revenue}€`} color="#5B8DB8" />}
+              {event.sponsor_revenue > 0 && <KpiCell label="Sponsors" value={`${event.sponsor_revenue}€`} color="#9B7DC4" />}
+              {event.budget > 0 && <KpiCell label="Budget" value={`${event.budget}€`} color="#E8935A" />}
+            </div>
+            {/* Comparison prévisionnel vs réel */}
+            {(ecartVentes != null || ecartCA != null) && (
+              <div style={{ padding: '8px 0 0', borderTop: '1px solid #F0E8E4' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, color: '#9A8B94', marginBottom: 6 }}>ÉCART PRÉVISION / RÉEL</div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  {ecartVentes != null && (
+                    <div style={{ fontSize: 12, fontWeight: 800, color: ecartVentes >= 0 ? '#5DAB8B' : '#D4648A' }}>
+                      Ventes : {ecartVentes >= 0 ? '+' : ''}{ecartVentes} ({event.ventes_prevues} prévu)
+                    </div>
+                  )}
+                  {ecartCA != null && (
+                    <div style={{ fontSize: 12, fontWeight: 800, color: ecartCA >= 0 ? '#5DAB8B' : '#D4648A' }}>
+                      CA : {ecartCA >= 0 ? '+' : ''}{Math.round(ecartCA)}€ ({event.ca_prevu}€ prévu)
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ fontSize: 12, color: '#9A8B94', textAlign: 'center', padding: 8 }}>
+            Concert terminé — clique "Saisir" pour enregistrer les résultats
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Edit mode
+  return (
+    <div className="card" style={{ padding: 16, marginBottom: 12, borderLeft: '4px solid #5DAB8B' }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: '#5DAB8B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+        Résultats post-concert
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+        <ResultField label="Ventes réelles" value={form.ventes_reelles} onChange={v => set('ventes_reelles', v.replace(/[^0-9]/g, ''))} placeholder="ex: 45" inputMode="numeric" />
+        <ResultField label="CA réel (€)" value={form.ca_reel} onChange={v => set('ca_reel', v.replace(/[^0-9.]/g, ''))} placeholder="ex: 1250" inputMode="decimal" />
+        <ResultField label="Billetterie (€)" value={form.ticket_revenue} onChange={v => set('ticket_revenue', v.replace(/[^0-9.]/g, ''))} placeholder="0" inputMode="decimal" />
+        <ResultField label="Sponsors (€)" value={form.sponsor_revenue} onChange={v => set('sponsor_revenue', v.replace(/[^0-9.]/g, ''))} placeholder="0" inputMode="decimal" />
+      </div>
+      <ResultField label="Budget total (€)" value={form.budget} onChange={v => set('budget', v.replace(/[^0-9.]/g, ''))} placeholder="Dépenses totales" inputMode="decimal" />
+      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+        <button onClick={() => setEditing(false)} style={{
+          flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
+          background: 'white', border: '1.5px solid #E8DED8', color: '#9A8B94', cursor: 'pointer',
+        }}>Annuler</button>
+        <button onClick={handleSave} disabled={saving} className="btn-primary" style={{ flex: 2 }}>
+          {saving ? 'Enregistrement...' : 'Enregistrer'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function ResultField({ label, value, onChange, placeholder, inputMode }) {
+  return (
+    <div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#9A8B94', marginBottom: 3 }}>{label}</div>
+      <input className="input" value={value} onChange={e => onChange(e.target.value)}
+        placeholder={placeholder} inputMode={inputMode}
+        style={{ fontSize: 14, fontWeight: 700 }} />
     </div>
   )
 }

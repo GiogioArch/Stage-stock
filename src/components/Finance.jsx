@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react'
+import { db } from '../lib/supabase'
 import { Badge } from './UI'
 
-export default function Finance({ products, stock, events, locations, depreciation }) {
-  const [section, setSection] = useState('overview') // overview | depreciation | revenue
+export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, onReload, onToast }) {
+  const [section, setSection] = useState('overview')
+  const [showAddExpense, setShowAddExpense] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -38,10 +40,45 @@ export default function Finance({ products, stock, events, locations, depreciati
     }, 0)
   }, [products, stock])
 
+  // ─── Expenses ───
+  const expenseData = useMemo(() => {
+    const items = expenses || []
+    const total = items.reduce((s, e) => s + (e.amount || 0), 0)
+    const byCategory = {}
+    items.forEach(e => {
+      const cat = e.category || 'other'
+      if (!byCategory[cat]) byCategory[cat] = { total: 0, count: 0 }
+      byCategory[cat].total += e.amount || 0
+      byCategory[cat].count++
+    })
+    return { items, total, byCategory }
+  }, [expenses])
+
+  // ─── Sales totals ───
+  const salesTotals = useMemo(() => {
+    const items = sales || []
+    const total = items.reduce((s, sale) => s + (sale.total_amount || 0), 0)
+    const count = items.length
+    const byCash = items.filter(s => s.payment_method === 'cash').reduce((sum, s) => sum + (s.total_amount || 0), 0)
+    const byCard = items.filter(s => s.payment_method === 'card').reduce((sum, s) => sum + (s.total_amount || 0), 0)
+    return { total, count, byCash, byCard }
+  }, [sales])
+
+  // ─── Margin ───
+  const margin = revenueData.caReel + salesTotals.total - expenseData.total
+
+  const EXPENSE_CATS = {
+    transport: '🚛 Transport', lodging: '🏨 Hébergement', food: '🍽️ Restauration',
+    equipment: '🔧 Matériel', merch_purchase: '👕 Achat merch', venue: '🏟️ Salle',
+    marketing: '📣 Marketing', admin: '📋 Admin', other: '📦 Autre',
+  }
+
   const SECTIONS = [
     { id: 'overview', label: 'Vue globale', icon: '💰' },
     { id: 'revenue', label: 'Revenus', icon: '📈' },
-    { id: 'depreciation', label: 'Amortissements', icon: '📉' },
+    { id: 'expenses', label: 'Dépenses', icon: '📤' },
+    { id: 'bilan', label: 'Bilan', icon: '📊' },
+    { id: 'depreciation', label: 'Amortis.', icon: '📉' },
   ]
 
   return (
@@ -68,9 +105,9 @@ export default function Finance({ products, stock, events, locations, depreciati
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="CA réalisé" value={`${revenueData.caReel}€`} color="#5DAB8B" />
-          <KpiBox label="CA prévu" value={`${revenueData.caPrevu}€`} color="#E8935A" />
-          <KpiBox label="Valeur stock" value={`${Math.round(stockValue)}€`} color="#5B8DB8" />
+          <KpiBox label="Revenus" value={`${Math.round(revenueData.caReel + salesTotals.total)}€`} color="#5DAB8B" />
+          <KpiBox label="Dépenses" value={`${Math.round(expenseData.total)}€`} color="#D4648A" />
+          <KpiBox label="Marge" value={`${Math.round(margin)}€`} color={margin >= 0 ? '#5DAB8B' : '#D4648A'} />
         </div>
       </div>
 
@@ -229,6 +266,151 @@ export default function Finance({ products, stock, events, locations, depreciati
         </div>
       )}
 
+      {/* ─── Expenses ─── */}
+      {section === 'expenses' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <button onClick={() => setShowAddExpense(!showAddExpense)} style={{
+              padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 800,
+              background: showAddExpense ? '#F0E8E4' : '#D4648A', color: showAddExpense ? '#9A8B94' : 'white',
+              cursor: 'pointer', border: 'none',
+            }}>{showAddExpense ? 'Annuler' : '+ Ajouter dépense'}</button>
+          </div>
+
+          {showAddExpense && (
+            <AddExpenseForm events={events} orgId={orgId} onDone={() => { setShowAddExpense(false); if (onReload) onReload() }} onToast={onToast} cats={EXPENSE_CATS} />
+          )}
+
+          {/* Summary by category */}
+          {expenseData.total > 0 && (
+            <div className="card" style={{ padding: '14px 16px', marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                Par catégorie · {Math.round(expenseData.total)}€ total
+              </div>
+              {Object.entries(expenseData.byCategory).sort((a, b) => b[1].total - a[1].total).map(([cat, data]) => {
+                const pct = Math.round((data.total / expenseData.total) * 100)
+                return (
+                  <div key={cat} style={{ marginBottom: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
+                      <span style={{ color: '#3D3042', fontWeight: 600 }}>{EXPENSE_CATS[cat] || cat}</span>
+                      <span style={{ fontWeight: 900, color: '#D4648A' }}>{Math.round(data.total)}€</span>
+                    </div>
+                    <div style={{ height: 4, borderRadius: 2, background: '#F0E8E4', overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', borderRadius: 2, background: '#D4648A' }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Expense list */}
+          {expenseData.items.length === 0 ? (
+            <div className="card" style={{ padding: 32, textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: 8 }}>📤</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>Aucune dépense</div>
+            </div>
+          ) : (
+            <div className="card" style={{ padding: '6px 12px' }}>
+              {expenseData.items.sort((a, b) => (b.date || '').localeCompare(a.date || '')).map((exp, i) => {
+                const ev = (events || []).find(e => e.id === exp.event_id)
+                return (
+                  <div key={exp.id} style={{
+                    display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
+                    borderBottom: i < expenseData.items.length - 1 ? '1px solid #F0E8E4' : 'none',
+                  }}>
+                    <span style={{ fontSize: 14 }}>{(EXPENSE_CATS[exp.category] || '📦').split(' ')[0]}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.description}</div>
+                      <div style={{ fontSize: 10, color: '#9A8B94' }}>
+                        {exp.date}{ev ? ` · ${ev.name || ev.lieu}` : ''}{exp.paid ? ' · Payé' : ''}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: '#D4648A' }}>{exp.amount}€</div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── Bilan par événement ─── */}
+      {section === 'bilan' && (
+        <div>
+          {(events || []).filter(e => e.date < today).length === 0 ? (
+            <div className="card" style={{ padding: 32, textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: 8 }}>📊</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>Aucun concert passé</div>
+              <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>Le bilan apparaîtra après les premiers concerts</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {(events || []).filter(e => e.date < today).sort((a, b) => b.date.localeCompare(a.date)).map(ev => {
+                const evExpenses = (expenses || []).filter(e => e.event_id === ev.id).reduce((s, e) => s + (e.amount || 0), 0)
+                const evSales = (sales || []).filter(s => s.event_id === ev.id).reduce((s, sale) => s + (sale.total_amount || 0), 0)
+                const evRevenu = (ev.ca_reel || 0) + evSales
+                const evTickets = ev.ticket_revenue || 0
+                const evSponsors = ev.sponsor_revenue || 0
+                const evTotal = evRevenu + evTickets + evSponsors
+                const evMargin = evTotal - evExpenses
+                return (
+                  <div key={ev.id} className="card" style={{
+                    padding: '14px 16px', borderLeft: `4px solid ${evMargin >= 0 ? '#5DAB8B' : '#D4648A'}`,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 800 }}>{ev.name || ev.lieu}</div>
+                        <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                          {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: evMargin >= 0 ? '#5DAB8B' : '#D4648A' }}>
+                          {evMargin >= 0 ? '+' : ''}{Math.round(evMargin)}€
+                        </div>
+                        <div style={{ fontSize: 9, color: '#9A8B94' }}>marge</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, fontSize: 11 }}>
+                      <div><span style={{ color: '#9A8B94' }}>Merch :</span> <strong style={{ color: '#5DAB8B' }}>{evRevenu}€</strong></div>
+                      <div><span style={{ color: '#9A8B94' }}>Billets :</span> <strong>{evTickets}€</strong></div>
+                      <div><span style={{ color: '#9A8B94' }}>Sponsors :</span> <strong>{evSponsors}€</strong></div>
+                    </div>
+                    {evExpenses > 0 && (
+                      <div style={{ fontSize: 11, marginTop: 4 }}>
+                        <span style={{ color: '#9A8B94' }}>Dépenses :</span> <strong style={{ color: '#D4648A' }}>-{Math.round(evExpenses)}€</strong>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+
+              {/* Total */}
+              <div className="card" style={{ padding: '14px 16px', background: '#F0E8E420' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+                  Bilan consolidé
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#5DAB8B' }}>{Math.round(revenueData.caReel + salesTotals.total)}€</div>
+                    <div style={{ fontSize: 9, color: '#9A8B94' }}>Total revenus</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#D4648A' }}>{Math.round(expenseData.total)}€</div>
+                    <div style={{ fontSize: 9, color: '#9A8B94' }}>Total dépenses</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: margin >= 0 ? '#5DAB8B' : '#D4648A' }}>{Math.round(margin)}€</div>
+                    <div style={{ fontSize: 9, color: '#9A8B94' }}>Marge nette</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ─── Depreciation detail ─── */}
       {section === 'depreciation' && (
         <div>
@@ -280,6 +462,59 @@ export default function Finance({ products, stock, events, locations, depreciati
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+function AddExpenseForm({ events, orgId, onDone, onToast, cats }) {
+  const [category, setCategory] = useState('other')
+  const [description, setDescription] = useState('')
+  const [amount, setAmount] = useState('')
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0])
+  const [eventId, setEventId] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    if (!description.trim() || !amount) return
+    setSaving(true)
+    try {
+      await db.insert('expenses', {
+        org_id: orgId,
+        event_id: eventId || null,
+        category,
+        description: description.trim(),
+        amount: parseFloat(amount) || 0,
+        date,
+      })
+      onToast('Dépense ajoutée')
+      onDone()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#D4648A')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="card" style={{ padding: 16, marginBottom: 14 }}>
+      <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042', marginBottom: 12 }}>Nouvelle dépense</div>
+      <input className="input" value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" style={{ marginBottom: 10 }} />
+      <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+        <input className="input" value={amount} onChange={e => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="Montant €" inputMode="decimal" style={{ flex: 1 }} />
+        <input className="input" type="date" value={date} onChange={e => setDate(e.target.value)} style={{ flex: 1 }} />
+      </div>
+      <select className="input" value={category} onChange={e => setCategory(e.target.value)} style={{ marginBottom: 10 }}>
+        {Object.entries(cats).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+      </select>
+      <select className="input" value={eventId} onChange={e => setEventId(e.target.value)} style={{ marginBottom: 10 }}>
+        <option value="">— Concert (optionnel) —</option>
+        {(events || []).map(ev => (
+          <option key={ev.id} value={ev.id}>{ev.name || ev.lieu} — {ev.date}</option>
+        ))}
+      </select>
+      <button onClick={handleSave} disabled={!description.trim() || !amount || saving} className="btn-primary">
+        {saving ? 'Ajout...' : 'Ajouter'}
+      </button>
     </div>
   )
 }
