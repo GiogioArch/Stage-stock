@@ -63,14 +63,16 @@ self.addEventListener('fetch', (e) => {
     return
   }
 
-  // Static assets (JS, CSS, images): cache-first
+  // Static assets (JS, CSS, images): network-first (ensures updates after deploy)
   if (url.pathname.match(/\.(js|css|png|jpg|svg|woff2?)$/)) {
     e.respondWith(
-      caches.match(e.request).then((cached) => cached || fetch(e.request).then((res) => {
-        const clone = res.clone()
-        caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone))
-        return res
-      }))
+      fetch(e.request)
+        .then((res) => {
+          const clone = res.clone()
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone))
+          return res
+        })
+        .catch(() => caches.match(e.request))
     )
     return
   }
