@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { safe, db } from '../lib/supabase'
-
-const SUPABASE_URL = 'https://domuweiczcimqncriykk.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvbXV3ZWljemNpbXFuY3JpeWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NTMyMTEsImV4cCI6MjA4ODQyOTIxMX0.fqkP4jYa1Q_Y6jQGDwSV_sAfQV0lkDQvgZI445Q-u30'
+import { safe, db, createRealtimeWs } from '../lib/supabase'
 
 export default function LiveSetlist({ eventId, fanId }) {
   const [songs, setSongs] = useState([])
   const [votes, setVotes] = useState({}) // song_id → count
   const [myVotes, setMyVotes] = useState(new Set())
   const [loading, setLoading] = useState(true)
+  const [wsStatus, setWsStatus] = useState('connecting') // connecting | connected | disconnected
+  const [totalVoters, setTotalVoters] = useState(0)
 
   const loadData = useCallback(async () => {
     try {
@@ -18,58 +17,48 @@ export default function LiveSetlist({ eventId, fanId }) {
       const votesData = await safe('live_votes', `event_id=eq.${eventId}`)
       const counts = {}
       const mine = new Set()
+      const uniqueFans = new Set()
       ;(votesData || []).forEach(v => {
         counts[v.song_id] = (counts[v.song_id] || 0) + 1
+        uniqueFans.add(v.fan_id)
         if (v.fan_id === fanId) mine.add(v.song_id)
       })
       setVotes(counts)
       setMyVotes(mine)
+      setTotalVoters(uniqueFans.size)
     } catch { /* ignore */ }
     setLoading(false)
   }, [eventId, fanId])
 
   useEffect(() => { loadData() }, [loadData])
 
-  // Realtime subscription
+  // Realtime subscription with shared helper
   useEffect(() => {
-    let ws
-    try {
-      ws = new WebSocket(`wss://domuweiczcimqncriykk.supabase.co/realtime/v1/websocket?apikey=${SUPABASE_KEY}&vsn=1.0.0`)
-      ws.onopen = () => {
-        ws.send(JSON.stringify({
-          topic: `realtime:public:live_votes:event_id=eq.${eventId}`,
-          event: 'phx_join',
-          payload: {},
-          ref: '1',
-        }))
-      }
-      ws.onmessage = (msg) => {
-        try {
-          const data = JSON.parse(msg.data)
-          if (data.event === 'INSERT') {
-            const row = data.payload?.record
-            if (row) {
-              setVotes(prev => ({ ...prev, [row.song_id]: (prev[row.song_id] || 0) + 1 }))
-              if (row.fan_id === fanId) setMyVotes(prev => new Set([...prev, row.song_id]))
-            }
-          }
-          // Respond to heartbeat
-          if (data.event === 'heartbeat' || data.ref === 'heartbeat') {
-            ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: 'heartbeat' }))
-          }
-        } catch { /* ignore */ }
-      }
-      // Send heartbeat every 30s
-      const hb = setInterval(() => {
-        if (ws.readyState === 1) {
-          ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: 'heartbeat' }))
+    let pollInterval = null
+
+    const cleanup = createRealtimeWs(
+      `realtime:public:live_votes:event_id=eq.${eventId}`,
+      (row) => {
+        setVotes(prev => ({ ...prev, [row.song_id]: (prev[row.song_id] || 0) + 1 }))
+        if (row.fan_id === fanId) setMyVotes(prev => new Set([...prev, row.song_id]))
+        setTotalVoters(prev => prev + 1) // approximate — may count same fan twice but good enough for display
+      },
+      (status) => {
+        setWsStatus(status)
+        // Fallback polling if WS disconnects
+        if (status === 'disconnected' && !pollInterval) {
+          pollInterval = setInterval(loadData, 10000)
         }
-      }, 30000)
-      return () => { clearInterval(hb); ws.close() }
-    } catch {
-      // Fallback: poll every 10s
-      const interval = setInterval(loadData, 10000)
-      return () => clearInterval(interval)
+        if (status === 'connected' && pollInterval) {
+          clearInterval(pollInterval)
+          pollInterval = null
+        }
+      }
+    )
+
+    return () => {
+      cleanup()
+      if (pollInterval) clearInterval(pollInterval)
     }
   }, [eventId, fanId, loadData])
 
@@ -98,11 +87,37 @@ export default function LiveSetlist({ eventId, fanId }) {
 
   return (
     <div style={{ padding: '0 16px 100px' }}>
-      <div style={{ fontSize: 18, fontWeight: 900, color: '#F0ECE2', marginBottom: 4 }}>
-        Setlist interactive
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <div style={{ fontSize: 18, fontWeight: 900, color: '#F0ECE2' }}>
+          Setlist interactive
+        </div>
+        {/* Live indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{
+            width: 8, height: 8, borderRadius: '50%',
+            background: wsStatus === 'connected' ? '#5DAB8B' : wsStatus === 'connecting' ? '#E8935A' : '#D4648A',
+            boxShadow: wsStatus === 'connected' ? '0 0 8px rgba(93,171,139,0.6)' : 'none',
+            animation: wsStatus === 'connected' ? 'ek-pulse 2s infinite' : 'none',
+          }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: wsStatus === 'connected' ? '#5DAB8B' : 'rgba(240,236,226,0.4)' }}>
+            {wsStatus === 'connected' ? 'En direct' : wsStatus === 'connecting' ? 'Connexion...' : 'Hors ligne'}
+          </span>
+        </div>
       </div>
-      <div style={{ fontSize: 12, color: 'rgba(240,236,226,0.5)', marginBottom: 16 }}>
-        Vote pour les titres que tu veux entendre !
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 12, color: 'rgba(240,236,226,0.5)' }}>
+          Vote pour les titres que tu veux entendre !
+        </div>
+        {totalVoters > 0 && (
+          <div style={{
+            padding: '3px 10px', borderRadius: 8,
+            background: 'rgba(232,115,90,0.12)', border: '1px solid rgba(232,115,90,0.25)',
+            color: '#E8735A', fontSize: 11, fontWeight: 800,
+          }}>
+            {totalVoters} fan{totalVoters > 1 ? 's' : ''}
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -158,7 +173,7 @@ export default function LiveSetlist({ eventId, fanId }) {
                   <span style={{
                     padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 800,
                     background: 'rgba(93,171,139,0.15)', color: '#5DAB8B',
-                  }}>Joue</span>
+                  }}>Joué</span>
                 )}
               </div>
             </div>
@@ -172,6 +187,24 @@ export default function LiveSetlist({ eventId, fanId }) {
           Pas encore de setlist pour cet event
         </div>
       )}
+
+      {/* Fallback polling notice */}
+      {wsStatus === 'disconnected' && (
+        <div style={{
+          marginTop: 12, padding: '8px 14px', borderRadius: 10, textAlign: 'center',
+          background: 'rgba(212,100,138,0.1)', border: '1px solid rgba(212,100,138,0.2)',
+          color: '#D4648A', fontSize: 11, fontWeight: 700,
+        }}>
+          Connexion temps réel perdue — mise à jour auto toutes les 10s
+        </div>
+      )}
+
+      <style>{`
+        @keyframes ek-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
     </div>
   )
 }

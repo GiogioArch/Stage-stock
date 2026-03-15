@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { safe } from '../lib/supabase'
 import LiveSetlist from './LiveSetlist'
-import LiveShop from './LiveShop'
 import LiveReactions from './LiveReactions'
 
 const SCREENS = [
   { id: 'home', label: 'Accueil', icon: '🏠' },
   { id: 'setlist', label: 'Setlist', icon: '🎵' },
-  { id: 'shop', label: 'Boutique', icon: '🛍️' },
 ]
 
 // Generate or retrieve a persistent fan fingerprint
@@ -25,6 +23,18 @@ export default function LiveApp() {
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const fanId = getFanId()
+
+  // Set dark status bar
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="theme-color"]')
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'theme-color'
+      document.head.appendChild(meta)
+    }
+    meta.content = '#1a1520'
+    return () => { meta.content = '#FFF8F0' }
+  }, [])
 
   // Load the next upcoming event
   useEffect(() => {
@@ -96,7 +106,6 @@ export default function LiveApp() {
       {/* Screen content */}
       {screen === 'home' && <LiveHome event={event} onNavigate={setScreen} />}
       {screen === 'setlist' && event && <LiveSetlist eventId={event.id} fanId={fanId} />}
-      {screen === 'shop' && event && <LiveShop eventId={event.id} fanId={fanId} />}
 
       {/* Reactions bar (always visible) */}
       {event && <LiveReactions eventId={event.id} fanId={fanId} />}
@@ -129,12 +138,20 @@ function LiveHome({ event, onNavigate }) {
   if (!event) {
     return (
       <div style={{ padding: '60px 24px', textAlign: 'center' }}>
-        <div style={{ fontSize: 64, marginBottom: 16 }}>🎪</div>
-        <div style={{ fontSize: 20, fontWeight: 900, color: '#F0ECE2', marginBottom: 8 }}>
-          Pas de concert en cours
+        <div style={{ fontSize: 80, marginBottom: 20 }}>🎤</div>
+        <div style={{ fontSize: 24, fontWeight: 900, color: '#F0ECE2', marginBottom: 10 }}>
+          Aucun concert prévu
         </div>
-        <div style={{ fontSize: 13, color: 'rgba(240,236,226,0.5)', lineHeight: 1.6 }}>
-          Reviens bientot pour le prochain show !
+        <div style={{ fontSize: 14, color: 'rgba(240,236,226,0.5)', lineHeight: 1.7, maxWidth: 280, margin: '0 auto' }}>
+          Il n'y a pas de show programmé pour le moment. Suis <span style={{ color: '#E8735A', fontWeight: 700 }}>E.sy Kennenga</span> sur les réseaux pour ne rien rater !
+        </div>
+        <div style={{
+          marginTop: 24, display: 'inline-block',
+          padding: '10px 24px', borderRadius: 14,
+          background: 'rgba(232,115,90,0.1)', border: '1px solid rgba(232,115,90,0.2)',
+          color: '#E8735A', fontSize: 13, fontWeight: 800,
+        }}>
+          Reviens bientôt
         </div>
       </div>
     )
@@ -187,27 +204,16 @@ function LiveHome({ event, onNavigate }) {
         )}
       </div>
 
-      {/* Quick actions */}
-      <div style={{ display: 'flex', gap: 10 }}>
-        <button onClick={() => onNavigate('setlist')} style={{
-          flex: 1, padding: '20px 12px', borderRadius: 16, textAlign: 'center',
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.06)',
-          cursor: 'pointer',
-        }}>
-          <div style={{ fontSize: 28, marginBottom: 6 }}>🎵</div>
-          <div style={{ fontSize: 13, fontWeight: 800, color: '#F0ECE2' }}>Voter la setlist</div>
-          <div style={{ fontSize: 10, color: 'rgba(240,236,226,0.4)', marginTop: 2 }}>Choisis les titres</div>
-        </button>
-        <button onClick={() => onNavigate('shop')} style={{
-          flex: 1, padding: '20px 12px', borderRadius: 16, textAlign: 'center',
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.06)',
-          cursor: 'pointer',
-        }}>
-          <div style={{ fontSize: 28, marginBottom: 6 }}>🛍️</div>
-          <div style={{ fontSize: 13, fontWeight: 800, color: '#F0ECE2' }}>Merch</div>
-          <div style={{ fontSize: 10, color: 'rgba(240,236,226,0.4)', marginTop: 2 }}>T-shirts & plus</div>
-        </button>
-      </div>
+      {/* Quick action — Setlist only */}
+      <button onClick={() => onNavigate('setlist')} style={{
+        width: '100%', padding: '22px 16px', borderRadius: 16, textAlign: 'center',
+        background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.06)',
+        cursor: 'pointer',
+      }}>
+        <div style={{ fontSize: 32, marginBottom: 8 }}>🎵</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#F0ECE2' }}>Voter la setlist</div>
+        <div style={{ fontSize: 12, color: 'rgba(240,236,226,0.4)', marginTop: 4 }}>Choisis les titres du concert !</div>
+      </button>
     </div>
   )
 }

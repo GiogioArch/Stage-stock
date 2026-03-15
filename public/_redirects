@@ -1,0 +1,4 @@
+/live    /index.html   200
+/live/*  /index.html   200
+/display /index.html   200
+/*       /index.html   200

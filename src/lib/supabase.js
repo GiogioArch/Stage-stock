@@ -1,6 +1,6 @@
 // ─── Supabase Configuration ───
-const SUPABASE_URL = 'https://domuweiczcimqncriykk.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvbXV3ZWljemNpbXFuY3JpeWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NTMyMTEsImV4cCI6MjA4ODQyOTIxMX0.fqkP4jYa1Q_Y6jQGDwSV_sAfQV0lkDQvgZI445Q-u30'
+export const SUPABASE_URL = 'https://domuweiczcimqncriykk.supabase.co'
+export const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvbXV3ZWljemNpbXFuY3JpeWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NTMyMTEsImV4cCI6MjA4ODQyOTIxMX0.fqkP4jYa1Q_Y6jQGDwSV_sAfQV0lkDQvgZI445Q-u30'
 
 // NOTE: If the key above stops working (401 errors), check INSTRUCTIONS-PROJET.md
 // The anon key starts with eyJ...NzI4NTMyMTE
@@ -215,4 +215,40 @@ export async function safe(table, query = '') {
   } catch {
     return []
   }
+}
+
+// ─── Realtime WebSocket helper (for EK LIVE) ───
+export function createRealtimeWs(topic, onInsert, onStatusChange) {
+  let ws
+  let hbInterval
+  try {
+    ws = new WebSocket(`wss://domuweiczcimqncriykk.supabase.co/realtime/v1/websocket?apikey=${SUPABASE_KEY}&vsn=1.0.0`)
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ topic, event: 'phx_join', payload: {}, ref: '1' }))
+      if (onStatusChange) onStatusChange('connected')
+    }
+    ws.onclose = () => { if (onStatusChange) onStatusChange('disconnected') }
+    ws.onerror = () => { if (onStatusChange) onStatusChange('disconnected') }
+    ws.onmessage = (msg) => {
+      try {
+        const data = JSON.parse(msg.data)
+        if (data.event === 'INSERT') {
+          const row = data.payload?.record
+          if (row && onInsert) onInsert(row)
+        }
+        if (data.event === 'heartbeat' || data.ref === 'heartbeat') {
+          ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: 'heartbeat' }))
+        }
+      } catch { /* ignore */ }
+    }
+    hbInterval = setInterval(() => {
+      if (ws.readyState === 1) {
+        ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: 'heartbeat' }))
+      }
+    }, 30000)
+  } catch {
+    if (onStatusChange) onStatusChange('disconnected')
+    return () => {}
+  }
+  return () => { clearInterval(hbInterval); ws.close() }
 }

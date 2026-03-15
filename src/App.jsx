@@ -371,8 +371,8 @@ export default function App() {
 
   // ─── EK LIVE routing (no auth required) ───
   const pathname = window.location.pathname
-  if (pathname.startsWith('/live')) return <LiveApp />
-  if (pathname.startsWith('/display')) return <LiveDisplay />
+  if (pathname.startsWith('/live')) return <LiveErrorBoundary><LiveApp /></LiveErrorBoundary>
+  if (pathname.startsWith('/display')) return <LiveErrorBoundary><LiveDisplay /></LiveErrorBoundary>
 
   if (user === undefined) return <SplashScreen text="Vérification..." />
 
@@ -915,6 +915,44 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
       )}
     </div>
   )
+}
+
+// ─── EK LIVE Error Boundary ───
+class LiveErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100dvh',
+          background: 'linear-gradient(180deg, #1a1520 0%, #2a1f30 100%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexDirection: 'column', gap: 16, padding: 32, textAlign: 'center',
+          fontFamily: "'Nunito', sans-serif",
+        }}>
+          <div style={{ fontSize: 64 }}>🎤</div>
+          <div style={{ fontSize: 20, fontWeight: 900, color: '#F0ECE2' }}>
+            Oups, petit souci technique !
+          </div>
+          <div style={{ fontSize: 14, color: 'rgba(240,236,226,0.5)', lineHeight: 1.6, maxWidth: 300 }}>
+            Recharge la page pour revenir au concert.
+          </div>
+          <button onClick={() => window.location.reload()} style={{
+            marginTop: 8, padding: '12px 28px', borderRadius: 14,
+            background: '#E8735A', color: 'white', fontSize: 14, fontWeight: 800,
+            border: 'none', cursor: 'pointer',
+          }}>Recharger</button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
 }
 
 // ─── Splash Screen ───

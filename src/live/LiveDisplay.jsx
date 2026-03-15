@@ -1,75 +1,98 @@
-import React, { useState, useEffect, useRef } from 'react'
-
-const SUPABASE_URL = 'https://domuweiczcimqncriykk.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvbXV3ZWljemNpbXFuY3JpeWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NTMyMTEsImV4cCI6MjA4ODQyOTIxMX0.fqkP4jYa1Q_Y6jQGDwSV_sAfQV0lkDQvgZI445Q-u30'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { createRealtimeWs } from '../lib/supabase'
 
 export default function LiveDisplay() {
   const [emojis, setEmojis] = useState([])
+  const [emojiCounts, setEmojiCounts] = useState({}) // emoji → count
   const [totalCount, setTotalCount] = useState(0)
   const nextId = useRef(0)
+  const containerRef = useRef(null)
+
+  // Auto fullscreen on first click
+  const requestFullscreen = useCallback(() => {
+    const el = containerRef.current || document.documentElement
+    if (el.requestFullscreen) el.requestFullscreen()
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen()
+  }, [])
 
   useEffect(() => {
-    let ws
-    try {
-      ws = new WebSocket(`wss://domuweiczcimqncriykk.supabase.co/realtime/v1/websocket?apikey=${SUPABASE_KEY}&vsn=1.0.0`)
-      ws.onopen = () => {
-        ws.send(JSON.stringify({
-          topic: 'realtime:public:live_reactions',
-          event: 'phx_join',
-          payload: {},
-          ref: '1',
-        }))
+    const cleanup = createRealtimeWs(
+      'realtime:public:live_reactions',
+      (row) => {
+        const id = nextId.current++
+        const left = 5 + Math.random() * 90
+        const size = 40 + Math.random() * 60
+        setEmojis(prev => [...prev, { id, emoji: row.emoji, left, size }])
+        setTotalCount(prev => prev + 1)
+        setEmojiCounts(prev => ({ ...prev, [row.emoji]: (prev[row.emoji] || 0) + 1 }))
+        setTimeout(() => {
+          setEmojis(prev => prev.filter(e => e.id !== id))
+        }, 3000)
       }
-      ws.onmessage = (msg) => {
-        try {
-          const data = JSON.parse(msg.data)
-          if (data.event === 'INSERT') {
-            const row = data.payload?.record
-            if (row) {
-              const id = nextId.current++
-              const left = 5 + Math.random() * 90
-              const size = 40 + Math.random() * 60
-              setEmojis(prev => [...prev, { id, emoji: row.emoji, left, size }])
-              setTotalCount(prev => prev + 1)
-              // Remove after 3s
-              setTimeout(() => {
-                setEmojis(prev => prev.filter(e => e.id !== id))
-              }, 3000)
-            }
-          }
-          if (data.event === 'heartbeat' || data.ref === 'heartbeat') {
-            ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: 'heartbeat' }))
-          }
-        } catch { /* ignore */ }
-      }
-      const hb = setInterval(() => {
-        if (ws.readyState === 1) {
-          ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: 'heartbeat' }))
-        }
-      }, 30000)
-      return () => { clearInterval(hb); ws.close() }
-    } catch {
-      return () => {}
-    }
+    )
+    return cleanup
   }, [])
 
   return (
-    <div style={{
+    <div ref={containerRef} onClick={requestFullscreen} style={{
       position: 'fixed', inset: 0,
-      background: 'transparent',
+      background: '#000000',
       overflow: 'hidden',
       fontFamily: "'Nunito', sans-serif",
+      cursor: 'pointer',
     }}>
-      {/* Total counter */}
+      {/* EK LIVE branding */}
+      <div style={{
+        position: 'absolute', top: 20, left: 20,
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 14,
+          background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 22, boxShadow: '0 4px 20px rgba(232,115,90,0.4)',
+        }}>🎪</div>
+        <div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#E8735A', letterSpacing: 2 }}>EK LIVE</div>
+          <div style={{ fontSize: 10, color: 'rgba(240,236,226,0.3)', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 700 }}>
+            Réactions du public
+          </div>
+        </div>
+      </div>
+
+      {/* Per-emoji counters */}
       <div style={{
         position: 'absolute', top: 20, right: 20,
-        padding: '12px 24px', borderRadius: 16,
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-        color: '#F0ECE2', fontSize: 24, fontWeight: 900,
-        display: 'flex', alignItems: 'center', gap: 8,
+        display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end',
       }}>
-        <span style={{ fontSize: 28 }}>🔥</span>
-        {totalCount}
+        {/* Total */}
+        <div style={{
+          padding: '10px 20px', borderRadius: 14,
+          background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)',
+          color: '#F0ECE2', fontSize: 22, fontWeight: 900,
+          display: 'flex', alignItems: 'center', gap: 8,
+          border: '1px solid rgba(255,255,255,0.06)',
+        }}>
+          <span style={{ fontSize: 24 }}>🔥</span>
+          {totalCount}
+        </div>
+        {/* Per emoji breakdown */}
+        <div style={{ display: 'flex', gap: 6 }}>
+          {Object.entries(emojiCounts)
+            .sort((a, b) => b[1] - a[1])
+            .map(([emoji, count]) => (
+              <div key={emoji} style={{
+                padding: '6px 10px', borderRadius: 10,
+                background: 'rgba(255,255,255,0.06)',
+                color: '#F0ECE2', fontSize: 13, fontWeight: 800,
+                display: 'flex', alignItems: 'center', gap: 4,
+                border: '1px solid rgba(255,255,255,0.04)',
+              }}>
+                <span style={{ fontSize: 16 }}>{emoji}</span>
+                {count}
+              </div>
+            ))}
+        </div>
       </div>
 
       {/* Floating emojis */}
@@ -84,12 +107,25 @@ export default function LiveDisplay() {
         }}>{e.emoji}</div>
       ))}
 
+      {/* Tap hint (fades after 5s) */}
+      <div style={{
+        position: 'absolute', bottom: 30, left: 0, right: 0,
+        textAlign: 'center', color: 'rgba(240,236,226,0.2)', fontSize: 12, fontWeight: 700,
+        animation: 'ek-fade-hint 5s forwards',
+      }}>
+        Cliquez pour plein écran
+      </div>
+
       <style>{`
         @keyframes display-float {
           0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
           10% { opacity: 1; transform: translateY(-10vh) scale(1) rotate(5deg); }
           90% { opacity: 0.8; }
           100% { transform: translateY(-100vh) scale(1.2) rotate(-10deg); opacity: 0; }
+        }
+        @keyframes ek-fade-hint {
+          0%, 60% { opacity: 1; }
+          100% { opacity: 0; }
         }
       `}</style>
     </div>
