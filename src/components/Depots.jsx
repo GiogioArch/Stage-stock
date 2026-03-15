@@ -7,6 +7,9 @@ export default function Depots({ locations, stock, products, movements, families
   const [showAdd, setShowAdd] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
   const [selectedDepot, setSelectedDepot] = useState(null)
+  const [editingLocation, setEditingLocation] = useState(null)
+  const [deletingLocation, setDeletingLocation] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Stats per location
   const locationStats = useMemo(() => {
@@ -29,6 +32,25 @@ export default function Depots({ locations, stock, products, movements, families
   const totalStock = locationStats.reduce((s, l) => s + l.totalQty, 0)
   const activeLocations = locationStats.filter(l => l.totalQty > 0).length
 
+  const handleDelete = async () => {
+    if (!deletingLocation) return
+    setDeleting(true)
+    try {
+      // Delete stock and movements for this location, then the location itself
+      await db.delete('stock', `location_id=eq.${deletingLocation.id}`)
+      await db.delete('movements', `from_loc=eq.${deletingLocation.id}`)
+      await db.delete('movements', `to_loc=eq.${deletingLocation.id}`)
+      await db.delete('locations', `id=eq.${deletingLocation.id}`)
+      onToast('Dépôt supprimé')
+      setDeletingLocation(null)
+      onReload()
+    } catch (e) {
+      onToast('Erreur: ' + e.message, '#D4648A')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   // ─── Depot detail overlay ───
   if (selectedDepot) {
     return (
@@ -42,6 +64,9 @@ export default function Depots({ locations, stock, products, movements, families
         onClose={() => setSelectedDepot(null)}
         onMovement={onMovement}
         onToast={onToast}
+        onEdit={(loc) => { setSelectedDepot(null); setEditingLocation(loc) }}
+        onDelete={(loc) => { setSelectedDepot(null); setDeletingLocation(loc) }}
+        onReload={onReload}
       />
     )
   }
@@ -76,6 +101,61 @@ export default function Depots({ locations, stock, products, movements, families
         </div>
       </div>
 
+      {/* Edit location form */}
+      {editingLocation && (
+        <LocationForm
+          location={editingLocation}
+          orgId={orgId}
+          onDone={() => { setEditingLocation(null); onReload() }}
+          onCancel={() => setEditingLocation(null)}
+          onToast={onToast}
+        />
+      )}
+
+      {/* Delete confirmation */}
+      {deletingLocation && (
+        <div className="card" style={{
+          padding: 20, marginBottom: 14,
+          border: '2px solid #D4648A30', background: '#FDF0F4',
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#D4648A', marginBottom: 8, textAlign: 'center' }}>
+            Supprimer ce dépôt ?
+          </div>
+          <div style={{ fontSize: 12, color: '#9A8B94', textAlign: 'center', marginBottom: 6, lineHeight: 1.5 }}>
+            <strong>{deletingLocation.icon} {deletingLocation.name}</strong>
+          </div>
+          {(() => {
+            const locSt = locationStats.find(l => l.id === deletingLocation.id)
+            if (locSt && locSt.totalQty > 0) {
+              return (
+                <div style={{
+                  padding: '8px 12px', borderRadius: 10, marginBottom: 12,
+                  background: '#FEF3CD', border: '1px solid #F0D78C',
+                  fontSize: 11, color: '#856404', fontWeight: 700, textAlign: 'center',
+                }}>
+                  Ce dépôt contient {locSt.totalQty} unités de stock qui seront supprimées.
+                </div>
+              )
+            }
+            return null
+          })()}
+          <div style={{ fontSize: 11, color: '#9A8B94', textAlign: 'center', marginBottom: 16 }}>
+            Cette action est irréversible.
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => setDeletingLocation(null)} style={{
+              flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 700,
+              background: 'white', color: '#9A8B94', cursor: 'pointer', border: '1.5px solid #E8DED8',
+            }}>Annuler</button>
+            <button onClick={handleDelete} disabled={deleting} style={{
+              flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 800,
+              background: '#D4648A', color: 'white', cursor: 'pointer', border: 'none',
+              opacity: deleting ? 0.6 : 1,
+            }}>{deleting ? 'Suppression...' : 'Supprimer'}</button>
+          </div>
+        </div>
+      )}
+
       {/* Add location */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <button onClick={() => setShowAdd(!showAdd)} style={{
@@ -87,7 +167,14 @@ export default function Depots({ locations, stock, products, movements, families
         </button>
       </div>
 
-      {showAdd && <AddLocationForm onDone={() => { setShowAdd(false); onReload() }} onToast={onToast} orgId={orgId} />}
+      {showAdd && (
+        <LocationForm
+          orgId={orgId}
+          onDone={() => { setShowAdd(false); onReload() }}
+          onCancel={() => setShowAdd(false)}
+          onToast={onToast}
+        />
+      )}
 
       {/* Locations list */}
       {locationStats.length === 0 ? (
@@ -187,11 +274,13 @@ export default function Depots({ locations, stock, products, movements, families
   )
 }
 
-function AddLocationForm({ onDone, onToast, orgId }) {
-  const [name, setName] = useState('')
-  const [icon, setIcon] = useState('📍')
-  const [color, setColor] = useState('#5B8DB8')
-  const [description, setDescription] = useState('')
+// ─── Shared form for Create + Edit ───
+function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
+  const isEdit = !!location
+  const [name, setName] = useState(location?.name || '')
+  const [icon, setIcon] = useState(location?.icon || '📍')
+  const [color, setColor] = useState(location?.color || '#5B8DB8')
+  const [description, setDescription] = useState(location?.description || '')
   const [saving, setSaving] = useState(false)
 
   const ICONS = ['📍', '🏭', '🏢', '🚛', '🏠', '📦', '🎪', '🛒']
@@ -201,14 +290,19 @@ function AddLocationForm({ onDone, onToast, orgId }) {
     if (!name.trim()) return
     setSaving(true)
     try {
-      await db.insert('locations', {
+      const data = {
         name: name.trim(),
         icon,
         color,
         description: description.trim() || null,
-        org_id: orgId,
-      })
-      onToast('Dépôt créé')
+      }
+      if (isEdit) {
+        await db.update('locations', `id=eq.${location.id}`, data)
+        onToast('Dépôt modifié')
+      } else {
+        await db.insert('locations', { ...data, org_id: orgId })
+        onToast('Dépôt créé')
+      }
       onDone()
     } catch (e) {
       onToast('Erreur: ' + e.message, '#D4648A')
@@ -218,10 +312,12 @@ function AddLocationForm({ onDone, onToast, orgId }) {
   }
 
   return (
-    <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-      <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042', marginBottom: 12 }}>Nouveau dépôt</div>
+    <div className="card" style={{ padding: 16, marginBottom: 14, border: `2px solid ${isEdit ? '#5B8DB830' : '#E8DED8'}` }}>
+      <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042', marginBottom: 12 }}>
+        {isEdit ? 'Modifier le dépôt' : 'Nouveau dépôt'}
+      </div>
       <input className="input" value={name} onChange={e => setName(e.target.value)}
-        placeholder="Nom du dépôt" style={{ marginBottom: 10 }} />
+        placeholder="Nom du dépôt" style={{ marginBottom: 10 }} autoFocus />
       <input className="input" value={description} onChange={e => setDescription(e.target.value)}
         placeholder="Description (optionnel)" style={{ marginBottom: 10 }} />
       <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
@@ -249,9 +345,17 @@ function AddLocationForm({ onDone, onToast, orgId }) {
           ))}
         </div>
       </div>
-      <button onClick={handleSave} disabled={!name.trim() || saving} className="btn-primary">
-        {saving ? 'Création...' : 'Créer le dépôt'}
-      </button>
+      <div style={{ display: 'flex', gap: 10 }}>
+        {onCancel && (
+          <button onClick={onCancel} style={{
+            flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 700,
+            background: '#F0E8E4', color: '#9A8B94', cursor: 'pointer', border: 'none',
+          }}>Annuler</button>
+        )}
+        <button onClick={handleSave} disabled={!name.trim() || saving} className="btn-primary" style={{ flex: 2 }}>
+          {saving ? 'Enregistrement...' : isEdit ? 'Enregistrer' : 'Créer le dépôt'}
+        </button>
+      </div>
     </div>
   )
 }

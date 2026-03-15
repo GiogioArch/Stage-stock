@@ -3,7 +3,7 @@ import { getMoveConf, fmtDate, Badge } from './UI'
 
 export default function DepotDetail({
   location, stock, products, movements, families, subfamilies,
-  onClose, onMovement, onToast,
+  onClose, onMovement, onToast, onEdit, onDelete, onReload,
 }) {
   const [section, setSection] = useState('inventory')
 
@@ -86,7 +86,20 @@ export default function DepotDetail({
         <div style={{ fontSize: 15, fontWeight: 900, color: location.color || '#5B8DB8' }}>
           {location.icon || '📍'} {location.name}
         </div>
-        <div style={{ width: 80 }} />
+        <div style={{ display: 'flex', gap: 6 }}>
+          {onEdit && (
+            <button onClick={() => onEdit(location)} style={{
+              padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+              background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+            }}>✏️</button>
+          )}
+          {onDelete && (
+            <button onClick={() => onDelete(location)} style={{
+              padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+              background: '#FDF0F4', border: '1.5px solid #D4648A30', color: '#D4648A', cursor: 'pointer',
+            }}>🗑️</button>
+          )}
+        </div>
       </header>
 
       {/* KPI Banner */}

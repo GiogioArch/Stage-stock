@@ -6,9 +6,29 @@ const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tour
 
 export default function MyProjects({ userId, allProjects, onOpenProject, onProjectsChanged, onToast }) {
   const [showCreate, setShowCreate] = useState(false)
+  const [editingProject, setEditingProject] = useState(null)
+  const [deletingProject, setDeletingProject] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   const active = allProjects.filter(p => p.status !== 'archived')
   const archived = allProjects.filter(p => p.status === 'archived')
+
+  const handleDelete = async () => {
+    if (!deletingProject) return
+    setDeleting(true)
+    try {
+      // Delete project members then organization
+      await db.delete('project_members', `org_id=eq.${deletingProject.org_id}`)
+      await db.delete('organizations', `id=eq.${deletingProject.org_id}`)
+      onToast('Projet supprimé')
+      setDeletingProject(null)
+      onProjectsChanged()
+    } catch (e) {
+      onToast('Erreur: ' + e.message, '#D4648A')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <div style={{ padding: '0 16px 24px' }}>
@@ -21,6 +41,43 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
         </div>
       </div>
 
+      {/* Edit project form */}
+      {editingProject && (
+        <EditProjectForm
+          project={editingProject}
+          onSaved={() => { setEditingProject(null); onProjectsChanged() }}
+          onCancel={() => setEditingProject(null)}
+          onToast={onToast}
+        />
+      )}
+
+      {/* Delete confirmation */}
+      {deletingProject && (
+        <div className="card" style={{
+          padding: 20, marginBottom: 14,
+          border: '2px solid #D4648A30', background: '#FDF0F4',
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#D4648A', marginBottom: 8, textAlign: 'center' }}>
+            Supprimer ce projet ?
+          </div>
+          <div style={{ fontSize: 12, color: '#9A8B94', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
+            <strong>{deletingProject.org?.name}</strong><br />
+            Cette action est irréversible. Toutes les données du projet seront perdues.
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => setDeletingProject(null)} style={{
+              flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 700,
+              background: 'white', color: '#9A8B94', cursor: 'pointer', border: '1.5px solid #E8DED8',
+            }}>Annuler</button>
+            <button onClick={handleDelete} disabled={deleting} style={{
+              flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 800,
+              background: '#D4648A', color: 'white', cursor: 'pointer', border: 'none',
+              opacity: deleting ? 0.6 : 1,
+            }}>{deleting ? 'Suppression...' : 'Supprimer'}</button>
+          </div>
+        </div>
+      )}
+
       {/* Active projects */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {active.map(p => (
@@ -28,6 +85,8 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
             key={p.id}
             project={p}
             onOpen={() => onOpenProject(p)}
+            onEdit={() => { setEditingProject(p); setDeletingProject(null) }}
+            onDelete={() => { setDeletingProject(p); setEditingProject(null) }}
           />
         ))}
       </div>
@@ -40,7 +99,13 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20, opacity: 0.6 }}>
             {archived.map(p => (
-              <ProjectRow key={p.id} project={p} onOpen={() => onOpenProject(p)} />
+              <ProjectRow
+                key={p.id}
+                project={p}
+                onOpen={() => onOpenProject(p)}
+                onEdit={() => { setEditingProject(p); setDeletingProject(null) }}
+                onDelete={() => { setDeletingProject(p); setEditingProject(null) }}
+              />
             ))}
           </div>
         </>
@@ -65,7 +130,8 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
   )
 }
 
-function ProjectRow({ project, onOpen }) {
+function ProjectRow({ project, onOpen, onEdit, onDelete }) {
+  const [showMenu, setShowMenu] = useState(false)
   const roleConf = project.role_code ? ROLE_CONF[project.role_code] : null
   const statusColors = {
     active: { bg: '#5DAB8B15', color: '#5DAB8B', label: 'Actif' },
@@ -75,41 +141,128 @@ function ProjectRow({ project, onOpen }) {
   const st = statusColors[project.status] || statusColors.active
 
   return (
-    <button onClick={onOpen} className="card" style={{
-      width: '100%', padding: '18px 16px', textAlign: 'left', cursor: 'pointer',
+    <div className="card" style={{
+      padding: '18px 16px',
       borderLeft: `4px solid ${roleConf?.color || '#E8735A'}`,
+      position: 'relative',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{
-          width: 50, height: 50, borderRadius: 16,
-          background: `linear-gradient(135deg, ${roleConf?.color || '#E8735A'}15, ${roleConf?.color || '#E8735A'}08)`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
-        }}>{project.org?.logo || '🎪'}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 800, color: '#3D3042' }}>{project.org?.name || 'Projet'}</div>
-          <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-            <span style={{
-              padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 800,
-              background: st.bg, color: st.color,
-            }}>{st.label}</span>
-            {project.is_admin && (
-              <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 800, background: '#E8735A15', color: '#E8735A' }}>Admin</span>
-            )}
-            {roleConf && (
-              <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 800, background: `${roleConf.color}15`, color: roleConf.color }}>
-                {roleConf.icon} {roleConf.label}
-              </span>
+        <button onClick={onOpen} style={{
+          display: 'flex', alignItems: 'center', gap: 14, flex: 1, minWidth: 0,
+          background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left',
+        }}>
+          <div style={{
+            width: 50, height: 50, borderRadius: 16, flexShrink: 0,
+            background: `linear-gradient(135deg, ${roleConf?.color || '#E8735A'}15, ${roleConf?.color || '#E8735A'}08)`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
+          }}>{project.org?.logo || '🎪'}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#3D3042' }}>{project.org?.name || 'Projet'}</div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+              <span style={{
+                padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 800,
+                background: st.bg, color: st.color,
+              }}>{st.label}</span>
+              {project.is_admin && (
+                <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 800, background: '#E8735A15', color: '#E8735A' }}>Admin</span>
+              )}
+              {roleConf && (
+                <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 800, background: `${roleConf.color}15`, color: roleConf.color }}>
+                  {roleConf.icon} {roleConf.label}
+                </span>
+              )}
+            </div>
+            {project.created_at && (
+              <div style={{ fontSize: 10, color: '#B8A0AE', marginTop: 4 }}>
+                Membre depuis {new Date(project.created_at).toLocaleDateString('fr-FR')}
+              </div>
             )}
           </div>
-          {project.created_at && (
-            <div style={{ fontSize: 10, color: '#B8A0AE', marginTop: 4 }}>
-              Membre depuis {new Date(project.created_at).toLocaleDateString('fr-FR')}
-            </div>
-          )}
-        </div>
-        <div style={{ fontSize: 20, color: '#B8A0AE' }}>→</div>
+        </button>
+
+        {/* Menu button */}
+        <button onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu) }} style={{
+          width: 32, height: 32, borderRadius: 8, fontSize: 16,
+          background: showMenu ? '#F0E8E4' : 'transparent',
+          border: 'none', cursor: 'pointer', color: '#9A8B94',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>⋯</button>
       </div>
-    </button>
+
+      {/* Dropdown menu */}
+      {showMenu && (
+        <div style={{
+          position: 'absolute', top: 56, right: 16, zIndex: 10,
+          background: 'white', borderRadius: 12, padding: 6,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.12)', border: '1px solid #F0E8E4',
+          minWidth: 140,
+        }}>
+          <button onClick={() => { setShowMenu(false); onEdit() }} style={{
+            display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+            padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+            background: 'none', border: 'none', cursor: 'pointer', color: '#3D3042',
+          }}>
+            <span>✏️</span> Modifier
+          </button>
+          <button onClick={() => { setShowMenu(false); onDelete() }} style={{
+            display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+            padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+            background: 'none', border: 'none', cursor: 'pointer', color: '#D4648A',
+          }}>
+            <span>🗑️</span> Supprimer
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function EditProjectForm({ project, onSaved, onCancel, onToast }) {
+  const [name, setName] = useState(project.org?.name || '')
+  const [slug, setSlug] = useState(project.org?.slug || '')
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    if (!name.trim()) return
+    setSaving(true)
+    try {
+      await db.update('organizations', `id=eq.${project.org_id}`, {
+        name: name.trim(),
+        slug: slug || 'project',
+      })
+      onToast('Projet modifié')
+      onSaved()
+    } catch (e) {
+      onToast('Erreur: ' + e.message, '#D4648A')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="card" style={{ padding: 20, marginBottom: 14, border: '2px solid #5B8DB830' }}>
+      <div style={{ fontSize: 15, fontWeight: 800, color: '#3D3042', marginBottom: 16, textAlign: 'center' }}>
+        Modifier le projet
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <label className="label">Nom du projet *</label>
+        <input className="input" value={name} onChange={e => setName(e.target.value)} autoFocus />
+      </div>
+      <div style={{ marginBottom: 20 }}>
+        <label className="label">Identifiant</label>
+        <input className="input" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+          style={{ fontSize: 12, color: '#B8A0AE' }} />
+      </div>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button onClick={onCancel} style={{
+          flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 700,
+          background: '#F0E8E4', color: '#9A8B94', cursor: 'pointer', border: 'none',
+        }}>Annuler</button>
+        <button onClick={handleSave} disabled={!name.trim() || saving} className="btn-primary" style={{ flex: 2 }}>
+          {saving ? 'Enregistrement...' : 'Enregistrer'}
+        </button>
+      </div>
+    </div>
   )
 }
 
