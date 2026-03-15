@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { db, safe } from '../lib/supabase'
 import { ROLE_CONF } from './RolePicker'
 
@@ -48,6 +48,7 @@ function maskSS(v) {
 export default function ProfilePage({
   user, userProfile, userRole, userDetails: initialDetails,
   membership, selectedOrg, roles,
+  userGear, userAvailability, userIncome, allEvents,
   onClose, onToast, onReload, onLogout, onSwitchProject,
 }) {
   const [tab, setTab] = useState('identity')
@@ -198,9 +199,15 @@ export default function ProfilePage({
             onSwitchProject={onSwitchProject}
           />
         )}
-        {tab === 'gear' && <PlaceholderTab icon="📦" title="Mon matériel" desc="Inventaire personnel de ton matériel, instruments et équipements." />}
-        {tab === 'calendar' && <PlaceholderTab icon="📅" title="Mon calendrier" desc="Tes dates de disponibilité, engagements et planning personnel." />}
-        {tab === 'finances' && <PlaceholderTab icon="💰" title="Mes finances" desc="Suivi des cachets, factures, notes de frais et revenus." />}
+        {tab === 'gear' && (
+          <GearTab user={user} gear={userGear || []} onToast={onToast} onReload={onReload} />
+        )}
+        {tab === 'calendar' && (
+          <CalendarTab user={user} events={allEvents || []} availability={userAvailability || []} onToast={onToast} onReload={onReload} />
+        )}
+        {tab === 'finances' && (
+          <FinancesTab user={user} income={userIncome || []} events={allEvents || []} onToast={onToast} onReload={onReload} />
+        )}
       </div>
 
       {/* Bottom actions — only in overlay mode */}
@@ -489,18 +496,576 @@ function ProjectsTab({ user, membership, selectedOrg, roles, onSwitchProject }) 
 }
 
 // ════════════════════════════════════════
-// Placeholder tabs
+// Section 4 — Matériel personnel
 // ════════════════════════════════════════
-function PlaceholderTab({ icon, title, desc }) {
+const GEAR_CATS = {
+  instrument: { icon: '🎸', label: 'Instrument', color: '#D4648A' },
+  son:        { icon: '🔊', label: 'Son', color: '#5B8DB8' },
+  lumiere:    { icon: '💡', label: 'Lumière', color: '#E8935A' },
+  tech:       { icon: '💻', label: 'Tech', color: '#9B7DC4' },
+  scene:      { icon: '🎭', label: 'Scène', color: '#E8735A' },
+  transport:  { icon: '🚐', label: 'Transport', color: '#5DAB8B' },
+  other:      { icon: '📦', label: 'Autre', color: '#9A8B94' },
+}
+
+const CONDITION_CONF = {
+  neuf:      { label: 'Neuf', color: '#5DAB8B' },
+  excellent: { label: 'Excellent', color: '#5B8DB8' },
+  bon:       { label: 'Bon', color: '#E8935A' },
+  use:       { label: 'Usé', color: '#D4648A' },
+  hs:        { label: 'HS', color: '#9A8B94' },
+}
+
+function GearTab({ user, gear, onToast, onReload }) {
+  const [showAdd, setShowAdd] = useState(false)
+  const [form, setForm] = useState({ name: '', category: 'instrument', brand: '', model: '', serial_number: '', purchase_value: '', current_condition: 'bon', notes: '' })
+  const [saving, setSaving] = useState(false)
+
+  const set = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
+
+  const totalValue = gear.reduce((s, g) => s + (g.purchase_value || 0), 0)
+
+  const handleSave = async () => {
+    if (!form.name.trim()) return
+    setSaving(true)
+    try {
+      await db.insert('user_gear', {
+        user_id: user.id,
+        name: form.name.trim(),
+        category: form.category,
+        brand: form.brand.trim() || null,
+        model: form.model.trim() || null,
+        serial_number: form.serial_number.trim() || null,
+        purchase_value: form.purchase_value ? parseFloat(form.purchase_value) : 0,
+        current_condition: form.current_condition,
+        notes: form.notes.trim() || null,
+      })
+      onToast('Équipement ajouté')
+      setForm({ name: '', category: 'instrument', brand: '', model: '', serial_number: '', purchase_value: '', current_condition: 'bon', notes: '' })
+      setShowAdd(false)
+      if (onReload) onReload()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#D4648A')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const deleteGear = async (id) => {
+    try {
+      await db.delete('user_gear', `id=eq.${id}`)
+      onToast('Supprimé')
+      if (onReload) onReload()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#D4648A')
+    }
+  }
+
   return (
-    <div className="card" style={{ padding: '32px 20px', textAlign: 'center', opacity: 0.6 }}>
-      <div style={{ fontSize: 48, marginBottom: 12 }}>{icon}</div>
-      <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042', marginBottom: 6 }}>{title}</div>
-      <div style={{ fontSize: 13, color: '#9A8B94', lineHeight: 1.5, marginBottom: 12 }}>{desc}</div>
-      <span style={{
-        display: 'inline-block', padding: '4px 14px', borderRadius: 8,
-        background: '#E8DED8', color: '#9A8B94', fontSize: 11, fontWeight: 800,
-      }}>Bientôt disponible</span>
+    <div>
+      {/* Stats */}
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 14 }}>
+        <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A' }}>{gear.length}</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Équipements</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#5DAB8B' }}>{Math.round(totalValue)}€</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Valeur totale</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#5B8DB8' }}>{gear.filter(g => g.available).length}</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Disponibles</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Add button */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        <button onClick={() => setShowAdd(!showAdd)} style={{
+          padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 800,
+          background: showAdd ? '#F0E8E4' : '#9B7DC4', color: showAdd ? '#9A8B94' : 'white',
+          cursor: 'pointer', border: 'none',
+        }}>{showAdd ? 'Annuler' : '+ Ajouter'}</button>
+      </div>
+
+      {/* Add form */}
+      {showAdd && (
+        <div className="card" style={{ padding: 16, marginBottom: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042', marginBottom: 12 }}>Nouvel équipement</div>
+          <Field label="Nom" value={form.name} onChange={v => set('name', v)} placeholder="ex: Guitare Martin D-28" />
+          <div style={{ marginBottom: 12 }}>
+            <label className="label">Catégorie</label>
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              {Object.entries(GEAR_CATS).map(([k, v]) => (
+                <button key={k} onClick={() => set('category', k)} style={{
+                  padding: '5px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                  background: form.category === k ? `${v.color}15` : 'white',
+                  color: form.category === k ? v.color : '#9A8B94',
+                  border: `1.5px solid ${form.category === k ? v.color + '40' : '#E8DED8'}`,
+                }}>{v.icon} {v.label}</button>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ flex: 1 }}><Field label="Marque" value={form.brand} onChange={v => set('brand', v)} /></div>
+            <div style={{ flex: 1 }}><Field label="Modèle" value={form.model} onChange={v => set('model', v)} /></div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ flex: 1 }}><Field label="N° série" value={form.serial_number} onChange={v => set('serial_number', v)} /></div>
+            <div style={{ flex: 1 }}><Field label="Valeur (€)" value={form.purchase_value} onChange={v => set('purchase_value', v.replace(/[^0-9.]/g, ''))} inputMode="decimal" /></div>
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <label className="label">État</label>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {Object.entries(CONDITION_CONF).map(([k, v]) => (
+                <button key={k} onClick={() => set('current_condition', k)} style={{
+                  flex: 1, padding: '6px 4px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', textAlign: 'center',
+                  background: form.current_condition === k ? `${v.color}15` : 'white',
+                  color: form.current_condition === k ? v.color : '#9A8B94',
+                  border: `1.5px solid ${form.current_condition === k ? v.color + '40' : '#E8DED8'}`,
+                }}>{v.label}</button>
+              ))}
+            </div>
+          </div>
+          <Field label="Notes" value={form.notes} onChange={v => set('notes', v)} multiline placeholder="Optionnel" />
+          <button onClick={handleSave} disabled={!form.name.trim() || saving} className="btn-primary">
+            {saving ? 'Ajout...' : 'Ajouter'}
+          </button>
+        </div>
+      )}
+
+      {/* Gear list */}
+      {gear.length === 0 && !showAdd ? (
+        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>📦</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>Aucun matériel</div>
+          <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>Ajoute tes instruments et équipements perso</div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {gear.map(g => {
+            const cat = GEAR_CATS[g.category] || GEAR_CATS.other
+            const cond = CONDITION_CONF[g.current_condition] || CONDITION_CONF.bon
+            return (
+              <div key={g.id} className="card" style={{
+                padding: '12px 14px', borderLeft: `4px solid ${cat.color}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 10,
+                    background: `${cat.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+                  }}>{cat.icon}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.name}</div>
+                    <div style={{ fontSize: 10, color: '#9A8B94' }}>
+                      {[g.brand, g.model].filter(Boolean).join(' ') || cat.label}
+                      {g.serial_number ? ` · SN: ${g.serial_number}` : ''}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    {g.purchase_value > 0 && <div style={{ fontSize: 13, fontWeight: 900, color: '#E8935A' }}>{g.purchase_value}€</div>}
+                    <span style={{
+                      padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 800,
+                      background: `${cond.color}15`, color: cond.color,
+                    }}>{cond.label}</span>
+                  </div>
+                  <button onClick={() => deleteGear(g.id)} style={{
+                    width: 28, height: 28, borderRadius: 8, background: '#D4648A10',
+                    border: 'none', color: '#D4648A', fontSize: 12, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>×</button>
+                </div>
+                {g.notes && <div style={{ fontSize: 10, color: '#B8A0AE', marginTop: 4, paddingLeft: 50 }}>{g.notes}</div>}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ════════════════════════════════════════
+// Section 5 — Calendrier / Disponibilités
+// ════════════════════════════════════════
+const AVAIL_CONF = {
+  available:   { label: 'Dispo', color: '#5DAB8B', icon: '✅' },
+  unavailable: { label: 'Indispo', color: '#D4648A', icon: '❌' },
+  maybe:       { label: 'Peut-être', color: '#E8935A', icon: '❓' },
+  unknown:     { label: 'Non renseigné', color: '#9A8B94', icon: '—' },
+}
+
+function CalendarTab({ user, events, availability, onToast, onReload }) {
+  const today = new Date().toISOString().split('T')[0]
+
+  const availMap = useMemo(() => {
+    const map = {}
+    ;(availability || []).forEach(a => { map[a.event_id] = a })
+    return map
+  }, [availability])
+
+  const sortedEvents = useMemo(() =>
+    [...(events || [])].sort((a, b) => a.date.localeCompare(b.date)),
+    [events]
+  )
+
+  const upcomingEvents = sortedEvents.filter(e => e.date >= today)
+  const pastEvents = sortedEvents.filter(e => e.date < today)
+
+  const stats = useMemo(() => {
+    const s = { available: 0, unavailable: 0, maybe: 0, unknown: 0 }
+    upcomingEvents.forEach(e => {
+      const a = availMap[e.id]
+      s[a?.status || 'unknown']++
+    })
+    return s
+  }, [upcomingEvents, availMap])
+
+  const setAvailability = async (eventId, status) => {
+    try {
+      const existing = availMap[eventId]
+      if (existing) {
+        await db.update('user_availability', `id=eq.${existing.id}`, {
+          status,
+          updated_at: new Date().toISOString(),
+        })
+      } else {
+        await db.upsert('user_availability', {
+          user_id: user.id,
+          event_id: eventId,
+          status,
+        })
+      }
+      onToast(AVAIL_CONF[status].label)
+      if (onReload) onReload()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#D4648A')
+    }
+  }
+
+  const renderEventRow = (ev) => {
+    const avail = availMap[ev.id]
+    const st = AVAIL_CONF[avail?.status || 'unknown']
+    const isPast = ev.date < today
+    const daysUntil = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
+    return (
+      <div key={ev.id} className="card" style={{
+        padding: '12px 14px', opacity: isPast ? 0.5 : 1,
+        borderLeft: `4px solid ${st.color}`,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: isPast ? 0 : 8 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {ev.name || ev.lieu}
+            </div>
+            <div style={{ fontSize: 10, color: '#9A8B94' }}>
+              {new Date(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
+              {ev.ville ? ` — ${ev.ville}` : ''}
+              {!isPast && daysUntil >= 0 ? ` · J-${daysUntil}` : ''}
+            </div>
+          </div>
+          <span style={{
+            padding: '3px 10px', borderRadius: 8, fontSize: 10, fontWeight: 800,
+            background: `${st.color}15`, color: st.color,
+          }}>{st.icon} {st.label}</span>
+        </div>
+        {!isPast && (
+          <div style={{ display: 'flex', gap: 4 }}>
+            {['available', 'maybe', 'unavailable'].map(s => {
+              const c = AVAIL_CONF[s]
+              const active = (avail?.status || 'unknown') === s
+              return (
+                <button key={s} onClick={() => setAvailability(ev.id, s)} style={{
+                  flex: 1, padding: '6px 4px', borderRadius: 8, fontSize: 10, fontWeight: 700,
+                  cursor: 'pointer', textAlign: 'center',
+                  background: active ? `${c.color}20` : 'white',
+                  color: active ? c.color : '#B8A0AE',
+                  border: `1.5px solid ${active ? c.color + '40' : '#E8DED8'}`,
+                }}>{c.icon} {c.label}</button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {/* Stats */}
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 14 }}>
+        <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A' }}>{upcomingEvents.length}</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Dates à venir</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#5DAB8B' }}>{stats.available}</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Dispo</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#E8935A' }}>{stats.maybe}</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Peut-être</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#D4648A' }}>{stats.unavailable}</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Indispo</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Upcoming */}
+      {upcomingEvents.length === 0 ? (
+        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>📅</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>Aucune date à venir</div>
+        </div>
+      ) : (
+        <>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+            À venir ({upcomingEvents.length})
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+            {upcomingEvents.map(renderEventRow)}
+          </div>
+        </>
+      )}
+
+      {/* Past events */}
+      {pastEvents.length > 0 && (
+        <>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+            Passés ({pastEvents.length})
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {pastEvents.slice(-5).reverse().map(renderEventRow)}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ════════════════════════════════════════
+// Section 6 — Finances personnelles
+// ════════════════════════════════════════
+const INCOME_TYPES = {
+  cachet:         { label: 'Cachet', color: '#5DAB8B', icon: '🎤' },
+  facture:        { label: 'Facture', color: '#5B8DB8', icon: '📄' },
+  remboursement:  { label: 'Remboursement', color: '#E8935A', icon: '💸' },
+  prime:          { label: 'Prime', color: '#9B7DC4', icon: '⭐' },
+  autre:          { label: 'Autre', color: '#9A8B94', icon: '📝' },
+}
+
+const INCOME_STATUS = {
+  pending:   { label: 'En attente', color: '#E8935A' },
+  paid:      { label: 'Payé', color: '#5DAB8B' },
+  cancelled: { label: 'Annulé', color: '#D4648A' },
+}
+
+function FinancesTab({ user, income, events, onToast, onReload }) {
+  const [showAdd, setShowAdd] = useState(false)
+  const [form, setForm] = useState({ type: 'cachet', description: '', amount: '', date: new Date().toISOString().split('T')[0], event_id: '', notes: '' })
+  const [saving, setSaving] = useState(false)
+
+  const set = (k, v) => setForm(prev => ({ ...prev, [k]: v }))
+
+  const sortedIncome = useMemo(() =>
+    [...(income || [])].sort((a, b) => (b.date || '').localeCompare(a.date || '')),
+    [income]
+  )
+
+  const totalEarned = income.filter(i => i.status === 'paid').reduce((s, i) => s + (i.amount || 0), 0)
+  const totalPending = income.filter(i => i.status === 'pending').reduce((s, i) => s + (i.amount || 0), 0)
+  const totalAll = income.reduce((s, i) => s + (i.status !== 'cancelled' ? (i.amount || 0) : 0), 0)
+
+  const handleSave = async () => {
+    if (!form.description.trim() || !form.amount) return
+    setSaving(true)
+    try {
+      await db.insert('user_income', {
+        user_id: user.id,
+        type: form.type,
+        description: form.description.trim(),
+        amount: parseFloat(form.amount) || 0,
+        date: form.date || new Date().toISOString().split('T')[0],
+        event_id: form.event_id || null,
+        notes: form.notes.trim() || null,
+        status: 'pending',
+      })
+      onToast('Revenu ajouté')
+      setForm({ type: 'cachet', description: '', amount: '', date: new Date().toISOString().split('T')[0], event_id: '', notes: '' })
+      setShowAdd(false)
+      if (onReload) onReload()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#D4648A')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const toggleStatus = async (item) => {
+    const next = item.status === 'pending' ? 'paid' : item.status === 'paid' ? 'pending' : item.status
+    try {
+      await db.update('user_income', `id=eq.${item.id}`, { status: next })
+      onToast(next === 'paid' ? 'Marqué payé' : 'Marqué en attente')
+      if (onReload) onReload()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#D4648A')
+    }
+  }
+
+  const deleteIncome = async (id) => {
+    try {
+      await db.delete('user_income', `id=eq.${id}`)
+      onToast('Supprimé')
+      if (onReload) onReload()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#D4648A')
+    }
+  }
+
+  return (
+    <div>
+      {/* Stats */}
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 14 }}>
+        <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#5DAB8B' }}>{Math.round(totalEarned)}€</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Encaissé</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#E8935A' }}>{Math.round(totalPending)}€</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>En attente</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#9B7DC4' }}>{Math.round(totalAll)}€</div>
+            <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>Total</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress bar earned vs pending */}
+      {totalAll > 0 && (
+        <div className="card" style={{ padding: '10px 14px', marginBottom: 14 }}>
+          <div style={{ height: 8, borderRadius: 4, background: '#F0E8E4', overflow: 'hidden', position: 'relative' }}>
+            <div style={{
+              position: 'absolute', left: 0, top: 0, bottom: 0,
+              width: `${Math.round((totalEarned / totalAll) * 100)}%`,
+              background: 'linear-gradient(90deg, #5DAB8B, #4A9A7A)',
+              borderRadius: 4, transition: 'width 0.3s',
+            }} />
+          </div>
+          <div style={{ fontSize: 10, color: '#9A8B94', marginTop: 4, textAlign: 'center' }}>
+            {Math.round((totalEarned / totalAll) * 100)}% encaissé
+          </div>
+        </div>
+      )}
+
+      {/* Add button */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        <button onClick={() => setShowAdd(!showAdd)} style={{
+          padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 800,
+          background: showAdd ? '#F0E8E4' : '#5DAB8B', color: showAdd ? '#9A8B94' : 'white',
+          cursor: 'pointer', border: 'none',
+        }}>{showAdd ? 'Annuler' : '+ Ajouter un revenu'}</button>
+      </div>
+
+      {/* Add form */}
+      {showAdd && (
+        <div className="card" style={{ padding: 16, marginBottom: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042', marginBottom: 12 }}>Nouveau revenu</div>
+          <div style={{ marginBottom: 12 }}>
+            <label className="label">Type</label>
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              {Object.entries(INCOME_TYPES).map(([k, v]) => (
+                <button key={k} onClick={() => set('type', k)} style={{
+                  padding: '5px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                  background: form.type === k ? `${v.color}15` : 'white',
+                  color: form.type === k ? v.color : '#9A8B94',
+                  border: `1.5px solid ${form.type === k ? v.color + '40' : '#E8DED8'}`,
+                }}>{v.icon} {v.label}</button>
+              ))}
+            </div>
+          </div>
+          <Field label="Description" value={form.description} onChange={v => set('description', v)} placeholder="ex: Cachet concert Triple 8" />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ flex: 1 }}><Field label="Montant (€)" value={form.amount} onChange={v => set('amount', v.replace(/[^0-9.]/g, ''))} inputMode="decimal" /></div>
+            <div style={{ flex: 1 }}><Field label="Date" value={form.date} onChange={v => set('date', v)} type="date" /></div>
+          </div>
+          {(events || []).length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <label className="label">Concert associé (optionnel)</label>
+              <select className="input" value={form.event_id} onChange={e => set('event_id', e.target.value)}>
+                <option value="">— Aucun —</option>
+                {(events || []).sort((a, b) => a.date.localeCompare(b.date)).map(ev => (
+                  <option key={ev.id} value={ev.id}>
+                    {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.name || ev.lieu}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <Field label="Notes" value={form.notes} onChange={v => set('notes', v)} placeholder="Optionnel" />
+          <button onClick={handleSave} disabled={!form.description.trim() || !form.amount || saving} className="btn-primary">
+            {saving ? 'Ajout...' : 'Ajouter'}
+          </button>
+        </div>
+      )}
+
+      {/* Income list */}
+      {sortedIncome.length === 0 && !showAdd ? (
+        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>💰</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>Aucun revenu enregistré</div>
+          <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>Ajoute tes cachets, factures et remboursements</div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {sortedIncome.map(item => {
+            const tp = INCOME_TYPES[item.type] || INCOME_TYPES.autre
+            const st = INCOME_STATUS[item.status] || INCOME_STATUS.pending
+            const ev = item.event_id ? (events || []).find(e => e.id === item.event_id) : null
+            return (
+              <div key={item.id} className="card" style={{
+                padding: '12px 14px',
+                borderLeft: `4px solid ${st.color}`,
+                opacity: item.status === 'cancelled' ? 0.4 : 1,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 10,
+                    background: `${tp.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
+                  }}>{tp.icon}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#3D3042', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {item.description}
+                    </div>
+                    <div style={{ fontSize: 10, color: '#9A8B94' }}>
+                      {tp.label} · {item.date ? new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''}
+                      {ev ? ` · ${ev.name || ev.lieu}` : ''}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: st.color }}>{item.amount}€</div>
+                    <button onClick={() => toggleStatus(item)} style={{
+                      padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 800,
+                      background: `${st.color}15`, color: st.color, border: 'none', cursor: 'pointer',
+                    }}>{st.label}</button>
+                  </div>
+                  <button onClick={() => deleteIncome(item.id)} style={{
+                    width: 24, height: 24, borderRadius: 6, background: '#D4648A10',
+                    border: 'none', color: '#D4648A', fontSize: 11, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>×</button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

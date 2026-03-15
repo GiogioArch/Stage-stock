@@ -55,6 +55,9 @@ export default function App() {
   // ─── Personal layer data ───
   const [allProjects, setAllProjects] = useState([])
   const [userDetails, setUserDetails] = useState(null)
+  const [userGear, setUserGear] = useState([])
+  const [userAvailability, setUserAvailability] = useState([])
+  const [userIncome, setUserIncome] = useState([])
   const [personalLoading, setPersonalLoading] = useState(true)
 
   // ─── Module state ───
@@ -144,14 +147,20 @@ export default function App() {
       }
       setAllProjects(enriched)
 
-      // Load user_details
+      // Load user_details + gear + availability + income
       try {
         const detailsRows = await safe('user_details', `user_id=eq.${user.id}`)
         setUserDetails(detailsRows && detailsRows.length > 0 ? detailsRows[0] : null)
       } catch { setUserDetails(null) }
+      try { setUserGear(await safe('user_gear', `user_id=eq.${user.id}&order=created_at.desc`)) } catch { setUserGear([]) }
+      try { setUserAvailability(await safe('user_availability', `user_id=eq.${user.id}`)) } catch { setUserAvailability([]) }
+      try { setUserIncome(await safe('user_income', `user_id=eq.${user.id}&order=date.desc`)) } catch { setUserIncome([]) }
     } catch {
       setAllProjects([])
       setUserDetails(null)
+      setUserGear([])
+      setUserAvailability([])
+      setUserIncome([])
     } finally {
       setPersonalLoading(false)
     }
@@ -451,6 +460,10 @@ export default function App() {
             membership={membership}
             selectedOrg={selectedOrg}
             roles={data.roles}
+            userGear={userGear}
+            userAvailability={userAvailability}
+            userIncome={userIncome}
+            allEvents={data.events}
             onClose={() => setPersonalTab('home')}
             onToast={showToast}
             onReload={loadPersonalData}
