@@ -193,6 +193,27 @@ export default function Board({ products, locations, stock, movements, alerts, e
         <QuickBtn icon="🔄" label="Transfert" color="#5B8DB8" bg="#EEF4FA" onClick={() => onQuickAction('transfer')} />
       </div>
 
+      {/* ─── EK LIVE link ─── */}
+      <a href="/live" target="_blank" rel="noopener noreferrer" style={{
+        display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none',
+        padding: '14px 16px', borderRadius: 16, marginBottom: 20, cursor: 'pointer',
+        background: 'linear-gradient(135deg, #1a1520, #2a1f30)',
+        border: '1.5px solid rgba(232,115,90,0.3)',
+        boxShadow: '0 4px 16px rgba(26,21,32,0.15)',
+      }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 12,
+          background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, flexShrink: 0,
+        }}>🎪</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>EK LIVE</div>
+          <div style={{ fontSize: 11, color: 'rgba(240,236,226,0.5)' }}>Ouvrir l'app fan — vote setlist & réactions</div>
+        </div>
+        <div style={{ color: 'rgba(240,236,226,0.3)', fontSize: 14 }}>→</div>
+      </a>
+
       {/* ─── Alerts (priority display) ─── */}
       {alerts.length > 0 && (
         <>
