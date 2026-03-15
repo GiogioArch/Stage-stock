@@ -204,6 +204,8 @@ export default function EventDetail({
             packTotal={packTotal}
             daysUntil={daysUntil}
             onSectionChange={setSection}
+            onReload={onReload}
+            onToast={onToast}
           />
         )}
         {section === 'equipe' && (
@@ -221,6 +223,7 @@ export default function EventDetail({
             eventChecklist={eventChecklist}
             checkDone={checkDone}
             checkTotal={checkTotal}
+            orgId={orgId}
             onReload={onReload}
             onToast={onToast}
           />
@@ -252,7 +255,7 @@ export default function EventDetail({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // RÉSUMÉ
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange }) {
+function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload, onToast }) {
 
   // Stock by category
   const catStats = CATEGORIES.map(cat => {
@@ -488,7 +491,7 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // CHECKLIST
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, onReload, onToast }) {
+function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId, onReload, onToast }) {
   const [addItem, setAddItem] = useState('')
   const [addCat, setAddCat] = useState('logistique')
 
