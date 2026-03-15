@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { auth, db, safe } from './lib/supabase'
-import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs } from './modules/registry'
+import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
 
 // ─── Components ───
 import Auth from './components/Auth'
@@ -188,10 +188,29 @@ export default function App() {
     const result = [...filtered]
     // Settings tab is ALWAYS visible at the end, regardless of config
     if (!result.find(t => t.id === 'settings')) {
-      result.push({ id: 'settings', label: 'Réglages', icon: '⚙️', moduleId: 'settings' })
+      result.push({ id: 'settings', label: 'Config', icon: '⚙️', moduleId: 'settings' })
     }
     return result
   }, [activeModuleIds, membership])
+
+  // ─── Tab groups for bottom nav ───
+  const activeGroups = useMemo(() => {
+    const activeTabIds = new Set(tabs.map(t => t.id))
+    return TAB_GROUPS
+      .map(group => {
+        const groupTabs = group.tabIds
+          .map(id => tabs.find(t => t.id === id))
+          .filter(Boolean)
+        if (groupTabs.length === 0) return null
+        return { ...group, groupTabs }
+      })
+      .filter(Boolean)
+  }, [tabs])
+
+  const currentGroup = useMemo(() =>
+    activeGroups.find(g => g.groupTabs.some(t => t.id === tab)) || activeGroups[0],
+    [activeGroups, tab]
+  )
 
   // ─── Ensure current tab is valid when modules change ───
   useEffect(() => {
@@ -593,6 +612,32 @@ export default function App() {
         </div>
       </header>
 
+      {/* ─── Sub-tab bar (when group has multiple tabs) ─── */}
+      {currentGroup && currentGroup.groupTabs.length > 1 && (
+        <div style={{
+          display: 'flex', gap: 6, padding: '0 16px 12px',
+          overflowX: 'auto', WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+        }}>
+          {currentGroup.groupTabs.map(t => {
+            const mod = MODULES[t.moduleId]
+            const color = mod?.color || '#9A8B94'
+            const isActive = tab === t.id
+            return (
+              <button key={t.id} onClick={() => handleTabChange(t.id)} style={{
+                padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+                cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                background: isActive ? `${color}15` : 'white',
+                color: isActive ? color : '#9A8B94',
+                border: `1.5px solid ${isActive ? color + '40' : '#E8DED8'}`,
+              }}>
+                {t.icon} {t.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {/* ─── Tab Content (module-driven) ─── */}
       <TabContent
         tab={tab}
@@ -616,17 +661,24 @@ export default function App() {
         onModulesChanged={handleModulesChanged}
       />
 
-      {/* ─── Bottom Nav (Couche 3) ─── */}
+      {/* ─── Bottom Nav (Couche 3 — grouped) ─── */}
       <nav className="bottom-nav">
-        {tabs.map(t => (
-          <button key={t.id} className={`nav-tab ${tab === t.id ? 'active' : ''}`} onClick={() => handleTabChange(t.id)}>
-            <span className="nav-icon">{t.icon}</span>
-            <span>{t.label}</span>
-            {t.id === 'alertes' && alerts.length > 0 && (
-              <span className="nav-badge">{alerts.length}</span>
-            )}
-          </button>
-        ))}
+        {activeGroups.map(g => {
+          const isActive = currentGroup?.id === g.id
+          return (
+            <button key={g.id}
+              className={`nav-tab ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                if (!isActive) handleTabChange(g.groupTabs[0].id)
+              }}>
+              <span className="nav-icon">{g.icon}</span>
+              <span>{g.label}</span>
+              {g.id === 'stock-group' && alerts.length > 0 && (
+                <span className="nav-badge">{alerts.length}</span>
+              )}
+            </button>
+          )
+        })}
       </nav>
 
       {/* ─── Scanner Overlay ─── */}

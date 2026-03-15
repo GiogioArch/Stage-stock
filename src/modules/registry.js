@@ -243,6 +243,18 @@ export function getRequiredTables(activeIds) {
   return tables
 }
 
+// ─── Tab Groups (bottom nav) ───
+// Regroupe les modules en onglets principaux pour réduire la nav
+export const TAB_GROUPS = [
+  { id: 'board', label: 'Board', icon: '📊', tabIds: ['board'] },
+  { id: 'tournee', label: 'Tournée', icon: '🎪', tabIds: ['tournee'] },
+  { id: 'stock-group', label: 'Stock', icon: '📦', tabIds: ['articles', 'depots', 'stock', 'inventaire', 'achats', 'alertes', 'forecast'] },
+  { id: 'ventes', label: 'Ventes', icon: '🛒', tabIds: ['ventes'] },
+  { id: 'finance', label: 'Finance', icon: '💰', tabIds: ['finance'] },
+  { id: 'transport', label: 'Transport', icon: '🚛', tabIds: ['transport'] },
+  { id: 'reglages', label: 'Réglages', icon: '⚙️', tabIds: ['equipe', 'settings'] },
+]
+
 // Build the tab list for active modules, sorted by order
 export function getActiveTabs(activeIds) {
   // Resolve deps to know which modules are effectively active
