@@ -759,6 +759,7 @@ function TabContent({
           userProfiles={data.user_profiles}
           userRole={userRole}
           orgId={orgId}
+          orgName={selectedOrg?.name}
           onReload={onReload}
           onToast={onToast}
         />
@@ -829,6 +830,7 @@ function TabContent({
           expenses={data.expenses}
           sales={data.sales}
           orgId={orgId}
+          orgName={selectedOrg?.name}
           onReload={onReload}
           onToast={onToast}
         />

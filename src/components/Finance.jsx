@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Badge } from './UI'
 
-export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, onReload, onToast }) {
+export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, orgName, onReload, onToast }) {
   const [section, setSection] = useState('overview')
   const [showAddExpense, setShowAddExpense] = useState(false)
 
@@ -100,7 +100,7 @@ export default function Finance({ products, stock, events, locations, depreciati
           <div>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>Finance</div>
             <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>
-              Suivi financier — EK TOUR 25 ANS
+              Suivi financier — {orgName || 'Projet'}
             </div>
           </div>
         </div>

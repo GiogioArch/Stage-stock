@@ -177,15 +177,21 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
     setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 30))
   }
 
+  const [error, setError] = useState('')
+
   const handleCreate = async () => {
     if (!name.trim()) return
     setSaving(true)
+    setError('')
     try {
       // 1. Create org
       const orgs = await db.insert('organizations', {
         name: name.trim(),
         slug: slug || 'project',
       })
+      if (!orgs || !orgs[0] || !orgs[0].id) {
+        throw new Error('La création du projet a échoué — vérifie que la policy org_insert existe dans Supabase')
+      }
       const org = orgs[0]
 
       // 2. Create membership as admin with all modules
@@ -200,7 +206,9 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
       onToast('Projet créé !')
       onCreated()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
+      const msg = e.message || 'Erreur inconnue'
+      setError(msg)
+      onToast('Erreur: ' + msg, '#D4648A')
     } finally {
       setSaving(false)
     }
@@ -231,6 +239,15 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
           style={{ fontSize: 12, color: '#B8A0AE' }}
         />
       </div>
+      {error && (
+        <div style={{
+          padding: '10px 14px', borderRadius: 12, marginBottom: 12,
+          background: '#FFF0F0', border: '1px solid #D4648A40',
+          fontSize: 12, color: '#D4648A', fontWeight: 600, lineHeight: 1.4,
+        }}>
+          {error}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: 10 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 700,

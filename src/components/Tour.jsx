@@ -18,7 +18,7 @@ function getFormatConf(format) {
   return FORMAT_CONF[format.toLowerCase().trim()] || { icon: '🎵', color: '#E8735A' }
 }
 
-export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, onReload, onToast }) {
+export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, orgName, onReload, onToast }) {
   const [filter, setFilter] = useState('upcoming') // upcoming | past | all
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [search, setSearch] = useState('')
@@ -114,7 +114,7 @@ export default function Tour({ events, products, stock, locations, families, sub
             boxShadow: '0 4px 16px #E8735A30',
           }}>🎪</div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>EK TOUR 25 ANS</div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>{orgName || 'Tournée'}</div>
             <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>
               {totalEvents} date{totalEvents > 1 ? 's' : ''} programm{totalEvents > 1 ? 'ées' : 'ée'}
             </div>
