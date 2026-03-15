@@ -30,6 +30,10 @@ import Landing from './components/Landing'
 import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
 
+// ─── EK LIVE (fan-facing, no auth) ───
+import LiveApp from './live/LiveApp'
+import LiveDisplay from './live/LiveDisplay'
+
 // Admin role codes that see everything
 const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
 
@@ -182,7 +186,8 @@ export default function App() {
       ? moduleTabs.filter(t => allowedModules.includes(t.moduleId || t.id))
       : moduleTabs
     const result = [...filtered]
-    if (!allowedModules || membership?.is_admin) {
+    // Settings tab is ALWAYS visible at the end, regardless of config
+    if (!result.find(t => t.id === 'settings')) {
       result.push({ id: 'settings', label: 'Réglages', icon: '⚙️', moduleId: 'settings' })
     }
     return result
@@ -363,6 +368,11 @@ export default function App() {
   // ═══════════════════════════════════════════════
   // ROUTING
   // ═══════════════════════════════════════════════
+
+  // ─── EK LIVE routing (no auth required) ───
+  const pathname = window.location.pathname
+  if (pathname.startsWith('/live')) return <LiveApp />
+  if (pathname.startsWith('/display')) return <LiveDisplay />
 
   if (user === undefined) return <SplashScreen text="Vérification..." />
 
