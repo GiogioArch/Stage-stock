@@ -59,16 +59,16 @@ export default function LiveReactions({ eventId, fanId }) {
       {/* Emoji bar */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(26,21,32,0.95)', backdropFilter: 'blur(12px)',
-        borderTop: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(27,34,68,0.95)', backdropFilter: 'blur(12px)',
+        borderTop: '1px solid rgba(197,165,90,0.15)',
         display: 'flex', justifyContent: 'space-around', alignItems: 'center',
         padding: '8px 0 max(8px, env(safe-area-inset-bottom))',
       }}>
         {EMOJIS.map(emoji => (
           <button key={emoji} onClick={() => handleTap(emoji)} style={{
             width: 54, height: 54, borderRadius: 16,
-            background: cooldown ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            background: cooldown ? 'rgba(197,165,90,0.08)' : 'rgba(197,165,90,0.15)',
+            border: '1px solid rgba(197,165,90,0.15)',
             fontSize: 26, cursor: cooldown ? 'default' : 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transform: tappedEmoji === emoji ? 'scale(1.3)' : 'scale(1)',
@@ -80,7 +80,7 @@ export default function LiveReactions({ eventId, fanId }) {
         {cooldown && (
           <div style={{
             position: 'absolute', top: -2, left: 0, right: 0, height: 2,
-            background: '#E8735A',
+            background: '#C5A55A',
             animation: 'ek-cooldown 1s linear forwards',
           }} />
         )}

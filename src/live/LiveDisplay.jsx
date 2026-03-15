@@ -48,12 +48,12 @@ export default function LiveDisplay() {
       }}>
         <div style={{
           width: 44, height: 44, borderRadius: 14,
-          background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+          background: 'linear-gradient(135deg, #C5A55A, #A8883D)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 22, boxShadow: '0 4px 20px rgba(232,115,90,0.4)',
+          fontSize: 22, boxShadow: '0 4px 20px rgba(197,165,90,0.4)',
         }}>🎪</div>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#E8735A', letterSpacing: 2 }}>EK LIVE</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#C5A55A', letterSpacing: 2 }}>EK LIVE</div>
           <div style={{ fontSize: 10, color: 'rgba(240,236,226,0.3)', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 700 }}>
             Réactions du public
           </div>
@@ -68,10 +68,10 @@ export default function LiveDisplay() {
         {/* Total */}
         <div style={{
           padding: '10px 20px', borderRadius: 14,
-          background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)',
+          background: 'rgba(197,165,90,0.08)', backdropFilter: 'blur(8px)',
           color: '#F0ECE2', fontSize: 22, fontWeight: 900,
           display: 'flex', alignItems: 'center', gap: 8,
-          border: '1px solid rgba(255,255,255,0.06)',
+          border: '1px solid rgba(197,165,90,0.15)',
         }}>
           <span style={{ fontSize: 24 }}>🔥</span>
           {totalCount}
@@ -83,10 +83,10 @@ export default function LiveDisplay() {
             .map(([emoji, count]) => (
               <div key={emoji} style={{
                 padding: '6px 10px', borderRadius: 10,
-                background: 'rgba(255,255,255,0.06)',
+                background: 'rgba(197,165,90,0.15)',
                 color: '#F0ECE2', fontSize: 13, fontWeight: 800,
                 display: 'flex', alignItems: 'center', gap: 4,
-                border: '1px solid rgba(255,255,255,0.04)',
+                border: '1px solid rgba(197,165,90,0.08)',
               }}>
                 <span style={{ fontSize: 16 }}>{emoji}</span>
                 {count}

@@ -109,15 +109,15 @@ export default function LiveShop({ eventId, fanId }) {
           Presente ce code au stand merch
         </div>
         <div style={{
-          fontSize: 48, fontWeight: 900, color: '#E8735A', letterSpacing: 12,
-          background: 'rgba(232,115,90,0.12)', borderRadius: 20, padding: '24px 32px',
-          display: 'inline-block', border: '2px solid rgba(232,115,90,0.3)',
+          fontSize: 48, fontWeight: 900, color: '#C5A55A', letterSpacing: 12,
+          background: 'rgba(197,165,90,0.12)', borderRadius: 20, padding: '24px 32px',
+          display: 'inline-block', border: '2px solid rgba(197,165,90,0.3)',
         }}>
           {confirmation.pickupCode}
         </div>
         <button onClick={() => setConfirmation(null)} style={{
           marginTop: 32, padding: '14px 32px', borderRadius: 14,
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+          background: 'rgba(197,165,90,0.08)', border: '1px solid rgba(197,165,90,0.15)',
           color: '#F0ECE2', fontSize: 14, fontWeight: 700, cursor: 'pointer',
           display: 'block', width: '100%',
         }}>Retour a la boutique</button>
@@ -127,7 +127,7 @@ export default function LiveShop({ eventId, fanId }) {
 
   if (loading) return (
     <div style={{ padding: 40, textAlign: 'center', color: '#F0ECE2' }}>
-      <div className="loader" style={{ margin: '0 auto 12px', borderTopColor: '#E8735A', borderColor: 'rgba(240,236,226,0.15)' }} />
+      <div className="loader" style={{ margin: '0 auto 12px', borderTopColor: '#C5A55A', borderColor: 'rgba(240,236,226,0.15)' }} />
       Chargement...
     </div>
   )
@@ -145,13 +145,13 @@ export default function LiveShop({ eventId, fanId }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {products.map(p => (
           <div key={p.id} style={{
-            background: 'rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px 16px',
-            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(197,165,90,0.08)', borderRadius: 14, padding: '14px 16px',
+            border: '1px solid rgba(197,165,90,0.15)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 14,
-                background: 'rgba(212,100,138,0.12)',
+                background: 'rgba(197,165,90,0.12)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 24,
               }}>{p.emoji || '👕'}</div>
@@ -161,7 +161,7 @@ export default function LiveShop({ eventId, fanId }) {
                   Stock : {p.totalStock}
                 </div>
               </div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#E8735A' }}>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#C5A55A' }}>
                 {p.price ? `${p.price}€` : '-'}
               </div>
             </div>
@@ -172,8 +172,8 @@ export default function LiveShop({ eventId, fanId }) {
                 {p.variants.map(v => (
                   <button key={v.id} onClick={() => addToCart(p, v)} style={{
                     padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-                    background: 'rgba(232,115,90,0.12)', border: '1px solid rgba(232,115,90,0.25)',
-                    color: '#E8735A', cursor: 'pointer', minHeight: 48, minWidth: 48,
+                    background: 'rgba(197,165,90,0.12)', border: '1px solid rgba(197,165,90,0.25)',
+                    color: '#C5A55A', cursor: 'pointer', minHeight: 48, minWidth: 48,
                   }}>
                     {v.label || v.size || v.name}
                   </button>
@@ -181,9 +181,9 @@ export default function LiveShop({ eventId, fanId }) {
               </div>
             ) : (
               <button onClick={() => addToCart(p, null)} style={{
-                marginTop: 10, width: '100%', padding: '10px', borderRadius: 10,
+                marginTop: 10, width: '100%', padding: '10px', borderRadius: 14,
                 fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                background: '#E8735A', color: 'white', border: 'none', minHeight: 48,
+                background: '#C5A55A', color: '#1B2244', border: 'none', minHeight: 48,
               }}>Ajouter au panier</button>
             )}
           </div>
@@ -200,8 +200,8 @@ export default function LiveShop({ eventId, fanId }) {
       {/* Cart */}
       {cart.length > 0 && (
         <div style={{
-          background: 'rgba(232,115,90,0.1)', borderRadius: 16, padding: 16,
-          border: '1.5px solid rgba(232,115,90,0.25)', marginBottom: 16,
+          background: 'rgba(197,165,90,0.1)', borderRadius: 16, padding: 16,
+          border: '1.5px solid rgba(197,165,90,0.25)', marginBottom: 16,
         }}>
           <div style={{ fontSize: 14, fontWeight: 900, color: '#F0ECE2', marginBottom: 12 }}>
             Panier ({cart.reduce((s, c) => s + c.qty, 0)} article{cart.reduce((s, c) => s + c.qty, 0) > 1 ? 's' : ''})
@@ -209,37 +209,37 @@ export default function LiveShop({ eventId, fanId }) {
           {cart.map((c, i) => (
             <div key={i} style={{
               display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
-              padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)',
+              padding: '8px 0', borderBottom: '1px solid rgba(197,165,90,0.15)',
             }}>
               <div style={{ flex: 1, fontSize: 13, color: '#F0ECE2' }}>
                 {c.product.name}{c.variant ? ` (${c.variant.label || c.variant.size || c.variant.name})` : ''}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <button onClick={() => updateQty(i, -1)} style={{
-                  width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.1)',
+                  width: 32, height: 32, borderRadius: 8, background: 'rgba(197,165,90,0.1)',
                   color: '#F0ECE2', border: 'none', fontSize: 16, cursor: 'pointer',
                 }}>-</button>
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#F0ECE2', minWidth: 20, textAlign: 'center' }}>{c.qty}</span>
                 <button onClick={() => updateQty(i, 1)} style={{
-                  width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.1)',
+                  width: 32, height: 32, borderRadius: 8, background: 'rgba(197,165,90,0.1)',
                   color: '#F0ECE2', border: 'none', fontSize: 16, cursor: 'pointer',
                 }}>+</button>
                 <button onClick={() => removeFromCart(i)} style={{
-                  width: 32, height: 32, borderRadius: 8, background: 'rgba(212,100,138,0.15)',
-                  color: '#D4648A', border: 'none', fontSize: 14, cursor: 'pointer', marginLeft: 4,
+                  width: 32, height: 32, borderRadius: 8, background: 'rgba(197,165,90,0.15)',
+                  color: '#C5A55A', border: 'none', fontSize: 14, cursor: 'pointer', marginLeft: 4,
                 }}>✕</button>
               </div>
             </div>
           ))}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
             <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(240,236,226,0.6)' }}>Total</span>
-            <span style={{ fontSize: 18, fontWeight: 900, color: '#E8735A' }}>{cartTotal}€</span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#C5A55A' }}>{cartTotal}€</span>
           </div>
 
           {!showCheckout ? (
             <button onClick={() => setShowCheckout(true)} style={{
               marginTop: 14, width: '100%', padding: 14, borderRadius: 14,
-              background: '#E8735A', color: 'white', fontSize: 15, fontWeight: 800,
+              background: '#C5A55A', color: '#1B2244', fontSize: 15, fontWeight: 800,
               border: 'none', cursor: 'pointer', minHeight: 48,
             }}>Commander</button>
           ) : (
@@ -250,7 +250,7 @@ export default function LiveShop({ eventId, fanId }) {
                 placeholder="Prenom"
                 style={{
                   width: '100%', padding: '12px 14px', borderRadius: 12, marginBottom: 8,
-                  background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'rgba(197,165,90,0.08)', border: '1px solid rgba(197,165,90,0.15)',
                   color: '#F0ECE2', fontSize: 14, outline: 'none',
                 }}
               />
@@ -261,14 +261,14 @@ export default function LiveShop({ eventId, fanId }) {
                 type="tel"
                 style={{
                   width: '100%', padding: '12px 14px', borderRadius: 12, marginBottom: 12,
-                  background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'rgba(197,165,90,0.08)', border: '1px solid rgba(197,165,90,0.15)',
                   color: '#F0ECE2', fontSize: 14, outline: 'none',
                 }}
               />
               <button onClick={handleOrder} disabled={!firstName.trim() || !phone.trim() || saving} style={{
                 width: '100%', padding: 14, borderRadius: 14,
-                background: (!firstName.trim() || !phone.trim()) ? 'rgba(232,115,90,0.4)' : '#E8735A',
-                color: 'white', fontSize: 15, fontWeight: 800,
+                background: (!firstName.trim() || !phone.trim()) ? 'rgba(197,165,90,0.4)' : '#C5A55A',
+                color: '#1B2244', fontSize: 15, fontWeight: 800,
                 border: 'none', cursor: 'pointer', minHeight: 48,
               }}>
                 {saving ? 'Envoi...' : `Confirmer (${cartTotal}€)`}

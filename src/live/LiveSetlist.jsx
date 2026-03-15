@@ -80,7 +80,7 @@ export default function LiveSetlist({ eventId, fanId }) {
 
   if (loading) return (
     <div style={{ padding: 40, textAlign: 'center', color: '#F0ECE2' }}>
-      <div className="loader" style={{ margin: '0 auto 12px', borderTopColor: '#E8735A', borderColor: 'rgba(240,236,226,0.15)' }} />
+      <div className="loader" style={{ margin: '0 auto 12px', borderTopColor: '#C5A55A', borderColor: 'rgba(240,236,226,0.15)' }} />
       Chargement...
     </div>
   )
@@ -95,7 +95,7 @@ export default function LiveSetlist({ eventId, fanId }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{
             width: 8, height: 8, borderRadius: '50%',
-            background: wsStatus === 'connected' ? '#5DAB8B' : wsStatus === 'connecting' ? '#E8935A' : '#D4648A',
+            background: wsStatus === 'connected' ? '#5DAB8B' : wsStatus === 'connecting' ? '#E8935A' : '#C5A55A',
             boxShadow: wsStatus === 'connected' ? '0 0 8px rgba(93,171,139,0.6)' : 'none',
             animation: wsStatus === 'connected' ? 'ek-pulse 2s infinite' : 'none',
           }} />
@@ -112,8 +112,8 @@ export default function LiveSetlist({ eventId, fanId }) {
         {totalVoters > 0 && (
           <div style={{
             padding: '3px 10px', borderRadius: 8,
-            background: 'rgba(232,115,90,0.12)', border: '1px solid rgba(232,115,90,0.25)',
-            color: '#E8735A', fontSize: 11, fontWeight: 800,
+            background: 'rgba(197,165,90,0.12)', border: '1px solid rgba(197,165,90,0.25)',
+            color: '#C5A55A', fontSize: 11, fontWeight: 800,
           }}>
             {totalVoters} fan{totalVoters > 1 ? 's' : ''}
           </div>
@@ -128,17 +128,17 @@ export default function LiveSetlist({ eventId, fanId }) {
 
           return (
             <div key={song.id} style={{
-              background: played ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)',
+              background: played ? 'rgba(197,165,90,0.04)' : 'rgba(197,165,90,0.08)',
               borderRadius: 14, padding: '14px 16px',
-              border: voted ? '1.5px solid #E8735A50' : '1px solid rgba(255,255,255,0.06)',
+              border: voted ? '1.5px solid #C5A55A50' : '1px solid rgba(197,165,90,0.15)',
               opacity: played ? 0.5 : 1,
               display: 'flex', alignItems: 'center', gap: 12,
             }}>
               <div style={{
                 width: 32, height: 32, borderRadius: 10,
-                background: played ? 'rgba(255,255,255,0.05)' : 'rgba(232,115,90,0.15)',
+                background: played ? 'rgba(197,165,90,0.05)' : 'rgba(197,165,90,0.15)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 14, fontWeight: 900, color: played ? 'rgba(240,236,226,0.3)' : '#E8735A',
+                fontSize: 14, fontWeight: 900, color: played ? 'rgba(240,236,226,0.3)' : '#C5A55A',
               }}>
                 {played ? '✓' : i + 1}
               </div>
@@ -155,15 +155,15 @@ export default function LiveSetlist({ eventId, fanId }) {
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#E8735A', minWidth: 24, textAlign: 'center' }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#C5A55A', minWidth: 24, textAlign: 'center' }}>
                   {count}
                 </span>
                 {!played && (
                   <button onClick={() => handleVote(song.id)} disabled={voted} style={{
-                    padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 800,
+                    padding: '8px 14px', borderRadius: 14, fontSize: 12, fontWeight: 800,
                     cursor: voted ? 'default' : 'pointer',
-                    background: voted ? 'rgba(232,115,90,0.2)' : '#E8735A',
-                    color: voted ? '#E8735A' : 'white',
+                    background: voted ? 'rgba(197,165,90,0.2)' : '#C5A55A',
+                    color: voted ? '#C5A55A' : '#1B2244',
                     border: 'none', minWidth: 48, minHeight: 48,
                   }}>
                     {voted ? '✓' : '🎵'}
@@ -192,8 +192,8 @@ export default function LiveSetlist({ eventId, fanId }) {
       {wsStatus === 'disconnected' && (
         <div style={{
           marginTop: 12, padding: '8px 14px', borderRadius: 10, textAlign: 'center',
-          background: 'rgba(212,100,138,0.1)', border: '1px solid rgba(212,100,138,0.2)',
-          color: '#D4648A', fontSize: 11, fontWeight: 700,
+          background: 'rgba(197,165,90,0.1)', border: '1px solid rgba(197,165,90,0.2)',
+          color: '#C5A55A', fontSize: 11, fontWeight: 700,
         }}>
           Connexion temps réel perdue — mise à jour auto toutes les 10s
         </div>
