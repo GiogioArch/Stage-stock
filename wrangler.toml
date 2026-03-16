@@ -1,0 +1,4 @@
+# Stage Stock — Cloudflare Pages via Wrangler
+name = "stage-stock"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-09-23"
