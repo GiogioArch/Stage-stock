@@ -19,6 +19,7 @@ import Depots from './components/Depots'
 import Equipe from './components/Equipe'
 import Finance from './components/Finance'
 import Forecast from './components/Forecast'
+import EventTimeline from './components/EventTimeline'
 import Settings from './modules/Settings'
 import Landing from './components/Landing'
 import { CGU, Privacy } from './components/Legal'
@@ -55,6 +56,9 @@ export default function App() {
     user_profiles: [], roles: [],
     product_depreciation: [],
     project_members: [],
+    event_tasks: [],
+    event_task_templates: [],
+    user_availability: [],
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -549,7 +553,14 @@ function TabContent({
           userProfiles={data.user_profiles}
           eventPacking={data.event_packing}
           events={data.events}
+          eventTasks={data.event_tasks}
+          checklists={data.checklists}
+          userAvailability={data.user_availability}
           userRole={userRole}
+          user={user}
+          orgId={orgId}
+          onReload={onReload}
+          onToast={onToast}
         />
       )
     case 'finance':
@@ -571,6 +582,20 @@ function TabContent({
           stock={filteredStock}
           locations={data.locations}
           userRole={userRole}
+        />
+      )
+    case 'timeline':
+      return (
+        <EventTimeline
+          event={data.events?.find(e => e.date >= new Date().toISOString().split('T')[0]) || data.events?.[data.events.length - 1]}
+          events={data.events}
+          eventTasks={data.event_tasks}
+          roles={data.roles}
+          userProfiles={data.user_profiles}
+          orgId={orgId}
+          user={user}
+          onReload={onReload}
+          onToast={onToast}
         />
       )
     case 'forecast':

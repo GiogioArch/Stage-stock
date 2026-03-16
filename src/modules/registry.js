@@ -81,6 +81,7 @@ export const MODULES = {
     tables: {
       user_profiles: 'order=display_name.asc',
       roles: 'order=code.asc',
+      user_availability: '',
     },
     deps: [],
     alwaysActive: true, // requis pour auth + rôle picker
@@ -111,6 +112,20 @@ export const MODULES = {
     order: 60,
     tab: { id: 'alertes', label: 'Alertes', icon: '🔔' },
   },
+  timeline: {
+    id: 'timeline',
+    name: 'Mode Événement',
+    icon: '⏱️',
+    color: '#6366F1',
+    description: 'Planning 48h heure par heure autour des événements',
+    tables: {
+      event_tasks: 'order=hour_offset.asc',
+      event_task_templates: '',
+    },
+    deps: ['tournee', 'equipe'],
+    order: 45,
+    tab: { id: 'timeline', label: 'Événement', icon: '⏱️' },
+  },
   forecast: {
     id: 'forecast',
     name: 'Prévisions',
@@ -126,7 +141,7 @@ export const MODULES = {
 
 // Modules actifs par défaut pour un nouveau compte
 export const DEFAULT_ACTIVE = [
-  'dashboard', 'tournee', 'articles', 'depots', 'stock', 'equipe', 'alertes',
+  'dashboard', 'tournee', 'articles', 'depots', 'stock', 'equipe', 'timeline', 'alertes',
 ]
 
 // ─── Helpers ───
