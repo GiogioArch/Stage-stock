@@ -18,6 +18,7 @@ import Depots from './components/Depots'
 import Equipe from './components/Equipe'
 import Finance from './components/Finance'
 import Forecast from './components/Forecast'
+import EventTimeline from './components/EventTimeline'
 import Transport from './components/Transport'
 import ConcertMode from './components/ConcertMode'
 import Achats from './components/Achats'
@@ -31,7 +32,7 @@ import Onboarding from './components/Onboarding'
 import Feedback from './components/Feedback'
 import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
-import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3 } from 'lucide-react'
+import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3, Clock } from 'lucide-react'
 
 // ─── EK LIVE (fan-facing, no auth) ───
 import LiveApp from './live/LiveApp'
@@ -46,7 +47,7 @@ const TAB_ICONS = {
   depots: Warehouse, stock: ClipboardList, equipe: Users, finance: Coins,
   alertes: Bell, forecast: TrendingUp, ventes: ShoppingCart,
   achats: ShoppingBag, inventaire: ClipboardCheck, transport: Truck,
-  settings: SettingsIcon, reglages: SettingsIcon, 'stock-group': Package,
+  timeline: Clock, settings: SettingsIcon, reglages: SettingsIcon, 'stock-group': Package,
 }
 
 // Personal layer tabs
@@ -98,6 +99,9 @@ export default function App() {
     user_profiles: [], roles: [],
     product_depreciation: [],
     project_members: [],
+    event_tasks: [],
+    event_task_templates: [],
+    user_availability: [],
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -867,7 +871,14 @@ function TabContent({
           userProfiles={data.user_profiles}
           eventPacking={data.event_packing}
           events={data.events}
+          eventTasks={data.event_tasks}
+          checklists={data.checklists}
+          userAvailability={data.user_availability}
           userRole={userRole}
+          user={user}
+          orgId={orgId}
+          onReload={onReload}
+          onToast={onToast}
         />
       )
     case 'finance':
@@ -895,6 +906,20 @@ function TabContent({
           stock={filteredStock}
           locations={data.locations}
           userRole={userRole}
+        />
+      )
+    case 'timeline':
+      return (
+        <EventTimeline
+          event={data.events?.find(e => e.date >= new Date().toISOString().split('T')[0]) || data.events?.[data.events.length - 1]}
+          events={data.events}
+          eventTasks={data.event_tasks}
+          roles={data.roles}
+          userProfiles={data.user_profiles}
+          orgId={orgId}
+          user={user}
+          onReload={onReload}
+          onToast={onToast}
         />
       )
     case 'forecast':
