@@ -66,7 +66,7 @@ export default function MovementModal({ type, products, locations, stock, presel
       setShowConfirm(false)
       onDone()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#8B1A2B')
+      onToast('Erreur: ' + e.message, '#EF4444')
     } finally {
       setLoading(false)
     }
@@ -74,7 +74,7 @@ export default function MovementModal({ type, products, locations, stock, presel
 
   return (
     <>
-      <Modal title={`${conf.icon} ${conf.label}`} onClose={onClose}>
+      <Modal title={conf.label} onClose={onClose}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* Product select */}
           <div>
@@ -82,7 +82,7 @@ export default function MovementModal({ type, products, locations, stock, presel
             <select className="input" value={productId} onChange={e => setProductId(e.target.value)}>
               <option value="">Sélectionner un produit</option>
               {products.sort((a, b) => a.name.localeCompare(b.name)).map(p => (
-                <option key={p.id} value={p.id}>{p.image || getCat(p.category).icon} {p.name}</option>
+                <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           </div>
@@ -96,7 +96,7 @@ export default function MovementModal({ type, products, locations, stock, presel
                 {locations.map(l => <option key={l.id} value={l.id}>{l.icon} {l.name}</option>)}
               </select>
               {productId && fromLoc && (
-                <div style={{ fontSize: 12, color: availableStock === 0 ? '#8B1A2B' : '#8A7D75', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: availableStock === 0 ? '#EF4444' : '#71717A', marginTop: 4 }}>
                   Stock disponible: <strong>{availableStock}</strong>
                 </div>
               )}
@@ -125,11 +125,11 @@ export default function MovementModal({ type, products, locations, stock, presel
               value={quantity}
               onChange={e => setQuantity(intOnly(e.target.value))}
               placeholder="0"
-              style={isOverStock ? { borderColor: '#8B1A2B', color: '#8B1A2B' } : {}}
+              style={isOverStock ? { borderColor: '#EF4444', color: '#EF4444' } : {}}
             />
             {isOverStock && (
-              <div style={{ fontSize: 12, color: '#8B1A2B', fontWeight: 700, marginTop: 4 }}>
-                ⚠️ Stock insuffisant (max: {availableStock})
+              <div style={{ fontSize: 12, color: '#EF4444', fontWeight: 700, marginTop: 4 }}>
+                ! Stock insuffisant (max: {availableStock})
               </div>
             )}
           </div>
@@ -145,7 +145,7 @@ export default function MovementModal({ type, products, locations, stock, presel
             style={{ background: conf.color }}
             disabled={!canSubmit || loading}
             onClick={() => setShowConfirm(true)}>
-            {loading ? '⏳...' : `Valider ${conf.label.toLowerCase()}`}
+            {loading ? 'Chargement...' : `Valider ${conf.label.toLowerCase()}`}
           </button>
         </div>
       </Modal>

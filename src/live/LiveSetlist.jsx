@@ -79,7 +79,7 @@ export default function LiveSetlist({ eventId, fanId }) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
         <div style={{
-          fontFamily: "'Cormorant Garamond', serif",
+          fontFamily: "'Inter', serif",
           fontSize: 22, fontWeight: 700, color: EK.text,
         }}>Setlist interactive</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -120,7 +120,7 @@ export default function LiveSetlist({ eventId, fanId }) {
 
           return (
             <div key={song.id} style={{
-              background: EK.card, borderRadius: 14, padding: '14px 14px',
+              background: EK.card, borderRadius: 8, padding: '14px 14px',
               border: `1px solid ${voted ? EK.camel + '50' : EK.cardBorder}`,
               opacity: played ? 0.45 : 1,
               position: 'relative', overflow: 'hidden',
@@ -140,7 +140,7 @@ export default function LiveSetlist({ eventId, fanId }) {
                   width: 30, height: 30, borderRadius: 8,
                   background: played ? `${EK.green}15` : `${EK.camel}15`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 13, fontWeight: 900,
+                  fontSize: 13, fontWeight: 600,
                   color: played ? EK.green : (i < 3 ? EK.camel : EK.textMuted),
                 }}>
                   {played ? '✓' : i + 1}
@@ -160,7 +160,7 @@ export default function LiveSetlist({ eventId, fanId }) {
                 </div>
                 {/* Vote count + button */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: EK.camel, minWidth: 20, textAlign: 'center' }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: EK.camel, minWidth: 20, textAlign: 'center' }}>
                     {count || ''}
                   </span>
                   {!played && (
@@ -193,7 +193,7 @@ export default function LiveSetlist({ eventId, fanId }) {
 
       {songs.length === 0 && (
         <div style={{ textAlign: 'center', padding: 40, color: EK.textMuted }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>🎵</div>
+          <div style={{ fontSize: 40, marginBottom: 12 }}></div>
           <div style={{ fontSize: 13, fontWeight: 300 }}>Pas encore de setlist pour cet event</div>
         </div>
       )}

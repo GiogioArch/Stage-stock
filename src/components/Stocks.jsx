@@ -1,17 +1,46 @@
 import React, { useState, useMemo } from 'react'
+import { MapPin, Factory, Truck, Tent, Plane, Package, Home, ArrowDownToLine, ArrowUpFromLine, Trash2, ChevronDown, ChevronRight, Plus } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge } from './UI'
+
+const ICON_MAP = {
+  '📍': MapPin,
+  '🏭': Factory,
+  '🚐': Truck,
+  '🎪': Tent,
+  '✈️': Plane,
+  '📦': Package,
+  '🏠': Home,
+}
+
+const ICON_KEYS = Object.keys(ICON_MAP)
+
+const PALETTE = {
+  textPrimary: '#FAFAFA',
+  textSecondary: '#A1A1AA',
+  textTertiary: '#71717A',
+  accent: '#6366F1',
+  bgSurface: '#111113',
+  bgHover: '#18181B',
+  border: 'rgba(255,255,255,0.06)',
+  danger: '#EF4444',
+}
+
+const LOCATION_COLORS = ['#6366F1', '#EF4444', '#3B82F6', '#22C55E', '#F59E0B', '#8B5DAB']
+
+function LocationIcon({ emoji, size = 20, color }) {
+  const IconComponent = ICON_MAP[emoji] || MapPin
+  return <IconComponent size={size} color={color || PALETTE.textSecondary} />
+}
 
 export default function Stocks({ products, locations, stock, orgId, onReload, onToast, onMovement }) {
   const [expanded, setExpanded] = useState({})
   const [filterCat, setFilterCat] = useState('all')
-  const [modal, setModal] = useState(null) // {type: 'addLocation'} | {type: 'locationDetail', location}
+  const [modal, setModal] = useState(null)
   const [confirm, setConfirm] = useState(null)
 
-  // Toggle location expand
   const toggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }))
 
-  // Stock data by location
   const locationData = useMemo(() => {
     return locations.map(loc => {
       const locStock = stock.filter(s => s.location_id === loc.id && s.quantity > 0)
@@ -30,10 +59,8 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
     })
   }, [locations, stock, products, filterCat])
 
-  // Global totals
   const globalTotal = locationData.reduce((sum, l) => sum + l.totalQty, 0)
 
-  // Delete location
   const handleDeleteLocation = async (loc) => {
     try {
       await db.delete('stock', `location_id=eq.${loc.id}`)
@@ -43,41 +70,48 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
       setModal(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#8B1A2B')
+      onToast('Erreur: ' + e.message, PALETTE.danger)
     }
   }
 
   return (
     <div style={{ padding: '0 16px 24px' }}>
       {/* Total bar */}
-      <div className="card" style={{
+      <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        marginBottom: 16, padding: '14px 18px', background: 'linear-gradient(135deg, #080808, #FEF0E8)',
+        marginBottom: 16, padding: '14px 18px', borderRadius: 12,
+        background: PALETTE.bgSurface, border: `1px solid ${PALETTE.border}`,
       }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: '#C8A46A' }}>{globalTotal}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: PALETTE.textTertiary, textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
+          <div style={{ fontSize: 28, fontWeight: 600, color: PALETTE.accent }}>{globalTotal}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 11, color: '#8A7D75' }}>{locations.length} lieu{locations.length > 1 ? 'x' : ''}</div>
-          <div style={{ fontSize: 11, color: '#8A7D75' }}>{products.length} produits</div>
+          <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>{locations.length} lieu{locations.length > 1 ? 'x' : ''}</div>
+          <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>{products.length} produits</div>
         </div>
       </div>
 
       {/* Category filter */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         <FilterPill active={filterCat === 'all'} onClick={() => setFilterCat('all')}>Tous</FilterPill>
-        {CATEGORIES.map(cat => (
-          <FilterPill key={cat.id} active={filterCat === cat.id} color={cat.color} onClick={() => setFilterCat(cat.id)}>
-            {cat.icon} {cat.name}
-          </FilterPill>
-        ))}
+        {CATEGORIES.map(cat => {
+          const CatIcon = cat.icon
+          return (
+            <FilterPill key={cat.id} active={filterCat === cat.id} color={cat.color} onClick={() => setFilterCat(cat.id)}>
+              <CatIcon size={13} style={{ marginRight: 4, verticalAlign: -2 }} /> {cat.name}
+            </FilterPill>
+          )
+        })}
       </div>
 
       {/* Locations */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {locationData.map(loc => (
-          <div key={loc.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div key={loc.id} style={{
+            borderRadius: 12, overflow: 'hidden',
+            background: PALETTE.bgSurface, border: `1px solid ${PALETTE.border}`,
+          }}>
             {/* Location header */}
             <button onClick={() => toggle(loc.id)} style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 12,
@@ -85,44 +119,50 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
             }}>
               <div style={{
                 width: 42, height: 42, borderRadius: 12,
-                background: (loc.color || '#C8A46A') + '15',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
-              }}>{loc.icon || '📍'}</div>
+                background: (loc.color || PALETTE.accent) + '15',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <LocationIcon emoji={loc.icon || '📍'} size={20} color={loc.color || PALETTE.accent} />
+              </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#F0ECE2' }}>{loc.name}</div>
-                <div style={{ fontSize: 11, color: '#8A7D75' }}>
+                <div style={{ fontSize: 15, fontWeight: 600, color: PALETTE.textPrimary }}>{loc.name}</div>
+                <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>
                   {loc.nbProducts} réf. · {loc.totalQty} pièces
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 20, fontWeight: 900, color: loc.color || '#C8A46A' }}>{loc.totalQty}</span>
-                <span style={{ fontSize: 14, color: '#6B6058', transition: 'transform 0.2s', transform: expanded[loc.id] ? 'rotate(180deg)' : '' }}>▼</span>
+                <span style={{ fontSize: 20, fontWeight: 600, color: loc.color || PALETTE.accent }}>{loc.totalQty}</span>
+                {expanded[loc.id]
+                  ? <ChevronDown size={16} color={PALETTE.textTertiary} />
+                  : <ChevronRight size={16} color={PALETTE.textTertiary} />
+                }
               </div>
             </button>
 
             {/* Expanded: stock items */}
             {expanded[loc.id] && (
-              <div style={{ borderTop: '1px solid #1a1a1a', padding: '8px 16px 12px' }}>
+              <div style={{ borderTop: `1px solid ${PALETTE.border}`, padding: '8px 16px 12px' }}>
                 {loc.items.length === 0 ? (
-                  <div style={{ padding: '12px 0', textAlign: 'center', fontSize: 13, color: '#6B6058' }}>
+                  <div style={{ padding: '12px 0', textAlign: 'center', fontSize: 13, color: PALETTE.textTertiary }}>
                     Aucun stock ici
                   </div>
                 ) : (
                   loc.items.sort((a, b) => a.product.name.localeCompare(b.product.name)).map(item => {
                     const cat = getCat(item.product.category)
+                    const CatIcon = cat.icon
                     return (
                       <div key={item.product_id} style={{
                         display: 'flex', alignItems: 'center', gap: 10,
-                        padding: '8px 0', borderBottom: '1px solid #F8F4F0',
+                        padding: '8px 0', borderBottom: `1px solid ${PALETTE.border}`,
                       }}>
-                        <span style={{ fontSize: 16 }}>{item.product.image || cat.icon}</span>
+                        <CatIcon size={16} color={cat.color} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: PALETTE.textPrimary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {item.product.name}
                           </div>
                           <div style={{ fontSize: 10, color: cat.color }}>{cat.name}</div>
                         </div>
-                        <span style={{ fontSize: 16, fontWeight: 800, color: item.quantity <= (item.product.min_stock || 5) ? '#C8A46A' : '#F0ECE2' }}>
+                        <span style={{ fontSize: 16, fontWeight: 600, color: item.quantity <= (item.product.min_stock || 5) ? '#F59E0B' : PALETTE.textPrimary }}>
                           {item.quantity}
                         </span>
                       </div>
@@ -130,17 +170,23 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
                   })
                 )}
                 {/* Location actions */}
-                <div style={{ display: 'flex', gap: 8, marginTop: 8, paddingTop: 8, borderTop: '1px solid #1a1a1a' }}>
-                  <button className="btn-secondary" style={{ flex: 1, fontSize: 12, padding: '8px 12px' }}
-                    onClick={() => onMovement('in', loc.id)}>📥 Entrée</button>
-                  <button className="btn-secondary" style={{ flex: 1, fontSize: 12, padding: '8px 12px' }}
-                    onClick={() => onMovement('out', loc.id)}>📤 Sortie</button>
-                  <button className="btn-secondary" style={{ flex: 1, fontSize: 12, padding: '8px 12px', borderColor: '#8B1A2B30', color: '#8B1A2B' }}
+                <div style={{ display: 'flex', gap: 8, marginTop: 8, paddingTop: 8, borderTop: `1px solid ${PALETTE.border}` }}>
+                  <button className="btn-secondary" style={{ flex: 1, fontSize: 12, padding: '8px 12px', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
+                    onClick={() => onMovement('in', loc.id)}>
+                    <ArrowDownToLine size={14} /> Entrée
+                  </button>
+                  <button className="btn-secondary" style={{ flex: 1, fontSize: 12, padding: '8px 12px', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
+                    onClick={() => onMovement('out', loc.id)}>
+                    <ArrowUpFromLine size={14} /> Sortie
+                  </button>
+                  <button className="btn-secondary" style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, borderColor: `${PALETTE.danger}30`, color: PALETTE.danger, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     onClick={() => setConfirm({
                       message: `Supprimer "${loc.name}" ?`,
                       detail: 'Le lieu et tout le stock associé seront supprimés.',
                       onConfirm: () => handleDeleteLocation(loc),
-                    })}>🗑️</button>
+                    })}>
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               </div>
             )}
@@ -150,10 +196,13 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
 
       {/* Add location button */}
       <button onClick={() => setModal({ type: 'addLocation' })} style={{
-        width: '100%', marginTop: 16, padding: 14, borderRadius: 16,
-        border: '2px dashed #222222', background: 'transparent',
-        color: '#8A7D75', fontSize: 14, fontWeight: 700, cursor: 'pointer',
-      }}>+ Ajouter un lieu de stockage</button>
+        width: '100%', marginTop: 16, padding: 14, borderRadius: 12,
+        border: `2px dashed ${PALETTE.border}`, background: 'transparent',
+        color: PALETTE.textTertiary, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+      }}>
+        <Plus size={16} /> Ajouter un lieu de stockage
+      </button>
 
       {/* Add Location Modal */}
       {modal?.type === 'addLocation' && (
@@ -166,7 +215,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
               setModal(null)
               onReload()
             } catch (e) {
-              onToast('Erreur: ' + e.message, '#8B1A2B')
+              onToast('Erreur: ' + e.message, PALETTE.danger)
             }
           }}
         />
@@ -178,7 +227,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
           message={confirm.message}
           detail={confirm.detail}
           confirmLabel="Supprimer"
-          confirmColor="#8B1A2B"
+          confirmColor={PALETTE.danger}
           onConfirm={confirm.onConfirm}
           onCancel={() => setConfirm(null)}
         />
@@ -192,10 +241,7 @@ function AddLocationModal({ onClose, onSave }) {
   const [name, setName] = useState('')
   const [type, setType] = useState('fixe')
   const [icon, setIcon] = useState('📍')
-  const [color, setColor] = useState('#C8A46A')
-
-  const icons = ['📍', '🏭', '🚐', '🎪', '✈️', '📦', '🏠']
-  const colors = ['#C8A46A', '#8B1A2B', '#5B8DB8', '#2FB65D', '#C8A46A', '#8B5DAB']
+  const [color, setColor] = useState('#6366F1')
 
   return (
     <Modal title="Nouveau lieu" onClose={onClose}>
@@ -216,23 +262,29 @@ function AddLocationModal({ onClose, onSave }) {
         <div>
           <label className="label">Icône</label>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {icons.map(i => (
-              <button key={i} onClick={() => setIcon(i)} style={{
-                width: 44, height: 44, borderRadius: 12, fontSize: 22,
-                border: `2px solid ${icon === i ? '#C8A46A' : '#222222'}`,
-                background: icon === i ? '#C8A46A12' : 'white',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-              }}>{i}</button>
-            ))}
+            {ICON_KEYS.map(key => {
+              const IconComp = ICON_MAP[key]
+              const isActive = icon === key
+              return (
+                <button key={key} onClick={() => setIcon(key)} style={{
+                  width: 44, height: 44, borderRadius: 12, fontSize: 22,
+                  border: `2px solid ${isActive ? PALETTE.accent : PALETTE.border}`,
+                  background: isActive ? `${PALETTE.accent}12` : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}>
+                  <IconComp size={20} color={isActive ? PALETTE.accent : PALETTE.textTertiary} />
+                </button>
+              )
+            })}
           </div>
         </div>
         <div>
           <label className="label">Couleur</label>
           <div style={{ display: 'flex', gap: 8 }}>
-            {colors.map(c => (
+            {LOCATION_COLORS.map(c => (
               <button key={c} onClick={() => setColor(c)} style={{
                 width: 36, height: 36, borderRadius: 10,
-                background: c, border: `3px solid ${color === c ? '#F0ECE2' : 'transparent'}`,
+                background: c, border: `3px solid ${color === c ? PALETTE.textPrimary : 'transparent'}`,
                 cursor: 'pointer',
               }} />
             ))}
@@ -250,9 +302,10 @@ function FilterPill({ active, color, onClick, children }) {
   return (
     <button onClick={onClick} style={{
       padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
-      border: `1.5px solid ${active ? (color || '#C8A46A') : '#222222'}`,
-      background: active ? `${color || '#C8A46A'}12` : 'white',
-      color: active ? (color || '#C8A46A') : '#8A7D75', cursor: 'pointer',
+      border: `1px solid ${active ? (color || PALETTE.accent) : PALETTE.border}`,
+      background: active ? `${color || PALETTE.accent}12` : 'transparent',
+      color: active ? (color || PALETTE.accent) : PALETTE.textSecondary, cursor: 'pointer',
+      display: 'flex', alignItems: 'center',
     }}>{children}</button>
   )
 }

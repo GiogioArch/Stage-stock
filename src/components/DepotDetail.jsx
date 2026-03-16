@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, createElement } from 'react'
 import { getMoveConf, fmtDate, Badge } from './UI'
 
 export default function DepotDetail({
@@ -63,16 +63,16 @@ export default function DepotDetail({
   const lName = (id) => location.id === id ? location.name : '?'
 
   const SECTIONS = [
-    { id: 'inventory', label: 'Inventaire', icon: '📦' },
-    { id: 'movements', label: 'Mouvements', icon: '🔄' },
-    { id: 'value', label: 'Valeur', icon: '💰' },
-    { id: 'alerts', label: 'Alertes', icon: '🔔', count: alerts.length },
+    { id: 'inventory', label: 'Inventaire', icon: '' },
+    { id: 'movements', label: 'Mouvements', icon: '' },
+    { id: 'value', label: 'Valeur', icon: '' },
+    { id: 'alerts', label: 'Alertes', icon: '', count: alerts.length },
   ]
 
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 1000,
-      background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      background: 'linear-gradient(180deg, #FFF8F0 0%, #111113 30%, #111113 70%, #111113 100%)',
       overflow: 'auto',
     }}>
       {/* Header */}
@@ -80,24 +80,24 @@ export default function DepotDetail({
         padding: '16px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <button onClick={onClose} style={{
-          padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 800,
-          background: 'white', border: '1.5px solid #E8DED8', color: '#9A8B94', cursor: 'pointer',
+          padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
+          background: '#18181B', border: '1px solid rgba(255,255,255,0.06)', color: '#71717A', cursor: 'pointer',
         }}>← Retour</button>
-        <div style={{ fontSize: 15, fontWeight: 900, color: location.color || '#5B8DB8' }}>
-          {location.icon || '📍'} {location.name}
+        <div style={{ fontSize: 15, fontWeight: 600, color: location.color || '#3B82F6' }}>
+          {location.icon || ''} {location.name}
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
           {onEdit && (
             <button onClick={() => onEdit(location)} style={{
               padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+              background: '#EEF4FA', border: '1px solid #3B82F630', color: '#3B82F6', cursor: 'pointer',
             }}>✏️</button>
           )}
           {onDelete && (
             <button onClick={() => onDelete(location)} style={{
               padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              background: '#FDF0F4', border: '1.5px solid #D4648A30', color: '#D4648A', cursor: 'pointer',
-            }}>🗑️</button>
+              background: '#FDF0F4', border: '1px solid #A78BFA30', color: '#A78BFA', cursor: 'pointer',
+            }}></button>
           )}
         </div>
       </header>
@@ -105,18 +105,18 @@ export default function DepotDetail({
       {/* KPI Banner */}
       <div className="card" style={{
         margin: '16px 16px 0', padding: '18px 16px',
-        background: `linear-gradient(135deg, ${(location.color || '#5B8DB8')}08, ${(location.color || '#5B8DB8')}18)`,
-        border: `1.5px solid ${(location.color || '#5B8DB8')}25`,
+        background: `linear-gradient(135deg, ${(location.color || '#3B82F6')}08, ${(location.color || '#3B82F6')}18)`,
+        border: `1px solid ${(location.color || '#3B82F6')}25`,
       }}>
         {location.description && (
-          <div style={{ fontSize: 12, color: '#9A8B94', marginBottom: 12 }}>{location.description}</div>
+          <div style={{ fontSize: 12, color: '#71717A', marginBottom: 12 }}>{location.description}</div>
         )}
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Références" value={nbProducts} color={location.color || '#5B8DB8'} />
-          <KpiBox label="Unités" value={totalQty} color="#5DAB8B" />
-          <KpiBox label="Valeur" value={`${Math.round(totalValue)}€`} color="#E8935A" />
+          <KpiBox label="Références" value={nbProducts} color={location.color || '#3B82F6'} />
+          <KpiBox label="Unités" value={totalQty} color="#22C55E" />
+          <KpiBox label="Valeur" value={`${Math.round(totalValue)}€`} color="#F59E0B" />
           {alerts.length > 0 && (
-            <KpiBox label="Alertes" value={alerts.length} color="#D4648A" />
+            <KpiBox label="Alertes" value={alerts.length} color="#A78BFA" />
           )}
         </div>
       </div>
@@ -127,16 +127,16 @@ export default function DepotDetail({
           <button key={s.id} onClick={() => setSection(s.id)} style={{
             flex: 1, padding: '7px 6px', borderRadius: 10, fontSize: 10, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center', position: 'relative',
-            background: section === s.id ? `${(location.color || '#5B8DB8')}15` : 'white',
-            color: section === s.id ? (location.color || '#5B8DB8') : '#9A8B94',
-            border: `1.5px solid ${section === s.id ? (location.color || '#5B8DB8') + '40' : '#E8DED8'}`,
+            background: section === s.id ? `${(location.color || '#3B82F6')}15` : 'white',
+            color: section === s.id ? (location.color || '#3B82F6') : '#71717A',
+            border: `1px solid ${section === s.id ? (location.color || '#3B82F6') + '40' : 'rgba(255,255,255,0.06)'}`,
           }}>
             {s.icon} {s.label}
             {s.count > 0 && (
               <span style={{
                 position: 'absolute', top: -4, right: -2,
                 width: 16, height: 16, borderRadius: '50%',
-                background: '#D4648A', color: 'white', fontSize: 9, fontWeight: 900,
+                background: '#A78BFA', color: 'white', fontSize: 9, fontWeight: 600,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>{s.count}</span>
             )}
@@ -155,15 +155,15 @@ export default function DepotDetail({
               <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                 <button onClick={() => onMovement('in', location.id)} style={{
                   flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#5DAB8B15', border: '1.5px solid #5DAB8B30', color: '#5DAB8B', cursor: 'pointer',
+                  background: '#22C55E15', border: '1px solid #22C55E30', color: '#22C55E', cursor: 'pointer',
                 }}>+ Entrée</button>
                 <button onClick={() => onMovement('out', location.id)} style={{
                   flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#D4648A15', border: '1.5px solid #D4648A30', color: '#D4648A', cursor: 'pointer',
+                  background: '#A78BFA15', border: '1px solid #A78BFA30', color: '#A78BFA', cursor: 'pointer',
                 }}>- Sortie</button>
                 <button onClick={() => onMovement('transfer', location.id)} style={{
                   flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#5B8DB815', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+                  background: '#3B82F615', border: '1px solid #3B82F630', color: '#3B82F6', cursor: 'pointer',
                 }}>↔ Transfert</button>
               </div>
             )}
@@ -171,14 +171,14 @@ export default function DepotDetail({
             {productDetails.length === 0 ? (
               <div className="card" style={{ padding: 32, textAlign: 'center' }}>
                 <div style={{ fontSize: 40, marginBottom: 8 }}>📭</div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>Dépôt vide</div>
-                <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>Aucun stock dans ce lieu</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>Dépôt vide</div>
+                <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>Aucun stock dans ce lieu</div>
               </div>
             ) : (
               byFamily.map(fam => (
                 <div key={fam.name} style={{ marginBottom: 12 }}>
                   <div style={{
-                    fontSize: 11, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase',
+                    fontSize: 11, fontWeight: 600, color: '#71717A', textTransform: 'uppercase',
                     letterSpacing: 1, marginBottom: 6, display: 'flex', justifyContent: 'space-between',
                   }}>
                     <span>{fam.name}</span>
@@ -190,29 +190,29 @@ export default function DepotDetail({
                       return (
                         <div key={p.id} style={{
                           display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
-                          borderBottom: i < fam.items.length - 1 ? '1px solid #F0E8E4' : 'none',
+                          borderBottom: i < fam.items.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
                         }}>
-                          <span style={{ fontSize: 16 }}>{p.image || '📦'}</span>
+                          <span style={{ fontSize: 16 }}>{p.image || ''}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{
-                              fontSize: 13, fontWeight: 700, color: '#3D3042',
+                              fontSize: 13, fontWeight: 700, color: '#FAFAFA',
                               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                             }}>{p.name}</div>
-                            <div style={{ fontSize: 10, color: '#B8A0AE' }}>
+                            <div style={{ fontSize: 10, color: '#71717A' }}>
                               {p.sku || ''}{p.subfamily ? ` · ${p.subfamily.name}` : ''}
                             </div>
                           </div>
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
                             <div style={{
-                              fontSize: 16, fontWeight: 900,
-                              color: isLow ? '#D4648A' : (location.color || '#5B8DB8'),
+                              fontSize: 16, fontWeight: 600,
+                              color: isLow ? '#A78BFA' : (location.color || '#3B82F6'),
                             }}>{p.qty}</div>
                             {p.sale_price > 0 && (
-                              <div style={{ fontSize: 9, color: '#B8A0AE' }}>{Math.round(p.qty * p.sale_price)}€</div>
+                              <div style={{ fontSize: 9, color: '#71717A' }}>{Math.round(p.qty * p.sale_price)}€</div>
                             )}
                           </div>
                           {isLow && (
-                            <span style={{ fontSize: 10, color: '#D4648A', fontWeight: 800 }}>⚠️</span>
+                            <span style={{ fontSize: 10, color: '#A78BFA', fontWeight: 600 }}></span>
                           )}
                         </div>
                       )
@@ -229,9 +229,9 @@ export default function DepotDetail({
           <div>
             {locMovements.length === 0 ? (
               <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-                <div style={{ fontSize: 40, marginBottom: 8 }}>🔄</div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>Aucun mouvement</div>
-                <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>
+                <div style={{ fontSize: 40, marginBottom: 8 }}></div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>Aucun mouvement</div>
+                <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>
                   Pas encore de mouvements pour ce dépôt
                 </div>
               </div>
@@ -243,19 +243,19 @@ export default function DepotDetail({
                   return (
                     <div key={m.id} style={{
                       display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
-                      borderBottom: i < locMovements.length - 1 ? '1px solid #F0E8E4' : 'none',
+                      borderBottom: i < locMovements.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
                     }}>
                       <div style={{
                         width: 32, height: 32, borderRadius: 8,
                         background: conf.color + '15',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
-                      }}>{conf.icon}</div>
+                      }}>{conf.icon && React.createElement(conf.icon, { size: 14, color: conf.color })}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
-                          fontSize: 12, fontWeight: 700, color: '#3D3042',
+                          fontSize: 12, fontWeight: 700, color: '#FAFAFA',
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}>{pName(m.product_id)}</div>
-                        <div style={{ fontSize: 10, color: '#9A8B94' }}>
+                        <div style={{ fontSize: 10, color: '#71717A' }}>
                           {m.type === 'transfer'
                             ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
                             : m.type === 'in' ? 'Entrée' : 'Sortie'
@@ -265,12 +265,12 @@ export default function DepotDetail({
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{
-                          fontSize: 14, fontWeight: 900,
-                          color: isIncoming ? '#5DAB8B' : '#D4648A',
+                          fontSize: 14, fontWeight: 600,
+                          color: isIncoming ? '#22C55E' : '#A78BFA',
                         }}>
                           {isIncoming ? '+' : '-'}{m.quantity}
                         </div>
-                        <div style={{ fontSize: 9, color: '#B8A0AE' }}>{fmtDate(m.created_at)}</div>
+                        <div style={{ fontSize: 9, color: '#71717A' }}>{fmtDate(m.created_at)}</div>
                       </div>
                     </div>
                   )
@@ -278,7 +278,7 @@ export default function DepotDetail({
               </div>
             )}
             {locMovements.length >= 50 && (
-              <div style={{ textAlign: 'center', padding: 8, fontSize: 11, color: '#B8A0AE' }}>
+              <div style={{ textAlign: 'center', padding: 8, fontSize: 11, color: '#71717A' }}>
                 50 derniers mouvements affichés
               </div>
             )}
@@ -289,13 +289,13 @@ export default function DepotDetail({
         {section === 'value' && (
           <div>
             <div className="card" style={{ padding: 16, textAlign: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#E8935A' }}>{Math.round(totalValue)}€</div>
-              <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>Valeur totale du stock (prix de vente)</div>
+              <div style={{ fontSize: 32, fontWeight: 600, color: '#F59E0B' }}>{Math.round(totalValue)}€</div>
+              <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>Valeur totale du stock (prix de vente)</div>
             </div>
 
             {byFamily.length > 0 && (
               <div className="card" style={{ padding: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
                   Répartition par famille
                 </div>
                 {byFamily.map(fam => {
@@ -303,16 +303,16 @@ export default function DepotDetail({
                   return (
                     <div key={fam.name} style={{ marginBottom: 10 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#3D3042' }}>{fam.name}</span>
-                        <span style={{ fontSize: 12, fontWeight: 900, color: '#E8935A' }}>{Math.round(fam.value)}€</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#FAFAFA' }}>{fam.name}</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: '#F59E0B' }}>{Math.round(fam.value)}€</span>
                       </div>
-                      <div style={{ height: 6, borderRadius: 3, background: '#F0E8E4', overflow: 'hidden' }}>
+                      <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
                         <div style={{
                           width: `${pct}%`, height: '100%', borderRadius: 3,
-                          background: location.color || '#5B8DB8', transition: 'width 0.3s',
+                          background: location.color || '#3B82F6', transition: 'width 0.3s',
                         }} />
                       </div>
-                      <div style={{ fontSize: 9, color: '#B8A0AE', marginTop: 2 }}>
+                      <div style={{ fontSize: 9, color: '#71717A', marginTop: 2 }}>
                         {fam.qty} unités · {pct}%
                       </div>
                     </div>
@@ -324,7 +324,7 @@ export default function DepotDetail({
             {/* Top 5 by value */}
             {productDetails.length > 0 && (
               <div className="card" style={{ padding: 16, marginTop: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
                   Top 5 par valeur
                 </div>
                 {productDetails
@@ -334,21 +334,21 @@ export default function DepotDetail({
                   .map((p, i) => (
                     <div key={p.id} style={{
                       display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0',
-                      borderBottom: i < 4 ? '1px solid #F0E8E4' : 'none',
+                      borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.06)' : 'none',
                     }}>
                       <span style={{
                         width: 22, height: 22, borderRadius: 6,
-                        background: '#E8935A15', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 11, fontWeight: 900, color: '#E8935A',
+                        background: '#F59E0B15', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 11, fontWeight: 600, color: '#F59E0B',
                       }}>{i + 1}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
-                          fontSize: 12, fontWeight: 700, color: '#3D3042',
+                          fontSize: 12, fontWeight: 700, color: '#FAFAFA',
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}>{p.name}</div>
-                        <div style={{ fontSize: 10, color: '#B8A0AE' }}>{p.qty} × {p.sale_price}€</div>
+                        <div style={{ fontSize: 10, color: '#71717A' }}>{p.qty} × {p.sale_price}€</div>
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: '#E8935A' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#F59E0B' }}>
                         {Math.round(p.qty * p.sale_price)}€
                       </div>
                     </div>
@@ -364,9 +364,9 @@ export default function DepotDetail({
           <div>
             {alerts.length === 0 ? (
               <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-                <div style={{ fontSize: 40, marginBottom: 8 }}>✅</div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#5DAB8B' }}>Tout va bien</div>
-                <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>
+                <div style={{ fontSize: 40, marginBottom: 8 }}></div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#22C55E' }}>Tout va bien</div>
+                <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>
                   Aucune alerte pour ce dépôt
                 </div>
               </div>
@@ -378,17 +378,17 @@ export default function DepotDetail({
                   return (
                     <div key={p.id} className="card" style={{
                       padding: '14px 16px',
-                      borderLeft: `4px solid ${isRupture ? '#D4648A' : '#E8935A'}`,
+                      borderLeft: `4px solid ${isRupture ? '#A78BFA' : '#F59E0B'}`,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontSize: 18 }}>{p.image || '📦'}</span>
+                        <span style={{ fontSize: 18 }}>{p.image || ''}</span>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042' }}>{p.name}</div>
-                          <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#FAFAFA' }}>{p.name}</div>
+                          <div style={{ fontSize: 11, color: '#71717A' }}>
                             Seuil : {minStock} · Stock : {p.qty}
                           </div>
                         </div>
-                        <Badge color={isRupture ? '#D4648A' : '#E8935A'}>
+                        <Badge color={isRupture ? '#A78BFA' : '#F59E0B'}>
                           {isRupture ? 'Rupture' : 'Stock bas'}
                         </Badge>
                       </div>
@@ -408,10 +408,10 @@ function KpiBox({ label, value, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: 'white', borderRadius: 10, border: '1px solid #F0E8E4',
+      background: '#18181B', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)',
     }}>
-      <div style={{ fontSize: 14, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#9A8B94', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 14, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 8, color: '#71717A', fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { getMoveConf, fmtDate, Badge } from './UI'
+import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, Search, X, Filter, ClipboardList } from 'lucide-react'
 
 export default function Movements({ movements, products, locations, onToast }) {
   const [typeFilter, setTypeFilter] = useState('all')
@@ -11,12 +12,9 @@ export default function Movements({ movements, products, locations, onToast }) {
   const pName = (id) => products.find(p => p.id === id)?.name || '?'
   const lName = (id) => locations.find(l => l.id === id)?.name || '?'
 
-  // ─── Filtered movements ───
   const filtered = useMemo(() => {
     let list = [...movements]
-    if (typeFilter !== 'all') {
-      list = list.filter(m => m.type === typeFilter)
-    }
+    if (typeFilter !== 'all') list = list.filter(m => m.type === typeFilter)
     if (search.trim()) {
       const q = search.toLowerCase()
       list = list.filter(m => {
@@ -26,21 +24,15 @@ export default function Movements({ movements, products, locations, onToast }) {
         return name.includes(q) || from.includes(q) || to.includes(q)
       })
     }
-    if (dateFrom) {
-      list = list.filter(m => m.created_at >= dateFrom)
-    }
-    if (dateTo) {
-      list = list.filter(m => m.created_at <= dateTo + 'T23:59:59')
-    }
+    if (dateFrom) list = list.filter(m => m.created_at >= dateFrom)
+    if (dateTo) list = list.filter(m => m.created_at <= dateTo + 'T23:59:59')
     return list
   }, [movements, typeFilter, search, dateFrom, dateTo])
 
-  // ─── Stats ───
   const totalIn = filtered.filter(m => m.type === 'in').reduce((s, m) => s + (m.quantity || 0), 0)
   const totalOut = filtered.filter(m => m.type === 'out').reduce((s, m) => s + (m.quantity || 0), 0)
   const totalTransfer = filtered.filter(m => m.type === 'transfer').reduce((s, m) => s + (m.quantity || 0), 0)
 
-  // ─── Group by date ───
   const grouped = useMemo(() => {
     const groups = {}
     filtered.forEach(m => {
@@ -60,118 +52,119 @@ export default function Movements({ movements, products, locations, onToast }) {
     return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
   }
 
+  const MOVE_ICONS = { in: ArrowDownToLine, out: ArrowUpFromLine, transfer: RefreshCw }
+
   return (
     <div style={{ padding: '0 16px 24px' }}>
-      {/* ─── Header stats ─── */}
-      <div className="card" style={{
-        marginBottom: 16, padding: '16px',
-        background: 'linear-gradient(135deg, #5B8DB808, #5B8DB818)',
-        border: '1.5px solid #5B8DB825',
-      }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#F0ECE2', marginBottom: 10 }}>
+      {/* Header stats */}
+      <div className="card" style={{ marginBottom: 16, padding: '16px' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA', marginBottom: 10 }}>
           Historique ({filtered.length} mouvement{filtered.length > 1 ? 's' : ''})
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <StatPill icon="📥" value={totalIn} label="Entrées" color="#2FB65D" />
-          <StatPill icon="📤" value={totalOut} label="Sorties" color="#8B1A2B" />
-          <StatPill icon="🔄" value={totalTransfer} label="Transferts" color="#5B8DB8" />
+          <StatPill Icon={ArrowDownToLine} value={totalIn} label="Entrées" color="#22C55E" />
+          <StatPill Icon={ArrowUpFromLine} value={totalOut} label="Sorties" color="#EF4444" />
+          <StatPill Icon={RefreshCw} value={totalTransfer} label="Transferts" color="#3B82F6" />
         </div>
       </div>
 
-      {/* ─── Search + filter toggle ─── */}
+      {/* Search + filter toggle */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <input
-          type="text"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Rechercher produit, lieu..."
-          style={{
-            flex: 1, padding: '10px 14px', borderRadius: 12,
-            border: '1.5px solid #222222', fontSize: 13,
-            background: 'white',
-          }}
-        />
+        <div className="search-bar" style={{ flex: 1, marginBottom: 0 }}>
+          <span className="search-icon"><Search size={16} /></span>
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Rechercher produit, lieu..."
+          />
+        </div>
         <button onClick={() => setShowFilters(!showFilters)} style={{
-          padding: '10px 14px', borderRadius: 12,
-          background: showFilters ? '#5B8DB815' : 'white',
-          border: `1.5px solid ${showFilters ? '#5B8DB8' : '#222222'}`,
-          fontSize: 16, cursor: 'pointer',
+          width: 40, height: 40, borderRadius: 6,
+          background: showFilters ? 'rgba(99,102,241,0.12)' : '#111113',
+          border: `1px solid ${showFilters ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.06)'}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}>
-          {showFilters ? '✕' : '🔍'}
+          {showFilters ? <X size={16} color="#A5B4FC" /> : <Filter size={16} color="#71717A" />}
         </button>
       </div>
 
-      {/* ─── Expanded filters ─── */}
+      {/* Expanded filters */}
       {showFilters && (
         <div className="card" style={{ marginBottom: 12, padding: '12px 14px' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#8A7D75', marginBottom: 8 }}>Filtres avancés</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: '#71717A', marginBottom: 8 }}>Filtres avancés</div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
             <div style={{ flex: 1 }}>
-              <label style={{ fontSize: 11, color: '#6B6058', fontWeight: 600 }}>Du</label>
+              <label style={{ fontSize: 11, color: '#52525B', fontWeight: 500 }}>Du</label>
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #222222', fontSize: 12 }} />
+                className="input" style={{ marginTop: 4 }} />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={{ fontSize: 11, color: '#6B6058', fontWeight: 600 }}>Au</label>
+              <label style={{ fontSize: 11, color: '#52525B', fontWeight: 500 }}>Au</label>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #222222', fontSize: 12 }} />
+                className="input" style={{ marginTop: 4 }} />
             </div>
           </div>
           {(dateFrom || dateTo || typeFilter !== 'all' || search) && (
             <button onClick={() => { setDateFrom(''); setDateTo(''); setTypeFilter('all'); setSearch('') }}
-              style={{ fontSize: 12, color: '#8B1A2B', fontWeight: 700, padding: '4px 0' }}>
+              style={{ fontSize: 12, color: '#EF4444', fontWeight: 500, padding: '4px 0' }}>
               Réinitialiser les filtres
             </button>
           )}
         </div>
       )}
 
-      {/* ─── Type filter pills ─── */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto' }}>
+      {/* Type filter pills */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 16, overflowX: 'auto' }}>
         {[
-          { id: 'all', label: 'Tous', color: '#F0ECE2' },
-          { id: 'in', label: '📥 Entrées', color: '#2FB65D' },
-          { id: 'out', label: '📤 Sorties', color: '#8B1A2B' },
-          { id: 'transfer', label: '🔄 Transferts', color: '#5B8DB8' },
+          { id: 'all', label: 'Tous', color: '#FAFAFA' },
+          { id: 'in', label: 'Entrées', color: '#22C55E', Icon: ArrowDownToLine },
+          { id: 'out', label: 'Sorties', color: '#EF4444', Icon: ArrowUpFromLine },
+          { id: 'transfer', label: 'Transferts', color: '#3B82F6', Icon: RefreshCw },
         ].map(f => (
           <button key={f.id} onClick={() => setTypeFilter(f.id)} style={{
-            padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+            padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,
             whiteSpace: 'nowrap', cursor: 'pointer',
-            background: typeFilter === f.id ? `${f.color}15` : 'white',
-            color: typeFilter === f.id ? f.color : '#8A7D75',
-            border: `1.5px solid ${typeFilter === f.id ? f.color + '30' : '#222222'}`,
-          }}>{f.label}</button>
+            display: 'flex', alignItems: 'center', gap: 4,
+            background: typeFilter === f.id ? `${f.color}15` : 'transparent',
+            color: typeFilter === f.id ? f.color : '#71717A',
+            border: `1px solid ${typeFilter === f.id ? f.color + '30' : 'rgba(255,255,255,0.06)'}`,
+          }}>
+            {f.Icon && <f.Icon size={12} />}
+            {f.label}
+          </button>
         ))}
       </div>
 
-      {/* ─── Movement list grouped by date ─── */}
+      {/* Movement list grouped by date */}
       {filtered.length === 0 ? (
         <div className="empty-state" style={{ padding: 40 }}>
-          <div className="empty-icon">📋</div>
+          <div className="empty-icon"><ClipboardList size={28} /></div>
           <div className="empty-text">Aucun mouvement trouvé</div>
         </div>
       ) : (
         grouped.map(([day, moves]) => (
           <div key={day} style={{ marginBottom: 16 }}>
             <div style={{
-              fontSize: 12, fontWeight: 800, color: '#8A7D75', marginBottom: 8,
+              fontSize: 12, fontWeight: 600, color: '#71717A', marginBottom: 8,
               textTransform: 'capitalize',
             }}>{formatDay(day)}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {moves.map(m => {
                 const conf = getMoveConf(m.type)
+                const MoveIcon = MOVE_ICONS[m.type] || RefreshCw
                 return (
                   <div key={m.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px' }}>
                     <div style={{
-                      width: 38, height: 38, borderRadius: 10, background: conf.bg,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
+                      width: 36, height: 36, borderRadius: 8, background: conf.bg,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                       flexShrink: 0,
-                    }}>{conf.icon}</div>
+                    }}><MoveIcon size={16} color={conf.color} /></div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#FAFAFA' }}>
                         {pName(m.product_id)}
                       </div>
-                      <div style={{ fontSize: 11, color: '#8A7D75' }}>
+                      <div style={{ fontSize: 11, color: '#71717A' }}>
                         {m.type === 'transfer'
                           ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
                           : m.type === 'in'
@@ -180,16 +173,16 @@ export default function Movements({ movements, products, locations, onToast }) {
                         }
                       </div>
                       {m.note && (
-                        <div style={{ fontSize: 10, color: '#6B6058', marginTop: 2, fontStyle: 'italic' }}>
+                        <div style={{ fontSize: 10, color: '#52525B', marginTop: 2, fontStyle: 'italic' }}>
                           {m.note}
                         </div>
                       )}
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 900, color: conf.color }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: conf.color }}>
                         {m.type === 'out' ? '−' : '+'}{m.quantity}
                       </div>
-                      <div style={{ fontSize: 10, color: '#6B6058' }}>
+                      <div style={{ fontSize: 10, color: '#52525B' }}>
                         {m.created_at ? new Date(m.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </div>
                     </div>
@@ -204,15 +197,15 @@ export default function Movements({ movements, products, locations, onToast }) {
   )
 }
 
-function StatPill({ icon, value, label, color }) {
+function StatPill({ Icon, value, label, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: 'white', borderRadius: 10, border: '1px solid #1a1a1a',
+      background: '#18181B', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)',
     }}>
-      <div style={{ fontSize: 10, marginBottom: 2 }}>{icon}</div>
-      <div style={{ fontSize: 16, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#8A7D75', fontWeight: 600, marginTop: 2 }}>{label}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}><Icon size={14} color={color} /></div>
+      <div style={{ fontSize: 15, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 9, color: '#71717A', fontWeight: 500, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

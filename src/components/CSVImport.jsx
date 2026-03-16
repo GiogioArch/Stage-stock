@@ -83,7 +83,7 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
 
   const handleImport = async () => {
     if (!mapping.name) {
-      onToast('Mappe au moins le champ "Nom"', '#8B1A2B')
+      onToast('Mappe au moins le champ "Nom"', '#EF4444')
       return
     }
     setImporting(true)
@@ -144,7 +144,7 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
       {!rows.length ? (
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>📄</div>
-          <p style={{ fontSize: 13, color: '#8A7D75', marginBottom: 16, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 13, color: '#71717A', marginBottom: 16, lineHeight: 1.5 }}>
             Importe un fichier CSV ou Excel (exporté en .csv).<br />
             Séparateurs supportés : virgule (,) ou point-virgule (;)
           </p>
@@ -156,15 +156,15 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
             style={{ display: 'none' }}
           />
           <button onClick={() => fileRef.current?.click()} style={{
-            padding: '14px 32px', borderRadius: 14, fontSize: 14, fontWeight: 800,
-            background: 'linear-gradient(135deg, #5B8DB8, #2FB65D)',
+            padding: '14px 32px', borderRadius: 8, fontSize: 14, fontWeight: 600,
+            background: 'linear-gradient(135deg, #3B82F6, #22C55E)',
             color: 'white', cursor: 'pointer', border: 'none',
             boxShadow: '0 4px 16px rgba(91,141,184,0.25)',
           }}>Choisir un fichier CSV</button>
 
-          <div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#1a1a1a', textAlign: 'left' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#F0ECE2', marginBottom: 6 }}>Format attendu :</div>
-            <code style={{ fontSize: 10, color: '#8A7D75', lineHeight: 1.8, display: 'block' }}>
+          <div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#18181B', textAlign: 'left' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#FAFAFA', marginBottom: 6 }}>Format attendu :</div>
+            <code style={{ fontSize: 10, color: '#71717A', lineHeight: 1.8, display: 'block' }}>
               name;sku;category;unit;min_stock;cost_ht<br />
               T-shirt Noir Homme;TSH-NH-01;merch;pièce;10;8.50<br />
               Câble XLR 10m;CAB-XLR-10;materiel;pièce;5;12.00
@@ -173,31 +173,31 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
         </div>
       ) : result ? (
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>{result.errors === 0 ? '✅' : '⚠️'}</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: '#F0ECE2', marginBottom: 8 }}>Import terminé</div>
-          <div style={{ fontSize: 14, color: '#2FB65D', fontWeight: 700 }}>{result.success} produit{result.success > 1 ? 's' : ''} importé{result.success > 1 ? 's' : ''}</div>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>{result.errors === 0 ? '' : ''}</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA', marginBottom: 8 }}>Import terminé</div>
+          <div style={{ fontSize: 14, color: '#22C55E', fontWeight: 700 }}>{result.success} produit{result.success > 1 ? 's' : ''} importé{result.success > 1 ? 's' : ''}</div>
           {result.errors > 0 && (
-            <div style={{ fontSize: 13, color: '#8B1A2B', fontWeight: 600, marginTop: 4 }}>{result.errors} erreur{result.errors > 1 ? 's' : ''}</div>
+            <div style={{ fontSize: 13, color: '#EF4444', fontWeight: 600, marginTop: 4 }}>{result.errors} erreur{result.errors > 1 ? 's' : ''}</div>
           )}
           <button onClick={onClose} className="btn-primary" style={{ marginTop: 20, maxWidth: 200 }}>Fermer</button>
         </div>
       ) : (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#F0ECE2', marginBottom: 4 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#FAFAFA', marginBottom: 4 }}>
             {rows.length} ligne{rows.length > 1 ? 's' : ''} détectée{rows.length > 1 ? 's' : ''}
           </div>
-          <div style={{ fontSize: 11, color: '#8A7D75', marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: '#71717A', marginBottom: 16 }}>
             Colonnes : {headers.join(', ')}
           </div>
 
           {/* Field mapping */}
-          <div style={{ fontSize: 12, fontWeight: 800, color: '#F0ECE2', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#FAFAFA', marginBottom: 8 }}>
             Correspondance des colonnes
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
             {FIELDS.map(f => (
               <div key={f.key} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#8A7D75', width: 120, flexShrink: 0 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#71717A', width: 120, flexShrink: 0 }}>
                   {f.label}
                 </span>
                 <select
@@ -214,15 +214,15 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
           </div>
 
           {/* Preview */}
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#8A7D75', marginBottom: 6 }}>Aperçu (3 premières lignes)</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#71717A', marginBottom: 6 }}>Aperçu (3 premières lignes)</div>
           <div style={{ overflowX: 'auto', marginBottom: 16 }}>
             <table style={{ fontSize: 10, borderCollapse: 'collapse', width: '100%' }}>
               <thead>
-                <tr>{headers.map(h => <th key={h} style={{ padding: '4px 6px', textAlign: 'left', borderBottom: '1px solid #222222', color: '#8A7D75', fontWeight: 700 }}>{h}</th>)}</tr>
+                <tr>{headers.map(h => <th key={h} style={{ padding: '4px 6px', textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#71717A', fontWeight: 700 }}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {rows.slice(0, 3).map((r, i) => (
-                  <tr key={i}>{headers.map(h => <td key={h} style={{ padding: '4px 6px', borderBottom: '1px solid #1a1a1a', color: '#F0ECE2' }}>{r[h]}</td>)}</tr>
+                  <tr key={i}>{headers.map(h => <td key={h} style={{ padding: '4px 6px', borderBottom: '1px solid #18181B', color: '#FAFAFA' }}>{r[h]}</td>)}</tr>
                 ))}
               </tbody>
             </table>
@@ -234,7 +234,7 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
             className="btn-primary"
             style={{ opacity: importing || !mapping.name ? 0.5 : 1 }}
           >
-            {importing ? `⏳ Import en cours...` : `Importer ${rows.length} produit${rows.length > 1 ? 's' : ''}`}
+            {importing ? `Import en cours...` : `Importer ${rows.length} produit${rows.length > 1 ? 's' : ''}`}
           </button>
         </div>
       )}

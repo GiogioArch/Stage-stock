@@ -29,6 +29,7 @@ import MyProjects from './components/MyProjects'
 import Landing from './components/Landing'
 import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
+import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3 } from 'lucide-react'
 
 // ─── EK LIVE (fan-facing, no auth) ───
 import LiveApp from './live/LiveApp'
@@ -37,12 +38,21 @@ import LiveDisplay from './live/LiveDisplay'
 // Admin role codes that see everything
 const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
 
+// Icon map for module tabs (replaces emojis from registry)
+const TAB_ICONS = {
+  dashboard: BarChart3, board: BarChart3, tournee: Calendar, articles: Package,
+  depots: Warehouse, stock: ClipboardList, equipe: Users, finance: Coins,
+  alertes: Bell, forecast: TrendingUp, ventes: ShoppingCart,
+  achats: ShoppingBag, inventaire: ClipboardCheck, transport: Truck,
+  settings: SettingsIcon, reglages: SettingsIcon, 'stock-group': Package,
+}
+
 // Personal layer tabs
 const PERSONAL_TABS = [
-  { id: 'home', label: 'Accueil', icon: '🏠' },
-  { id: 'projects', label: 'Projets', icon: '📁' },
-  { id: 'calendar', label: 'Calendrier', icon: '📅' },
-  { id: 'profile', label: 'Profil', icon: '👤' },
+  { id: 'home', label: 'Accueil', Icon: Home },
+  { id: 'projects', label: 'Projets', Icon: FolderOpen },
+  { id: 'calendar', label: 'Calendrier', Icon: Calendar },
+  { id: 'profile', label: 'Profil', Icon: User },
 ]
 
 export default function App() {
@@ -188,7 +198,7 @@ export default function App() {
     const result = [...filtered]
     // Settings tab is ALWAYS visible at the end, regardless of config
     if (!result.find(t => t.id === 'settings')) {
-      result.push({ id: 'settings', label: 'Config', icon: '⚙️', moduleId: 'settings' })
+      result.push({ id: 'settings', label: 'Config', icon: 'settings', moduleId: 'settings' })
     }
     return result
   }, [activeModuleIds, membership])
@@ -413,35 +423,33 @@ export default function App() {
   // ═══════════════════════════════════════════════
   if (layer === 'personal') {
     return (
-      <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #080808 0%, #0C1425 50%, #0A0F1E 100%)', paddingBottom: 80 }}>
+      <div style={{ minHeight: '100dvh', background: '#09090B', paddingBottom: 72 }}>
         {/* Header */}
-        <header style={{ padding: '16px 18px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+        <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
-              width: 42, height: 42, borderRadius: 14,
-              background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
+              width: 36, height: 36, borderRadius: 8,
+              background: '#6366F1',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 22, boxShadow: '0 4px 16px rgba(200,164,106,0.2)',
-            }}>🎪</div>
+            }}><Box size={20} color="#fff" /></div>
             <div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#C8A46A', letterSpacing: 0.5 }}>STAGE STOCK</div>
-              <div style={{ fontSize: 10, color: '#8A7D75', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>
-                Mon espace
-              </div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>Stage Stock</div>
+              <div style={{ fontSize: 11, color: '#71717A' }}>Mon espace</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {offline && (
               <span style={{
-                padding: '5px 10px', borderRadius: 10, background: 'rgba(200,164,106,0.15)',
-                border: '1px solid rgba(200,164,106,0.3)', color: '#C8A46A', fontSize: 11, fontWeight: 800,
-              }}>Hors ligne</span>
+                padding: '4px 8px', borderRadius: 6, background: 'rgba(245,158,11,0.12)',
+                border: '1px solid rgba(245,158,11,0.2)', color: '#F59E0B', fontSize: 11, fontWeight: 500,
+                display: 'flex', alignItems: 'center', gap: 4,
+              }}><WifiOff size={12} /> Hors ligne</span>
             )}
             <button onClick={handleLogout} style={{
-              width: 36, height: 36, borderRadius: 10, background: 'rgba(139,26,43,0.12)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer',
-              border: '1px solid rgba(139,26,43,0.3)',
-            }}>🚪</button>
+              width: 36, height: 36, borderRadius: 8, background: 'rgba(239,68,68,0.1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              border: '1px solid rgba(239,68,68,0.15)',
+            }}><LogOut size={16} color="#EF4444" /></button>
           </div>
         </header>
 
@@ -467,16 +475,18 @@ export default function App() {
         )}
         {personalTab === 'calendar' && (
           <div style={{ padding: '0 16px' }}>
-            <div className="card" style={{ padding: '32px 20px', textAlign: 'center', opacity: 0.6 }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>📅</div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2', marginBottom: 6 }}>Mon calendrier</div>
-              <div style={{ fontSize: 13, color: '#8A7D75', lineHeight: 1.5, marginBottom: 12 }}>
+            <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+                <Calendar size={32} color="#52525B" />
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA', marginBottom: 6 }}>Mon calendrier</div>
+              <div style={{ fontSize: 13, color: '#71717A', lineHeight: 1.5, marginBottom: 12 }}>
                 Toutes tes dates de concert, tous projets confondus.
               </div>
               <span style={{
-                display: 'inline-block', padding: '4px 14px', borderRadius: 8,
-                background: '#222', color: '#8A7D75', fontSize: 11, fontWeight: 800,
-              }}>Bientôt disponible</span>
+                display: 'inline-block', padding: '4px 12px', borderRadius: 6,
+                background: '#18181B', color: '#71717A', fontSize: 11, fontWeight: 500,
+              }}>Bientot disponible</span>
             </div>
           </div>
         )}
@@ -506,7 +516,7 @@ export default function App() {
           <nav className="bottom-nav">
             {PERSONAL_TABS.map(t => (
               <button key={t.id} className={`nav-tab ${personalTab === t.id ? 'active' : ''}`} onClick={() => setPersonalTab(t.id)}>
-                <span className="nav-icon">{t.icon}</span>
+                <span className="nav-icon"><t.Icon size={18} /></span>
                 <span>{t.label}</span>
               </button>
             ))}
@@ -527,16 +537,15 @@ export default function App() {
 
   if (error && data.products.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
-        <div style={{ color: '#8B1A2B', fontWeight: 800, fontSize: 16, marginBottom: 8 }}>Erreur de connexion</div>
-        <div style={{ color: '#8A7D75', fontSize: 13, marginBottom: 20 }}>{error}</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center', background: '#09090B' }}>
+        <AlertTriangle size={32} color="#EF4444" style={{ marginBottom: 16 }} />
+        <div style={{ color: '#EF4444', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>Erreur de connexion</div>
+        <div style={{ color: '#71717A', fontSize: 13, marginBottom: 20 }}>{error}</div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-primary" style={{ maxWidth: 200 }} onClick={loadAll}>Réessayer</button>
-          <button onClick={backToPersonal} style={{
-            padding: '10px 20px', borderRadius: 14, fontSize: 13, fontWeight: 700,
-            background: '#0e0e0e', border: '1px solid #222', color: '#C8A46A', cursor: 'pointer',
-          }}>← Mon Espace</button>
+          <button onClick={backToPersonal} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <ChevronLeft size={14} /> Mon Espace
+          </button>
         </div>
       </div>
     )
@@ -554,58 +563,56 @@ export default function App() {
     )
   }
 
-  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#8A7D75', label: userRole.name }) : null
+  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#71717A', label: userRole.name }) : null
 
   return (
-    <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #080808 0%, #0C1425 50%, #0A0F1E 100%)', paddingBottom: 80 }}>
+    <div style={{ minHeight: '100dvh', background: '#09090B', paddingBottom: 72 }}>
       {/* ─── Header (Couche 3) ─── */}
-      <header style={{ padding: '16px 18px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-          {/* Back to personal layer */}
+      <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button onClick={backToPersonal} style={{
-            padding: '8px 12px', borderRadius: 12, fontSize: 12, fontWeight: 800,
-            background: '#0e0e0e', border: '1px solid #222', color: '#C8A46A', cursor: 'pointer',
+            padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+            background: '#111113', border: '1px solid rgba(255,255,255,0.06)', color: '#A1A1AA', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 4,
           }}>
-            ← Mon Espace
+            <ChevronLeft size={14} /> Retour
           </button>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2', letterSpacing: 0.3 }}>
-              {selectedOrg?.name || 'Projet'}
-            </div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA' }}>
+            {selectedOrg?.name || 'Projet'}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {offline && (
             <span style={{
-              padding: '5px 10px', borderRadius: 10, background: 'rgba(200,164,106,0.15)',
-              border: '1px solid rgba(200,164,106,0.3)', color: '#C8A46A', fontSize: 11, fontWeight: 800,
-            }}>Hors ligne</span>
+              padding: '4px 8px', borderRadius: 6, background: 'rgba(245,158,11,0.12)',
+              border: '1px solid rgba(245,158,11,0.2)', color: '#F59E0B', fontSize: 11, fontWeight: 500,
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}><WifiOff size={12} /> Hors ligne</span>
           )}
           {isModuleActive('stock') && (
             <button onClick={() => setShowScanner(true)} style={{
-              width: 36, height: 36, borderRadius: 10, background: '#0e0e0e',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
-              border: '1px solid #222', cursor: 'pointer',
-            }}>📷</button>
+              width: 36, height: 36, borderRadius: 8, background: '#111113',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer',
+            }}><Camera size={16} color="#A1A1AA" /></button>
           )}
           {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('alertes') && (
             <button onClick={() => handleTabChange('alertes')} style={{
-              padding: '5px 12px', borderRadius: 10, background: 'rgba(139,26,43,0.12)',
-              border: '1px solid rgba(200,164,106,0.2)', color: '#8B1A2B', fontSize: 11, fontWeight: 800,
-              animation: 'pulse 2s infinite',
+              padding: '4px 10px', borderRadius: 6, background: 'rgba(239,68,68,0.12)',
+              border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 11, fontWeight: 500,
+              animation: 'pulse 2s infinite', display: 'flex', alignItems: 'center', gap: 4,
             }}>
-              {alerts.filter(a => a.level === 'rupture').length} 🚨
+              <AlertTriangle size={12} /> {alerts.filter(a => a.level === 'rupture').length}
             </button>
           )}
           {roleConf && (
             <span style={{
-              padding: '5px 10px', borderRadius: 10,
-              background: `${roleConf.color}12`, border: `1.5px solid ${roleConf.color}30`,
-              color: roleConf.color, fontSize: 11, fontWeight: 800,
+              padding: '4px 8px', borderRadius: 6,
+              background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)',
+              color: '#A5B4FC', fontSize: 11, fontWeight: 500,
               display: 'flex', alignItems: 'center', gap: 4,
             }}>
-              <span style={{ fontSize: 14 }}>{roleConf.icon}</span>
+              {roleConf.icon && React.createElement(roleConf.icon, { size: 12 })}
               {userRole.code}
             </span>
           )}
@@ -615,23 +622,21 @@ export default function App() {
       {/* ─── Sub-tab bar (when group has multiple tabs) ─── */}
       {currentGroup && currentGroup.groupTabs.length > 1 && (
         <div style={{
-          display: 'flex', gap: 6, padding: '0 16px 12px',
+          display: 'flex', gap: 4, padding: '8px 16px 12px',
           overflowX: 'auto', WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
         }}>
           {currentGroup.groupTabs.map(t => {
-            const mod = MODULES[t.moduleId]
-            const color = mod?.color || '#9A8B94'
             const isActive = tab === t.id
             return (
               <button key={t.id} onClick={() => handleTabChange(t.id)} style={{
-                padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+                padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,
                 cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-                background: isActive ? `${color}15` : 'white',
-                color: isActive ? color : '#9A8B94',
-                border: `1.5px solid ${isActive ? color + '40' : '#E8DED8'}`,
+                background: isActive ? 'rgba(99,102,241,0.12)' : 'transparent',
+                color: isActive ? '#A5B4FC' : '#71717A',
+                border: `1px solid ${isActive ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.06)'}`,
               }}>
-                {t.icon} {t.label}
+                {t.label}
               </button>
             )
           })}
@@ -666,13 +671,14 @@ export default function App() {
       <nav className="bottom-nav">
         {activeGroups.map(g => {
           const isActive = currentGroup?.id === g.id
+          const IconComp = TAB_ICONS[g.id] || Box
           return (
             <button key={g.id}
               className={`nav-tab ${isActive ? 'active' : ''}`}
               onClick={() => {
                 if (!isActive) handleTabChange(g.groupTabs[0].id)
               }}>
-              <span className="nav-icon">{g.icon}</span>
+              <span className="nav-icon"><IconComp size={18} /></span>
               <span>{g.label}</span>
               {g.id === 'stock-group' && alerts.length > 0 && (
                 <span className="nav-badge">{alerts.length}</span>
@@ -934,17 +940,17 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
   return (
     <div>
       {/* Sub-tab switcher */}
-      <div style={{ display: 'flex', gap: 8, padding: '0 16px 12px' }}>
+      <div style={{ display: 'flex', gap: 4, padding: '0 16px 12px' }}>
         {[
-          { id: 'stock', label: 'Niveaux de stock', color: '#5DAB8B' },
-          { id: 'mouvements', label: 'Mouvements', color: '#C8A46A' },
+          { id: 'stock', label: 'Niveaux de stock' },
+          { id: 'mouvements', label: 'Mouvements' },
         ].map(s => (
           <button key={s.id} onClick={() => setSubTab(s.id)} style={{
-            flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+            flex: 1, padding: '6px', borderRadius: 6, fontSize: 12, fontWeight: 500,
             cursor: 'pointer', textAlign: 'center',
-            background: subTab === s.id ? `${s.color}15` : 'white',
-            color: subTab === s.id ? s.color : '#9A8B94',
-            border: `1.5px solid ${subTab === s.id ? s.color + '40' : '#E8DED8'}`,
+            background: subTab === s.id ? 'rgba(99,102,241,0.12)' : 'transparent',
+            color: subTab === s.id ? '#A5B4FC' : '#71717A',
+            border: `1px solid ${subTab === s.id ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.06)'}`,
           }}>{s.label}</button>
         ))}
       </div>
@@ -986,22 +992,20 @@ class LiveErrorBoundary extends React.Component {
       return (
         <div style={{
           minHeight: '100dvh',
-          background: 'linear-gradient(180deg, #080808 0%, #0C1425 100%)',
+          background: '#09090B',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexDirection: 'column', gap: 16, padding: 32, textAlign: 'center',
-          fontFamily: "'Jost', sans-serif",
+          fontFamily: "'Inter', sans-serif",
         }}>
-          <div style={{ fontSize: 64 }}>🎤</div>
-          <div style={{ fontSize: 20, fontWeight: 900, color: '#F0ECE2' }}>
-            Oups, petit souci technique !
+          <AlertTriangle size={40} color="#EF4444" />
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#FAFAFA' }}>
+            Erreur technique
           </div>
-          <div style={{ fontSize: 14, color: 'rgba(240,236,226,0.5)', lineHeight: 1.6, maxWidth: 300 }}>
-            Recharge la page pour revenir au concert.
+          <div style={{ fontSize: 14, color: '#71717A', lineHeight: 1.6, maxWidth: 300 }}>
+            Recharge la page pour continuer.
           </div>
-          <button onClick={() => window.location.reload()} style={{
-            marginTop: 8, padding: '12px 28px', borderRadius: 14,
-            background: '#10204E', color: 'white', fontSize: 14, fontWeight: 800,
-            border: 'none', cursor: 'pointer',
+          <button onClick={() => window.location.reload()} className="btn-primary" style={{
+            marginTop: 8, maxWidth: 200,
           }}>Recharger</button>
         </div>
       )
@@ -1015,17 +1019,16 @@ function SplashScreen({ text }) {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16,
-      background: 'linear-gradient(180deg, #080808 0%, #0C1425 50%, #0A0F1E 100%)',
+      background: '#09090B',
     }}>
       <div style={{
-        width: 72, height: 72, borderRadius: 22,
-        background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
+        width: 48, height: 48, borderRadius: 12,
+        background: '#6366F1',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 36, boxShadow: '0 8px 32px rgba(232,115,90,0.25)',
-      }}>🎪</div>
+      }}><Box size={28} color="#fff" /></div>
       <div className="loader" />
-      <div style={{ color: '#C8A46A', fontWeight: 900, fontSize: 20 }}>STAGE STOCK</div>
-      <div style={{ color: '#6B6058', fontSize: 13 }}>{text}</div>
+      <div style={{ color: '#FAFAFA', fontWeight: 600, fontSize: 18 }}>Stage Stock</div>
+      <div style={{ color: '#71717A', fontSize: 13 }}>{text}</div>
     </div>
   )
 }

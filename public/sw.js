@@ -1,5 +1,5 @@
-// Stage Stock — Service Worker v3
-const CACHE_NAME = 'stage-stock-v5'
+// Stage Stock — Service Worker v6 (Pro Design)
+const CACHE_NAME = 'stage-stock-v6'
 
 // Static assets to pre-cache on install
 const PRECACHE = [

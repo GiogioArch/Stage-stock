@@ -121,20 +121,20 @@ export default function Forecast({ products, stock, events, locations }) {
       {/* ─── Header card ─── */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #C8A46A08, #8B1A2B18)',
-        border: '1.5px solid #C8A46A25',
+        background: 'linear-gradient(135deg, #6366F108, #EF444418)',
+        border: '1px solid #6366F125',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
-            width: 48, height: 48, borderRadius: 14,
-            background: 'linear-gradient(135deg, #C8A46A, #8B1A2B)',
+            width: 48, height: 48, borderRadius: 8,
+            background: 'linear-gradient(135deg, #6366F1, #EF4444)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 24, color: 'white',
-            boxShadow: '0 4px 16px #C8A46A30',
-          }}>📈</div>
+            boxShadow: '0 4px 16px #6366F130',
+          }}></div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2' }}>Prévisions Merch</div>
-            <div style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>Prévisions Merch</div>
+            <div style={{ fontSize: 12, color: '#71717A', fontWeight: 600 }}>
               {upcomingEvents.length} concert{upcomingEvents.length > 1 ? 's' : ''} à venir · {merchProducts.length} réf. merch
             </div>
           </div>
@@ -142,26 +142,26 @@ export default function Forecast({ products, stock, events, locations }) {
 
         {/* KPI row */}
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Stock actuel" value={totalMerchStock} color="#5B8DB8" />
-          <KpiBox label="Ventes proj." value={totalProjectedSales} color="#C8A46A" />
-          <KpiBox label="CA proj." value={`${totalProjectedCA}€`} color="#2FB65D" />
-          <KpiBox label="Solde" value={totalMerchStock - totalProjectedSales} color={totalMerchStock - totalProjectedSales < 0 ? '#8B1A2B' : '#2FB65D'} />
+          <KpiBox label="Stock actuel" value={totalMerchStock} color="#3B82F6" />
+          <KpiBox label="Ventes proj." value={totalProjectedSales} color="#6366F1" />
+          <KpiBox label="CA proj." value={`${totalProjectedCA}€`} color="#22C55E" />
+          <KpiBox label="Solde" value={totalMerchStock - totalProjectedSales} color={totalMerchStock - totalProjectedSales < 0 ? '#EF4444' : '#22C55E'} />
         </div>
       </div>
 
       {/* ─── Scenario selector ─── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
-          { id: 'low', label: 'Pessimiste', color: '#5B8DB8' },
-          { id: 'mid', label: 'Réaliste', color: '#C8A46A' },
-          { id: 'high', label: 'Optimiste', color: '#2FB65D' },
+          { id: 'low', label: 'Pessimiste', color: '#3B82F6' },
+          { id: 'mid', label: 'Réaliste', color: '#6366F1' },
+          { id: 'high', label: 'Optimiste', color: '#22C55E' },
         ].map(s => (
           <button key={s.id} onClick={() => setScenario(s.id)} style={{
             flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
             background: scenario === s.id ? `${s.color}15` : 'white',
-            color: scenario === s.id ? s.color : '#8A7D75',
-            border: `1.5px solid ${scenario === s.id ? s.color + '40' : '#222222'}`,
+            color: scenario === s.id ? s.color : '#71717A',
+            border: `1px solid ${scenario === s.id ? s.color + '40' : 'rgba(255,255,255,0.1)'}`,
           }}>{s.label}</button>
         ))}
       </div>
@@ -170,16 +170,16 @@ export default function Forecast({ products, stock, events, locations }) {
       {firstRupture && (
         <div className="card" style={{
           marginBottom: 12, padding: '12px 14px',
-          background: '#8B1A2B10', borderLeft: '4px solid #8B1A2B',
+          background: '#EF444410', borderLeft: '4px solid #EF4444',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 22 }}>🚨</span>
+            <span style={{ fontSize: 22 }}></span>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#8B1A2B' }}>Rupture projetée</div>
-              <div style={{ fontSize: 12, color: '#F0ECE2' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#EF4444' }}>Rupture projetée</div>
+              <div style={{ fontSize: 12, color: '#FAFAFA' }}>
                 {firstRupture.name || firstRupture.lieu} — {parseDate(firstRupture.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
               </div>
-              <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: '#71717A', marginTop: 2 }}>
                 Stock insuffisant dès ce concert ({firstRupture.stockAfter} unités manquantes)
               </div>
             </div>
@@ -190,16 +190,16 @@ export default function Forecast({ products, stock, events, locations }) {
       {firstReappro && !firstRupture && (
         <div className="card" style={{
           marginBottom: 12, padding: '12px 14px',
-          background: '#C8A46A10', borderLeft: '4px solid #C8A46A',
+          background: '#6366F110', borderLeft: '4px solid #6366F1',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 22 }}>⚠️</span>
+            <span style={{ fontSize: 22 }}></span>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#C8A46A' }}>Réappro recommandé</div>
-              <div style={{ fontSize: 12, color: '#F0ECE2' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#6366F1' }}>Réappro recommandé</div>
+              <div style={{ fontSize: 12, color: '#FAFAFA' }}>
                 Avant {firstReappro.name || firstReappro.lieu} — {parseDate(firstReappro.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
               </div>
-              <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: '#71717A', marginTop: 2 }}>
                 Stock projeté : {firstReappro.stockAfter} unités ({firstReappro.pctRemaining}% restant)
               </div>
             </div>
@@ -209,11 +209,11 @@ export default function Forecast({ products, stock, events, locations }) {
 
       {/* ─── Stock gauge ─── */}
       <div className="card" style={{ padding: '14px 16px', marginBottom: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
           Jauge stock merch
         </div>
         <div style={{
-          height: 24, borderRadius: 12, background: '#1a1a1a',
+          height: 24, borderRadius: 12, background: '#18181B',
           overflow: 'hidden', position: 'relative',
         }}>
           {/* Projected consumption */}
@@ -221,8 +221,8 @@ export default function Forecast({ products, stock, events, locations }) {
             position: 'absolute', left: 0, top: 0, bottom: 0,
             width: `${totalMerchStock > 0 ? Math.min(100, Math.round((totalProjectedSales / totalMerchStock) * 100)) : 0}%`,
             background: totalProjectedSales > totalMerchStock
-              ? 'linear-gradient(90deg, #C8A46A, #8B1A2B)'
-              : 'linear-gradient(90deg, #C8A46A, #C8A46A)',
+              ? 'linear-gradient(90deg, #6366F1, #EF4444)'
+              : 'linear-gradient(90deg, #6366F1, #6366F1)',
             borderRadius: 12,
             transition: 'width 0.4s',
           }} />
@@ -230,25 +230,25 @@ export default function Forecast({ products, stock, events, locations }) {
           <div style={{
             position: 'absolute', inset: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 11, fontWeight: 800, color: '#F0ECE2',
+            fontSize: 11, fontWeight: 600, color: '#FAFAFA',
           }}>
             {totalProjectedSales}/{totalMerchStock} projetées
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-          <span style={{ fontSize: 10, color: '#8A7D75' }}>0</span>
-          <span style={{ fontSize: 10, color: '#8A7D75' }}>{totalMerchStock} unités</span>
+          <span style={{ fontSize: 10, color: '#71717A' }}>0</span>
+          <span style={{ fontSize: 10, color: '#71717A' }}>{totalMerchStock} unités</span>
         </div>
       </div>
 
       {/* ─── Timeline ─── */}
-      <div style={{ fontSize: 12, fontWeight: 800, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, padding: '0 4px' }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, padding: '0 4px' }}>
         Timeline prévisions
       </div>
 
       {projections.length === 0 ? (
         <div className="empty-state" style={{ padding: 40 }}>
-          <div className="empty-icon">📅</div>
+          <div className="empty-icon"></div>
           <div className="empty-text">Aucun concert à venir</div>
         </div>
       ) : (
@@ -262,7 +262,7 @@ export default function Forecast({ products, stock, events, locations }) {
                 {/* Timeline connector */}
                 {i > 0 && (
                   <div style={{
-                    width: 2, height: 20, background: '#222222',
+                    width: 2, height: 20, background: 'rgba(255,255,255,0.1)',
                     marginLeft: 19,
                   }} />
                 )}
@@ -272,7 +272,7 @@ export default function Forecast({ products, stock, events, locations }) {
                   onClick={() => setShowDetail(isExpanded ? null : ev.id)}
                   style={{
                     padding: '12px 14px', cursor: 'pointer',
-                    borderLeft: `4px solid ${ev.rupture ? '#8B1A2B' : ev.reappro ? '#C8A46A' : '#2FB65D'}`,
+                    borderLeft: `4px solid ${ev.rupture ? '#EF4444' : ev.reappro ? '#6366F1' : '#22C55E'}`,
                     opacity: ev.rupture ? 1 : 1,
                   }}
                 >
@@ -280,10 +280,10 @@ export default function Forecast({ products, stock, events, locations }) {
                     {/* Date circle */}
                     <div style={{
                       width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                      background: ev.rupture ? '#8B1A2B15' : ev.reappro ? '#C8A46A15' : '#2FB65D15',
+                      background: ev.rupture ? '#EF444415' : ev.reappro ? '#6366F115' : '#22C55E15',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, fontWeight: 900, textAlign: 'center', lineHeight: 1.2,
-                      color: ev.rupture ? '#8B1A2B' : ev.reappro ? '#C8A46A' : '#2FB65D',
+                      fontSize: 10, fontWeight: 600, textAlign: 'center', lineHeight: 1.2,
+                      color: ev.rupture ? '#EF4444' : ev.reappro ? '#6366F1' : '#22C55E',
                     }}>
                       {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                     </div>
@@ -291,12 +291,12 @@ export default function Forecast({ products, stock, events, locations }) {
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
-                        fontSize: 13, fontWeight: 700, color: '#F0ECE2',
+                        fontSize: 13, fontWeight: 700, color: '#FAFAFA',
                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       }}>
                         {ev.name || ev.lieu}
                       </div>
-                      <div style={{ fontSize: 11, color: '#8A7D75' }}>
+                      <div style={{ fontSize: 11, color: '#71717A' }}>
                         {ev.ville} · {ev.format} · {ev.capacite} pers.
                         {ev.territoire && ` · ${ev.territoire}`}
                       </div>
@@ -305,12 +305,12 @@ export default function Forecast({ products, stock, events, locations }) {
                     {/* Projected sales */}
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{
-                        fontSize: 16, fontWeight: 900,
-                        color: ev.rupture ? '#8B1A2B' : '#C8A46A',
+                        fontSize: 16, fontWeight: 600,
+                        color: ev.rupture ? '#EF4444' : '#6366F1',
                       }}>
                         −{ev.projectedSales}
                       </div>
-                      <div style={{ fontSize: 10, color: '#8A7D75', fontWeight: 600 }}>
+                      <div style={{ fontSize: 10, color: '#71717A', fontWeight: 600 }}>
                         J-{daysUntil}
                       </div>
                     </div>
@@ -319,33 +319,33 @@ export default function Forecast({ products, stock, events, locations }) {
                   {/* Stock bar */}
                   <div style={{ marginTop: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 10, color: '#8A7D75' }}>
+                      <span style={{ fontSize: 10, color: '#71717A' }}>
                         Stock après : {ev.stockAfter < 0 ? `−${Math.abs(ev.stockAfter)}` : ev.stockAfter}
                       </span>
                       <span style={{
                         fontSize: 10, fontWeight: 700,
-                        color: ev.rupture ? '#8B1A2B' : ev.reappro ? '#C8A46A' : '#2FB65D',
+                        color: ev.rupture ? '#EF4444' : ev.reappro ? '#6366F1' : '#22C55E',
                       }}>
                         {ev.pctRemaining}%
                       </span>
                     </div>
-                    <div style={{ height: 5, borderRadius: 3, background: '#1a1a1a', overflow: 'hidden' }}>
+                    <div style={{ height: 5, borderRadius: 3, background: '#18181B', overflow: 'hidden' }}>
                       <div style={{
                         width: `${ev.pctRemaining}%`,
                         height: '100%', borderRadius: 3, transition: 'width 0.3s',
-                        background: ev.rupture ? '#8B1A2B' : ev.reappro ? '#C8A46A' : '#2FB65D',
+                        background: ev.rupture ? '#EF4444' : ev.reappro ? '#6366F1' : '#22C55E',
                       }} />
                     </div>
                   </div>
 
                   {/* Badges */}
                   <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                    <Badge color="#8A7D75">
+                    <Badge color="#71717A">
                       Taux {Math.round(ev.convRate * 100)}% × {ev.territoryMult}
                     </Badge>
-                    {ev.rupture && <Badge color="#8B1A2B">RUPTURE</Badge>}
-                    {ev.reappro && !ev.rupture && <Badge color="#C8A46A">RÉAPPRO</Badge>}
-                    {ev.transport_inter_iles && <Badge color="#5B8DB8">Inter-îles</Badge>}
+                    {ev.rupture && <Badge color="#EF4444">RUPTURE</Badge>}
+                    {ev.reappro && !ev.rupture && <Badge color="#6366F1">RÉAPPRO</Badge>}
+                    {ev.transport_inter_iles && <Badge color="#3B82F6">Inter-îles</Badge>}
                   </div>
                 </div>
 
@@ -353,31 +353,31 @@ export default function Forecast({ products, stock, events, locations }) {
                 {isExpanded && (
                   <div style={{
                     marginLeft: 16, marginTop: -2, marginBottom: 4,
-                    padding: '12px 14px', background: '#FEFBF8',
-                    borderRadius: '0 0 14px 14px', border: '1px solid #1a1a1a',
+                    padding: '12px 14px', background: '#111113',
+                    borderRadius: '0 0 14px 14px', border: '1px solid #18181B',
                     borderTop: 'none',
                   }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
                       Détail par produit
                     </div>
                     {getProductBreakdown(ev).map(p => (
                       <div key={p.id} style={{
                         display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0',
-                        borderBottom: '1px solid #1a1a1a20',
+                        borderBottom: '1px solid #18181B20',
                       }}>
-                        <span style={{ fontSize: 14 }}>{p.image || '👕'}</span>
+                        <span style={{ fontSize: 14 }}>{p.image || ''}</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{
                             fontSize: 12, fontWeight: 600,
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                           }}>{p.name}</div>
-                          <div style={{ fontSize: 10, color: '#8A7D75' }}>
+                          <div style={{ fontSize: 10, color: '#71717A' }}>
                             Stock: {p.totalQty} → proj. −{p.projectedQty}
                           </div>
                         </div>
                         <div style={{
-                          fontSize: 13, fontWeight: 800,
-                          color: p.remaining < 0 ? '#8B1A2B' : p.remaining === 0 ? '#C8A46A' : '#2FB65D',
+                          fontSize: 13, fontWeight: 600,
+                          color: p.remaining < 0 ? '#EF4444' : p.remaining === 0 ? '#6366F1' : '#22C55E',
                         }}>
                           {p.remaining < 0 ? `−${Math.abs(p.remaining)}` : p.remaining}
                         </div>
@@ -387,7 +387,7 @@ export default function Forecast({ products, stock, events, locations }) {
                     {/* Calculation explanation */}
                     <div style={{
                       marginTop: 10, padding: '8px 10px', borderRadius: 8,
-                      background: '#1a1a1a40', fontSize: 10, color: '#8A7D75', lineHeight: 1.6,
+                      background: '#18181B40', fontSize: 10, color: '#71717A', lineHeight: 1.6,
                     }}>
                       Calcul : {ev.capacite} pers. × {Math.round(ev.convRate * 100)}% conversion × {ev.territoryMult} territoire = {ev.projectedSales} ventes
                     </div>
@@ -403,7 +403,7 @@ export default function Forecast({ products, stock, events, locations }) {
       {merchProducts.length > 0 && (
         <>
           <div style={{
-            fontSize: 12, fontWeight: 800, color: '#8A7D75', textTransform: 'uppercase',
+            fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase',
             letterSpacing: 1, marginTop: 20, marginBottom: 10, padding: '0 4px',
           }}>
             Stock merch actuel
@@ -411,17 +411,17 @@ export default function Forecast({ products, stock, events, locations }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {merchProducts.map(p => (
               <div key={p.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
-                <span style={{ fontSize: 18 }}>{p.image || '👕'}</span>
+                <span style={{ fontSize: 18 }}>{p.image || ''}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
                     fontSize: 13, fontWeight: 600,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>{p.name}</div>
-                  <div style={{ fontSize: 10, color: '#8A7D75' }}>{p.sku}</div>
+                  <div style={{ fontSize: 10, color: '#71717A' }}>{p.sku}</div>
                 </div>
                 <div style={{
-                  fontSize: 16, fontWeight: 900,
-                  color: p.totalQty === 0 ? '#8B1A2B' : p.totalQty <= (p.min_stock || 5) ? '#C8A46A' : '#2FB65D',
+                  fontSize: 16, fontWeight: 600,
+                  color: p.totalQty === 0 ? '#EF4444' : p.totalQty <= (p.min_stock || 5) ? '#6366F1' : '#22C55E',
                 }}>{p.totalQty}</div>
               </div>
             ))}
@@ -437,10 +437,10 @@ function KpiBox({ label, value, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: 'white', borderRadius: 10, border: '1px solid #1a1a1a',
+      background: '#18181B', borderRadius: 10, border: '1px solid #18181B',
     }}>
-      <div style={{ fontSize: 16, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#8A7D75', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 16, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 8, color: '#71717A', fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

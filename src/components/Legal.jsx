@@ -32,7 +32,7 @@ export function CGU({ onClose }) {
       <h3>9. Droit applicable</h3>
       <p>Les présentes CGU sont régies par le droit français. Tout litige sera soumis aux tribunaux compétents de Fort-de-France, Martinique.</p>
 
-      <p style={{ marginTop: 24, fontSize: 11, color: '#B8A0AE' }}>Dernière mise à jour : mars 2026</p>
+      <p style={{ marginTop: 24, fontSize: 11, color: '#71717A' }}>Dernière mise à jour : mars 2026</p>
     </LegalPage>
   )
 }
@@ -82,7 +82,7 @@ export function Privacy({ onClose }) {
       <h3>8. Cookies</h3>
       <p>Stage Stock utilise uniquement le stockage local (localStorage) pour maintenir la session utilisateur et les préférences de modules. Aucun cookie tiers ou de tracking n'est utilisé.</p>
 
-      <p style={{ marginTop: 24, fontSize: 11, color: '#B8A0AE' }}>Dernière mise à jour : mars 2026</p>
+      <p style={{ marginTop: 24, fontSize: 11, color: '#71717A' }}>Dernière mise à jour : mars 2026</p>
     </LegalPage>
   )
 }
@@ -91,30 +91,30 @@ function LegalPage({ title, onClose, children }) {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 200,
-      background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      background: 'linear-gradient(180deg, #FFF8F0 0%, #111113 30%, #111113 70%, #111113 100%)',
       overflowY: 'auto',
     }}>
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
         background: 'rgba(255,248,240,0.95)', backdropFilter: 'blur(12px)',
-        padding: '12px 16px', borderBottom: '1px solid #F0E8E4',
+        padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <button onClick={onClose} style={{
-          width: 36, height: 36, borderRadius: 10, background: '#F0E8E4',
+          width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 16, cursor: 'pointer', border: 'none',
         }}>←</button>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>{title}</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>{title}</div>
       </div>
       <div style={{
         padding: '20px 20px 60px', maxWidth: 600, margin: '0 auto',
-        fontSize: 13, color: '#3D3042', lineHeight: 1.7,
+        fontSize: 13, color: '#FAFAFA', lineHeight: 1.7,
       }}>
         {children}
       </div>
       <style>{`
-        .legal-page h3 { font-size: 14px; font-weight: 800; color: #E8735A; margin: 20px 0 8px; }
+        .legal-page h3 { font-size: 14px; font-weight: 800; color: #6366F1; margin: 20px 0 8px; }
         .legal-page p { margin: 0 0 10px; }
         .legal-page ul { margin: 0 0 10px; padding-left: 20px; }
         .legal-page li { margin-bottom: 4px; }

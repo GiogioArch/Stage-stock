@@ -35,7 +35,7 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
         await enrichWithOrgs(memberships)
       }
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#8B1A2B')
+      onToast('Erreur: ' + e.message, '#EF4444')
       setProjects([])
     } finally {
       setLoading(false)
@@ -68,10 +68,10 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
       <div style={{
         minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexDirection: 'column', gap: 16,
-        background: 'linear-gradient(180deg, #080808 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+        background: 'linear-gradient(180deg, #09090B 0%, #111113 30%, #111113 70%, #111113 100%)',
       }}>
         <div className="loader" />
-        <div style={{ color: '#6B6058', fontSize: 13 }}>Chargement des projets...</div>
+        <div style={{ color: '#52525B', fontSize: 13 }}>Chargement des projets...</div>
       </div>
     )
   }
@@ -82,21 +82,21 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
   return (
     <div style={{
       minHeight: '100vh', padding: '24px 16px',
-      background: 'linear-gradient(180deg, #080808 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      background: 'linear-gradient(180deg, #09090B 0%, #111113 30%, #111113 70%, #111113 100%)',
     }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <div style={{
           width: 64, height: 64, borderRadius: 20,
-          background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
+          background: '#6366F1',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 32, boxShadow: '0 6px 24px rgba(232,115,90,0.25)',
           marginBottom: 14,
-        }}>🎪</div>
-        <div style={{ fontSize: 20, fontWeight: 900, color: '#C8A46A', marginBottom: 4 }}>
+        }}></div>
+        <div style={{ fontSize: 20, fontWeight: 600, color: '#6366F1', marginBottom: 4 }}>
           STAGE STOCK
         </div>
-        <div style={{ fontSize: 14, color: '#8A7D75', fontWeight: 600 }}>
+        <div style={{ fontSize: 14, color: '#71717A', fontWeight: 600 }}>
           Sélectionne un projet
         </div>
       </div>
@@ -108,35 +108,35 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
             key={p.id}
             onClick={() => onProjectSelected(p)}
             style={{
-              padding: '20px 18px', borderRadius: 18, textAlign: 'left',
-              background: 'white', cursor: 'pointer',
-              border: '2px solid #1a1a1a',
+              padding: '20px 18px', borderRadius: 12, textAlign: 'left',
+              background: '#18181B', cursor: 'pointer',
+              border: '2px solid #18181B',
               boxShadow: '0 2px 12px rgba(180,150,130,0.08)',
               transition: 'all 0.2s',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{
-                width: 48, height: 48, borderRadius: 14,
-                background: 'linear-gradient(135deg, #C8A46A15, #9B7DC415)',
+                width: 48, height: 48, borderRadius: 8,
+                background: 'rgba(99,102,241,0.08)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 24,
               }}>
-                {p.org.logo || '🎪'}
+                {p.org.logo || ''}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#F0ECE2' }}>
+                <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>
                   {p.org.name}
                 </div>
-                <div style={{ fontSize: 12, color: '#8A7D75', marginTop: 2 }}>
-                  {p.is_admin ? '👑 Admin' : '👤 Membre'}
+                <div style={{ fontSize: 12, color: '#71717A', marginTop: 2 }}>
+                  {p.is_admin ? '👑 Admin' : ' Membre'}
                   {p.role_id && ' — '}
                   {p.status === 'invited' && (
-                    <span style={{ color: '#C8A46A', fontWeight: 700 }}>Invitation en attente</span>
+                    <span style={{ color: '#6366F1', fontWeight: 700 }}>Invitation en attente</span>
                   )}
                 </div>
               </div>
-              <div style={{ fontSize: 18, color: '#6B6058' }}>→</div>
+              <div style={{ fontSize: 18, color: '#52525B' }}>→</div>
             </div>
           </button>
         ))}
@@ -146,8 +146,8 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
       {!showCreate ? (
         <div style={{ textAlign: 'center', marginTop: 24 }}>
           <button onClick={() => setShowCreate(true)} style={{
-            padding: '12px 24px', borderRadius: 14, fontSize: 13, fontWeight: 700,
-            background: 'linear-gradient(135deg, #C8A46A, #8B1A2B)',
+            padding: '12px 24px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+            background: 'linear-gradient(135deg, #6366F1, #EF4444)',
             color: 'white', cursor: 'pointer', border: 'none',
             boxShadow: '0 4px 16px rgba(232,115,90,0.2)',
           }}>
@@ -208,19 +208,19 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
     } catch (e) {
       const msg = e.message || 'Erreur inconnue'
       setError(msg)
-      onToast('Erreur: ' + msg, '#8B1A2B')
+      onToast('Erreur: ' + msg, '#EF4444')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '24px auto 0', padding: '20px', background: 'white', borderRadius: 18, border: '2px solid #C8A46A30', boxShadow: '0 4px 20px rgba(232,115,90,0.1)' }}>
-      <div style={{ fontSize: 16, fontWeight: 800, color: '#F0ECE2', marginBottom: 16, textAlign: 'center' }}>
+    <div style={{ maxWidth: 400, margin: '24px auto 0', padding: '20px', background: '#18181B', borderRadius: 12, border: '2px solid #6366F130', boxShadow: '0 4px 20px rgba(232,115,90,0.1)' }}>
+      <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA', marginBottom: 16, textAlign: 'center' }}>
         Nouveau projet
       </div>
       <div style={{ marginBottom: 14 }}>
-        <label style={{ fontSize: 11, fontWeight: 700, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 4 }}>Nom du projet *</label>
+        <label style={{ fontSize: 11, fontWeight: 700, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 4 }}>Nom du projet *</label>
         <input
           className="input"
           value={name}
@@ -230,34 +230,34 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
         />
       </div>
       <div style={{ marginBottom: 20 }}>
-        <label style={{ fontSize: 11, fontWeight: 700, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 4 }}>Identifiant</label>
+        <label style={{ fontSize: 11, fontWeight: 700, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 4 }}>Identifiant</label>
         <input
           className="input"
           value={slug}
           onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
           placeholder="ma-tournee-2026"
-          style={{ fontSize: 12, color: '#6B6058' }}
+          style={{ fontSize: 12, color: '#52525B' }}
         />
       </div>
       {error && (
         <div style={{
           padding: '10px 14px', borderRadius: 12, marginBottom: 12,
-          background: '#FFF0F0', border: '1px solid #8B1A2B40',
-          fontSize: 12, color: '#8B1A2B', fontWeight: 600, lineHeight: 1.4,
+          background: '#FFF0F0', border: '1px solid #EF444440',
+          fontSize: 12, color: '#EF4444', fontWeight: 600, lineHeight: 1.4,
         }}>
           {error}
         </div>
       )}
       <div style={{ display: 'flex', gap: 10 }}>
         <button onClick={onCancel} style={{
-          flex: 1, padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 700,
-          background: '#1a1a1a', color: '#8A7D75', cursor: 'pointer', border: 'none',
+          flex: 1, padding: '12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+          background: '#18181B', color: '#71717A', cursor: 'pointer', border: 'none',
         }}>Annuler</button>
         <button onClick={handleCreate} disabled={!name.trim() || saving} style={{
-          flex: 2, padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800,
-          background: !name.trim() || saving ? '#222222' : 'linear-gradient(135deg, #C8A46A, #8B1A2B)',
+          flex: 2, padding: '12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+          background: !name.trim() || saving ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #6366F1, #EF4444)',
           color: 'white', cursor: !name.trim() || saving ? 'default' : 'pointer', border: 'none',
-        }}>{saving ? '⏳ Création...' : 'Créer le projet'}</button>
+        }}>{saving ? 'Création...' : 'Créer le projet'}</button>
       </div>
     </div>
   )

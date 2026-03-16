@@ -57,7 +57,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       onToast('Packing list generee')
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#8B1A2B')
+      onToast('Erreur: ' + e.message, '#EF4444')
     } finally {
       setGenerating(false)
     }
@@ -71,14 +71,14 @@ export default function PackingList({ event, products, stock, locations, roles, 
     <style>
       body { font-family: Arial, sans-serif; padding: 20px; color: #333; font-size: 12px; }
       h1 { font-size: 18px; margin-bottom: 4px; }
-      h2 { font-size: 14px; margin: 16px 0 6px; border-bottom: 2px solid #C8A46A; padding-bottom: 4px; }
+      h2 { font-size: 14px; margin: 16px 0 6px; border-bottom: 2px solid #6366F1; padding-bottom: 4px; }
       .sub { color: #888; font-size: 11px; margin-bottom: 16px; }
       table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
       th { text-align: left; font-size: 10px; text-transform: uppercase; color: #888; border-bottom: 1px solid #ccc; padding: 4px 6px; }
       td { padding: 4px 6px; border-bottom: 1px solid #eee; }
       .check { width: 20px; text-align: center; }
       .qty { text-align: right; width: 50px; }
-      .shortage { color: #8B1A2B; font-weight: bold; }
+      .shortage { color: #EF4444; font-weight: bold; }
       @media print { body { padding: 0; } }
     </style></head><body>`
     html += `<h1>Packing List — ${event.name || event.lieu}</h1>`
@@ -122,7 +122,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       })
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#8B1A2B')
+      onToast('Erreur: ' + e.message, '#EF4444')
     }
   }, [onReload, onToast])
 
@@ -136,7 +136,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       })
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#8B1A2B')
+      onToast('Erreur: ' + e.message, '#EF4444')
     }
   }, [onReload, onToast])
 
@@ -154,7 +154,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       onToast(`${items.length} items emballes`)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#8B1A2B')
+      onToast('Erreur: ' + e.message, '#EF4444')
     }
   }, [groupedByRole, onReload, onToast])
 
@@ -162,28 +162,28 @@ export default function PackingList({ event, products, stock, locations, roles, 
   if (packingItems.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '32px 16px' }}>
-        <div style={{ fontSize: 48, marginBottom: 12 }}>📦</div>
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#F0ECE2', marginBottom: 6 }}>
+        <div style={{ fontSize: 48, marginBottom: 12 }}></div>
+        <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA', marginBottom: 6 }}>
           Aucune packing list
         </div>
-        <div style={{ fontSize: 13, color: '#8A7D75', marginBottom: 8, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: '#71717A', marginBottom: 8, lineHeight: 1.5 }}>
           Calcul auto selon le format, la capacite et le territoire.
         </div>
         {/* Event info */}
         <div style={{
           display: 'inline-flex', gap: 8, marginBottom: 20, flexWrap: 'wrap', justifyContent: 'center',
         }}>
-          {event.format && <Badge color="#5B8DB8">{event.format}</Badge>}
-          {event.capacite && <Badge color="#C8A46A">{event.capacite} pers.</Badge>}
-          {event.territoire && <Badge color="#2FB65D">{event.territoire}</Badge>}
+          {event.format && <Badge color="#3B82F6">{event.format}</Badge>}
+          {event.capacite && <Badge color="#6366F1">{event.capacite} pers.</Badge>}
+          {event.territoire && <Badge color="#22C55E">{event.territoire}</Badge>}
         </div>
         <div>
           <button
             onClick={handleGenerate}
             disabled={generating}
             style={{
-              padding: '12px 24px', borderRadius: 14, fontSize: 14, fontWeight: 800,
-              background: generating ? '#222222' : 'linear-gradient(135deg, #C8A46A, #8B1A2B)',
+              padding: '12px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600,
+              background: generating ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #6366F1, #EF4444)',
               color: 'white', cursor: generating ? 'wait' : 'pointer',
               boxShadow: '0 4px 16px rgba(232,115,90,0.25)', border: 'none',
             }}
@@ -204,17 +204,17 @@ export default function PackingList({ event, products, stock, locations, roles, 
             {packedItems}/{totalItems} emballe{packedItems > 1 ? 's' : ''}
           </span>
           <span style={{
-            fontSize: 22, fontWeight: 900,
-            color: overallPercent === 100 ? '#2FB65D' : overallPercent >= 50 ? '#C8A46A' : '#8B1A2B',
+            fontSize: 22, fontWeight: 600,
+            color: overallPercent === 100 ? '#22C55E' : overallPercent >= 50 ? '#6366F1' : '#EF4444',
           }}>{overallPercent}%</span>
         </div>
-        <div style={{ height: 8, borderRadius: 4, background: '#1a1a1a', overflow: 'hidden' }}>
+        <div style={{ height: 8, borderRadius: 4, background: '#18181B', overflow: 'hidden' }}>
           <div style={{
             height: '100%', borderRadius: 4, transition: 'width 0.3s',
             width: `${overallPercent}%`,
             background: overallPercent === 100
-              ? 'linear-gradient(90deg, #2FB65D, #4A9A7A)'
-              : 'linear-gradient(90deg, #C8A46A, #8B1A2B)',
+              ? 'linear-gradient(90deg, #22C55E, #4A9A7A)'
+              : 'linear-gradient(90deg, #6366F1, #EF4444)',
           }} />
         </div>
       </div>
@@ -223,38 +223,38 @@ export default function PackingList({ event, products, stock, locations, roles, 
       <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
         <button onClick={handlePrint} style={{
           flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-          background: 'rgba(91,141,184,0.08)', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+          background: 'rgba(91,141,184,0.08)', border: '1px solid #3B82F630', color: '#3B82F6', cursor: 'pointer',
         }}>🖨️ Imprimer / PDF</button>
         <button onClick={handleGenerate} disabled={generating} style={{
           flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-          background: 'rgba(200,164,106,0.08)', border: '1.5px solid #8B1A2B30', color: '#8B1A2B', cursor: 'pointer',
+          background: 'rgba(200,164,106,0.08)', border: '1px solid #EF444430', color: '#EF4444', cursor: 'pointer',
           opacity: generating ? 0.5 : 1,
-        }}>{generating ? '⏳...' : '🔄 Recalculer'}</button>
+        }}>{generating ? '...' : ' Recalculer'}</button>
       </div>
 
       {/* Shortage warning */}
       {shortageItems.length > 0 && (
         <div className="card" style={{
           padding: '10px 14px', marginBottom: 10,
-          background: 'rgba(200,164,106,0.08)', border: '1.5px solid #8B1A2B25',
+          background: 'rgba(200,164,106,0.08)', border: '1px solid #EF444425',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: '#8B1A2B', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#EF4444', marginBottom: 4 }}>
             Manque de stock
           </div>
-          <div style={{ fontSize: 11, color: '#8A7D75' }}>
+          <div style={{ fontSize: 11, color: '#71717A' }}>
             {shortageItems.length} produit{shortageItems.length > 1 ? 's' : ''} en quantite insuffisante ({totalShortage} unites manquantes)
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
             {shortageItems.slice(0, 5).map((i, idx) => (
               <span key={idx} style={{
                 fontSize: 10, padding: '2px 8px', borderRadius: 6,
-                background: '#8B1A2B15', color: '#8B1A2B', fontWeight: 700,
+                background: '#EF444415', color: '#EF4444', fontWeight: 700,
               }}>
                 {i.product?.name || '?'} (-{i.shortage})
               </span>
             ))}
             {shortageItems.length > 5 && (
-              <span style={{ fontSize: 10, color: '#6B6058' }}>+{shortageItems.length - 5} autres</span>
+              <span style={{ fontSize: 10, color: '#52525B' }}>+{shortageItems.length - 5} autres</span>
             )}
           </div>
         </div>
@@ -263,9 +263,9 @@ export default function PackingList({ event, products, stock, locations, roles, 
       {/* Action bar */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, marginBottom: 12 }}>
         <button onClick={handleGenerate} disabled={generating} style={{
-          padding: '6px 12px', borderRadius: 10, fontSize: 11, fontWeight: 800,
-          background: '#F8F0FA', border: '1.5px solid #222222',
-          color: '#8A7D75', cursor: generating ? 'wait' : 'pointer',
+          padding: '6px 12px', borderRadius: 10, fontSize: 11, fontWeight: 600,
+          background: '#111113', border: '1px solid rgba(255,255,255,0.1)',
+          color: '#71717A', cursor: generating ? 'wait' : 'pointer',
         }}>
           {generating ? '...' : 'Regenerer'}
         </button>
@@ -273,7 +273,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
 
       {/* Groups by role */}
       {Object.entries(groupedByRole).map(([code, items]) => {
-        const conf = ROLE_CONF[code] || { icon: '📋', color: '#8A7D75', label: code }
+        const conf = ROLE_CONF[code] || { icon: '', color: '#71717A', label: code }
         const rolePacked = items.filter(i => i.packed).length
         const rolePercent = items.length > 0 ? Math.round((rolePacked / items.length) * 100) : 0
         const roleShortages = items.filter(i => i.shortage > 0).length
@@ -287,43 +287,43 @@ export default function PackingList({ event, products, stock, locations, roles, 
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, width: '100%',
                 padding: '10px 14px', cursor: 'pointer', textAlign: 'left',
-                background: 'white', borderRadius: 14, border: `1.5px solid ${conf.color}25`,
+                background: '#18181B', borderRadius: 8, border: `1px solid ${conf.color}25`,
                 marginBottom: 6,
               }}
             >
-              <span style={{ fontSize: 20 }}>{conf.icon}</span>
+              <span style={{ fontSize: 20, display: 'flex', alignItems: 'center' }}>{conf.icon && React.createElement(conf.icon, { size: 20, color: conf.color })}</span>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: conf.color }}>{conf.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: conf.color }}>{conf.label}</span>
                   {roleShortages > 0 && (
                     <span style={{
                       fontSize: 9, padding: '1px 5px', borderRadius: 4,
-                      background: '#8B1A2B', color: 'white', fontWeight: 800,
+                      background: '#EF4444', color: 'white', fontWeight: 600,
                     }}>{roleShortages} manque</span>
                   )}
                 </div>
-                <div style={{ fontSize: 11, color: '#8A7D75' }}>
+                <div style={{ fontSize: 11, color: '#71717A' }}>
                   {rolePacked}/{items.length} item{items.length > 1 ? 's' : ''}
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
-                  fontSize: 16, fontWeight: 900,
-                  color: rolePercent === 100 ? '#2FB65D' : rolePercent > 0 ? '#C8A46A' : '#8B1A2B',
+                  fontSize: 16, fontWeight: 600,
+                  color: rolePercent === 100 ? '#22C55E' : rolePercent > 0 ? '#6366F1' : '#EF4444',
                 }}>{rolePercent}%</span>
                 <span style={{
-                  fontSize: 12, color: '#6B6058',
+                  fontSize: 12, color: '#52525B',
                   transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s',
                 }}>▼</span>
               </div>
             </button>
 
             {/* Role progress bar */}
-            <div style={{ height: 4, borderRadius: 2, background: '#1a1a1a', overflow: 'hidden', marginBottom: 6, marginLeft: 14, marginRight: 14 }}>
+            <div style={{ height: 4, borderRadius: 2, background: '#18181B', overflow: 'hidden', marginBottom: 6, marginLeft: 14, marginRight: 14 }}>
               <div style={{
                 height: '100%', borderRadius: 2, transition: 'width 0.3s',
                 width: `${rolePercent}%`,
-                background: rolePercent === 100 ? '#2FB65D' : conf.color,
+                background: rolePercent === 100 ? '#22C55E' : conf.color,
               }} />
             </div>
 
@@ -343,8 +343,8 @@ export default function PackingList({ event, products, stock, locations, roles, 
                   {items.map(item => {
                     const p = item.product
                     if (!p) return null
-                    const statusColor = item.packed ? '#2FB65D'
-                      : item.quantity_packed > 0 ? '#C8A46A' : '#8B1A2B'
+                    const statusColor = item.packed ? '#22C55E'
+                      : item.quantity_packed > 0 ? '#6366F1' : '#EF4444'
                     const statusBg = item.packed ? 'rgba(47,182,93,0.08)'
                       : item.quantity_packed > 0 ? '#FFF5EB' : 'rgba(200,164,106,0.08)'
 
@@ -357,10 +357,10 @@ export default function PackingList({ event, products, stock, locations, roles, 
                         {/* Checkbox */}
                         <button onClick={() => togglePacked(item)} style={{
                           width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                          border: `2px solid ${item.packed ? '#2FB65D' : '#D8CDD2'}`,
-                          background: item.packed ? '#2FB65D' : 'transparent',
+                          border: `2px solid ${item.packed ? '#22C55E' : '#52525B'}`,
+                          background: item.packed ? '#22C55E' : 'transparent',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: 'white', fontSize: 14, fontWeight: 900, cursor: 'pointer',
+                          color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
                         }}>
                           {item.packed ? '✓' : ''}
                         </button>
@@ -372,14 +372,14 @@ export default function PackingList({ event, products, stock, locations, roles, 
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                             textDecoration: item.packed ? 'line-through' : 'none',
                           }}>
-                            {p.image || '📦'} {p.name}
+                            {p.image || ''} {p.name}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-                            <span style={{ fontSize: 10, color: '#6B6058' }}>{p.sku || ''}</span>
+                            <span style={{ fontSize: 10, color: '#52525B' }}>{p.sku || ''}</span>
                             {item.shortage > 0 && (
                               <span style={{
                                 fontSize: 9, padding: '1px 5px', borderRadius: 4,
-                                background: '#8B1A2B15', color: '#8B1A2B', fontWeight: 800,
+                                background: '#EF444415', color: '#EF4444', fontWeight: 600,
                               }}>
                                 Stock: {item.available} (manque {item.shortage})
                               </span>
@@ -398,11 +398,11 @@ export default function PackingList({ event, products, stock, locations, roles, 
                             }}
                             style={{
                               width: 32, height: 28, borderRadius: 6, textAlign: 'center',
-                              fontSize: 13, fontWeight: 800, color: statusColor,
-                              border: `1.5px solid ${statusColor}30`, background: statusBg,
+                              fontSize: 13, fontWeight: 600, color: statusColor,
+                              border: `1px solid ${statusColor}30`, background: statusBg,
                             }}
                           />
-                          <span style={{ fontSize: 12, color: '#8A7D75', fontWeight: 700 }}>
+                          <span style={{ fontSize: 12, color: '#71717A', fontWeight: 700 }}>
                             / {item.quantity_needed}
                           </span>
                         </div>

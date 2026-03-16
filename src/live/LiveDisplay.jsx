@@ -36,7 +36,7 @@ export default function LiveDisplay() {
       position: 'fixed', inset: 0,
       background: '#000',
       overflow: 'hidden',
-      fontFamily: "'Jost', sans-serif",
+      fontFamily: "'Inter', sans-serif",
       cursor: 'pointer',
     }}>
       {/* Branding */}
@@ -63,9 +63,9 @@ export default function LiveDisplay() {
         display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end',
       }}>
         <div style={{
-          padding: '12px 24px', borderRadius: 14,
+          padding: '12px 24px', borderRadius: 8,
           background: EK.card, backdropFilter: 'blur(8px)',
-          color: EK.text, fontSize: 28, fontWeight: 900,
+          color: EK.text, fontSize: 28, fontWeight: 600,
           display: 'flex', alignItems: 'center', gap: 10,
           border: `1px solid ${EK.cardBorder}`,
         }}>
@@ -79,7 +79,7 @@ export default function LiveDisplay() {
               <div key={emoji} style={{
                 padding: '6px 12px', borderRadius: 10,
                 background: EK.card, border: `1px solid ${EK.cardBorder}`,
-                color: EK.text, fontSize: 14, fontWeight: 800,
+                color: EK.text, fontSize: 14, fontWeight: 600,
                 display: 'flex', alignItems: 'center', gap: 5,
               }}>
                 <span style={{ fontSize: 18 }}>{emoji}</span>

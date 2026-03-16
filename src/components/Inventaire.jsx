@@ -72,7 +72,7 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
       onToast(`Inventaire terminé — ${diffs.length} correction${diffs.length > 1 ? 's' : ''}`)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#D4648A')
+      onToast('Erreur : ' + e.message, '#A78BFA')
     } finally {
       setSaving(false)
     }
@@ -84,34 +84,34 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
       <div style={{ padding: '0 16px 24px' }}>
         <div className="card" style={{
           padding: '24px 16px', textAlign: 'center', marginBottom: 16,
-          background: 'linear-gradient(135deg, #5DAB8B08, #5DAB8B18)',
-          border: '1.5px solid #5DAB8B25',
+          background: 'linear-gradient(135deg, #22C55E08, #22C55E18)',
+          border: '1px solid #22C55E25',
         }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-          <div style={{ fontSize: 18, fontWeight: 900, color: '#5DAB8B' }}>Inventaire terminé</div>
-          <div style={{ fontSize: 13, color: '#9A8B94', marginTop: 6 }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#22C55E' }}>Inventaire terminé</div>
+          <div style={{ fontSize: 13, color: '#71717A', marginTop: 6 }}>
             {selectedLocation.icon} {selectedLocation.name} · {results.total} produits vérifiés
           </div>
         </div>
 
         {results.diffs.length > 0 && (
           <div className="card" style={{ padding: '14px 16px', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
               {results.diffs.length} écart{results.diffs.length > 1 ? 's' : ''} corrigé{results.diffs.length > 1 ? 's' : ''}
             </div>
             {results.diffs.map((d, i) => (
               <div key={d.id} style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0',
-                borderBottom: i < results.diffs.length - 1 ? '1px solid #F0E8E4' : 'none',
+                borderBottom: i < results.diffs.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
               }}>
-                <span style={{ fontSize: 14 }}>{d.image || '📦'}</span>
+                <span style={{ fontSize: 14 }}>{d.image || ''}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 700 }}>{d.name}</div>
-                  <div style={{ fontSize: 10, color: '#9A8B94' }}>Système: {d.systemQty} → Réel: {d.counted}</div>
+                  <div style={{ fontSize: 10, color: '#71717A' }}>Système: {d.systemQty} → Réel: {d.counted}</div>
                 </div>
                 <span style={{
-                  fontSize: 14, fontWeight: 900,
-                  color: d.diff > 0 ? '#5DAB8B' : '#D4648A',
+                  fontSize: 14, fontWeight: 600,
+                  color: d.diff > 0 ? '#22C55E' : '#A78BFA',
                 }}>{d.diff > 0 ? '+' : ''}{d.diff}</span>
               </div>
             ))}
@@ -131,25 +131,25 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
         <div className="card" style={{
           marginBottom: 16, padding: '18px 16px',
           background: 'linear-gradient(135deg, #8BAB5D08, #8BAB5D18)',
-          border: '1.5px solid #8BAB5D25',
+          border: '1px solid #8BAB5D25',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
-              width: 48, height: 48, borderRadius: 14,
+              width: 48, height: 48, borderRadius: 8,
               background: 'linear-gradient(135deg, #8BAB5D, #7A9A4C)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 24, color: 'white', boxShadow: '0 4px 16px #8BAB5D30',
-            }}>📋</div>
+            }}></div>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>Inventaire physique</div>
-              <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>Inventaire physique</div>
+              <div style={{ fontSize: 12, color: '#71717A', fontWeight: 600 }}>
                 Comptage réel vs système
               </div>
             </div>
           </div>
         </div>
 
-        <div style={{ fontSize: 13, fontWeight: 800, color: '#9A8B94', marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#71717A', marginBottom: 12 }}>
           Sélectionne le dépôt à inventorier
         </div>
 
@@ -164,14 +164,14 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 12,
-                    background: (loc.color || '#5B8DB8') + '15',
+                    background: (loc.color || '#3B82F6') + '15',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-                  }}>{loc.icon || '📍'}</div>
+                  }}>{loc.icon || ''}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800 }}>{loc.name}</div>
-                    <div style={{ fontSize: 11, color: '#9A8B94' }}>{nbProds} réf. · {locQty} unités</div>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>{loc.name}</div>
+                    <div style={{ fontSize: 11, color: '#71717A' }}>{nbProds} réf. · {locQty} unités</div>
                   </div>
-                  <span style={{ fontSize: 14, color: '#B8A0AE' }}>→</span>
+                  <span style={{ fontSize: 14, color: '#71717A' }}>→</span>
                 </div>
               </button>
             )
@@ -190,14 +190,14 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
         <button onClick={() => { setSelectedLocation(null); setCounts({}) }} style={{
-          padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 800,
-          background: 'white', border: '1.5px solid #E8DED8', color: '#9A8B94', cursor: 'pointer',
+          padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
+          background: '#18181B', border: '1px solid rgba(255,255,255,0.06)', color: '#71717A', cursor: 'pointer',
         }}>← Retour</button>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#3D3042' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>
             {selectedLocation.icon} {selectedLocation.name}
           </div>
-          <div style={{ fontSize: 11, color: '#9A8B94' }}>
+          <div style={{ fontSize: 11, color: '#71717A' }}>
             {countedCount}/{totalProducts} comptés
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
 
       {/* Progress */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ height: 6, borderRadius: 3, background: '#F0E8E4', overflow: 'hidden' }}>
+        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
           <div style={{
             width: `${totalProducts > 0 ? Math.round((countedCount / totalProducts) * 100) : 0}%`,
             height: '100%', borderRadius: 3, background: '#8BAB5D', transition: 'width 0.3s',
@@ -223,15 +223,15 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
           return (
             <div key={p.id} className="card" style={{
               padding: '12px 14px',
-              borderLeft: hasDiff ? `4px solid ${countedInt > p.systemQty ? '#5DAB8B' : '#D4648A'}` : hasCount ? '4px solid #8BAB5D' : '4px solid #E8DED8',
+              borderLeft: hasDiff ? `4px solid ${countedInt > p.systemQty ? '#22C55E' : '#A78BFA'}` : hasCount ? '4px solid #8BAB5D' : '4px solid rgba(255,255,255,0.06)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 16 }}>{p.image || '📦'}</span>
+                <span style={{ fontSize: 16 }}>{p.image || ''}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
-                  <div style={{ fontSize: 10, color: '#9A8B94' }}>
+                  <div style={{ fontSize: 10, color: '#71717A' }}>
                     Système : <strong>{p.systemQty}</strong>
-                    {hasDiff && <span style={{ color: countedInt > p.systemQty ? '#5DAB8B' : '#D4648A', fontWeight: 800 }}>
+                    {hasDiff && <span style={{ color: countedInt > p.systemQty ? '#22C55E' : '#A78BFA', fontWeight: 600 }}>
                       {' '}→ {countedInt} ({countedInt - p.systemQty > 0 ? '+' : ''}{countedInt - p.systemQty})
                     </span>}
                   </div>
@@ -243,9 +243,9 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
                   inputMode="numeric"
                   style={{
                     width: 64, padding: '8px 6px', borderRadius: 10, textAlign: 'center',
-                    fontSize: 16, fontWeight: 900, border: `2px solid ${hasDiff ? '#D4648A' : hasCount ? '#8BAB5D' : '#E8DED8'}`,
+                    fontSize: 16, fontWeight: 600, border: `2px solid ${hasDiff ? '#A78BFA' : hasCount ? '#8BAB5D' : 'rgba(255,255,255,0.06)'}`,
                     background: hasDiff ? '#FDF0F410' : 'white', outline: 'none',
-                    color: hasDiff ? '#D4648A' : '#3D3042',
+                    color: hasDiff ? '#A78BFA' : '#FAFAFA',
                   }}
                 />
               </div>

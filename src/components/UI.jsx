@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
+import { Shirt, Guitar, Battery, ArrowDownToLine, ArrowUpFromLine, RefreshCw, X, Package, AlertTriangle, CheckCircle, Info, ChevronLeft } from 'lucide-react'
 
 // ─── Date helper: parse "2026-03-20" as local date (not UTC) ───
-// Prevents timezone shift where March 20 UTC becomes March 19 in UTC-4
 export function parseDate(d) {
   if (!d) return new Date()
   if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
@@ -23,8 +23,10 @@ export function Modal({ onClose, title, children }) {
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         {title && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#F0ECE2' }}>{title}</h3>
-            <button onClick={onClose} style={{ fontSize: 22, color: '#6B6058', padding: 4 }}>✕</button>
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: '#FAFAFA' }}>{title}</h3>
+            <button onClick={onClose} style={{ color: '#71717A', padding: 4, display: 'flex', alignItems: 'center' }}>
+              <X size={20} />
+            </button>
           </div>
         )}
         {children}
@@ -34,12 +36,12 @@ export function Modal({ onClose, title, children }) {
 }
 
 // ─── Confirm Dialog ───
-export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = 'Confirmer', confirmColor = '#C8A46A' }) {
+export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = 'Confirmer', confirmColor = '#6366F1' }) {
   return (
     <div className="confirm-dialog">
       <div className="confirm-box">
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#F0ECE2', marginBottom: 8 }}>{message}</div>
-        {detail && <div style={{ fontSize: 13, color: '#8A7D75', marginBottom: 20, lineHeight: 1.5 }}>{detail}</div>}
+        <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA', marginBottom: 8 }}>{message}</div>
+        {detail && <div style={{ fontSize: 13, color: '#71717A', marginBottom: 20, lineHeight: 1.5 }}>{detail}</div>}
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-secondary" style={{ flex: 1 }} onClick={onCancel}>Annuler</button>
           <button className="btn-primary" style={{ flex: 1, background: confirmColor }} onClick={onConfirm}>{confirmLabel}</button>
@@ -50,7 +52,7 @@ export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = '
 }
 
 // ─── Toast ───
-export function Toast({ message, color = '#2FB65D', onDone }) {
+export function Toast({ message, color = '#22C55E', onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 2500)
     return () => clearTimeout(t)
@@ -65,9 +67,9 @@ export function Toast({ message, color = '#2FB65D', onDone }) {
 
 // ─── Category helpers ───
 export const CATEGORIES = [
-  { id: 'merch', name: 'Merchandising', icon: '👕', color: '#8B1A2B', bg: 'rgba(200,164,106,0.08)' },
-  { id: 'materiel', name: 'Matériel', icon: '🎸', color: '#5B8DB8', bg: 'rgba(91,141,184,0.08)' },
-  { id: 'consommables', name: 'Consommables', icon: '🔋', color: '#2FB65D', bg: 'rgba(47,182,93,0.08)' },
+  { id: 'merch', name: 'Merchandising', icon: Shirt, color: '#EF4444', bg: 'rgba(99,102,241,0.08)' },
+  { id: 'materiel', name: 'Materiel', icon: Guitar, color: '#3B82F6', bg: 'rgba(91,141,184,0.08)' },
+  { id: 'consommables', name: 'Consommables', icon: Battery, color: '#22C55E', bg: 'rgba(47,182,93,0.08)' },
 ]
 
 export function getCat(id) {
@@ -76,7 +78,7 @@ export function getCat(id) {
 
 export function Badge({ color, children }) {
   return (
-    <span className="badge" style={{ background: `${color}15`, color, border: `1px solid ${color}20` }}>
+    <span className="badge" style={{ background: `${color}15`, color, border: `1px solid ${color}20`, borderRadius: 6 }}>
       {children}
     </span>
   )
@@ -93,9 +95,9 @@ export function fmtDate(iso) {
 // ─── Movement config ───
 export function getMoveConf(type) {
   const conf = {
-    in: { icon: '📥', color: '#2FB65D', label: 'Entrée', bg: 'rgba(47,182,93,0.08)' },
-    out: { icon: '📤', color: '#8B1A2B', label: 'Sortie', bg: 'rgba(200,164,106,0.08)' },
-    transfer: { icon: '🔄', color: '#5B8DB8', label: 'Transfert', bg: 'rgba(91,141,184,0.08)' },
+    in: { icon: ArrowDownToLine, color: '#22C55E', label: 'Entree', bg: 'rgba(47,182,93,0.08)' },
+    out: { icon: ArrowUpFromLine, color: '#EF4444', label: 'Sortie', bg: 'rgba(99,102,241,0.08)' },
+    transfer: { icon: RefreshCw, color: '#3B82F6', label: 'Transfert', bg: 'rgba(91,141,184,0.08)' },
   }
   return conf[type] || conf.in
 }

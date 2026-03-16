@@ -3,7 +3,7 @@ import { db } from '../lib/supabase'
 import { parseDate } from './UI'
 
 const PAYMENT_METHODS = [
-  { id: 'cash', label: 'Espèces', icon: '💵' },
+  { id: 'cash', label: 'Espèces', icon: '' },
   { id: 'card', label: 'CB', icon: '💳' },
   { id: 'mobile', label: 'Mobile', icon: '📱' },
 ]
@@ -73,7 +73,7 @@ export default function ConcertMode({
         key,
         productId: product.id,
         name: product.name,
-        image: product.image || '📦',
+        image: product.image || '',
         variant: variant || null,
         unitPrice: product.sale_price,
         quantity: 1,
@@ -168,7 +168,7 @@ export default function ConcertMode({
       onToast(`Vente ${saleNum} — ${cartTotal}€`)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#D4648A')
+      onToast('Erreur : ' + e.message, '#A78BFA')
     } finally {
       setSaving(false)
     }
@@ -187,7 +187,7 @@ export default function ConcertMode({
 
   // ─── Close cash register ───
   const closeCaisse = async () => {
-    if (salesLog.length === 0) { onToast('Aucune vente à clôturer', '#D4648A'); return }
+    if (salesLog.length === 0) { onToast('Aucune vente à clôturer', '#A78BFA'); return }
     setClosingCaisse(true)
     try {
       await db.insert('cash_reports', {
@@ -204,7 +204,7 @@ export default function ConcertMode({
       onToast('Caisse clôturée')
       setShowReport(true)
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#D4648A')
+      onToast('Erreur : ' + e.message, '#A78BFA')
     } finally {
       setClosingCaisse(false)
     }
@@ -221,50 +221,50 @@ export default function ConcertMode({
       }}>
         <div style={{ padding: '40px 20px', textAlign: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🧾</div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#5DAB8B', marginBottom: 4 }}>Caisse clôturée</div>
-          <div style={{ fontSize: 13, color: '#9A8B94', marginBottom: 24 }}>
+          <div style={{ fontSize: 22, fontWeight: 600, color: '#22C55E', marginBottom: 4 }}>Caisse clôturée</div>
+          <div style={{ fontSize: 13, color: '#71717A', marginBottom: 24 }}>
             {selectedEvent?.name || 'Vente libre'}
           </div>
 
           <div style={{
-            background: '#2A2530', borderRadius: 18, padding: '20px 16px', marginBottom: 20,
-            border: '1.5px solid #3A3540',
+            background: '#2A2530', borderRadius: 12, padding: '20px 16px', marginBottom: 20,
+            border: '1px solid #3A3540',
           }}>
-            <div style={{ fontSize: 36, fontWeight: 900, color: '#E8735A', marginBottom: 4 }}>{sessionTotal}€</div>
-            <div style={{ fontSize: 12, color: '#9A8B94' }}>{sessionCount} vente{sessionCount > 1 ? 's' : ''} · {sessionItems} article{sessionItems > 1 ? 's' : ''}</div>
+            <div style={{ fontSize: 36, fontWeight: 600, color: '#6366F1', marginBottom: 4 }}>{sessionTotal}€</div>
+            <div style={{ fontSize: 12, color: '#71717A' }}>{sessionCount} vente{sessionCount > 1 ? 's' : ''} · {sessionItems} article{sessionItems > 1 ? 's' : ''}</div>
 
             <div style={{ height: 1, background: '#3A3540', margin: '16px 0' }} />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#5DAB8B' }}>{sessionCash}€</div>
-                <div style={{ fontSize: 10, color: '#9A8B94' }}>Espèces</div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: '#22C55E' }}>{sessionCash}€</div>
+                <div style={{ fontSize: 10, color: '#71717A' }}>Espèces</div>
               </div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#5B8DB8' }}>{sessionCard}€</div>
-                <div style={{ fontSize: 10, color: '#9A8B94' }}>CB</div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: '#3B82F6' }}>{sessionCard}€</div>
+                <div style={{ fontSize: 10, color: '#71717A' }}>CB</div>
               </div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#9B7DC4' }}>{sessionMobile}€</div>
-                <div style={{ fontSize: 10, color: '#9A8B94' }}>Mobile</div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: '#A78BFA' }}>{sessionMobile}€</div>
+                <div style={{ fontSize: 10, color: '#71717A' }}>Mobile</div>
               </div>
             </div>
           </div>
 
           {/* Sales log */}
-          <div style={{ background: '#2A2530', borderRadius: 14, padding: '12px 14px', textAlign: 'left', border: '1px solid #3A3540' }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#9A8B94', marginBottom: 8 }}>DÉTAIL DES VENTES</div>
+          <div style={{ background: '#2A2530', borderRadius: 8, padding: '12px 14px', textAlign: 'left', border: '1px solid #3A3540' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#71717A', marginBottom: 8 }}>DÉTAIL DES VENTES</div>
             {salesLog.map((l, i) => (
               <div key={i} style={{
                 display: 'flex', justifyContent: 'space-between', padding: '4px 0',
                 borderBottom: i < salesLog.length - 1 ? '1px solid #3A3540' : 'none', fontSize: 12,
               }}>
-                <span style={{ color: '#9A8B94' }}>{l.time} · {l.num}</span>
+                <span style={{ color: '#71717A' }}>{l.time} · {l.num}</span>
                 <span>
-                  <span style={{ color: '#9A8B94', marginRight: 6 }}>{l.count} art.</span>
-                  <span style={{ fontWeight: 800 }}>{l.total}€</span>
-                  <span style={{ marginLeft: 6, fontSize: 10, color: '#9A8B94' }}>
-                    {l.method === 'cash' ? '💵' : l.method === 'card' ? '💳' : '📱'}
+                  <span style={{ color: '#71717A', marginRight: 6 }}>{l.count} art.</span>
+                  <span style={{ fontWeight: 600 }}>{l.total}€</span>
+                  <span style={{ marginLeft: 6, fontSize: 10, color: '#71717A' }}>
+                    {l.method === 'cash' ? '' : l.method === 'card' ? '💳' : '📱'}
                   </span>
                 </span>
               </div>
@@ -272,8 +272,8 @@ export default function ConcertMode({
           </div>
 
           <button onClick={onClose} style={{
-            width: '100%', padding: 16, borderRadius: 14, marginTop: 20,
-            fontSize: 15, fontWeight: 900, background: '#E8735A', border: 'none', color: 'white', cursor: 'pointer',
+            width: '100%', padding: 16, borderRadius: 8, marginTop: 20,
+            fontSize: 15, fontWeight: 600, background: '#6366F1', border: 'none', color: 'white', cursor: 'pointer',
           }}>Fermer le mode concert</button>
         </div>
       </div>
@@ -291,32 +291,32 @@ export default function ConcertMode({
       }}>
         <header style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button onClick={onClose} style={{
-            padding: '10px 16px', borderRadius: 12, fontSize: 14, fontWeight: 800,
-            background: '#2A2530', border: 'none', color: '#9A8B94', cursor: 'pointer',
+            padding: '10px 16px', borderRadius: 12, fontSize: 14, fontWeight: 600,
+            background: '#2A2530', border: 'none', color: '#71717A', cursor: 'pointer',
           }}>← Retour</button>
-          <div style={{ fontSize: 18, fontWeight: 900, color: '#E8735A' }}>Mode Concert</div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#6366F1' }}>Mode Concert</div>
           <div style={{ width: 80 }} />
         </header>
 
         <div style={{ padding: '20px 16px' }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#9A8B94', marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#71717A', marginBottom: 16 }}>
             Sélectionne le concert pour démarrer les ventes
           </div>
 
           {upcomingEvents.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 40 }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>🎪</div>
-              <div style={{ fontSize: 14, color: '#9A8B94' }}>Aucun concert à venir</div>
+              <div style={{ fontSize: 48, marginBottom: 12 }}></div>
+              <div style={{ fontSize: 14, color: '#71717A' }}>Aucun concert à venir</div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {upcomingEvents.map(ev => (
                 <button key={ev.id} onClick={() => setSelectedEvent(ev)} style={{
-                  padding: '16px 18px', borderRadius: 14, textAlign: 'left', cursor: 'pointer',
-                  background: '#2A2530', border: '1.5px solid #3A3540', color: 'white',
+                  padding: '16px 18px', borderRadius: 8, textAlign: 'left', cursor: 'pointer',
+                  background: '#2A2530', border: '1px solid #3A3540', color: 'white',
                 }}>
-                  <div style={{ fontSize: 16, fontWeight: 900 }}>{ev.name || ev.lieu}</div>
-                  <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>
+                  <div style={{ fontSize: 16, fontWeight: 600 }}>{ev.name || ev.lieu}</div>
+                  <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>
                     {parseDate(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
                     {ev.ville ? ` — ${ev.ville}` : ''}
                     {ev.capacite ? ` · ${ev.capacite} places` : ''}
@@ -328,9 +328,9 @@ export default function ConcertMode({
 
           {/* Start without event */}
           <button onClick={() => setSelectedEvent({ id: null, name: 'Vente libre' })} style={{
-            width: '100%', padding: 14, borderRadius: 14, marginTop: 16,
+            width: '100%', padding: 14, borderRadius: 8, marginTop: 16,
             fontSize: 13, fontWeight: 700, cursor: 'pointer', textAlign: 'center',
-            background: 'transparent', border: '1.5px dashed #3A3540', color: '#9A8B94',
+            background: 'transparent', border: '1.5px dashed #3A3540', color: '#71717A',
           }}>
             Vente sans concert
           </button>
@@ -356,27 +356,27 @@ export default function ConcertMode({
         <button onClick={onClose} style={{
           width: 36, height: 36, borderRadius: 10, background: '#3A3540',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 14, cursor: 'pointer', border: 'none', color: '#9A8B94',
+          fontSize: 14, cursor: 'pointer', border: 'none', color: '#71717A',
         }}>←</button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 900, color: '#E8735A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#6366F1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {selectedEvent.name || 'Concert'}
           </div>
-          <div style={{ fontSize: 10, color: '#9A8B94' }}>
+          <div style={{ fontSize: 10, color: '#71717A' }}>
             {sessionCount > 0 ? `${sessionCount} vente${sessionCount > 1 ? 's' : ''} · ${sessionTotal}€` : 'Aucune vente'}
           </div>
         </div>
         {salesLog.length > 0 && (
           <>
             <div style={{
-              padding: '4px 10px', borderRadius: 8, background: '#5DAB8B20',
-              color: '#5DAB8B', fontSize: 12, fontWeight: 800,
+              padding: '4px 10px', borderRadius: 8, background: '#22C55E20',
+              color: '#22C55E', fontSize: 12, fontWeight: 600,
             }}>
               {sessionTotal}€
             </div>
             <button onClick={closeCaisse} disabled={closingCaisse} style={{
-              padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 800,
-              background: '#E8935A20', border: 'none', color: '#E8935A', cursor: 'pointer',
+              padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 600,
+              background: '#F59E0B20', border: 'none', color: '#F59E0B', cursor: 'pointer',
             }}>🧾 Clôturer</button>
           </>
         )}
@@ -389,7 +389,7 @@ export default function ConcertMode({
           placeholder="Rechercher un article..."
           style={{
             width: '100%', padding: '12px 16px', borderRadius: 12, fontSize: 14, fontWeight: 600,
-            background: '#2A2530', border: '1.5px solid #3A3540', color: 'white',
+            background: '#2A2530', border: '1px solid #3A3540', color: 'white',
             outline: 'none',
           }}
         />
@@ -409,32 +409,32 @@ export default function ConcertMode({
             <button
               key={p.id}
               onClick={() => {
-                if (pStock <= inCart) { onToast('Stock épuisé', '#D4648A'); return }
+                if (pStock <= inCart) { onToast('Stock épuisé', '#A78BFA'); return }
                 if (hasVariants) { setSelectedVariant(p); return }
                 addToCart(p)
               }}
               disabled={pStock <= 0}
               style={{
-                padding: '14px 10px', borderRadius: 14, textAlign: 'center', cursor: pStock > 0 ? 'pointer' : 'default',
-                background: pStock <= 0 ? '#2A253080' : '#2A2530', border: '1.5px solid #3A3540',
+                padding: '14px 10px', borderRadius: 8, textAlign: 'center', cursor: pStock > 0 ? 'pointer' : 'default',
+                background: pStock <= 0 ? '#2A253080' : '#2A2530', border: '1px solid #3A3540',
                 color: 'white', position: 'relative', opacity: pStock <= 0 ? 0.4 : 1,
               }}
             >
-              <div style={{ fontSize: 28, marginBottom: 6 }}>{p.image || '📦'}</div>
+              <div style={{ fontSize: 28, marginBottom: 6 }}>{p.image || ''}</div>
               <div style={{
-                fontSize: 12, fontWeight: 800, lineHeight: 1.2, marginBottom: 4,
+                fontSize: 12, fontWeight: 600, lineHeight: 1.2, marginBottom: 4,
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }}>{p.name}</div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#E8735A' }}>{p.sale_price}€</div>
-              <div style={{ fontSize: 10, color: pStock <= 3 ? '#D4648A' : '#9A8B94', marginTop: 2 }}>
+              <div style={{ fontSize: 18, fontWeight: 600, color: '#6366F1' }}>{p.sale_price}€</div>
+              <div style={{ fontSize: 10, color: pStock <= 3 ? '#A78BFA' : '#71717A', marginTop: 2 }}>
                 Stock : {pStock}
               </div>
               {inCart > 0 && (
                 <div style={{
                   position: 'absolute', top: -6, right: -6,
                   width: 24, height: 24, borderRadius: '50%',
-                  background: '#E8735A', color: 'white',
-                  fontSize: 12, fontWeight: 900,
+                  background: '#6366F1', color: 'white',
+                  fontSize: 12, fontWeight: 600,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>{inCart}</div>
               )}
@@ -450,21 +450,21 @@ export default function ConcertMode({
           background: '#2A2530', borderTop: '1px solid #3A3540', padding: 16,
           borderRadius: '18px 18px 0 0',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>
             {selectedVariant.name} — Choisir la taille
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {VARIANT_SIZES.map(size => (
               <button key={size} onClick={() => addToCart(selectedVariant, size)} style={{
-                padding: '12px 18px', borderRadius: 12, fontSize: 14, fontWeight: 800,
-                background: '#3A3540', border: '1.5px solid #4A4550', color: 'white',
+                padding: '12px 18px', borderRadius: 12, fontSize: 14, fontWeight: 600,
+                background: '#3A3540', border: '1px solid #4A4550', color: 'white',
                 cursor: 'pointer', minWidth: 56,
               }}>{size}</button>
             ))}
           </div>
           <button onClick={() => setSelectedVariant(null)} style={{
             width: '100%', padding: 10, marginTop: 10, borderRadius: 10,
-            background: 'transparent', border: '1px solid #3A3540', color: '#9A8B94',
+            background: 'transparent', border: '1px solid #3A3540', color: '#71717A',
             fontSize: 12, fontWeight: 700, cursor: 'pointer',
           }}>Annuler</button>
         </div>
@@ -488,18 +488,18 @@ export default function ConcertMode({
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <button onClick={() => removeFromCart(item.key)} style={{
-                    width: 28, height: 28, borderRadius: 8, background: '#D4648A30',
-                    color: '#D4648A', fontSize: 16, fontWeight: 900, border: 'none', cursor: 'pointer',
+                    width: 28, height: 28, borderRadius: 8, background: '#A78BFA30',
+                    color: '#A78BFA', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>-</button>
-                  <span style={{ fontSize: 14, fontWeight: 900, minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
                   <button onClick={() => addToCart({ id: item.productId, name: item.name, image: item.image, sale_price: item.unitPrice }, item.variant)} style={{
-                    width: 28, height: 28, borderRadius: 8, background: '#5DAB8B30',
-                    color: '#5DAB8B', fontSize: 16, fontWeight: 900, border: 'none', cursor: 'pointer',
+                    width: 28, height: 28, borderRadius: 8, background: '#22C55E30',
+                    color: '#22C55E', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>+</button>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 900, color: '#E8735A', minWidth: 50, textAlign: 'right' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#6366F1', minWidth: 50, textAlign: 'right' }}>
                   {item.lineTotal}€
                 </div>
               </div>
@@ -512,10 +512,10 @@ export default function ConcertMode({
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                 {PAYMENT_METHODS.map(pm => (
                   <button key={pm.id} onClick={() => setPayMethod(pm.id)} style={{
-                    flex: 1, padding: '10px 6px', borderRadius: 10, fontSize: 12, fontWeight: 800,
+                    flex: 1, padding: '10px 6px', borderRadius: 10, fontSize: 12, fontWeight: 600,
                     textAlign: 'center', cursor: 'pointer',
-                    background: payMethod === pm.id ? '#E8735A' : '#3A3540',
-                    color: payMethod === pm.id ? 'white' : '#9A8B94',
+                    background: payMethod === pm.id ? '#6366F1' : '#3A3540',
+                    color: payMethod === pm.id ? 'white' : '#71717A',
                     border: 'none',
                   }}>{pm.icon} {pm.label}</button>
                 ))}
@@ -523,11 +523,11 @@ export default function ConcertMode({
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => setShowPayment(false)} style={{
                   flex: 1, padding: 14, borderRadius: 12, fontSize: 13, fontWeight: 700,
-                  background: '#3A3540', border: 'none', color: '#9A8B94', cursor: 'pointer',
+                  background: '#3A3540', border: 'none', color: '#71717A', cursor: 'pointer',
                 }}>Annuler</button>
                 <button onClick={processSale} disabled={saving} style={{
-                  flex: 2, padding: 14, borderRadius: 12, fontSize: 16, fontWeight: 900,
-                  background: saving ? '#9A8B94' : '#5DAB8B', border: 'none', color: 'white', cursor: 'pointer',
+                  flex: 2, padding: 14, borderRadius: 12, fontSize: 16, fontWeight: 600,
+                  background: saving ? '#71717A' : '#22C55E', border: 'none', color: 'white', cursor: 'pointer',
                 }}>
                   {saving ? 'Enregistrement...' : `Encaisser ${cartTotal}€`}
                 </button>
@@ -537,11 +537,11 @@ export default function ConcertMode({
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={clearCart} style={{
                 padding: '14px 16px', borderRadius: 12, fontSize: 13, fontWeight: 700,
-                background: '#D4648A20', border: 'none', color: '#D4648A', cursor: 'pointer',
+                background: '#A78BFA20', border: 'none', color: '#A78BFA', cursor: 'pointer',
               }}>Vider</button>
               <button onClick={() => setShowPayment(true)} style={{
-                flex: 1, padding: 14, borderRadius: 12, fontSize: 16, fontWeight: 900,
-                background: '#E8735A', border: 'none', color: 'white', cursor: 'pointer',
+                flex: 1, padding: 14, borderRadius: 12, fontSize: 16, fontWeight: 600,
+                background: '#6366F1', border: 'none', color: 'white', cursor: 'pointer',
               }}>
                 {cartCount} article{cartCount > 1 ? 's' : ''} · {cartTotal}€
               </button>

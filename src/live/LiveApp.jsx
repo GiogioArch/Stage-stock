@@ -9,24 +9,24 @@ import LiveShop from './LiveShop'
 export const EK = {
   bleu: '#10204E',
   bleuF: '#0B1735',
-  camel: '#C8A46A',
-  camelH: '#DEB97A',
+  camel: '#6366F1',
+  camelH: '#818CF8',
   kaki: '#3D4825',
-  bordeaux: '#8B1A2B',
-  green: '#2FB65D',
-  card: '#0e0e0e',
-  cardBorder: '#222222',
-  bg: '#080808',
-  text: '#F0ECE2',
+  bordeaux: '#EF4444',
+  green: '#22C55E',
+  card: '#111113',
+  cardBorder: 'rgba(255,255,255,0.1)',
+  bg: '#09090B',
+  text: '#FAFAFA',
   textDim: 'rgba(240,236,226,0.55)',
   textMuted: 'rgba(240,236,226,0.3)',
   overlay: 'rgba(16,32,78,0.08)',
 }
 
 const SCREENS = [
-  { id: 'home', label: 'Accueil', icon: '🏠' },
-  { id: 'setlist', label: 'Setlist', icon: '🎵' },
-  { id: 'shop', label: 'Merch', icon: '🛍️' },
+  { id: 'home', label: 'Accueil', icon: '' },
+  { id: 'setlist', label: 'Setlist', icon: '' },
+  { id: 'shop', label: 'Merch', icon: '' },
   { id: 'info', label: 'Infos', icon: 'ℹ️' },
 ]
 
@@ -80,7 +80,7 @@ export default function LiveApp() {
     <div style={{
       minHeight: '100dvh', background: EK.bg,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      flexDirection: 'column', gap: 20, fontFamily: "'Jost', sans-serif",
+      flexDirection: 'column', gap: 20, fontFamily: "'Inter', sans-serif",
     }}>
       <img
         src="https://images.squarespace-cdn.com/content/6674cfe71695a578165178c4/2bae59e9-2a91-41ba-80db-8bc7f5aba758/Logo+EK25+Ce%CC%81le%CC%81bration-09.png?content-type=image%2Fpng"
@@ -89,7 +89,7 @@ export default function LiveApp() {
       />
       <div className="loader" style={{ borderTopColor: EK.camel, borderColor: 'rgba(200,164,106,0.12)' }} />
       <div style={{
-        fontFamily: "'Jost', sans-serif", color: EK.camel,
+        fontFamily: "'Inter', sans-serif", color: EK.camel,
         fontWeight: 700, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
       }}>Chargement...</div>
     </div>
@@ -98,7 +98,7 @@ export default function LiveApp() {
   return (
     <div style={{
       minHeight: '100dvh', background: EK.bg,
-      fontFamily: "'Jost', sans-serif",
+      fontFamily: "'Inter', sans-serif",
       paddingBottom: 140,
     }}>
       {/* ─── Frosted glass header ─── */}
@@ -188,9 +188,9 @@ function LiveHome({ event, onNavigate }) {
           width: 100, height: 100, borderRadius: '50%', margin: '0 auto 24px',
           background: EK.card, border: `1px solid ${EK.cardBorder}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40,
-        }}>🎤</div>
+        }}></div>
         <div style={{
-          fontFamily: "'Cormorant Garamond', serif",
+          fontFamily: "'Inter', serif",
           fontSize: 28, fontWeight: 700, color: EK.text, marginBottom: 12,
         }}>Aucun concert prévu</div>
         <div style={{ fontSize: 14, color: EK.textDim, lineHeight: 1.8, maxWidth: 300, margin: '0 auto' }}>
@@ -209,7 +209,7 @@ function LiveHome({ event, onNavigate }) {
               width: 42, height: 42, borderRadius: 12,
               background: EK.card, border: `1px solid ${EK.cardBorder}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: EK.camel, fontSize: 12, fontWeight: 800, textDecoration: 'none',
+              color: EK.camel, fontSize: 12, fontWeight: 600, textDecoration: 'none',
               letterSpacing: '0.05em',
             }}>{s.label}</a>
           ))}
@@ -257,7 +257,7 @@ function LiveHome({ event, onNavigate }) {
             position: 'absolute', top: 12, right: 12,
             padding: '5px 12px', borderRadius: 6,
             background: isTonight ? EK.green : 'rgba(0,0,0,0.5)',
-            color: '#fff', fontSize: 11, fontWeight: 800,
+            color: '#fff', fontSize: 11, fontWeight: 600,
           }}>
             {isTonight ? "C'est ce soir !" : `J-${daysLeft}`}
           </div>
@@ -266,13 +266,13 @@ function LiveHome({ event, onNavigate }) {
         {/* Event details */}
         <div style={{ padding: '18px 18px 20px' }}>
           <div style={{
-            fontFamily: "'Cormorant Garamond', serif",
+            fontFamily: "'Inter', serif",
             fontSize: 24, fontWeight: 700, color: EK.text, lineHeight: 1.2, marginBottom: 6,
           }}>
             {event.name || event.venue || 'Concert'}
           </div>
           {event.venue && event.name && (
-            <div style={{ fontSize: 13, color: EK.textDim, marginBottom: 2 }}>📍 {event.venue}</div>
+            <div style={{ fontSize: 13, color: EK.textDim, marginBottom: 2 }}> {event.venue}</div>
           )}
           {event.location && (
             <div style={{ fontSize: 12, color: EK.textMuted }}>{event.location}</div>
@@ -284,7 +284,7 @@ function LiveHome({ event, onNavigate }) {
               padding: '8px 14px', borderRadius: 10,
               background: `${EK.camel}12`, border: `1px solid ${EK.camel}25`,
             }}>
-              <div style={{ fontSize: 28, fontWeight: 900, color: EK.camel, lineHeight: 1 }}>
+              <div style={{ fontSize: 28, fontWeight: 600, color: EK.camel, lineHeight: 1 }}>
                 {parseDate(event.date).getDate()}
               </div>
               <div style={{ fontSize: 10, color: EK.camel, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -305,13 +305,13 @@ function LiveHome({ event, onNavigate }) {
       {/* ─── Quick actions ─── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
         <ActionCard
-          icon="🎵" title="Voter la setlist"
+          icon="" title="Voter la setlist"
           subtitle="Choisis les titres"
           onClick={() => onNavigate('setlist')}
           accent={EK.camel}
         />
         <ActionCard
-          icon="🛍️" title="Boutique merch"
+          icon="" title="Boutique merch"
           subtitle="T-shirts & plus"
           onClick={() => onNavigate('shop')}
           accent={EK.green}
@@ -339,7 +339,7 @@ function LiveHome({ event, onNavigate }) {
 function ActionCard({ icon, title, subtitle, onClick, accent }) {
   return (
     <button onClick={onClick} style={{
-      padding: '20px 14px', borderRadius: 16, textAlign: 'center',
+      padding: '20px 14px', borderRadius: 12, textAlign: 'center',
       background: EK.card, border: `1px solid ${EK.cardBorder}`,
       cursor: 'pointer', transition: 'all 0.2s ease',
     }}>
@@ -355,13 +355,13 @@ function LiveInfo({ event }) {
   return (
     <div style={{ padding: '16px 14px' }}>
       <div style={{
-        fontFamily: "'Cormorant Garamond', serif",
+        fontFamily: "'Inter', serif",
         fontSize: 24, fontWeight: 700, color: EK.text, marginBottom: 16,
       }}>Informations</div>
 
       {event ? (
         <div style={{
-          background: EK.card, borderRadius: 16, padding: 18,
+          background: EK.card, borderRadius: 12, padding: 18,
           border: `1px solid ${EK.cardBorder}`, marginBottom: 14,
         }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: EK.text, marginBottom: 10 }}>
@@ -382,7 +382,7 @@ function LiveInfo({ event }) {
 
       {/* Artist info */}
       <div style={{
-        background: EK.card, borderRadius: 16, padding: 18,
+        background: EK.card, borderRadius: 12, padding: 18,
         border: `1px solid ${EK.cardBorder}`, marginBottom: 14,
       }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: EK.text, marginBottom: 10 }}>E.sy Kennenga</div>

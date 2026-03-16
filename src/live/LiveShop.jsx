@@ -98,24 +98,24 @@ export default function LiveShop({ eventId, fanId }) {
           width: 80, height: 80, borderRadius: '50%', margin: '0 auto 20px',
           background: `${EK.green}20`, border: `2px solid ${EK.green}40`,
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36,
-        }}>🎉</div>
+        }}></div>
         <div style={{
-          fontFamily: "'Cormorant Garamond', serif",
+          fontFamily: "'Inter', serif",
           fontSize: 26, fontWeight: 700, color: EK.text, marginBottom: 8,
         }}>Commande enregistrée !</div>
         <div style={{ fontSize: 13, color: EK.textDim, marginBottom: 28, fontWeight: 300 }}>
           Présente ce code au stand merch
         </div>
         <div style={{
-          fontSize: 48, fontWeight: 900, color: EK.camel, letterSpacing: 14,
+          fontSize: 48, fontWeight: 600, color: EK.camel, letterSpacing: 14,
           background: EK.card, borderRadius: 20, padding: '28px 36px',
           display: 'inline-block', border: `2px solid ${EK.camel}30`,
-          fontFamily: "'Jost', sans-serif",
+          fontFamily: "'Inter', sans-serif",
         }}>
           {confirmation.pickupCode}
         </div>
         <button onClick={() => setConfirmation(null)} style={{
-          marginTop: 32, padding: '14px 32px', borderRadius: 14,
+          marginTop: 32, padding: '14px 32px', borderRadius: 8,
           background: EK.card, border: `1px solid ${EK.cardBorder}`,
           color: EK.text, fontSize: 13, fontWeight: 600, cursor: 'pointer',
           display: 'block', width: '100%', letterSpacing: '0.03em',
@@ -135,7 +135,7 @@ export default function LiveShop({ eventId, fanId }) {
   return (
     <div style={{ padding: '0 14px 100px' }}>
       <div style={{
-        fontFamily: "'Cormorant Garamond', serif",
+        fontFamily: "'Inter', serif",
         fontSize: 22, fontWeight: 700, color: EK.text, marginBottom: 4,
       }}>Boutique merch</div>
       <div style={{ fontSize: 12, color: EK.textDim, marginBottom: 16, fontWeight: 300 }}>
@@ -146,24 +146,24 @@ export default function LiveShop({ eventId, fanId }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {products.map(p => (
           <div key={p.id} style={{
-            background: EK.card, borderRadius: 16, padding: '16px',
+            background: EK.card, borderRadius: 12, padding: '16px',
             border: `1px solid ${EK.cardBorder}`,
             transition: 'border-color 0.2s ease',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: p.variants?.length > 0 ? 12 : 0 }}>
               <div style={{
-                width: 50, height: 50, borderRadius: 14,
+                width: 50, height: 50, borderRadius: 8,
                 background: `${EK.bleu}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 24, border: `1px solid ${EK.camel}20`,
-              }}>{p.emoji || '👕'}</div>
+              }}>{p.emoji || ''}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: EK.text }}>{p.name}</div>
                 <div style={{ fontSize: 11, color: EK.textMuted, marginTop: 2 }}>
                   {p.totalStock} en stock
                 </div>
               </div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: EK.camel }}>
+              <div style={{ fontSize: 18, fontWeight: 600, color: EK.camel }}>
                 {p.price ? `${p.price}€` : '-'}
               </div>
             </div>
@@ -197,7 +197,7 @@ export default function LiveShop({ eventId, fanId }) {
 
         {products.length === 0 && (
           <div style={{ textAlign: 'center', padding: 40, color: EK.textMuted }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🛍️</div>
+            <div style={{ fontSize: 40, marginBottom: 12 }}></div>
             <div style={{ fontSize: 13, fontWeight: 300 }}>Pas de merch disponible</div>
           </div>
         )}
@@ -206,10 +206,10 @@ export default function LiveShop({ eventId, fanId }) {
       {/* ─── Cart ─── */}
       {cart.length > 0 && (
         <div style={{
-          background: EK.card, borderRadius: 18, padding: 16,
-          border: `1.5px solid ${EK.camel}30`, marginBottom: 16,
+          background: EK.card, borderRadius: 12, padding: 16,
+          border: `1px solid ${EK.camel}30`, marginBottom: 16,
         }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: EK.text, marginBottom: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: EK.text, marginBottom: 12 }}>
             Panier ({cartCount} article{cartCount > 1 ? 's' : ''})
           </div>
           {cart.map((c, i) => (
@@ -225,7 +225,7 @@ export default function LiveShop({ eventId, fanId }) {
                   width: 32, height: 32, borderRadius: 8, background: `${EK.camel}10`,
                   color: EK.text, border: `1px solid ${EK.cardBorder}`, fontSize: 16, cursor: 'pointer',
                 }}>-</button>
-                <span style={{ fontSize: 14, fontWeight: 800, color: EK.text, minWidth: 20, textAlign: 'center' }}>{c.qty}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: EK.text, minWidth: 20, textAlign: 'center' }}>{c.qty}</span>
                 <button onClick={() => updateQty(i, 1)} style={{
                   width: 32, height: 32, borderRadius: 8, background: `${EK.camel}10`,
                   color: EK.text, border: `1px solid ${EK.cardBorder}`, fontSize: 16, cursor: 'pointer',
@@ -233,13 +233,13 @@ export default function LiveShop({ eventId, fanId }) {
                 <button onClick={() => removeFromCart(i)} style={{
                   width: 32, height: 32, borderRadius: 8, background: `${EK.bordeaux}20`,
                   color: EK.bordeaux, border: `1px solid ${EK.bordeaux}30`, fontSize: 13, cursor: 'pointer', marginLeft: 4,
-                }}>✕</button>
+                }}></button>
               </div>
             </div>
           ))}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: EK.textDim, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Total</span>
-            <span style={{ fontSize: 20, fontWeight: 900, color: EK.camel }}>{cartTotal}€</span>
+            <span style={{ fontSize: 20, fontWeight: 600, color: EK.camel }}>{cartTotal}€</span>
           </div>
 
           {!showCheckout ? (
@@ -259,7 +259,7 @@ export default function LiveShop({ eventId, fanId }) {
                   width: '100%', padding: '12px 14px', borderRadius: 10, marginBottom: 8,
                   background: `${EK.bleu}`, border: `1px solid ${EK.camel}25`,
                   color: EK.text, fontSize: 14, outline: 'none',
-                  fontFamily: "'Jost', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                 }}
               />
               <input
@@ -271,7 +271,7 @@ export default function LiveShop({ eventId, fanId }) {
                   width: '100%', padding: '12px 14px', borderRadius: 10, marginBottom: 12,
                   background: `${EK.bleu}`, border: `1px solid ${EK.camel}25`,
                   color: EK.text, fontSize: 14, outline: 'none',
-                  fontFamily: "'Jost', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                 }}
               />
               <button onClick={handleOrder} disabled={!firstName.trim() || !phone.trim() || saving} style={{

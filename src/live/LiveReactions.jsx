@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react'
 import { db } from '../lib/supabase'
 import { EK } from './LiveApp'
 
-const EMOJIS = ['🔥', '❤️', '🎵', '👏', '🤩']
+const EMOJIS = ['🔥', '❤️', '', '👏', '🤩']
 const COOLDOWN_MS = 1000
 
 export default function LiveReactions({ eventId, fanId }) {
@@ -57,7 +57,7 @@ export default function LiveReactions({ eventId, fanId }) {
       }}>
         {EMOJIS.map(emoji => (
           <button key={emoji} onClick={() => handleTap(emoji)} style={{
-            width: 52, height: 52, borderRadius: 14,
+            width: 52, height: 52, borderRadius: 8,
             background: cooldown ? `${EK.camel}08` : EK.card,
             border: `1px solid ${tappedEmoji === emoji ? EK.camel : EK.cardBorder}`,
             fontSize: 24, cursor: cooldown ? 'default' : 'pointer',

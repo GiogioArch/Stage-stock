@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { auth } from '../lib/supabase'
+import { Box, Loader } from 'lucide-react'
 
 export default function Auth({ onAuth, onBack }) {
   const [mode, setMode] = useState('login') // login | signup | forgot
@@ -56,7 +57,7 @@ export default function Auth({ onAuth, onBack }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #080808 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      background: '#09090B',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -66,37 +67,36 @@ export default function Auth({ onAuth, onBack }) {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
-            width: 72, height: 72, borderRadius: 22,
-            background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
+            width: 48, height: 48, borderRadius: 12,
+            background: '#6366F1',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 36, boxShadow: '0 8px 32px rgba(232,115,90,0.25)',
             marginBottom: 16,
-          }}>🎪</div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: '#C8A46A', letterSpacing: 0.5 }}>STAGE STOCK</div>
-          <div style={{ fontSize: 11, color: '#6B6058', letterSpacing: 3, textTransform: 'uppercase', fontWeight: 700, marginTop: 4 }}>
-            WMS pour artistes
+          }}><Box size={28} color="#fff" /></div>
+          <div style={{ fontSize: 24, fontWeight: 600, color: '#FAFAFA' }}>Stage Stock</div>
+          <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>
+            Gestion de stock pour le spectacle
           </div>
         </div>
 
         {/* Form */}
         <div className="card" style={{ padding: 24 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 20, textAlign: 'center' }}>
+          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20, textAlign: 'center', color: '#FAFAFA' }}>
             {mode === 'forgot' ? 'Mot de passe oublié' : mode === 'login' ? 'Connexion' : 'Créer un compte'}
           </h2>
 
           {error && (
             <div style={{
-              padding: 12, borderRadius: 12, background: '#FDF0F4',
-              border: '1px solid #F5C4BC', color: '#8B1A2B',
-              fontSize: 13, fontWeight: 600, marginBottom: 16,
+              padding: 10, borderRadius: 6, background: 'rgba(239,68,68,0.12)',
+              border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444',
+              fontSize: 13, fontWeight: 500, marginBottom: 16,
             }}>{error}</div>
           )}
 
           {success && (
             <div style={{
-              padding: 12, borderRadius: 12, background: '#F0FAF4',
-              border: '1px solid #B8E0C8', color: '#5DAB8B',
-              fontSize: 13, fontWeight: 600, marginBottom: 16,
+              padding: 10, borderRadius: 6, background: 'rgba(34,197,94,0.12)',
+              border: '1px solid rgba(34,197,94,0.2)', color: '#22C55E',
+              fontSize: 13, fontWeight: 500, marginBottom: 16,
             }}>{success}</div>
           )}
 
@@ -128,21 +128,21 @@ export default function Auth({ onAuth, onBack }) {
           )}
 
           <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? '⏳ Chargement...' : mode === 'forgot' ? 'Envoyer le lien' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}
+            {loading ? 'Chargement...' : mode === 'forgot' ? 'Envoyer le lien' : mode === 'login' ? 'Se connecter' : 'Créer le compte'}
           </button>
 
           <div style={{ textAlign: 'center', marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {mode === 'login' && (
               <button
                 onClick={() => { setMode('forgot'); setError(''); setSuccess('') }}
-                style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ fontSize: 12, color: '#71717A', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 Mot de passe oublié ?
               </button>
             )}
             <button
               onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess('') }}
-              style={{ fontSize: 13, color: '#C8A46A', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ fontSize: 13, color: '#6366F1', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
             >
               {mode === 'forgot' ? 'Retour à la connexion' : mode === 'login' ? 'Pas encore de compte ? Créer' : 'Déjà un compte ? Se connecter'}
             </button>
@@ -152,12 +152,12 @@ export default function Auth({ onAuth, onBack }) {
         {onBack && (
           <div style={{ textAlign: 'center', marginTop: 16 }}>
             <button onClick={onBack} style={{
-              fontSize: 12, color: '#8A7D75', fontWeight: 600,
+              fontSize: 12, color: '#71717A', fontWeight: 500,
               background: 'none', border: 'none', cursor: 'pointer',
-            }}>← Retour à l'accueil</button>
+            }}>Retour</button>
           </div>
         )}
-        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#C4A8B6' }}>
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#52525B' }}>
           v10.5 — Stage Stock
         </div>
       </div>

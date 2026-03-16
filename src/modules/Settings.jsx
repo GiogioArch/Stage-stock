@@ -1,6 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, createElement } from 'react'
+import { BarChart3, Calendar, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, Settings as SettingsGear, Box } from 'lucide-react'
 import { MODULES, DEFAULT_ACTIVE, setActiveModuleIds } from './registry'
 import AccessManager from './AccessManager'
+
+const MOD_ICONS = {
+  'bar-chart-3': BarChart3, tent: Calendar, package: Package, warehouse: Warehouse,
+  'clipboard-list': ClipboardList, users: Users, coins: Coins, bell: Bell,
+  'trending-up': TrendingUp, 'shopping-cart': ShoppingCart, 'shopping-bag': ShoppingBag,
+  'clipboard-check': ClipboardCheck, truck: Truck, settings: SettingsGear,
+}
 
 export default function Settings({ activeModuleIds: rawIds, onModulesChanged, onToast, onClose, membership, roles, userProfiles, onReload }) {
   const activeModuleIds = Array.isArray(rawIds) ? rawIds : DEFAULT_ACTIVE
@@ -40,15 +48,15 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
       {/* ─── Sub-tab navigation ─── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
-          { id: 'access', label: '👥 Accès', color: '#9B7DC4' },
-          { id: 'modules', label: '⚙️ Modules', color: '#F0ECE2' },
+          { id: 'access', label: ' Accès', color: '#A78BFA' },
+          { id: 'modules', label: ' Modules', color: '#FAFAFA' },
         ].map(t => (
           <button key={t.id} onClick={() => setSubTab(t.id)} style={{
             flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 13, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
             background: subTab === t.id ? `${t.color}12` : 'white',
-            color: subTab === t.id ? t.color : '#8A7D75',
-            border: `1.5px solid ${subTab === t.id ? t.color + '40' : '#E8DED8'}`,
+            color: subTab === t.id ? t.color : '#71717A',
+            border: `1px solid ${subTab === t.id ? t.color + '40' : 'rgba(255,255,255,0.1)'}`,
           }}>{t.label}</button>
         ))}
       </div>
@@ -70,26 +78,26 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
           {/* Header */}
           <div className="card" style={{
             marginBottom: 16, padding: '18px 16px',
-            background: 'linear-gradient(135deg, #F0ECE208, #8A7D7518)',
-            border: '1.5px solid #F0ECE215',
+            background: 'linear-gradient(135deg, #FAFAFA08, #71717A18)',
+            border: '1px solid #FAFAFA15',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
-                width: 48, height: 48, borderRadius: 14,
-                background: 'linear-gradient(135deg, #F0ECE2, #8A7D75)',
+                width: 48, height: 48, borderRadius: 8,
+                background: 'linear-gradient(135deg, #FAFAFA, #71717A)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 24, color: 'white',
-              }}>⚙️</div>
+              }}></div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2' }}>Modules</div>
-                <div style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600 }}>
+                <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>Modules</div>
+                <div style={{ fontSize: 12, color: '#71717A', fontWeight: 600 }}>
                   Active ou désactive les modules de Stage Stock
                 </div>
               </div>
             </div>
           </div>
 
-          <div style={{ fontSize: 11, color: '#8A7D75', lineHeight: 1.6, marginBottom: 16, padding: '0 4px' }}>
+          <div style={{ fontSize: 11, color: '#71717A', lineHeight: 1.6, marginBottom: 16, padding: '0 4px' }}>
             Chaque module ajoute un onglet et ses fonctionnalités. Les dépendances sont activées automatiquement.
           </div>
 
@@ -109,18 +117,18 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
                   style={{
                     width: '100%', padding: '14px 16px', cursor: isLocked ? 'default' : 'pointer',
                     textAlign: 'left', transition: 'all 0.2s',
-                    borderLeft: `4px solid ${isActive ? mod.color : '#E8DED8'}`,
+                    borderLeft: `4px solid ${isActive ? mod.color : 'rgba(255,255,255,0.1)'}`,
                     opacity: isActive ? 1 : 0.5,
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{
                       width: 44, height: 26, borderRadius: 13, padding: 2,
-                      background: isActive ? mod.color : '#E8DED8',
+                      background: isActive ? mod.color : 'rgba(255,255,255,0.1)',
                       transition: 'background 0.2s', flexShrink: 0,
                     }}>
                       <div style={{
-                        width: 22, height: 22, borderRadius: 11, background: 'white',
+                        width: 22, height: 22, borderRadius: 11, background: '#18181B',
                         boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                         transform: isActive ? 'translateX(18px)' : 'translateX(0)',
                         transition: 'transform 0.2s',
@@ -131,28 +139,28 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
                       background: `${mod.color}15`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 20,
-                    }}>{mod.icon}</div>
+                    }}>{MOD_ICONS[mod.icon] ? createElement(MOD_ICONS[mod.icon], { size: 20, color: mod.color }) : null}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: isActive ? '#F0ECE2' : '#8A7D75' }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: isActive ? '#FAFAFA' : '#71717A' }}>
                           {mod.name}
                         </span>
                         {isLocked && (
-                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#F0ECE2', color: 'white', fontWeight: 800 }}>
+                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#FAFAFA', color: 'white', fontWeight: 600 }}>
                             REQUIS
                           </span>
                         )}
                         {isRequired && !isLocked && (
-                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#C8A46A', color: 'white', fontWeight: 800 }}>
+                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#6366F1', color: 'white', fontWeight: 600 }}>
                             DÉPENDANCE
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2, lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 11, color: '#71717A', marginTop: 2, lineHeight: 1.4 }}>
                         {mod.description}
                       </div>
                       {mod.deps.length > 0 && (
-                        <div style={{ fontSize: 9, color: '#6B6058', marginTop: 3 }}>
+                        <div style={{ fontSize: 9, color: '#52525B', marginTop: 3 }}>
                           Requiert : {mod.deps.map(d => MODULES[d]?.name).filter(Boolean).join(', ')}
                         </div>
                       )}
