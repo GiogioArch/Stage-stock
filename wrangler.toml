@@ -1,4 +1,6 @@
-# Stage Stock — Cloudflare Pages via Wrangler
-name = "stage-stock"
-pages_build_output_dir = "dist"
+# Stage Stock — Cloudflare Workers (static assets)
+name = "falling-art-7930"
 compatibility_date = "2024-09-23"
+
+[assets]
+directory = "dist"
