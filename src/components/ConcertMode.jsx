@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, createElement } from 'react'
 import { db } from '../lib/supabase'
+import { CreditCard, Smartphone, Receipt } from 'lucide-react'
 import { parseDate } from './UI'
 
 const PAYMENT_METHODS = [
-  { id: 'cash', label: 'Espèces', icon: '' },
-  { id: 'card', label: 'CB', icon: '💳' },
-  { id: 'mobile', label: 'Mobile', icon: '📱' },
+  { id: 'cash', label: 'Espèces', icon: null },
+  { id: 'card', label: 'CB', icon: CreditCard },
+  { id: 'mobile', label: 'Mobile', icon: Smartphone },
 ]
 
 const VARIANT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
@@ -220,7 +221,7 @@ export default function ConcertMode({
         background: '#1A1520', color: 'white', overflow: 'auto',
       }}>
         <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🧾</div>
+          <div style={{ marginBottom: 16 }}>{createElement(Receipt, { size: 48, color: '#16A34A' })}</div>
           <div style={{ fontSize: 22, fontWeight: 600, color: '#16A34A', marginBottom: 4 }}>Caisse clôturée</div>
           <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 24 }}>
             {selectedEvent?.name || 'Vente libre'}
@@ -264,7 +265,7 @@ export default function ConcertMode({
                   <span style={{ color: '#94A3B8', marginRight: 6 }}>{l.count} art.</span>
                   <span style={{ fontWeight: 600 }}>{l.total}€</span>
                   <span style={{ marginLeft: 6, fontSize: 10, color: '#94A3B8' }}>
-                    {l.method === 'cash' ? '' : l.method === 'card' ? '💳' : '📱'}
+                    {l.method === 'card' ? createElement(CreditCard, { size: 10 }) : l.method === 'mobile' ? createElement(Smartphone, { size: 10 }) : null}
                   </span>
                 </span>
               </div>
@@ -377,7 +378,7 @@ export default function ConcertMode({
             <button onClick={closeCaisse} disabled={closingCaisse} style={{
               padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 600,
               background: '#D9770620', border: 'none', color: '#D97706', cursor: 'pointer',
-            }}>🧾 Clôturer</button>
+            }}>{createElement(Receipt, { size: 12 })} Clôturer</button>
           </>
         )}
       </header>
@@ -517,7 +518,7 @@ export default function ConcertMode({
                     background: payMethod === pm.id ? '#6366F1' : '#3A3540',
                     color: payMethod === pm.id ? 'white' : '#94A3B8',
                     border: 'none',
-                  }}>{pm.icon} {pm.label}</button>
+                  }}>{pm.icon ? createElement(pm.icon, { size: 14 }) : null} {pm.label}</button>
                 ))}
               </div>
               <div style={{ display: 'flex', gap: 8 }}>

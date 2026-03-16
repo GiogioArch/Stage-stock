@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
+import { TrendingDown } from 'lucide-react'
 import { Badge, parseDate } from './UI'
 
 export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, orgName, onReload, onToast }) {
@@ -78,7 +79,7 @@ export default function Finance({ products, stock, events, locations, depreciati
     { id: 'revenue', label: 'Revenus', icon: '' },
     { id: 'expenses', label: 'Dépenses', icon: '' },
     { id: 'bilan', label: 'Bilan', icon: '' },
-    { id: 'depreciation', label: 'Amortis.', icon: '📉' },
+    { id: 'depreciation', label: 'Amortis.', icon: '' },
   ]
 
   return (
@@ -416,7 +417,7 @@ export default function Finance({ products, stock, events, locations, depreciati
         <div>
           {depreciationItems.length === 0 ? (
             <div className="empty-state" style={{ padding: 32 }}>
-              <div className="empty-icon">📉</div>
+              <div className="empty-icon">{createElement(TrendingDown, { size: 40, color: '#94A3B8' })}</div>
               <div className="empty-text">Aucune immobilisation</div>
               <div style={{ fontSize: 11, color: '#CBD5E1', marginTop: 4 }}>
                 Les produits de plus de 500€ HT apparaîtront ici

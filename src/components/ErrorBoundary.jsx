@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { createElement } from 'react'
+import { AlertTriangle } from 'lucide-react'
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -23,7 +24,7 @@ export default class ErrorBoundary extends React.Component {
           flexDirection: 'column', padding: 32, textAlign: 'center',
           background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 30%, #F8FAFC 70%, #F8FAFC 100%)',
         }}>
-          <div style={{ fontSize: 56, marginBottom: 16 }}>💥</div>
+          <div style={{ fontSize: 56, marginBottom: 16 }}>{createElement(AlertTriangle, { size: 56, color: '#DC2626' })}</div>
           <div style={{ fontSize: 18, fontWeight: 600, color: '#DC2626', marginBottom: 8 }}>
             Oups, une erreur est survenue
           </div>

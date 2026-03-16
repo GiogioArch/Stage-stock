@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
+import { Building, Map as MapIcon, Ship, Truck, Car } from 'lucide-react'
 import { Badge, parseDate } from './UI'
 
 export default function Transport({
@@ -39,10 +40,10 @@ export default function Transport({
   const deliveredNeeds = (transportNeeds || []).filter(n => n.status === 'delivered').length
 
   const SECTIONS = [
-    { id: 'overview', label: 'Vue globale', icon: '' },
-    { id: 'events', label: 'Par concert', icon: '' },
-    { id: 'providers', label: 'Prestataires', icon: '🏢' },
-    { id: 'routes', label: 'Routes', icon: '🗺️' },
+    { id: 'overview', label: 'Vue globale', icon: null },
+    { id: 'events', label: 'Par concert', icon: null },
+    { id: 'providers', label: 'Prestataires', icon: Building },
+    { id: 'routes', label: 'Routes', icon: MapIcon },
   ]
 
   const NEED_CATS = { equipment: ' Matériel', merch: ' Merch', people: ' Personnes', other: ' Autre' }
@@ -92,7 +93,7 @@ export default function Transport({
             background: section === s.id ? '#6366F115' : 'white',
             color: section === s.id ? '#6366F1' : '#94A3B8',
             border: `1px solid ${section === s.id ? '#6366F140' : '#E2E8F0'}`,
-          }}>{s.icon} {s.label}</button>
+          }}>{s.icon ? createElement(s.icon, { size: 12 }) : null} {s.label}</button>
         ))}
       </div>
 
@@ -134,7 +135,7 @@ export default function Transport({
                       width: 36, height: 36, borderRadius: 10,
                       background: p.type === 'ferry' ? '#2563EB15' : '#6366F115',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
-                    }}>{p.type === 'ferry' ? '⛴️' : p.type === 'truck' ? '' : ''}</div>
+                    }}>{createElement(p.type === 'ferry' ? Ship : Truck, { size: 16, color: p.type === 'ferry' ? '#2563EB' : '#6366F1' })}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>{p.name}</div>
                       <div style={{ fontSize: 10, color: '#94A3B8' }}>{p.contact_name || p.type}</div>
@@ -303,7 +304,7 @@ export default function Transport({
 
           {(transportProviders || []).length === 0 ? (
             <div className="empty-state" style={{ padding: 40 }}>
-              <div className="empty-icon">🏢</div>
+              <div className="empty-icon">{createElement(Building, { size: 40, color: '#94A3B8' })}</div>
               <div className="empty-text">Aucun prestataire transport</div>
               <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>
                 Ajoutez vos compagnies de ferry, loueurs de camions, etc.
@@ -323,7 +324,7 @@ export default function Transport({
                         width: 44, height: 44, borderRadius: 12,
                         background: p.type === 'ferry' ? '#2563EB15' : '#6366F115',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-                      }}>{p.type === 'ferry' ? '⛴️' : p.type === 'truck' ? '' : p.type === 'van' ? '' : '🚗'}</div>
+                      }}>{createElement(p.type === 'ferry' ? Ship : p.type === 'car' ? Car : Truck, { size: 22, color: p.type === 'ferry' ? '#2563EB' : '#6366F1' })}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>{p.name}</div>
                         <div style={{ fontSize: 11, color: '#94A3B8' }}>
@@ -358,7 +359,7 @@ export default function Transport({
         <div>
           {(transportRoutes || []).length === 0 ? (
             <div className="empty-state" style={{ padding: 40 }}>
-              <div className="empty-icon">🗺️</div>
+              <div className="empty-icon">{createElement(MapIcon, { size: 40, color: '#94A3B8' })}</div>
               <div className="empty-text">Aucune route configurée</div>
               <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>
                 Fort-de-France → Pointe-à-Pitre, etc.
@@ -369,7 +370,7 @@ export default function Transport({
               {(transportRoutes || []).map(r => (
                 <div key={r.id} className="card" style={{ padding: '14px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 20 }}>🗺️</span>
+                    {createElement(MapIcon, { size: 20, color: '#6366F1' })}
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 600 }}>{r.name || `${r.origin} → ${r.destination}`}</div>
                       <div style={{ fontSize: 11, color: '#94A3B8' }}>
@@ -437,11 +438,11 @@ function AddProviderForm({ onDone, onToast }) {
   const [saving, setSaving] = useState(false)
 
   const TYPES = [
-    { id: 'ferry', label: '⛴️ Ferry' },
-    { id: 'truck', label: ' Camion' },
-    { id: 'van', label: ' Utilitaire' },
-    { id: 'car', label: '🚗 Voiture' },
-    { id: 'other', label: ' Autre' },
+    { id: 'ferry', label: 'Ferry', icon: Ship },
+    { id: 'truck', label: 'Camion', icon: Truck },
+    { id: 'van', label: 'Utilitaire', icon: Truck },
+    { id: 'car', label: 'Voiture', icon: Car },
+    { id: 'other', label: 'Autre', icon: Truck },
   ]
 
   const handleSave = async () => {
@@ -477,7 +478,7 @@ function AddProviderForm({ onDone, onToast }) {
             color: type === t.id ? '#6366F1' : '#94A3B8',
             border: `1px solid ${type === t.id ? '#6366F140' : '#E2E8F0'}`,
             cursor: 'pointer',
-          }}>{t.label}</button>
+          }}>{createElement(t.icon, { size: 12 })} {t.label}</button>
         ))}
       </div>
       <input className="input" value={contactName} onChange={e => setContactName(e.target.value)}

@@ -129,7 +129,7 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
                   {p.org.name}
                 </div>
                 <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>
-                  {p.is_admin ? '👑 Admin' : ' Membre'}
+                  {p.is_admin ? 'Admin' : 'Membre'}
                   {p.role_id && ' — '}
                   {p.status === 'invited' && (
                     <span style={{ color: '#6366F1', fontWeight: 700 }}>Invitation en attente</span>

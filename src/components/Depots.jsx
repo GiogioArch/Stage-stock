@@ -1,7 +1,12 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
+import { Warehouse, Store, Building, Box, Truck, MapPin, Home, Package } from 'lucide-react'
 import { Badge } from './UI'
 import DepotDetail from './DepotDetail'
+
+const DEPOT_ICON_MAP = {
+  Warehouse, Store, Building, Box, Truck, MapPin, Home, Package,
+}
 
 export default function Depots({ locations, stock, products, movements, families, subfamilies, orgId, onReload, onToast, onMovement }) {
   const [showAdd, setShowAdd] = useState(false)
@@ -223,7 +228,7 @@ export default function Depots({ locations, stock, products, movements, families
                       background: (loc.color || '#2563EB') + '15',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 22,
-                    }}>{loc.icon || ''}</div>
+                    }}>{createElement(DEPOT_ICON_MAP[loc.icon] || MapPin, { size: 22, color: loc.color || '#2563EB' })}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>{loc.name}</div>
                       <div style={{ fontSize: 11, color: '#94A3B8' }}>
@@ -259,12 +264,12 @@ export default function Depots({ locations, stock, products, movements, families
 function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
   const isEdit = !!location
   const [name, setName] = useState(location?.name || '')
-  const [icon, setIcon] = useState(location?.icon || '')
+  const [icon, setIcon] = useState(location?.icon || 'Warehouse')
   const [color, setColor] = useState(location?.color || '#2563EB')
   const [description, setDescription] = useState(location?.description || '')
   const [saving, setSaving] = useState(false)
 
-  const ICONS = ['', '', '🏢', '', '', '', '', '']
+  const ICONS = ['Warehouse', 'Store', 'Building', 'Box', 'Truck', 'MapPin', 'Home', 'Package']
   const COLORS = ['#2563EB', '#6366F1', '#16A34A', '#DC2626', '#6366F1', '#7C3AED', '#8BAB5D']
 
   const handleSave = async () => {
@@ -307,10 +312,11 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
           <div style={{ display: 'flex', gap: 4 }}>
             {ICONS.map(i => (
               <button key={i} onClick={() => setIcon(i)} style={{
-                width: 32, height: 32, borderRadius: 8, fontSize: 16,
+                width: 32, height: 32, borderRadius: 8,
                 border: icon === i ? '2px solid #2563EB' : '1px solid #CBD5E1',
                 background: icon === i ? '#2563EB12' : 'white', cursor: 'pointer',
-              }}>{i}</button>
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>{createElement(DEPOT_ICON_MAP[i] || MapPin, { size: 16 })}</button>
             ))}
           </div>
         </div>

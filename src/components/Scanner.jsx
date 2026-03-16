@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback, createElement } from 'react'
+import { Keyboard } from 'lucide-react'
 import { Modal } from './UI'
 
 export default function Scanner({ products, locations, stock, onMovement, onClose, onToast }) {
@@ -140,7 +141,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
               background: manualMode ? '#6366F1' : 'rgba(255,255,255,0.15)',
               color: 'white', border: 'none', cursor: 'pointer',
             }}>
-              {manualMode ? ' Caméra' : '⌨️ Manuel'}
+              {manualMode ? ' Caméra' : <>{createElement(Keyboard, { size: 12 })} Manuel</>}
             </button>
           )}
           <button onClick={onClose} style={{
@@ -177,7 +178,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
             }}>
               {hasBarcodeAPI
                 ? 'Place le code-barres dans le cadre'
-                : '⌨️ BarcodeDetector non dispo — utilise le mode manuel'}
+                : 'BarcodeDetector non dispo — utilise le mode manuel'}
             </div>
           </div>
         </div>
@@ -186,7 +187,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
       {/* ─── Manual input mode ─── */}
       {scanning && manualMode && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>⌨️</div>
+          <div style={{ marginBottom: 16 }}>{createElement(Keyboard, { size: 48, color: 'white' })}</div>
           <div style={{ color: 'white', fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
             Saisie manuelle du SKU
           </div>

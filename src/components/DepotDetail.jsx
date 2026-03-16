@@ -1,4 +1,5 @@
 import React, { useState, useMemo, createElement } from 'react'
+import { Pencil, PackageOpen } from 'lucide-react'
 import { getMoveConf, fmtDate, Badge } from './UI'
 
 export default function DepotDetail({
@@ -91,7 +92,7 @@ export default function DepotDetail({
             <button onClick={() => onEdit(location)} style={{
               padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
               background: '#EEF4FA', border: '1px solid #2563EB30', color: '#2563EB', cursor: 'pointer',
-            }}>✏️</button>
+            }}>{createElement(Pencil, { size: 14 })}</button>
           )}
           {onDelete && (
             <button onClick={() => onDelete(location)} style={{
@@ -170,7 +171,7 @@ export default function DepotDetail({
 
             {productDetails.length === 0 ? (
               <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-                <div style={{ fontSize: 40, marginBottom: 8 }}>📭</div>
+                <div style={{ marginBottom: 8 }}>{createElement(PackageOpen, { size: 40, color: '#94A3B8' })}</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Dépôt vide</div>
                 <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Aucun stock dans ce lieu</div>
               </div>

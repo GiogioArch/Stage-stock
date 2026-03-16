@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, createElement } from 'react'
 import { db } from '../lib/supabase'
+import { Printer, Download, Share2, RefreshCw } from 'lucide-react'
 import { Badge, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
 
@@ -97,7 +98,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
 
     // Header
     html += `<div class="header">
-      <h1>📦 Packing List — ${eventName}</h1>
+      <h1>Packing List — ${eventName}</h1>
       <div class="meta">${dateStr} · ${event.lieu || ''} · ${event.ville || ''} ${event.territoire ? '(' + event.territoire + ')' : ''} · ${event.format || ''} · ${event.capacite || '?'} pers.</div>
     </div>`
 
@@ -119,7 +120,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
         const p = products.find(pr => pr.id === item.product_id)
         const rowClass = item.packed ? 'packed-row' : ''
         html += `<tr class="${rowClass}">
-          <td class="check">${item.packed ? '✅' : '☐'}</td>
+          <td class="check">${item.packed ? '[x]' : '[ ]'}</td>
           <td>${p?.name || '?'}</td>
           <td style="color:#94A3B8;font-size:10px">${p?.sku || ''}</td>
           <td class="qty">${item.quantity_needed}</td>
@@ -174,9 +175,9 @@ export default function PackingList({ event, products, stock, locations, roles, 
 
     // Build a simple text summary for sharing
     const roleEntries = Object.entries(groupedByRole)
-    let text = `📦 Packing List — ${eventName}\n📅 ${dateStr}\n📍 ${event.lieu || ''}, ${event.ville || ''}\n\n`
-    text += `✅ ${packedItems}/${totalItems} emballés (${overallPercent}%)\n`
-    if (shortageItems.length > 0) text += `⚠️ ${shortageItems.length} manquants (-${totalShortage} unités)\n`
+    let text = `Packing List — ${eventName}\nDate: ${dateStr}\nLieu: ${event.lieu || ''}, ${event.ville || ''}\n\n`
+    text += `${packedItems}/${totalItems} emballes (${overallPercent}%)\n`
+    if (shortageItems.length > 0) text += `${shortageItems.length} manquants (-${totalShortage} unites)\n`
     text += '\n'
 
     roleEntries.forEach(([role, items]) => {
@@ -185,8 +186,8 @@ export default function PackingList({ event, products, stock, locations, roles, 
       text += `── ${rc.label} (${done}/${items.length}) ──\n`
       items.forEach(item => {
         const p = products.find(pr => pr.id === item.product_id)
-        const check = item.packed ? '✅' : '☐'
-        const shortage = item.shortage > 0 ? ` ⚠️-${item.shortage}` : ''
+        const check = item.packed ? '[x]' : '[ ]'
+        const shortage = item.shortage > 0 ? ` MANQUE -${item.shortage}` : ''
         text += `${check} ${p?.name || '?'} — ${item.quantity_packed}/${item.quantity_needed}${shortage}\n`
       })
       text += '\n'
@@ -321,22 +322,22 @@ export default function PackingList({ event, products, stock, locations, roles, 
         <button onClick={handlePrint} style={{
           flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
           background: '#EFF6FF', border: '1px solid #2563EB25', color: '#2563EB', cursor: 'pointer',
-        }}>🖨️ Imprimer</button>
+        }}>{createElement(Printer, { size: 12 })} Imprimer</button>
         <button onClick={handleDownload} style={{
           flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
           background: '#F0FDF4', border: '1px solid #16A34A25', color: '#16A34A', cursor: 'pointer',
-        }}>📥 Télécharger</button>
+        }}>{createElement(Download, { size: 12 })} Télécharger</button>
         <button onClick={handleShare} style={{
           flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
           background: '#FAF5FF', border: '1px solid #8B5CF625', color: '#8B5CF6', cursor: 'pointer',
-        }}>📤 Partager</button>
+        }}>{createElement(Share2, { size: 12 })} Partager</button>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
         <button onClick={handleGenerate} disabled={generating} style={{
           flex: 1, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
           background: '#FEF2F2', border: '1px solid #DC262625', color: '#DC2626', cursor: 'pointer',
           opacity: generating ? 0.5 : 1,
-        }}>{generating ? '...' : '🔄 Recalculer'}</button>
+        }}>{generating ? '...' : <>{createElement(RefreshCw, { size: 12 })} Recalculer</>}</button>
       </div>
 
       {/* Shortage warning */}

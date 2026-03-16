@@ -5,7 +5,7 @@ import {
   Clock, ChevronDown, ChevronRight, Plus, Check, Circle,
   CheckCircle2, AlertTriangle, Truck, MessageSquare, Zap,
   MapPin, Users, ArrowDown, ArrowUp, X, Save,
-  ClipboardList, Filter, Eye, EyeOff,
+  ClipboardList, Filter, Eye, EyeOff, Mic, Timer,
 } from 'lucide-react'
 
 // ─── Constants ───
@@ -120,7 +120,7 @@ export default function EventTimeline({
   if (!event) {
     return (
       <div style={{ padding: '40px 16px', textAlign: 'center' }}>
-        <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
+        <div style={{ marginBottom: 12 }}>{createElement(ClipboardList, { size: 48, color: '#3D3042' })}</div>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#3D3042' }}>Sélectionne un événement</div>
         <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>
           Ouvre un événement depuis la Tournée pour accéder au planning 48h
@@ -131,7 +131,7 @@ export default function EventTimeline({
 
   // Format hour label
   const formatHour = (offset) => {
-    if (offset === 0) return '🎤 H+0 — SHOWTIME'
+    if (offset === 0) return 'H+0 — SHOWTIME'
     const sign = offset > 0 ? '+' : ''
     const label = offset < 0 ? 'Préparation' : 'Post-event'
     return `H${sign}${offset} — ${label}`
@@ -325,7 +325,7 @@ export default function EventTimeline({
 
           {filteredTasks.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px 20px', marginLeft: 44 }}>
-              <div style={{ fontSize: 40, marginBottom: 8 }}>⏱️</div>
+              <div style={{ marginBottom: 8 }}>{createElement(Timer, { size: 40, color: '#3D3042' })}</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#3D3042' }}>Timeline vide</div>
               <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>
                 Ajoutez des tâches pour planifier les 48h autour de l'événement

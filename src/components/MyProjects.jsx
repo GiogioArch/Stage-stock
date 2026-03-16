@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, createElement } from 'react'
 import { db } from '../lib/supabase'
+import { Pencil } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
 
 const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
@@ -202,7 +203,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
             padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
             background: 'none', border: 'none', cursor: 'pointer', color: '#1E293B',
           }}>
-            <span>✏️</span> Modifier
+            {createElement(Pencil, { size: 14 })} Modifier
           </button>
           <button onClick={() => { setShowMenu(false); onDelete() }} style={{
             display: 'flex', alignItems: 'center', gap: 8, width: '100%',

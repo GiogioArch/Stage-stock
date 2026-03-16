@@ -4,6 +4,7 @@ import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge } from './UI'
 
 const ICON_MAP = {
+  // Legacy emoji keys (existing DB entries)
   '📍': MapPin,
   '🏭': Factory,
   '🚐': Truck,
@@ -11,9 +12,19 @@ const ICON_MAP = {
   '✈️': Plane,
   '📦': Package,
   '🏠': Home,
+  // New Lucide name keys
+  'MapPin': MapPin,
+  'Warehouse': Factory,
+  'Store': Tent,
+  'Building': Plane,
+  'Box': Package,
+  'Truck': Truck,
+  'Home': Home,
+  'Package': Package,
 }
 
-const ICON_KEYS = Object.keys(ICON_MAP)
+// Only legacy emoji keys for the icon picker (backward compat with existing DB data)
+const ICON_KEYS = ['📍', '🏭', '🚐', '🎪', '✈️', '📦', '🏠']
 
 const PALETTE = {
   textPrimary: '#1E293B',
@@ -122,7 +133,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
                 background: (loc.color || PALETTE.accent) + '15',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <LocationIcon emoji={loc.icon || '📍'} size={20} color={loc.color || PALETTE.accent} />
+                <LocationIcon emoji={loc.icon || 'MapPin'} size={20} color={loc.color || PALETTE.accent} />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 600, color: PALETTE.textPrimary }}>{loc.name}</div>
@@ -240,7 +251,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
 function AddLocationModal({ onClose, onSave }) {
   const [name, setName] = useState('')
   const [type, setType] = useState('fixe')
-  const [icon, setIcon] = useState('📍')
+  const [icon, setIcon] = useState('MapPin')
   const [color, setColor] = useState('#6366F1')
 
   return (

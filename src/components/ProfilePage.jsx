@@ -1,5 +1,6 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, createElement } from 'react'
 import { db, safe } from '../lib/supabase'
+import { Lock, Eye } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
 import { parseDate } from './UI'
 
@@ -535,7 +536,7 @@ const GEAR_CATS = {
   instrument: { icon: '', label: 'Instrument', color: '#7C3AED' },
   son:        { icon: '', label: 'Son', color: '#2563EB' },
   lumiere:    { icon: '', label: 'Lumière', color: '#D97706' },
-  tech:       { icon: '💻', label: 'Tech', color: '#7C3AED' },
+  tech:       { icon: '', label: 'Tech', color: '#7C3AED' },
   scene:      { icon: '', label: 'Scène', color: '#6366F1' },
   transport:  { icon: '', label: 'Transport', color: '#16A34A' },
   other:      { icon: '', label: 'Autre', color: '#94A3B8' },
@@ -886,10 +887,10 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
 // ════════════════════════════════════════
 const INCOME_TYPES = {
   cachet:         { label: 'Cachet', color: '#16A34A', icon: '' },
-  facture:        { label: 'Facture', color: '#2563EB', icon: '📄' },
-  remboursement:  { label: 'Remboursement', color: '#D97706', icon: '💸' },
-  prime:          { label: 'Prime', color: '#7C3AED', icon: '⭐' },
-  autre:          { label: 'Autre', color: '#94A3B8', icon: '📝' },
+  facture:        { label: 'Facture', color: '#2563EB', icon: '' },
+  remboursement:  { label: 'Remboursement', color: '#D97706', icon: '' },
+  prime:          { label: 'Prime', color: '#7C3AED', icon: '' },
+  autre:          { label: 'Autre', color: '#94A3B8', icon: '' },
 }
 
 const INCOME_STATUS = {
@@ -1167,7 +1168,7 @@ function SensitiveRow({ label, value, masked, show, onToggle }) {
         </span>
         <button onClick={onToggle} style={{
           background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 2,
-        }}>{show ? '🔒' : '👁️'}</button>
+        }}>{show ? createElement(Lock, { size: 14 }) : createElement(Eye, { size: 14 })}</button>
       </div>
     </div>
   )

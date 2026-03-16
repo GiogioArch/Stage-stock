@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, createElement } from 'react'
 import { db } from '../lib/supabase'
+import { FileText } from 'lucide-react'
 import { Modal } from './UI'
 
 export default function CSVImport({ families, subfamilies, orgId, onDone, onClose, onToast }) {
@@ -143,7 +144,7 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
     <Modal title="Importer des produits (CSV)" onClose={onClose}>
       {!rows.length ? (
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>📄</div>
+          <div style={{ marginBottom: 12 }}>{createElement(FileText, { size: 48, color: '#94A3B8' })}</div>
           <p style={{ fontSize: 13, color: '#94A3B8', marginBottom: 16, lineHeight: 1.5 }}>
             Importe un fichier CSV ou Excel (exporté en .csv).<br />
             Séparateurs supportés : virgule (,) ou point-virgule (;)

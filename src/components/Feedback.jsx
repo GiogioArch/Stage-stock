@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { db, safe } from '../lib/supabase'
-import { MessageSquare, Send, X, ThumbsUp, ThumbsDown, Meh, Loader2 } from 'lucide-react'
+import { MessageSquare, Send, X, ThumbsUp, ThumbsDown, Meh, Loader2, CheckCircle } from 'lucide-react'
 
 const MOODS = [
   { id: 'bad', icon: ThumbsDown, color: '#DC2626', label: 'Difficile' },
@@ -77,7 +77,7 @@ export default function Feedback({ user, orgId, context }) {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
-          {sent ? '✅ Merci !' : 'Ton avis compte'}
+          {sent ? <><CheckCircle size={14} color="#16A34A" style={{ verticalAlign: 'middle', marginRight: 4 }} />Merci !</> : 'Ton avis compte'}
         </span>
         <button onClick={() => setOpen(false)} style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: 4,
