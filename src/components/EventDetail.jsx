@@ -48,7 +48,7 @@ const SECTIONS = [
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
   checklists, roles, eventPacking, userProfiles, userRole, orgId,
-  onClose, onReload, onToast, onNavigateEvent, onEdit, onDelete,
+  onClose, onReload, onToast, onNavigateEvent, onEdit, onDelete, embedded,
 }) {
   const [section, setSection] = useState('resume')
 
@@ -89,9 +89,10 @@ export default function EventDetail({
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, zIndex: 90,
+      ...(!embedded ? { position: 'fixed', inset: 0, zIndex: 90 } : {}),
       background: '#F8FAFC',
-      overflowY: 'auto', paddingBottom: 80,
+      overflowY: embedded ? undefined : 'auto',
+      paddingBottom: embedded ? 24 : 80,
     }}>
       {/* ─── Top bar ─── */}
       <div style={{

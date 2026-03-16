@@ -197,26 +197,53 @@ export default function Products({ products, families, subfamilies, stock, locat
         </div>
       )}
 
-      {/* Product Detail (full screen) */}
+      {/* Product Detail (bottom sheet) */}
       {modal?.type === 'detail' && (
-        <ProductDetail
-          product={modal.product}
-          products={products}
-          stock={stock}
-          locations={locations}
-          movements={movements || []}
-          events={events || []}
-          eventPacking={eventPacking || []}
-          userRole={userRole}
-          onClose={() => setModal(null)}
-          onEdit={() => setModal({ type: 'edit', product: modal.product })}
-          onDelete={() => setConfirm({
-            message: `Supprimer "${modal.product.name}" ?`,
-            detail: 'Le produit, son stock et son historique de mouvements seront supprimés. Cette action est irréversible.',
-            onConfirm: () => handleDelete(modal.product),
-          })}
-          onToast={onToast}
-        />
+        <div
+          onClick={() => setModal(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(15,23,42,0.35)',
+            backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+            animation: 'fadeIn 0.15s ease',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 480, maxHeight: '85vh',
+              background: 'white', borderRadius: '20px 20px 0 0',
+              boxShadow: '0 -8px 40px rgba(0,0,0,0.15)',
+              overflowY: 'auto', WebkitOverflowScrolling: 'touch',
+              animation: 'slideUp 0.25s ease',
+              padding: '0 0 env(safe-area-inset-bottom, 16px)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px', position: 'sticky', top: 0, background: 'white', zIndex: 1, borderRadius: '20px 20px 0 0' }}>
+              <div style={{ width: 36, height: 4, borderRadius: 2, background: '#E2E8F0' }} />
+            </div>
+            <ProductDetail
+              embedded
+              product={modal.product}
+              products={products}
+              stock={stock}
+              locations={locations}
+              movements={movements || []}
+              events={events || []}
+              eventPacking={eventPacking || []}
+              userRole={userRole}
+              onClose={() => setModal(null)}
+              onEdit={() => setModal({ type: 'edit', product: modal.product })}
+              onDelete={() => setConfirm({
+                message: `Supprimer "${modal.product.name}" ?`,
+                detail: 'Le produit, son stock et son historique de mouvements seront supprimés. Cette action est irréversible.',
+                onConfirm: () => handleDelete(modal.product),
+              })}
+              onToast={onToast}
+            />
+          </div>
+        </div>
       )}
 
       {/* Add/Edit Modal */}

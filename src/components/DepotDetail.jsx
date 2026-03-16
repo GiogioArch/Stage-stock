@@ -3,7 +3,7 @@ import { getMoveConf, fmtDate, Badge } from './UI'
 
 export default function DepotDetail({
   location, stock, products, movements, families, subfamilies,
-  onClose, onMovement, onToast, onEdit, onDelete, onReload,
+  onClose, onMovement, onToast, onEdit, onDelete, onReload, embedded,
 }) {
   const [section, setSection] = useState('inventory')
 
@@ -71,9 +71,9 @@ export default function DepotDetail({
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, zIndex: 1000,
+      ...(!embedded ? { position: 'fixed', inset: 0, zIndex: 1000 } : {}),
       background: 'linear-gradient(180deg, #FFF8F0 0%, #F8FAFC 30%, #F8FAFC 70%, #F8FAFC 100%)',
-      overflow: 'auto',
+      overflow: embedded ? undefined : 'auto',
     }}>
       {/* Header */}
       <header style={{

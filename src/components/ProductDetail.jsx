@@ -24,7 +24,7 @@ const SECTIONS = [
   { id: 'compta', label: 'Compta', icon: '' },
 ]
 
-export default function ProductDetail({ product, stock, locations, movements, events, eventPacking, products, userRole, onClose, onEdit, onDelete, onToast }) {
+export default function ProductDetail({ product, stock, locations, movements, events, eventPacking, products, userRole, onClose, onEdit, onDelete, onToast, embedded }) {
   const [section, setSection] = useState('resume')
 
   const cat = getCat(product.category)
@@ -110,10 +110,10 @@ export default function ProductDetail({ product, stock, locations, movements, ev
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, zIndex: 100,
+      ...(!embedded ? { position: 'fixed', inset: 0, zIndex: 100 } : {}),
       background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 30%, #F8FAFC 70%, #F8FAFC 100%)',
-      overflowY: 'auto',
-      animation: 'fadeIn 0.2s ease-out',
+      overflowY: embedded ? undefined : 'auto',
+      animation: embedded ? undefined : 'fadeIn 0.2s ease-out',
     }}>
       {/* ─── Top bar ─── */}
       <div style={{
