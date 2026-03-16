@@ -1,44 +1,44 @@
-/* ─── Stage Stock Design System — Pro Neutral v1.0 ─── */
+/* ─── Stage Stock Design System — Pro Light v1.0 ─── */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  /* ─── Surfaces (dark, elevation layers) ─── */
-  --bg-base: #09090B;
-  --bg-surface: #111113;
-  --bg-hover: #18181B;
-  --bg-elevated: #1F1F23;
-  --bg-active: #27272A;
+  /* ─── Surfaces (light, elevation layers) ─── */
+  --bg-base: #FFFFFF;
+  --bg-surface: #F8FAFC;
+  --bg-hover: #F1F5F9;
+  --bg-elevated: #FFFFFF;
+  --bg-active: #E2E8F0;
 
   /* ─── Text ─── */
-  --text-primary: #FAFAFA;
-  --text-secondary: #A1A1AA;
-  --text-tertiary: #71717A;
-  --text-disabled: #52525B;
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --text-tertiary: #94A3B8;
+  --text-disabled: #CBD5E1;
 
   /* ─── Accent (Indigo) ─── */
   --accent: #6366F1;
-  --accent-hover: #818CF8;
-  --accent-subtle: rgba(99,102,241,0.12);
-  --accent-text: #A5B4FC;
+  --accent-hover: #4F46E5;
+  --accent-subtle: rgba(99,102,241,0.08);
+  --accent-text: #4F46E5;
 
   /* ─── Semantic ─── */
-  --success: #22C55E;
-  --success-subtle: rgba(34,197,94,0.12);
-  --danger: #EF4444;
-  --danger-subtle: rgba(239,68,68,0.12);
-  --warning: #F59E0B;
-  --warning-subtle: rgba(245,158,11,0.12);
-  --info: #3B82F6;
-  --info-subtle: rgba(59,130,246,0.12);
+  --success: #16A34A;
+  --success-subtle: rgba(22,163,74,0.08);
+  --danger: #DC2626;
+  --danger-subtle: rgba(220,38,38,0.08);
+  --warning: #D97706;
+  --warning-subtle: rgba(217,119,6,0.08);
+  --info: #2563EB;
+  --info-subtle: rgba(37,99,235,0.08);
 
   /* ─── Borders ─── */
-  --border: rgba(255,255,255,0.06);
-  --border-hover: rgba(255,255,255,0.1);
-  --border-input: rgba(255,255,255,0.1);
+  --border: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --border-input: #E2E8F0;
   --border-focus: var(--accent);
 
-  /* Legacy aliases — keep until all components are migrated */
+  /* Legacy aliases */
   --corail: var(--accent);
   --rose: var(--danger);
   --bleu-legacy: var(--info);
@@ -55,28 +55,28 @@
   --camel: var(--accent);
   --camel-h: var(--accent-hover);
 
-  /* ─── Shadows (minimal) ─── */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-modal: 0 -4px 24px rgba(0,0,0,0.3);
+  /* ─── Shadows ─── */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-modal: 0 -4px 24px rgba(0,0,0,0.1);
 
   /* ─── Radii ─── */
   --radius-card: 12px;
   --radius-btn: 8px;
-  --radius-input: 6px;
+  --radius-input: 8px;
   --radius-badge: 6px;
   --radius-modal: 16px;
 
   /* ─── Font ─── */
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 
-  /* ─── Category colors (neutral) ─── */
-  --merch-color: #A78BFA;
-  --merch-bg: rgba(167,139,250,0.1);
-  --mat-color: #60A5FA;
-  --mat-bg: rgba(96,165,250,0.1);
-  --conso-color: #34D399;
-  --conso-bg: rgba(52,211,153,0.1);
+  /* ─── Category colors ─── */
+  --merch-color: #7C3AED;
+  --merch-bg: rgba(124,58,237,0.06);
+  --mat-color: #2563EB;
+  --mat-bg: rgba(37,99,235,0.06);
+  --conso-color: #16A34A;
+  --conso-bg: rgba(22,163,74,0.06);
 }
 
 /* ─── Reset & Base ─── */
@@ -110,12 +110,12 @@ input, select, textarea, button {
 
 button { cursor: pointer; border: none; background: none; }
 
-::selection { background: rgba(99,102,241,0.3); color: #FAFAFA; }
+::selection { background: rgba(99,102,241,0.2); color: #1E293B; }
 
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--bg-active); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 4px; }
 
 /* ─── Animations ─── */
 @keyframes fadeIn {
@@ -148,7 +148,7 @@ button { cursor: pointer; border: none; background: none; }
 
 /* ─── Card ─── */
 .card {
-  background: var(--bg-surface);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   padding: 16px;
@@ -163,13 +163,13 @@ button { cursor: pointer; border: none; background: none; }
   padding: 10px 12px;
   border-radius: var(--radius-input);
   border: 1px solid var(--border-input);
-  background: var(--bg-surface);
+  background: var(--bg-base);
   color: var(--text-primary);
   font-size: 14px;
   outline: none;
   transition: border-color 0.15s;
 }
-.input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 2px var(--accent-subtle); }
+.input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-subtle); }
 .input::placeholder { color: var(--text-disabled); }
 
 /* ─── Label ─── */
@@ -270,7 +270,7 @@ button { cursor: pointer; border: none; background: none; }
   font-size: 13px;
   z-index: 200;
   animation: slideDown 0.2s ease-out;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   max-width: 90vw;
   text-align: center;
 }
@@ -280,8 +280,8 @@ button { cursor: pointer; border: none; background: none; }
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -290,7 +290,7 @@ button { cursor: pointer; border: none; background: none; }
 
 /* ─── Modal sheet ─── */
 .modal-sheet {
-  background: var(--bg-elevated);
+  background: var(--bg-base);
   border-radius: var(--radius-modal) var(--radius-modal) 0 0;
   width: 100%;
   max-width: 500px;
@@ -307,8 +307,8 @@ button { cursor: pointer; border: none; background: none; }
   position: fixed;
   inset: 0;
   z-index: 150;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -317,12 +317,12 @@ button { cursor: pointer; border: none; background: none; }
 }
 
 .confirm-box {
-  background: var(--bg-elevated);
+  background: var(--bg-base);
   border-radius: 12px;
   padding: 20px;
   max-width: 340px;
   width: 100%;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   border: 1px solid var(--border);
 }
 
@@ -332,7 +332,7 @@ button { cursor: pointer; border: none; background: none; }
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(9,9,11,0.95);
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
@@ -351,7 +351,7 @@ button { cursor: pointer; border: none; background: none; }
   border-radius: 8px;
   font-size: 10px;
   font-weight: 500;
-  color: var(--text-disabled);
+  color: var(--text-tertiary);
   transition: color 0.15s;
   position: relative;
   background: none;
@@ -396,13 +396,13 @@ button { cursor: pointer; border: none; background: none; }
   padding: 10px 12px 10px 36px;
   border-radius: var(--radius-input);
   border: 1px solid var(--border-input);
-  background: var(--bg-surface);
+  background: var(--bg-base);
   font-size: 14px;
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.15s;
 }
-.search-bar input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 2px var(--accent-subtle); }
+.search-bar input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-subtle); }
 .search-bar input::placeholder { color: var(--text-disabled); }
 .search-bar .search-icon {
   position: absolute;
@@ -432,7 +432,7 @@ button { cursor: pointer; border: none; background: none; }
   cursor: pointer;
   transition: all 0.15s;
   border: 1px solid var(--border-input);
-  background: var(--bg-surface);
+  background: var(--bg-base);
   color: var(--text-primary);
 }
 .qty-btn:active { transform: scale(0.92); }
@@ -446,7 +446,7 @@ button { cursor: pointer; border: none; background: none; }
 
 /* ─── Select ─── */
 select {
-  background: var(--bg-surface);
+  background: var(--bg-base);
   color: var(--text-primary);
   border: 1px solid var(--border-input);
   border-radius: var(--radius-input);
@@ -456,7 +456,7 @@ select {
   -webkit-appearance: none;
 }
 select:focus { border-color: var(--border-focus); }
-select option { background: var(--bg-surface); color: var(--text-primary); }
+select option { background: var(--bg-base); color: var(--text-primary); }
 
 /* ─── Tables ─── */
 table { width: 100%; border-collapse: collapse; }

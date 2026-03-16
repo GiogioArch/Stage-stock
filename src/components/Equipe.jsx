@@ -17,7 +17,7 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
     return roleOrder.map(code => {
       const role = (roles || []).find(r => r.code === code)
       if (!role) return null
-      const conf = ROLE_CONF[code] || { icon: '', color: '#71717A', label: role.name }
+      const conf = ROLE_CONF[code] || { icon: '', color: '#94A3B8', label: role.name }
       const members = (userProfiles || []).filter(p => p.role_id === role.id)
 
       // Upcoming events with packing for this role
@@ -36,7 +36,7 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
     return (userProfiles || []).map(p => {
       const role = (roles || []).find(r => r.id === p.role_id)
       const code = role?.code
-      const conf = code ? (ROLE_CONF[code] || { icon: '', color: '#71717A', label: role.name }) : null
+      const conf = code ? (ROLE_CONF[code] || { icon: '', color: '#94A3B8', label: role.name }) : null
       return { ...p, role, roleCode: code, roleConf: conf }
     }).sort((a, b) => {
       const ai = roleOrder.indexOf(a.roleCode)
@@ -60,31 +60,31 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}><Users size={20} color="#6366F1" /></div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>Équipe</div>
-            <div style={{ fontSize: 12, color: '#71717A', fontWeight: 600 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Équipe</div>
+            <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>
               {totalMembers} membre{totalMembers > 1 ? 's' : ''} · {roles.length} rôles
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Membres" value={totalMembers} color="#A78BFA" />
-          <KpiBox label="Rôles actifs" value={assignedRoles} color="#22C55E" />
-          <KpiBox label="Rôles total" value={roles.length} color="#3B82F6" />
+          <KpiBox label="Membres" value={totalMembers} color="#7C3AED" />
+          <KpiBox label="Rôles actifs" value={assignedRoles} color="#16A34A" />
+          <KpiBox label="Rôles total" value={roles.length} color="#2563EB" />
         </div>
       </div>
 
       {/* View toggle */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
-          { id: 'roles', label: 'Par rôle', color: '#A78BFA' },
-          { id: 'membres', label: 'Par membre', color: '#3B82F6' },
+          { id: 'roles', label: 'Par rôle', color: '#7C3AED' },
+          { id: 'membres', label: 'Par membre', color: '#2563EB' },
         ].map(v => (
           <button key={v.id} onClick={() => setView(v.id)} style={{
             flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
             background: view === v.id ? `${v.color}15` : 'white',
-            color: view === v.id ? v.color : '#71717A',
-            border: `1px solid ${view === v.id ? v.color + '40' : 'rgba(255,255,255,0.1)'}`,
+            color: view === v.id ? v.color : '#94A3B8',
+            border: `1px solid ${view === v.id ? v.color + '40' : '#CBD5E1'}`,
           }}>{v.label}</button>
         ))}
       </div>
@@ -101,7 +101,7 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
                   className="card"
                   style={{
                     width: '100%', padding: '14px 16px', cursor: 'pointer', textAlign: 'left',
-                    borderLeft: `4px solid ${t.members.length > 0 ? t.conf.color : 'rgba(255,255,255,0.1)'}`,
+                    borderLeft: `4px solid ${t.members.length > 0 ? t.conf.color : '#CBD5E1'}`,
                     opacity: t.members.length > 0 ? 1 : 0.6,
                   }}
                 >
@@ -113,7 +113,7 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
                     }}>{t.conf.icon && createElement(t.conf.icon, { size: 20, color: t.conf.color })}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 600, color: t.conf.color }}>{t.conf.label}</div>
-                      <div style={{ fontSize: 11, color: '#71717A' }}>
+                      <div style={{ fontSize: 11, color: '#94A3B8' }}>
                         {t.members.length > 0
                           ? `${t.members.length} membre${t.members.length > 1 ? 's' : ''}`
                           : 'Non assigné'
@@ -124,15 +124,15 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
                       <div style={{ textAlign: 'center', marginRight: 8 }}>
                         <div style={{
                           fontSize: 13, fontWeight: 600,
-                          color: t.packDone === t.packTotal ? '#22C55E' : '#6366F1',
+                          color: t.packDone === t.packTotal ? '#16A34A' : '#6366F1',
                         }}>
                           {Math.round((t.packDone / t.packTotal) * 100)}%
                         </div>
-                        <div style={{ fontSize: 8, color: '#71717A' }}>packing</div>
+                        <div style={{ fontSize: 8, color: '#94A3B8' }}>packing</div>
                       </div>
                     )}
                     <span style={{
-                      fontSize: 12, color: '#52525B', transition: 'transform 0.2s',
+                      fontSize: 12, color: '#CBD5E1', transition: 'transform 0.2s',
                       transform: isExpanded ? 'rotate(180deg)' : 'none',
                     }}>▼</span>
                   </div>
@@ -140,23 +140,23 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
 
                 {isExpanded && (
                   <div style={{
-                    margin: '0 8px', padding: '12px 14px', background: '#111113',
-                    borderRadius: '0 0 14px 14px', border: '1px solid #18181B', borderTop: 'none',
+                    margin: '0 8px', padding: '12px 14px', background: '#F8FAFC',
+                    borderRadius: '0 0 14px 14px', border: '1px solid #F1F5F9', borderTop: 'none',
                   }}>
                     {t.role.description && (
-                      <div style={{ fontSize: 12, color: '#71717A', marginBottom: 10, lineHeight: 1.5, fontStyle: 'italic' }}>
+                      <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 10, lineHeight: 1.5, fontStyle: 'italic' }}>
                         {t.role.description}
                       </div>
                     )}
                     {t.members.length === 0 ? (
-                      <div style={{ fontSize: 12, color: '#52525B', textAlign: 'center', padding: 8 }}>
+                      <div style={{ fontSize: 12, color: '#CBD5E1', textAlign: 'center', padding: 8 }}>
                         Aucun membre n'a choisi ce rôle
                       </div>
                     ) : (
                       t.members.map((m, i) => (
                         <div key={i} style={{
                           display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
-                          borderBottom: i < t.members.length - 1 ? '1px solid #18181B' : 'none',
+                          borderBottom: i < t.members.length - 1 ? '1px solid #F1F5F9' : 'none',
                         }}>
                           <div style={{
                             width: 36, height: 36, borderRadius: 10,
@@ -167,10 +167,10 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
                             {(m.display_name || m.pseudo || '?')[0].toUpperCase()}
                           </div>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: '#FAFAFA' }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
                               {m.display_name || m.pseudo || 'Membre'}
                             </div>
-                            {m.email && <div style={{ fontSize: 10, color: '#52525B' }}>{m.email}</div>}
+                            {m.email && <div style={{ fontSize: 10, color: '#CBD5E1' }}>{m.email}</div>}
                           </div>
                           {userRole && userRole.id === t.role.id && m.user_id === (userProfiles || []).find(p => p.role_id === userRole.id)?.user_id && (
                             <Badge color={t.conf.color}>Moi</Badge>
@@ -198,22 +198,22 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
             allMembers.map((m, i) => (
               <div key={i} className="card" style={{
                 display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
-                borderLeft: m.roleConf ? `4px solid ${m.roleConf.color}` : '4px solid rgba(255,255,255,0.1)',
+                borderLeft: m.roleConf ? `4px solid ${m.roleConf.color}` : '4px solid #CBD5E1',
               }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: 12,
-                  background: m.roleConf ? `${m.roleConf.color}15` : '#18181B',
+                  background: m.roleConf ? `${m.roleConf.color}15` : '#F1F5F9',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 18, fontWeight: 600, color: m.roleConf?.color || '#71717A',
+                  fontSize: 18, fontWeight: 600, color: m.roleConf?.color || '#94A3B8',
                 }}>
                   {(m.display_name || m.pseudo || '?')[0].toUpperCase()}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
                     {m.display_name || m.pseudo || 'Membre'}
                   </div>
                   {m.email && (
-                    <div style={{ fontSize: 11, color: '#52525B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: 11, color: '#CBD5E1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {m.email}
                     </div>
                   )}
@@ -236,10 +236,10 @@ function KpiBox({ label, value, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: '#18181B', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)',
+      background: '#F1F5F9', borderRadius: 8, border: '1px solid #E2E8F0',
     }}>
       <div style={{ fontSize: 16, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#71717A', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 8, color: '#94A3B8', fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

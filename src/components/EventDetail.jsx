@@ -29,11 +29,11 @@ function getTerrMult(territoire) {
 
 const CHECK_CATS = {
   son:          { icon: Volume2, color: '#6366F1', label: 'Son' },
-  lumiere:      { icon: Lightbulb, color: '#A78BFA', label: 'Lumière' },
+  lumiere:      { icon: Lightbulb, color: '#7C3AED', label: 'Lumière' },
   instruments:  { icon: Guitar, color: '#F472B6', label: 'Instruments' },
   decor:        { icon: Drama, color: '#818CF8', label: 'Décor' },
-  merch:        { icon: Shirt, color: '#A78BFA', label: 'Merch' },
-  logistique:   { icon: Truck, color: '#34D399', label: 'Logistique' },
+  merch:        { icon: Shirt, color: '#7C3AED', label: 'Merch' },
+  logistique:   { icon: Truck, color: '#16A34A', label: 'Logistique' },
   consommables: { icon: Battery, color: '#6EE7B7', label: 'Consommables' },
 }
 
@@ -90,30 +90,30 @@ export default function EventDetail({
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 90,
-      background: '#111113',
+      background: '#F8FAFC',
       overflowY: 'auto', paddingBottom: 80,
     }}>
       {/* ─── Top bar ─── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
         background: 'rgba(17,17,19,0.95)', backdropFilter: 'blur(12px)',
-        padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        padding: '12px 16px', borderBottom: '1px solid #E2E8F0',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <button onClick={onClose} style={{
-          width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.06)',
+          width: 36, height: 36, borderRadius: 8, background: '#E2E8F0',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', border: 'none', color: '#FAFAFA',
+          cursor: 'pointer', border: 'none', color: '#1E293B',
         }}><ChevronLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {event.name || event.lieu}
           </div>
-          <div style={{ fontSize: 10, color: '#71717A' }}>
+          <div style={{ fontSize: 10, color: '#94A3B8' }}>
             {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
         </div>
-        <Badge color={isPast ? '#71717A' : daysUntil <= 3 ? '#EF4444' : daysUntil <= 7 ? '#F59E0B' : '#34D399'}>
+        <Badge color={isPast ? '#94A3B8' : daysUntil <= 3 ? '#DC2626' : daysUntil <= 7 ? '#D97706' : '#16A34A'}>
           {isPast ? 'Terminé' : daysUntil === 0 ? "Aujourd'hui" : `J-${daysUntil}`}
         </Badge>
         {onEdit && (
@@ -127,25 +127,25 @@ export default function EventDetail({
           <button onClick={() => onDelete(event)} style={{
             width: 36, height: 36, borderRadius: 8, background: 'rgba(239,68,68,0.08)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444',
+            cursor: 'pointer', border: '1px solid rgba(239,68,68,0.15)', color: '#DC2626',
           }}><Trash2 size={14} /></button>
         )}
       </div>
 
       {/* ─── Event hero ─── */}
       <div style={{ padding: '20px 16px 12px', textAlign: 'center' }}>
-        <div style={{ fontSize: 22, fontWeight: 600, color: '#FAFAFA', marginBottom: 4 }}>{event.name || event.lieu}</div>
-        <div style={{ fontSize: 14, color: '#71717A', marginBottom: 12 }}>
+        <div style={{ fontSize: 22, fontWeight: 600, color: '#1E293B', marginBottom: 4 }}>{event.name || event.lieu}</div>
+        <div style={{ fontSize: 14, color: '#94A3B8', marginBottom: 12 }}>
           {event.lieu} — {event.ville} ({event.territoire})
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <Badge color="#A78BFA">
+          <Badge color="#7C3AED">
             {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
           </Badge>
           {event.format && <Badge color="#6366F1">{event.format}</Badge>}
           {event.capacite && <Badge color="#818CF8">{event.capacite} pers.</Badge>}
-          {event.transport_inter_iles && <Badge color="#F59E0B">Inter-îles</Badge>}
-          {event.statut && <Badge color="#34D399">{event.statut}</Badge>}
+          {event.transport_inter_iles && <Badge color="#D97706">Inter-îles</Badge>}
+          {event.statut && <Badge color="#16A34A">{event.statut}</Badge>}
         </div>
       </div>
 
@@ -155,7 +155,7 @@ export default function EventDetail({
           {prevEvent ? (
             <button onClick={() => onNavigateEvent(prevEvent)} style={{
               flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-              background: '#111113', border: '1px solid rgba(255,255,255,0.06)', color: '#A1A1AA', cursor: 'pointer',
+              background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B', cursor: 'pointer',
               textAlign: 'left', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
               display: 'flex', alignItems: 'center', gap: 4,
             }}>
@@ -165,7 +165,7 @@ export default function EventDetail({
           {nextEvent ? (
             <button onClick={() => onNavigateEvent(nextEvent)} style={{
               flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-              background: '#111113', border: '1px solid rgba(255,255,255,0.06)', color: '#A1A1AA', cursor: 'pointer',
+              background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B', cursor: 'pointer',
               textAlign: 'right', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
               display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
             }}>
@@ -183,9 +183,9 @@ export default function EventDetail({
             <button key={s.id} onClick={() => setSection(s.id)} style={{
               padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 700,
               whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.15s',
-              border: `1px solid ${section === s.id ? '#6366F1' : 'rgba(255,255,255,0.06)'}`,
-              background: section === s.id ? 'rgba(99,102,241,0.1)' : '#111113',
-              color: section === s.id ? '#6366F1' : '#A1A1AA',
+              border: `1px solid ${section === s.id ? '#6366F1' : '#E2E8F0'}`,
+              background: section === s.id ? 'rgba(99,102,241,0.1)' : '#F8FAFC',
+              color: section === s.id ? '#6366F1' : '#64748B',
               display: 'flex', alignItems: 'center', gap: 5,
             }}>
               <IconComponent size={13} /> {s.label}
@@ -276,13 +276,13 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
   return (
     <div>
       {/* Infos clés */}
-      <div className="card" style={{ padding: '16px', marginBottom: 12, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+      <div className="card" style={{ padding: '16px', marginBottom: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
           Informations
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <InfoRow label="Date" value={parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} />
-          <InfoRow label="Compte à rebours" value={daysUntil > 0 ? `J-${daysUntil}` : daysUntil === 0 ? "Aujourd'hui" : 'Terminé'} color={daysUntil <= 3 && daysUntil >= 0 ? '#EF4444' : undefined} />
+          <InfoRow label="Compte à rebours" value={daysUntil > 0 ? `J-${daysUntil}` : daysUntil === 0 ? "Aujourd'hui" : 'Terminé'} color={daysUntil <= 3 && daysUntil >= 0 ? '#DC2626' : undefined} />
           <InfoRow label="Lieu" value={event.lieu || '—'} />
           <InfoRow label="Ville" value={event.ville || '—'} />
           <InfoRow label="Territoire" value={event.territoire || '—'} />
@@ -296,17 +296,17 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
       {(event.transport_inter_iles || event.reappro_necessaire) && (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
           {event.transport_inter_iles && (
-            <div className="card" style={{ flex: 1, padding: '10px 14px', borderLeft: '4px solid #F59E0B', minWidth: 140, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
-              <Ship size={16} style={{ color: '#F59E0B', marginBottom: 4 }} />
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B' }}>Transport inter-îles</div>
-              <div style={{ fontSize: 10, color: '#71717A' }}>Logistique maritime requise</div>
+            <div className="card" style={{ flex: 1, padding: '10px 14px', borderLeft: '4px solid #D97706', minWidth: 140, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
+              <Ship size={16} style={{ color: '#D97706', marginBottom: 4 }} />
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#D97706' }}>Transport inter-îles</div>
+              <div style={{ fontSize: 10, color: '#94A3B8' }}>Logistique maritime requise</div>
             </div>
           )}
           {event.reappro_necessaire && (
-            <div className="card" style={{ flex: 1, padding: '10px 14px', borderLeft: '4px solid #EF4444', minWidth: 140, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
-              <AlertTriangle size={16} style={{ color: '#EF4444', marginBottom: 4 }} />
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#EF4444' }}>Réappro nécessaire</div>
-              <div style={{ fontSize: 10, color: '#71717A' }}>Vérifier les stocks avant</div>
+            <div className="card" style={{ flex: 1, padding: '10px 14px', borderLeft: '4px solid #DC2626', minWidth: 140, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
+              <AlertTriangle size={16} style={{ color: '#DC2626', marginBottom: 4 }} />
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#DC2626' }}>Réappro nécessaire</div>
+              <div style={{ fontSize: 10, color: '#94A3B8' }}>Vérifier les stocks avant</div>
             </div>
           )}
         </div>
@@ -314,11 +314,11 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
 
       {/* Prévisions merch */}
       {(event.ventes_prevues || event.ca_prevu) && (
-        <div className="card" style={{ padding: '14px 16px', marginBottom: 12, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Prévisions merch</div>
+        <div className="card" style={{ padding: '14px 16px', marginBottom: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Prévisions merch</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-            {event.ventes_prevues != null && <KpiCell label="Ventes prévues" value={event.ventes_prevues} color="#A78BFA" />}
-            {event.ca_prevu != null && <KpiCell label="CA prévu" value={`${event.ca_prevu}€`} color="#34D399" />}
+            {event.ventes_prevues != null && <KpiCell label="Ventes prévues" value={event.ventes_prevues} color="#7C3AED" />}
+            {event.ca_prevu != null && <KpiCell label="CA prévu" value={`${event.ca_prevu}€`} color="#16A34A" />}
             {event.merch_a_transferer != null && <KpiCell label="À transférer" value={event.merch_a_transferer} color="#6366F1" />}
           </div>
         </div>
@@ -330,19 +330,19 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
       {/* Progression checklist & packing */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
         {checkTotal > 0 && (
-          <button onClick={() => onSectionChange('checklist')} className="card" style={{ flex: 1, padding: '14px', cursor: 'pointer', textAlign: 'left', background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+          <button onClick={() => onSectionChange('checklist')} className="card" style={{ flex: 1, padding: '14px', cursor: 'pointer', textAlign: 'left', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#FAFAFA', display: 'flex', alignItems: 'center', gap: 4 }}><CheckSquare size={14} /> Checklist</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: checkDone === checkTotal ? '#34D399' : '#6366F1' }}>{checkDone}/{checkTotal}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 4 }}><CheckSquare size={14} /> Checklist</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: checkDone === checkTotal ? '#16A34A' : '#6366F1' }}>{checkDone}/{checkTotal}</span>
             </div>
             <ProgressBar done={checkDone} total={checkTotal} />
           </button>
         )}
         {packTotal > 0 && (
-          <button onClick={() => onSectionChange('packing')} className="card" style={{ flex: 1, padding: '14px', cursor: 'pointer', textAlign: 'left', background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+          <button onClick={() => onSectionChange('packing')} className="card" style={{ flex: 1, padding: '14px', cursor: 'pointer', textAlign: 'left', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#FAFAFA', display: 'flex', alignItems: 'center', gap: 4 }}><Package size={14} /> Packing</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: packDone === packTotal ? '#34D399' : '#6366F1' }}>{packDone}/{packTotal}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 4 }}><Package size={14} /> Packing</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: packDone === packTotal ? '#16A34A' : '#6366F1' }}>{packDone}/{packTotal}</span>
             </div>
             <ProgressBar done={packDone} total={packTotal} color="#6366F1" />
           </button>
@@ -350,20 +350,20 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
       </div>
 
       {/* Stock par catégorie */}
-      <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, padding: '0 4px' }}>Stock disponible</div>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, padding: '0 4px' }}>Stock disponible</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
         {catStats.map(cat => (
           <div key={cat.id} className="card" style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-            background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12,
+            background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12,
           }}>
             <div style={{
               width: 42, height: 42, borderRadius: 12, background: 'rgba(99,102,241,0.08)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366F1',
             }}><Package size={20} /></div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#FAFAFA' }}>{cat.name}</div>
-              <div style={{ fontSize: 11, color: '#71717A' }}>{cat.count} réf.</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{cat.name}</div>
+              <div style={{ fontSize: 11, color: '#94A3B8' }}>{cat.count} réf.</div>
             </div>
             <div style={{ fontSize: 20, fontWeight: 600, color: '#6366F1' }}>{cat.qty}</div>
           </div>
@@ -374,7 +374,7 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
       {event.notes && (
         <div className="card" style={{ padding: '12px 16px', background: 'rgba(99,102,241,0.05)', borderLeft: '4px solid #6366F1', borderRadius: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#6366F1', marginBottom: 6 }}>Notes</div>
-          <div style={{ fontSize: 13, color: '#A1A1AA', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{event.notes}</div>
+          <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{event.notes}</div>
         </div>
       )}
     </div>
@@ -400,7 +400,7 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
     return roleOrder.map(code => {
       const role = roles.find(r => r.code === code)
       if (!role) return null
-      const conf = ROLE_CONF[code] || { icon: '?', color: '#71717A', label: role.name }
+      const conf = ROLE_CONF[code] || { icon: '?', color: '#94A3B8', label: role.name }
       // Find users with this role
       const users = (userProfiles || []).filter(p => p.role_id === role.id)
       const hasPacking = packingRoles.has(code)
@@ -418,11 +418,11 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
   return (
     <div>
       {/* Stats */}
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
         <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
           <KpiCell label="Rôles" value={totalRoles} color="#6366F1" />
-          <KpiCell label="Assignés" value={assignedCount} color="#34D399" />
-          <KpiCell label="Membres" value={(userProfiles || []).length} color="#A78BFA" />
+          <KpiCell label="Assignés" value={assignedCount} color="#16A34A" />
+          <KpiCell label="Membres" value={(userProfiles || []).length} color="#7C3AED" />
         </div>
       </div>
 
@@ -431,9 +431,9 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
         {teamData.map(t => (
           <div key={t.code} className="card" style={{
             padding: '14px 16px',
-            borderLeft: `4px solid ${t.users.length > 0 ? t.conf.color : 'rgba(255,255,255,0.06)'}`,
+            borderLeft: `4px solid ${t.users.length > 0 ? t.conf.color : '#E2E8F0'}`,
             opacity: t.users.length > 0 || t.hasPacking ? 1 : 0.6,
-            background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12,
+            background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
@@ -444,7 +444,7 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
               }}>{t.conf.icon && React.createElement(t.conf.icon, { size: 22, color: t.conf.color })}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: t.conf.color }}>{t.conf.label}</div>
-                <div style={{ fontSize: 11, color: '#71717A' }}>
+                <div style={{ fontSize: 11, color: '#94A3B8' }}>
                   {t.role.description || `Code: ${t.code}`}
                 </div>
 
@@ -462,7 +462,7 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
                     ))}
                   </div>
                 ) : (
-                  <div style={{ marginTop: 4, fontSize: 11, color: '#71717A', fontStyle: 'italic' }}>
+                  <div style={{ marginTop: 4, fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>
                     Aucun membre assigné
                   </div>
                 )}
@@ -473,11 +473,11 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
                 <div style={{ textAlign: 'center', flexShrink: 0 }}>
                   <div style={{
                     fontSize: 14, fontWeight: 600,
-                    color: t.packDone === t.packTotal ? '#34D399' : t.packDone > 0 ? '#F59E0B' : '#EF4444',
+                    color: t.packDone === t.packTotal ? '#16A34A' : t.packDone > 0 ? '#D97706' : '#DC2626',
                   }}>
                     {t.packTotal > 0 ? Math.round((t.packDone / t.packTotal) * 100) : 0}%
                   </div>
-                  <div style={{ fontSize: 9, color: '#71717A' }}>packing</div>
+                  <div style={{ fontSize: 9, color: '#94A3B8' }}>packing</div>
                 </div>
               )}
             </div>
@@ -488,7 +488,7 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
       {/* Note */}
       <div style={{
         marginTop: 16, padding: '10px 14px', borderRadius: 12,
-        background: 'rgba(255,255,255,0.03)', fontSize: 11, color: '#71717A', lineHeight: 1.6,
+        background: 'rgba(255,255,255,0.03)', fontSize: 11, color: '#94A3B8', lineHeight: 1.6,
       }}>
         L'équipe est constituée des membres ayant choisi leur rôle dans Stage Stock.
         Chaque rôle a une responsabilité sur certains produits et équipements.
@@ -523,7 +523,7 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
       })
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#EF4444')
+      onToast('Erreur: ' + e.message, '#DC2626')
     }
   }
 
@@ -541,17 +541,17 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
       onToast('Item ajouté')
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#EF4444')
+      onToast('Erreur: ' + e.message, '#DC2626')
     }
   }
 
   return (
     <div>
       {/* Progress */}
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 16, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 16, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#FAFAFA' }}>{checkDone}/{checkTotal} complété{checkDone > 1 ? 's' : ''}</span>
-          <span style={{ fontSize: 22, fontWeight: 600, color: checkDone === checkTotal && checkTotal > 0 ? '#34D399' : '#6366F1' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{checkDone}/{checkTotal} complété{checkDone > 1 ? 's' : ''}</span>
+          <span style={{ fontSize: 22, fontWeight: 600, color: checkDone === checkTotal && checkTotal > 0 ? '#16A34A' : '#6366F1' }}>
             {checkTotal > 0 ? Math.round((checkDone / checkTotal) * 100) : 0}%
           </span>
         </div>
@@ -560,20 +560,20 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
 
       {/* Items grouped by category */}
       {checklistGrouped.map(([cat, items]) => {
-        const conf = CHECK_CATS[cat] || { icon: ClipboardList, color: '#71717A', label: cat }
+        const conf = CHECK_CATS[cat] || { icon: ClipboardList, color: '#94A3B8', label: cat }
         const IconComponent = conf.icon
         return (
           <div key={cat} style={{ marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, padding: '0 4px' }}>
               <IconComponent size={14} style={{ color: conf.color }} />
               <span style={{ fontSize: 12, fontWeight: 600, color: conf.color, textTransform: 'uppercase', letterSpacing: 1 }}>{conf.label}</span>
-              <span style={{ fontSize: 11, color: '#71717A' }}>{items.filter(i => i.checked).length}/{items.length}</span>
+              <span style={{ fontSize: 11, color: '#94A3B8' }}>{items.filter(i => i.checked).length}/{items.length}</span>
             </div>
             {items.map(item => (
               <div key={item.id} className="card" style={{
                 display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', marginBottom: 6,
                 opacity: item.checked ? 0.6 : 1,
-                background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12,
+                background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12,
               }}>
                 <button onClick={() => toggleCheck(item)} style={{
                   width: 26, height: 26, borderRadius: 6, flexShrink: 0,
@@ -586,12 +586,12 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
                 </button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
-                    fontSize: 13, fontWeight: 600, color: '#FAFAFA',
+                    fontSize: 13, fontWeight: 600, color: '#1E293B',
                     textDecoration: item.checked ? 'line-through' : 'none',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>{item.item}</div>
                   {item.checked_at && (
-                    <div style={{ fontSize: 10, color: '#71717A', marginTop: 1 }}>{fmtDate(item.checked_at)}</div>
+                    <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 1 }}>{fmtDate(item.checked_at)}</div>
                   )}
                 </div>
               </div>
@@ -602,25 +602,25 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
 
       {checkTotal === 0 && (
         <div className="empty-state" style={{ padding: 24 }}>
-          <CheckSquare size={32} style={{ color: '#71717A', marginBottom: 8 }} />
-          <div className="empty-text" style={{ color: '#A1A1AA' }}>Aucun item dans la checklist</div>
-          <div style={{ fontSize: 11, color: '#71717A', marginTop: 4 }}>Ajoute des items ci-dessous</div>
+          <CheckSquare size={32} style={{ color: '#94A3B8', marginBottom: 8 }} />
+          <div className="empty-text" style={{ color: '#64748B' }}>Aucun item dans la checklist</div>
+          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>Ajoute des items ci-dessous</div>
         </div>
       )}
 
       {/* Add item */}
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-        <select className="input" value={addCat} onChange={e => setAddCat(e.target.value)} style={{ width: 110, fontSize: 11, padding: '8px 6px', background: '#111113', color: '#FAFAFA', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>
+        <select className="input" value={addCat} onChange={e => setAddCat(e.target.value)} style={{ width: 110, fontSize: 11, padding: '8px 6px', background: '#F8FAFC', color: '#1E293B', border: '1px solid #E2E8F0', borderRadius: 8 }}>
           {Object.entries(CHECK_CATS).map(([id, conf]) => (
             <option key={id} value={id}>{conf.label}</option>
           ))}
         </select>
         <input className="input" value={addItem} onChange={e => setAddItem(e.target.value)}
-          placeholder="Ajouter un item..." style={{ flex: 1, fontSize: 13, background: '#111113', color: '#FAFAFA', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}
+          placeholder="Ajouter un item..." style={{ flex: 1, fontSize: 13, background: '#F8FAFC', color: '#1E293B', border: '1px solid #E2E8F0', borderRadius: 8 }}
           onKeyDown={e => e.key === 'Enter' && handleAddItem()} />
         <button onClick={handleAddItem} disabled={!addItem.trim()} style={{
           padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          background: addItem.trim() ? '#6366F1' : 'rgba(255,255,255,0.06)', color: 'white', cursor: 'pointer',
+          background: addItem.trim() ? '#6366F1' : '#E2E8F0', color: 'white', cursor: 'pointer',
           border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}><Plus size={16} /></button>
       </div>
@@ -669,26 +669,26 @@ function PrevisionsSection({ event, products, stock }) {
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
           { id: 'low', label: 'Pessimiste', color: '#6366F1' },
-          { id: 'mid', label: 'Réaliste', color: '#A78BFA' },
-          { id: 'high', label: 'Optimiste', color: '#34D399' },
+          { id: 'mid', label: 'Réaliste', color: '#7C3AED' },
+          { id: 'high', label: 'Optimiste', color: '#16A34A' },
         ].map(s => (
           <button key={s.id} onClick={() => setScenario(s.id)} style={{
             flex: 1, padding: '8px 6px', borderRadius: 8, fontSize: 12, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
-            background: scenario === s.id ? `${s.color}15` : '#111113',
-            color: scenario === s.id ? s.color : '#A1A1AA',
-            border: `1px solid ${scenario === s.id ? s.color + '40' : 'rgba(255,255,255,0.06)'}`,
+            background: scenario === s.id ? `${s.color}15` : '#F8FAFC',
+            color: scenario === s.id ? s.color : '#64748B',
+            border: `1px solid ${scenario === s.id ? s.color + '40' : '#E2E8F0'}`,
           }}>{s.label}</button>
         ))}
       </div>
 
       {/* KPIs */}
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
           <KpiCell label="Capacité" value={event.capacite || 0} color="#818CF8" />
           <KpiCell label="Taux" value={`${Math.round(convRate * 100)}%`} color="#6366F1" />
-          <KpiCell label="Ventes proj." value={projectedSales} color="#A78BFA" />
-          <KpiCell label="Stock après" value={stockAfter < 0 ? `−${Math.abs(stockAfter)}` : stockAfter} color={rupture ? '#EF4444' : '#34D399'} />
+          <KpiCell label="Ventes proj." value={projectedSales} color="#7C3AED" />
+          <KpiCell label="Stock après" value={stockAfter < 0 ? `−${Math.abs(stockAfter)}` : stockAfter} color={rupture ? '#DC2626' : '#16A34A'} />
         </div>
       </div>
 
@@ -696,13 +696,13 @@ function PrevisionsSection({ event, products, stock }) {
       {rupture && (
         <div className="card" style={{
           padding: '12px 14px', marginBottom: 14,
-          background: 'rgba(239,68,68,0.05)', borderLeft: '4px solid #EF4444', borderRadius: 12,
+          background: 'rgba(239,68,68,0.05)', borderLeft: '4px solid #DC2626', borderRadius: 12,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <AlertCircle size={18} style={{ color: '#EF4444', flexShrink: 0 }} />
+            <AlertCircle size={18} style={{ color: '#DC2626', flexShrink: 0 }} />
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#EF4444' }}>Rupture projetée</div>
-              <div style={{ fontSize: 11, color: '#A1A1AA' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#DC2626' }}>Rupture projetée</div>
+              <div style={{ fontSize: 11, color: '#64748B' }}>
                 Il manquera {Math.abs(stockAfter)} unités de merch pour ce concert
               </div>
             </div>
@@ -711,20 +711,20 @@ function PrevisionsSection({ event, products, stock }) {
       )}
 
       {/* Gauge */}
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
           Impact sur le stock merch
         </div>
-        <div style={{ height: 20, borderRadius: 8, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' }}>
+        <div style={{ height: 20, borderRadius: 8, background: '#E2E8F0', overflow: 'hidden', position: 'relative' }}>
           <div style={{
             position: 'absolute', left: 0, top: 0, bottom: 0,
             width: `${totalMerchStock > 0 ? Math.min(100, Math.round((projectedSales / totalMerchStock) * 100)) : 0}%`,
-            background: rupture ? '#EF4444' : '#6366F1',
+            background: rupture ? '#DC2626' : '#6366F1',
             borderRadius: 8, transition: 'width 0.4s',
           }} />
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 10, fontWeight: 600, color: '#FAFAFA',
+            fontSize: 10, fontWeight: 600, color: '#1E293B',
           }}>
             −{projectedSales} / {totalMerchStock}
           </div>
@@ -734,7 +734,7 @@ function PrevisionsSection({ event, products, stock }) {
       {/* Calculation */}
       <div style={{
         padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)',
-        fontSize: 11, color: '#A1A1AA', lineHeight: 1.6, marginBottom: 14,
+        fontSize: 11, color: '#64748B', lineHeight: 1.6, marginBottom: 14,
       }}>
         {event.capacite} pers. × {Math.round(convRate * 100)}% conversion × {mult} ({event.territoire || 'défaut'}) = <strong style={{ color: '#6366F1' }}>{projectedSales} ventes</strong>
       </div>
@@ -742,22 +742,22 @@ function PrevisionsSection({ event, products, stock }) {
       {/* Per-product breakdown */}
       {breakdown.length > 0 && (
         <>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
             Détail par produit
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {breakdown.map(p => (
-              <div key={p.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
-                <Shirt size={16} style={{ color: '#A78BFA', flexShrink: 0 }} />
+              <div key={p.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
+                <Shirt size={16} style={{ color: '#7C3AED', flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#FAFAFA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
-                  <div style={{ fontSize: 10, color: '#71717A' }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                  <div style={{ fontSize: 10, color: '#94A3B8' }}>
                     Stock: {p.totalQty} → proj. −{p.projectedQty}
                   </div>
                 </div>
                 <div style={{
                   fontSize: 14, fontWeight: 600,
-                  color: p.remaining < 0 ? '#EF4444' : p.remaining === 0 ? '#F59E0B' : '#34D399',
+                  color: p.remaining < 0 ? '#DC2626' : p.remaining === 0 ? '#D97706' : '#16A34A',
                 }}>
                   {p.remaining < 0 ? `−${Math.abs(p.remaining)}` : p.remaining}
                 </div>
@@ -776,8 +776,8 @@ function PrevisionsSection({ event, products, stock }) {
 function InfoRow({ label, value, color }) {
   return (
     <div>
-      <div style={{ fontSize: 10, fontWeight: 700, color: '#71717A', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
-      <div style={{ fontSize: 13, fontWeight: 700, color: color || '#FAFAFA', marginTop: 1 }}>{value}</div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: color || '#1E293B', marginTop: 1 }}>{value}</div>
     </div>
   )
 }
@@ -786,7 +786,7 @@ function KpiCell({ label, value, color }) {
   return (
     <div style={{ textAlign: 'center' }}>
       <div style={{ fontSize: 20, fontWeight: 600, color, lineHeight: 1.1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600, marginTop: 2 }}>{label}</div>
     </div>
   )
 }
@@ -823,7 +823,7 @@ function ResultsSection({ event, onReload, onToast }) {
       setEditing(false)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#EF4444')
+      onToast('Erreur : ' + e.message, '#DC2626')
     } finally {
       setSaving(false)
     }
@@ -840,38 +840,38 @@ function ResultsSection({ event, onReload, onToast }) {
       ? event.ca_reel - event.ca_prevu : null
 
     return (
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 12, borderLeft: `4px solid ${hasResults ? '#34D399' : '#6366F1'}`, background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 12, borderLeft: `4px solid ${hasResults ? '#16A34A' : '#6366F1'}`, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1 }}>
             {hasResults ? 'Résultats réels' : 'Saisir les résultats'}
           </div>
           <button onClick={() => setEditing(true)} style={{
             padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-            background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', color: '#34D399', cursor: 'pointer',
+            background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', color: '#16A34A', cursor: 'pointer',
           }}>{hasResults ? 'Modifier' : 'Saisir'}</button>
         </div>
 
         {hasResults ? (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: ecartVentes != null || ecartCA != null ? 10 : 0 }}>
-              {event.ventes_reelles != null && <KpiCell label="Ventes réelles" value={event.ventes_reelles} color="#34D399" />}
-              {event.ca_reel != null && <KpiCell label="CA réel" value={`${event.ca_reel}€`} color="#34D399" />}
+              {event.ventes_reelles != null && <KpiCell label="Ventes réelles" value={event.ventes_reelles} color="#16A34A" />}
+              {event.ca_reel != null && <KpiCell label="CA réel" value={`${event.ca_reel}€`} color="#16A34A" />}
               {event.ticket_revenue > 0 && <KpiCell label="Billetterie" value={`${event.ticket_revenue}€`} color="#6366F1" />}
               {event.sponsor_revenue > 0 && <KpiCell label="Sponsors" value={`${event.sponsor_revenue}€`} color="#818CF8" />}
-              {event.budget > 0 && <KpiCell label="Budget" value={`${event.budget}€`} color="#A78BFA" />}
+              {event.budget > 0 && <KpiCell label="Budget" value={`${event.budget}€`} color="#7C3AED" />}
             </div>
             {/* Comparison prévisionnel vs réel */}
             {(ecartVentes != null || ecartCA != null) && (
-              <div style={{ padding: '8px 0 0', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: '#71717A', marginBottom: 6 }}>ÉCART PRÉVISION / RÉEL</div>
+              <div style={{ padding: '8px 0 0', borderTop: '1px solid #E2E8F0' }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>ÉCART PRÉVISION / RÉEL</div>
                 <div style={{ display: 'flex', gap: 12 }}>
                   {ecartVentes != null && (
-                    <div style={{ fontSize: 12, fontWeight: 600, color: ecartVentes >= 0 ? '#34D399' : '#EF4444' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: ecartVentes >= 0 ? '#16A34A' : '#DC2626' }}>
                       Ventes : {ecartVentes >= 0 ? '+' : ''}{ecartVentes} ({event.ventes_prevues} prévu)
                     </div>
                   )}
                   {ecartCA != null && (
-                    <div style={{ fontSize: 12, fontWeight: 600, color: ecartCA >= 0 ? '#34D399' : '#EF4444' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: ecartCA >= 0 ? '#16A34A' : '#DC2626' }}>
                       CA : {ecartCA >= 0 ? '+' : ''}{Math.round(ecartCA)}€ ({event.ca_prevu}€ prévu)
                     </div>
                   )}
@@ -880,7 +880,7 @@ function ResultsSection({ event, onReload, onToast }) {
             )}
           </>
         ) : (
-          <div style={{ fontSize: 12, color: '#A1A1AA', textAlign: 'center', padding: 8 }}>
+          <div style={{ fontSize: 12, color: '#64748B', textAlign: 'center', padding: 8 }}>
             Concert terminé — clique "Saisir" pour enregistrer les résultats
           </div>
         )}
@@ -890,8 +890,8 @@ function ResultsSection({ event, onReload, onToast }) {
 
   // Edit mode
   return (
-    <div className="card" style={{ padding: 16, marginBottom: 12, borderLeft: '4px solid #34D399', background: '#111113', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color: '#34D399', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+    <div className="card" style={{ padding: 16, marginBottom: 12, borderLeft: '4px solid #16A34A', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#16A34A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
         Résultats post-concert
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
@@ -904,7 +904,7 @@ function ResultsSection({ event, onReload, onToast }) {
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
         <button onClick={() => setEditing(false)} style={{
           flex: 1, padding: '10px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-          background: '#111113', border: '1px solid rgba(255,255,255,0.06)', color: '#A1A1AA', cursor: 'pointer',
+          background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B', cursor: 'pointer',
         }}>Annuler</button>
         <button onClick={handleSave} disabled={saving} className="btn-primary" style={{ flex: 2 }}>
           {saving ? 'Enregistrement...' : 'Enregistrer'}
@@ -917,10 +917,10 @@ function ResultsSection({ event, onReload, onToast }) {
 function ResultField({ label, value, onChange, placeholder, inputMode }) {
   return (
     <div>
-      <div style={{ fontSize: 10, fontWeight: 700, color: '#71717A', marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 3 }}>{label}</div>
       <input className="input" value={value} onChange={e => onChange(e.target.value)}
         placeholder={placeholder} inputMode={inputMode}
-        style={{ fontSize: 14, fontWeight: 700, background: '#111113', color: '#FAFAFA', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }} />
+        style={{ fontSize: 14, fontWeight: 700, background: '#F8FAFC', color: '#1E293B', border: '1px solid #E2E8F0', borderRadius: 8 }} />
     </div>
   )
 }
@@ -928,11 +928,11 @@ function ResultField({ label, value, onChange, placeholder, inputMode }) {
 function ProgressBar({ done, total, color }) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
   return (
-    <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+    <div style={{ height: 6, borderRadius: 3, background: '#E2E8F0', overflow: 'hidden' }}>
       <div style={{
         height: '100%', borderRadius: 3, transition: 'width 0.3s',
         width: `${pct}%`,
-        background: pct === 100 ? '#34D399' : (color || '#6366F1'),
+        background: pct === 100 ? '#16A34A' : (color || '#6366F1'),
       }} />
     </div>
   )

@@ -3,16 +3,16 @@ import { AlertOctagon, AlertTriangle, CheckCircle, Calendar, Circle, Filter } fr
 import { Badge } from './UI'
 
 const COLORS = {
-  danger: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
-  success: '#22C55E',
+  danger: '#DC2626',
+  warning: '#D97706',
+  info: '#2563EB',
+  success: '#16A34A',
   accent: '#6366F1',
-  textPrimary: '#FAFAFA',
-  textSecondary: '#A1A1AA',
-  textTertiary: '#71717A',
-  bgSurface: '#111113',
-  border: 'rgba(255,255,255,0.06)',
+  textPrimary: '#1E293B',
+  textSecondary: '#64748B',
+  textTertiary: '#94A3B8',
+  bgSurface: '#F8FAFC',
+  border: '#E2E8F0',
 }
 
 function StatusIcon({ type, size = 20 }) {
@@ -158,7 +158,7 @@ export default function Alerts({ alerts, events, products, stock, locations, use
                   {n.currentStock !== undefined && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                       <div style={{
-                        flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)',
+                        flex: 1, height: 4, borderRadius: 2, background: '#E2E8F0',
                         overflow: 'hidden',
                       }}>
                         <div style={{

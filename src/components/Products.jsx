@@ -6,15 +6,15 @@ import ProductDetail from './ProductDetail'
 import CSVImport from './CSVImport'
 
 const colors = {
-  textPrimary: '#FAFAFA',
-  textSecondary: '#A1A1AA',
-  textTertiary: '#71717A',
+  textPrimary: '#1E293B',
+  textSecondary: '#64748B',
+  textTertiary: '#94A3B8',
   accent: '#6366F1',
-  bgSurface: '#111113',
-  border: 'rgba(255,255,255,0.06)',
-  danger: '#EF4444',
-  warning: '#F59E0B',
-  success: '#22C55E',
+  bgSurface: '#F8FAFC',
+  border: '#E2E8F0',
+  danger: '#DC2626',
+  warning: '#D97706',
+  success: '#16A34A',
 }
 
 export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast }) {

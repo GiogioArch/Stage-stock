@@ -8,26 +8,26 @@ import {
 // Design tokens
 const colors = {
   accent: '#6366F1',
-  textPrimary: '#FAFAFA',
-  textSecondary: '#A1A1AA',
-  textTertiary: '#71717A',
-  bgSurface: '#111113',
-  bgHover: '#18181B',
-  border: 'rgba(255,255,255,0.06)',
+  textPrimary: '#1E293B',
+  textSecondary: '#64748B',
+  textTertiary: '#94A3B8',
+  bgSurface: '#F8FAFC',
+  bgHover: '#F1F5F9',
+  border: '#E2E8F0',
 }
 
 // Role display config — shared with PackingList
 export const ROLE_CONF = {
   TM:   { label: 'Tour Manager',        icon: Target,        color: '#6366F1' },
   PM:   { label: 'Chef de Production',   icon: Clapperboard,  color: '#8B5CF6' },
-  SE:   { label: 'Ingé Son',             icon: Volume2,       color: '#3B82F6' },
-  LD:   { label: 'Régisseur Lumière',    icon: Lightbulb,     color: '#F59E0B' },
-  BL:   { label: 'Backline',             icon: Guitar,        color: '#EF4444' },
+  SE:   { label: 'Ingé Son',             icon: Volume2,       color: '#2563EB' },
+  LD:   { label: 'Régisseur Lumière',    icon: Lightbulb,     color: '#D97706' },
+  BL:   { label: 'Backline',             icon: Guitar,        color: '#DC2626' },
   SM:   { label: 'Régisseur Scène',      icon: Drama,         color: '#10B981' },
   TD:   { label: 'Directeur Technique',  icon: Settings,      color: '#14B8A6' },
   MM:   { label: 'Merch Manager',        icon: Shirt,         color: '#EC4899' },
-  LOG:  { label: 'Logistique',           icon: Truck,         color: '#3B82F6' },
-  SAFE: { label: 'Sécurité',             icon: Shield,        color: '#EF4444' },
+  LOG:  { label: 'Logistique',           icon: Truck,         color: '#2563EB' },
+  SAFE: { label: 'Sécurité',             icon: Shield,        color: '#DC2626' },
   AA:   { label: 'Assistant Artiste',    icon: Mic,           color: '#8B5CF6' },
   PA:   { label: 'Assistant Production', icon: ClipboardList, color: '#10B981' },
 }
@@ -56,7 +56,7 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
           await db.insert('user_profiles', { user_id: userId, role_id: selected.id, org_id: orgId })
         }
       } catch (e2) {
-        onToast('Erreur: ' + e2.message, '#EF4444')
+        onToast('Erreur: ' + e2.message, '#DC2626')
         setSaving(false)
         return
       }
@@ -77,7 +77,7 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 100,
-      background: '#09090B',
+      background: '#FFFFFF',
       overflowY: 'auto', padding: '24px 16px',
     }}>
       {/* Header */}
@@ -155,7 +155,7 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
       </div>
 
       {/* Confirm button */}
-      <div style={{ position: 'sticky', bottom: 0, padding: '16px 0', background: 'linear-gradient(transparent, #09090B 30%)' }}>
+      <div style={{ position: 'sticky', bottom: 0, padding: '16px 0', background: 'linear-gradient(transparent, #FFFFFF 30%)' }}>
         <button
           onClick={handleConfirm}
           disabled={!selected || saving}

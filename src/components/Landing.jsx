@@ -20,7 +20,7 @@ export default function Landing({ onGetStarted }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#09090B',
+      background: '#FFFFFF',
     }}>
       {/* Hero */}
       <div style={{ textAlign: 'center', padding: '60px 24px 40px' }}>
@@ -30,13 +30,13 @@ export default function Landing({ onGetStarted }) {
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: 20,
         }}><Box size={32} color="#fff" /></div>
-        <h1 style={{ fontSize: 28, fontWeight: 600, color: '#FAFAFA', margin: '0 0 8px' }}>
+        <h1 style={{ fontSize: 28, fontWeight: 600, color: '#1E293B', margin: '0 0 8px' }}>
           Stage Stock
         </h1>
-        <p style={{ fontSize: 15, color: '#A1A1AA', fontWeight: 500, margin: '0 0 8px', lineHeight: 1.4 }}>
+        <p style={{ fontSize: 15, color: '#64748B', fontWeight: 500, margin: '0 0 8px', lineHeight: 1.4 }}>
           Le WMS des artistes et pros du spectacle
         </p>
-        <p style={{ fontSize: 14, color: '#71717A', margin: '0 auto 32px', maxWidth: 340, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 14, color: '#94A3B8', margin: '0 auto 32px', maxWidth: 340, lineHeight: 1.6 }}>
           Gère ton stock, ta tournée et ton merch depuis ton téléphone. Conçu pour les équipes en mouvement.
         </p>
         <button onClick={onGetStarted} style={{
@@ -51,27 +51,27 @@ export default function Landing({ onGetStarted }) {
 
       {/* Features */}
       <div style={{ padding: '0 20px 40px', maxWidth: 500, margin: '0 auto' }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600, color: '#FAFAFA', textAlign: 'center', marginBottom: 20 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 600, color: '#1E293B', textAlign: 'center', marginBottom: 20 }}>
           Tout ce qu'il te faut
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           {FEATURES.map((f, i) => (
             <div key={i} style={{
-              padding: '16px 14px', borderRadius: 12, background: '#111113',
-              border: '1px solid rgba(255,255,255,0.06)',
+              padding: '16px 14px', borderRadius: 12, background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
             }}>
               <div style={{ marginBottom: 8 }}><f.Icon size={22} color="#6366F1" /></div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#FAFAFA', marginBottom: 4 }}>{f.title}</div>
-              <div style={{ fontSize: 11, color: '#71717A', lineHeight: 1.4 }}>{f.desc}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 4 }}>{f.title}</div>
+              <div style={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.4 }}>{f.desc}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* How it works */}
-      <div style={{ padding: '40px 20px', background: '#111113', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ padding: '40px 20px', background: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
         <div style={{ maxWidth: 400, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, color: '#FAFAFA', textAlign: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 600, color: '#1E293B', textAlign: 'center', marginBottom: 24 }}>
             Comment ça marche
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -83,7 +83,7 @@ export default function Landing({ onGetStarted }) {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 16, fontWeight: 600, color: '#6366F1',
                 }}>{s.num}</div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: '#FAFAFA' }}>{s.text}</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: '#1E293B' }}>{s.text}</div>
               </div>
             ))}
           </div>
@@ -92,7 +92,7 @@ export default function Landing({ onGetStarted }) {
 
       {/* CTA */}
       <div style={{ textAlign: 'center', padding: '40px 24px' }}>
-        <p style={{ fontSize: 18, fontWeight: 600, color: '#FAFAFA', marginBottom: 16 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, color: '#1E293B', marginBottom: 16 }}>
           Prêt à organiser ta tournée ?
         </p>
         <button onClick={onGetStarted} style={{
@@ -106,14 +106,14 @@ export default function Landing({ onGetStarted }) {
 
       {/* Footer */}
       <div style={{
-        padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.06)',
-        textAlign: 'center', fontSize: 11, color: '#52525B',
+        padding: '20px 24px', borderTop: '1px solid #E2E8F0',
+        textAlign: 'center', fontSize: 11, color: '#CBD5E1',
       }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 8 }}>
           <a href="#cgu" onClick={e => { e.preventDefault(); window.dispatchEvent(new CustomEvent('show-legal', { detail: 'cgu' })) }}
-            style={{ color: '#71717A', textDecoration: 'none' }}>CGU</a>
+            style={{ color: '#94A3B8', textDecoration: 'none' }}>CGU</a>
           <a href="#privacy" onClick={e => { e.preventDefault(); window.dispatchEvent(new CustomEvent('show-legal', { detail: 'privacy' })) }}
-            style={{ color: '#71717A', textDecoration: 'none' }}>Confidentialité</a>
+            style={{ color: '#94A3B8', textDecoration: 'none' }}>Confidentialité</a>
         </div>
         Stage Stock — WMS pour artistes et professionnels du spectacle
       </div>

@@ -60,7 +60,7 @@ export default function ProfilePage({
   const [showIban, setShowIban] = useState(false)
   const [showSS, setShowSS] = useState(false)
 
-  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '', color: '#71717A', label: userRole.name }) : null
+  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '', color: '#94A3B8', label: userRole.name }) : null
   const isPhysical = (editing ? form.account_type : details.account_type) !== 'legal'
 
   const set = useCallback((key, val) => setForm(prev => ({ ...prev, [key]: val })), [])
@@ -95,7 +95,7 @@ export default function ProfilePage({
       onToast('Profil enregistré')
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#A78BFA')
+      onToast('Erreur : ' + e.message, '#7C3AED')
     } finally {
       setSaving(false)
     }
@@ -119,7 +119,7 @@ export default function ProfilePage({
   return (
     <div style={inline ? {} : {
       position: 'fixed', inset: 0, zIndex: 1000,
-      background: 'linear-gradient(180deg, #FFF8F0 0%, #111113 30%, #111113 70%, #111113 100%)',
+      background: 'linear-gradient(180deg, #FFF8F0 0%, #F8FAFC 30%, #F8FAFC 70%, #F8FAFC 100%)',
       overflow: 'auto',
     }}>
       {/* Header — only show back button when overlay */}
@@ -129,9 +129,9 @@ export default function ProfilePage({
         }}>
           <button onClick={onClose} style={{
             padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
-            background: '#18181B', border: '1px solid rgba(255,255,255,0.06)', color: '#71717A', cursor: 'pointer',
+            background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer',
           }}>← Retour</button>
-          <div style={{ fontSize: 15, fontWeight: 600, color: '#A78BFA' }}>Mon profil</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#7C3AED' }}>Mon profil</div>
           <div style={{ width: 80 }} />
         </header>
       )}
@@ -140,13 +140,13 @@ export default function ProfilePage({
       <div style={{ textAlign: 'center', padding: '20px 16px 8px' }}>
         <div style={{
           width: 80, height: 80, borderRadius: '50%', margin: '0 auto 12px',
-          background: details.avatar_url ? `url(${details.avatar_url}) center/cover` : (roleConf ? `${roleConf.color}15` : 'rgba(255,255,255,0.06)'),
+          background: details.avatar_url ? `url(${details.avatar_url}) center/cover` : (roleConf ? `${roleConf.color}15` : '#E2E8F0'),
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 40, border: `3px solid ${roleConf?.color || 'rgba(255,255,255,0.06)'}40`,
+          fontSize: 40, border: `3px solid ${roleConf?.color || '#E2E8F0'}40`,
         }}>
           {!details.avatar_url && (roleConf?.icon || '')}
         </div>
-        <div style={{ fontSize: 20, fontWeight: 600, color: '#FAFAFA' }}>
+        <div style={{ fontSize: 20, fontWeight: 600, color: '#1E293B' }}>
           {isPhysical
             ? [details.first_name, details.last_name].filter(Boolean).join(' ') || details.stage_name || membership?.display_name || user.email
             : details.company_name || membership?.display_name || user.email
@@ -154,13 +154,13 @@ export default function ProfilePage({
         </div>
         <div style={{
           display: 'inline-block', marginTop: 6, padding: '3px 12px', borderRadius: 8,
-          background: isPhysical ? '#A78BFA15' : '#3B82F615',
-          color: isPhysical ? '#A78BFA' : '#3B82F6',
+          background: isPhysical ? '#7C3AED15' : '#2563EB15',
+          color: isPhysical ? '#7C3AED' : '#2563EB',
           fontSize: 11, fontWeight: 600,
         }}>
           {isPhysical ? 'Personne physique' : 'Personne morale'}
         </div>
-        <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>{user.email}</div>
+        <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>{user.email}</div>
       </div>
 
       {/* Tab pills */}
@@ -169,9 +169,9 @@ export default function ProfilePage({
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
             whiteSpace: 'nowrap', cursor: 'pointer', flexShrink: 0,
-            background: tab === t.id ? '#A78BFA' : 'white',
-            color: tab === t.id ? 'white' : '#71717A',
-            border: `1px solid ${tab === t.id ? '#A78BFA' : 'rgba(255,255,255,0.06)'}`,
+            background: tab === t.id ? '#7C3AED' : 'white',
+            color: tab === t.id ? 'white' : '#94A3B8',
+            border: `1px solid ${tab === t.id ? '#7C3AED' : '#E2E8F0'}`,
           }}>
             {t.label}
           </button>
@@ -221,11 +221,11 @@ export default function ProfilePage({
         }}>
           <button onClick={onSwitchProject} style={{
             flex: 1, padding: '12px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-            background: '#EEF4FA', border: '1px solid #3B82F630', color: '#3B82F6', cursor: 'pointer',
+            background: '#EEF4FA', border: '1px solid #2563EB30', color: '#2563EB', cursor: 'pointer',
           }}> Changer projet</button>
           <button onClick={() => { onClose(); onLogout() }} style={{
             flex: 1, padding: '12px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-            background: '#FDF0F4', border: '1px solid #A78BFA30', color: '#A78BFA', cursor: 'pointer',
+            background: '#FDF0F4', border: '1px solid #7C3AED30', color: '#7C3AED', cursor: 'pointer',
           }}> Déconnexion</button>
         </div>
       )}
@@ -243,7 +243,7 @@ function IdentityTab({ form, details, editing, isPhysical, set, onSave, onEdit, 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
           <button onClick={onEdit} style={{
             padding: '7px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-            background: '#A78BFA15', border: '1px solid #A78BFA30', color: '#A78BFA', cursor: 'pointer',
+            background: '#7C3AED15', border: '1px solid #7C3AED30', color: '#7C3AED', cursor: 'pointer',
           }}>Modifier</button>
         </div>
         <ReadCard>
@@ -281,18 +281,18 @@ function IdentityTab({ form, details, editing, isPhysical, set, onSave, onEdit, 
     <div>
       {/* Account type switch */}
       <div className="card" style={{ padding: 14, marginBottom: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#FAFAFA', marginBottom: 8 }}>Type de compte</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', marginBottom: 8 }}>Type de compte</div>
         <div style={{ display: 'flex', gap: 8 }}>
           {[
-            { val: 'physical', label: 'Personne physique', color: '#A78BFA' },
-            { val: 'legal', label: 'Personne morale', color: '#3B82F6' },
+            { val: 'physical', label: 'Personne physique', color: '#7C3AED' },
+            { val: 'legal', label: 'Personne morale', color: '#2563EB' },
           ].map(o => (
             <button key={o.val} onClick={() => set('account_type', o.val)} style={{
               flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
               cursor: 'pointer', textAlign: 'center',
               background: form.account_type === o.val ? `${o.color}15` : 'white',
-              color: form.account_type === o.val ? o.color : '#71717A',
-              border: `1px solid ${form.account_type === o.val ? o.color + '50' : 'rgba(255,255,255,0.06)'}`,
+              color: form.account_type === o.val ? o.color : '#94A3B8',
+              border: `1px solid ${form.account_type === o.val ? o.color + '50' : '#E2E8F0'}`,
             }}>{o.label}</button>
           ))}
         </div>
@@ -335,7 +335,7 @@ function IdentityTab({ form, details, editing, isPhysical, set, onSave, onEdit, 
         {isPhysical && <Field label="Bio" value={form.bio} onChange={v => set('bio', v)} multiline placeholder="Présentation courte..." />}
 
         <Divider />
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#FAFAFA', marginBottom: 8 }}>Réseaux sociaux</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', marginBottom: 8 }}>Réseaux sociaux</div>
         <Field label="Instagram" value={form.social_instagram} onChange={v => set('social_instagram', v)} placeholder="@pseudo" />
         <Field label="Facebook" value={form.social_facebook} onChange={v => set('social_facebook', v)} />
         <Field label="LinkedIn" value={form.social_linkedin} onChange={v => set('social_linkedin', v)} />
@@ -356,7 +356,7 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
           <button onClick={onEdit} style={{
             padding: '7px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-            background: '#A78BFA15', border: '1px solid #A78BFA30', color: '#A78BFA', cursor: 'pointer',
+            background: '#7C3AED15', border: '1px solid #7C3AED30', color: '#7C3AED', cursor: 'pointer',
           }}>Modifier</button>
         </div>
         <ReadCard>
@@ -382,14 +382,14 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
 
         {isPhysical && details.skills && details.skills.length > 0 && (
           <div className="card" style={{ padding: 14, marginTop: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#FAFAFA', marginBottom: 8 }}>Compétences</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', marginBottom: 8 }}>Compétences</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {details.skills.map(s => {
                 const opt = SKILL_OPTIONS.find(o => o.code === s)
                 return (
                   <span key={s} style={{
                     padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-                    background: '#A78BFA15', color: '#A78BFA',
+                    background: '#7C3AED15', color: '#7C3AED',
                   }}>{opt ? opt.label : s}</span>
                 )
               })}
@@ -424,7 +424,7 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
 
       {isPhysical && (
         <div className="card" style={{ padding: 16, marginTop: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#FAFAFA', marginBottom: 10 }}>Compétences</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', marginBottom: 10 }}>Compétences</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
             {SKILL_OPTIONS.map(opt => {
               const selected = (form.skills || []).includes(opt.code)
@@ -435,9 +435,9 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
                 }} style={{
                   padding: '6px 12px', borderRadius: 10, fontSize: 11, fontWeight: 700,
                   cursor: 'pointer',
-                  background: selected ? '#A78BFA' : 'white',
-                  color: selected ? 'white' : '#71717A',
-                  border: `1px solid ${selected ? '#A78BFA' : 'rgba(255,255,255,0.06)'}`,
+                  background: selected ? '#7C3AED' : 'white',
+                  color: selected ? 'white' : '#94A3B8',
+                  border: `1px solid ${selected ? '#7C3AED' : '#E2E8F0'}`,
                 }}>{opt.label}</button>
               )
             })}
@@ -458,27 +458,27 @@ function ProjectsTab({ user, membership, selectedOrg, roles, onSwitchProject }) 
   return (
     <div>
       {selectedOrg && (
-        <div className="card" style={{ padding: 16, borderLeft: '4px solid #A78BFA' }}>
+        <div className="card" style={{ padding: 16, borderLeft: '4px solid #7C3AED' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               width: 44, height: 44, borderRadius: 8,
-              background: 'linear-gradient(135deg, #A78BFA20, #A78BFA10)',
+              background: 'linear-gradient(135deg, #7C3AED20, #7C3AED10)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
             }}></div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA' }}>{selectedOrg.name}</div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>{selectedOrg.name}</div>
               <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
                 {membership?.is_admin && (
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#6366F115', color: '#6366F1' }}>Admin</span>
                 )}
                 {membership?.role_code && (
-                  <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#A78BFA15', color: '#A78BFA' }}>
+                  <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#7C3AED15', color: '#7C3AED' }}>
                     {ROLE_CONF[membership.role_code]?.label || membership.role_code}
                   </span>
                 )}
               </div>
               {membership?.created_at && (
-                <div style={{ fontSize: 10, color: '#71717A', marginTop: 4 }}>
+                <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4 }}>
                   Membre depuis {new Date(membership.created_at).toLocaleDateString('fr-FR')}
                 </div>
               )}
@@ -490,7 +490,7 @@ function ProjectsTab({ user, membership, selectedOrg, roles, onSwitchProject }) 
       <button onClick={onSwitchProject} style={{
         width: '100%', padding: 14, borderRadius: 8, marginTop: 12,
         fontSize: 13, fontWeight: 700, cursor: 'pointer', textAlign: 'center',
-        background: '#EEF4FA', border: '1px solid #3B82F630', color: '#3B82F6',
+        background: '#EEF4FA', border: '1px solid #2563EB30', color: '#2563EB',
       }}>+ Changer de projet / Créer un projet</button>
     </div>
   )
@@ -500,21 +500,21 @@ function ProjectsTab({ user, membership, selectedOrg, roles, onSwitchProject }) 
 // Section 4 — Matériel personnel
 // ════════════════════════════════════════
 const GEAR_CATS = {
-  instrument: { icon: '', label: 'Instrument', color: '#A78BFA' },
-  son:        { icon: '', label: 'Son', color: '#3B82F6' },
-  lumiere:    { icon: '', label: 'Lumière', color: '#F59E0B' },
-  tech:       { icon: '💻', label: 'Tech', color: '#A78BFA' },
+  instrument: { icon: '', label: 'Instrument', color: '#7C3AED' },
+  son:        { icon: '', label: 'Son', color: '#2563EB' },
+  lumiere:    { icon: '', label: 'Lumière', color: '#D97706' },
+  tech:       { icon: '💻', label: 'Tech', color: '#7C3AED' },
   scene:      { icon: '', label: 'Scène', color: '#6366F1' },
-  transport:  { icon: '', label: 'Transport', color: '#22C55E' },
-  other:      { icon: '', label: 'Autre', color: '#71717A' },
+  transport:  { icon: '', label: 'Transport', color: '#16A34A' },
+  other:      { icon: '', label: 'Autre', color: '#94A3B8' },
 }
 
 const CONDITION_CONF = {
-  neuf:      { label: 'Neuf', color: '#22C55E' },
-  excellent: { label: 'Excellent', color: '#3B82F6' },
-  bon:       { label: 'Bon', color: '#F59E0B' },
-  use:       { label: 'Usé', color: '#A78BFA' },
-  hs:        { label: 'HS', color: '#71717A' },
+  neuf:      { label: 'Neuf', color: '#16A34A' },
+  excellent: { label: 'Excellent', color: '#2563EB' },
+  bon:       { label: 'Bon', color: '#D97706' },
+  use:       { label: 'Usé', color: '#7C3AED' },
+  hs:        { label: 'HS', color: '#94A3B8' },
 }
 
 function GearTab({ user, gear, onToast, onReload }) {
@@ -546,7 +546,7 @@ function GearTab({ user, gear, onToast, onReload }) {
       setShowAdd(false)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#A78BFA')
+      onToast('Erreur : ' + e.message, '#7C3AED')
     } finally {
       setSaving(false)
     }
@@ -558,7 +558,7 @@ function GearTab({ user, gear, onToast, onReload }) {
       onToast('Supprimé')
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#A78BFA')
+      onToast('Erreur : ' + e.message, '#7C3AED')
     }
   }
 
@@ -569,15 +569,15 @@ function GearTab({ user, gear, onToast, onReload }) {
         <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 20, fontWeight: 600, color: '#6366F1' }}>{gear.length}</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Équipements</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Équipements</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#22C55E' }}>{Math.round(totalValue)}€</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Valeur totale</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#16A34A' }}>{Math.round(totalValue)}€</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Valeur totale</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#3B82F6' }}>{gear.filter(g => g.available).length}</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Disponibles</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#2563EB' }}>{gear.filter(g => g.available).length}</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Disponibles</div>
           </div>
         </div>
       </div>
@@ -586,7 +586,7 @@ function GearTab({ user, gear, onToast, onReload }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <button onClick={() => setShowAdd(!showAdd)} style={{
           padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-          background: showAdd ? 'rgba(255,255,255,0.06)' : '#A78BFA', color: showAdd ? '#71717A' : 'white',
+          background: showAdd ? '#E2E8F0' : '#7C3AED', color: showAdd ? '#94A3B8' : 'white',
           cursor: 'pointer', border: 'none',
         }}>{showAdd ? 'Annuler' : '+ Ajouter'}</button>
       </div>
@@ -594,7 +594,7 @@ function GearTab({ user, gear, onToast, onReload }) {
       {/* Add form */}
       {showAdd && (
         <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#FAFAFA', marginBottom: 12 }}>Nouvel équipement</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 12 }}>Nouvel équipement</div>
           <Field label="Nom" value={form.name} onChange={v => set('name', v)} placeholder="ex: Guitare Martin D-28" />
           <div style={{ marginBottom: 12 }}>
             <label className="label">Catégorie</label>
@@ -603,8 +603,8 @@ function GearTab({ user, gear, onToast, onReload }) {
                 <button key={k} onClick={() => set('category', k)} style={{
                   padding: '5px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer',
                   background: form.category === k ? `${v.color}15` : 'white',
-                  color: form.category === k ? v.color : '#71717A',
-                  border: `1px solid ${form.category === k ? v.color + '40' : 'rgba(255,255,255,0.06)'}`,
+                  color: form.category === k ? v.color : '#94A3B8',
+                  border: `1px solid ${form.category === k ? v.color + '40' : '#E2E8F0'}`,
                 }}>{v.icon} {v.label}</button>
               ))}
             </div>
@@ -624,8 +624,8 @@ function GearTab({ user, gear, onToast, onReload }) {
                 <button key={k} onClick={() => set('current_condition', k)} style={{
                   flex: 1, padding: '6px 4px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', textAlign: 'center',
                   background: form.current_condition === k ? `${v.color}15` : 'white',
-                  color: form.current_condition === k ? v.color : '#71717A',
-                  border: `1px solid ${form.current_condition === k ? v.color + '40' : 'rgba(255,255,255,0.06)'}`,
+                  color: form.current_condition === k ? v.color : '#94A3B8',
+                  border: `1px solid ${form.current_condition === k ? v.color + '40' : '#E2E8F0'}`,
                 }}>{v.label}</button>
               ))}
             </div>
@@ -641,8 +641,8 @@ function GearTab({ user, gear, onToast, onReload }) {
       {gear.length === 0 && !showAdd ? (
         <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>Aucun matériel</div>
-          <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>Ajoute tes instruments et équipements perso</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun matériel</div>
+          <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Ajoute tes instruments et équipements perso</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -659,26 +659,26 @@ function GearTab({ user, gear, onToast, onReload }) {
                     background: `${cat.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
                   }}>{cat.icon}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#FAFAFA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.name}</div>
-                    <div style={{ fontSize: 10, color: '#71717A' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.name}</div>
+                    <div style={{ fontSize: 10, color: '#94A3B8' }}>
                       {[g.brand, g.model].filter(Boolean).join(' ') || cat.label}
                       {g.serial_number ? ` · SN: ${g.serial_number}` : ''}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    {g.purchase_value > 0 && <div style={{ fontSize: 13, fontWeight: 600, color: '#F59E0B' }}>{g.purchase_value}€</div>}
+                    {g.purchase_value > 0 && <div style={{ fontSize: 13, fontWeight: 600, color: '#D97706' }}>{g.purchase_value}€</div>}
                     <span style={{
                       padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 600,
                       background: `${cond.color}15`, color: cond.color,
                     }}>{cond.label}</span>
                   </div>
                   <button onClick={() => deleteGear(g.id)} style={{
-                    width: 28, height: 28, borderRadius: 8, background: '#A78BFA10',
-                    border: 'none', color: '#A78BFA', fontSize: 12, cursor: 'pointer',
+                    width: 28, height: 28, borderRadius: 8, background: '#7C3AED10',
+                    border: 'none', color: '#7C3AED', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>×</button>
                 </div>
-                {g.notes && <div style={{ fontSize: 10, color: '#71717A', marginTop: 4, paddingLeft: 50 }}>{g.notes}</div>}
+                {g.notes && <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4, paddingLeft: 50 }}>{g.notes}</div>}
               </div>
             )
           })}
@@ -692,10 +692,10 @@ function GearTab({ user, gear, onToast, onReload }) {
 // Section 5 — Calendrier / Disponibilités
 // ════════════════════════════════════════
 const AVAIL_CONF = {
-  available:   { label: 'Dispo', color: '#22C55E', icon: '' },
-  unavailable: { label: 'Indispo', color: '#A78BFA', icon: '' },
-  maybe:       { label: 'Peut-être', color: '#F59E0B', icon: '' },
-  unknown:     { label: 'Non renseigné', color: '#71717A', icon: '' },
+  available:   { label: 'Dispo', color: '#16A34A', icon: '' },
+  unavailable: { label: 'Indispo', color: '#7C3AED', icon: '' },
+  maybe:       { label: 'Peut-être', color: '#D97706', icon: '' },
+  unknown:     { label: 'Non renseigné', color: '#94A3B8', icon: '' },
 }
 
 function CalendarTab({ user, events, availability, onToast, onReload }) {
@@ -742,7 +742,7 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
       onToast(AVAIL_CONF[status].label)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#A78BFA')
+      onToast('Erreur : ' + e.message, '#7C3AED')
     }
   }
 
@@ -758,10 +758,10 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: isPast ? 0 : 8 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#FAFAFA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {ev.name || ev.lieu}
             </div>
-            <div style={{ fontSize: 10, color: '#71717A' }}>
+            <div style={{ fontSize: 10, color: '#94A3B8' }}>
               {parseDate(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
               {ev.ville ? ` — ${ev.ville}` : ''}
               {!isPast && daysUntil >= 0 ? ` · J-${daysUntil}` : ''}
@@ -782,8 +782,8 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
                   flex: 1, padding: '6px 4px', borderRadius: 8, fontSize: 10, fontWeight: 700,
                   cursor: 'pointer', textAlign: 'center',
                   background: active ? `${c.color}20` : 'white',
-                  color: active ? c.color : '#71717A',
-                  border: `1px solid ${active ? c.color + '40' : 'rgba(255,255,255,0.06)'}`,
+                  color: active ? c.color : '#94A3B8',
+                  border: `1px solid ${active ? c.color + '40' : '#E2E8F0'}`,
                 }}>{c.icon} {c.label}</button>
               )
             })}
@@ -800,19 +800,19 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
         <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 20, fontWeight: 600, color: '#6366F1' }}>{upcomingEvents.length}</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Dates à venir</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Dates à venir</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#22C55E' }}>{stats.available}</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Dispo</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#16A34A' }}>{stats.available}</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Dispo</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#F59E0B' }}>{stats.maybe}</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Peut-être</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#D97706' }}>{stats.maybe}</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Peut-être</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#A78BFA' }}>{stats.unavailable}</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Indispo</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#7C3AED' }}>{stats.unavailable}</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Indispo</div>
           </div>
         </div>
       </div>
@@ -821,11 +821,11 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
       {upcomingEvents.length === 0 ? (
         <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>Aucune date à venir</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucune date à venir</div>
         </div>
       ) : (
         <>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
             À venir ({upcomingEvents.length})
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
@@ -837,7 +837,7 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
       {/* Past events */}
       {pastEvents.length > 0 && (
         <>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
             Passés ({pastEvents.length})
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -853,17 +853,17 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
 // Section 6 — Finances personnelles
 // ════════════════════════════════════════
 const INCOME_TYPES = {
-  cachet:         { label: 'Cachet', color: '#22C55E', icon: '' },
-  facture:        { label: 'Facture', color: '#3B82F6', icon: '📄' },
-  remboursement:  { label: 'Remboursement', color: '#F59E0B', icon: '💸' },
-  prime:          { label: 'Prime', color: '#A78BFA', icon: '⭐' },
-  autre:          { label: 'Autre', color: '#71717A', icon: '📝' },
+  cachet:         { label: 'Cachet', color: '#16A34A', icon: '' },
+  facture:        { label: 'Facture', color: '#2563EB', icon: '📄' },
+  remboursement:  { label: 'Remboursement', color: '#D97706', icon: '💸' },
+  prime:          { label: 'Prime', color: '#7C3AED', icon: '⭐' },
+  autre:          { label: 'Autre', color: '#94A3B8', icon: '📝' },
 }
 
 const INCOME_STATUS = {
-  pending:   { label: 'En attente', color: '#F59E0B' },
-  paid:      { label: 'Payé', color: '#22C55E' },
-  cancelled: { label: 'Annulé', color: '#A78BFA' },
+  pending:   { label: 'En attente', color: '#D97706' },
+  paid:      { label: 'Payé', color: '#16A34A' },
+  cancelled: { label: 'Annulé', color: '#7C3AED' },
 }
 
 function FinancesTab({ user, income, events, onToast, onReload }) {
@@ -901,7 +901,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       setShowAdd(false)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#A78BFA')
+      onToast('Erreur : ' + e.message, '#7C3AED')
     } finally {
       setSaving(false)
     }
@@ -914,7 +914,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       onToast(next === 'paid' ? 'Marqué payé' : 'Marqué en attente')
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#A78BFA')
+      onToast('Erreur : ' + e.message, '#7C3AED')
     }
   }
 
@@ -924,7 +924,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       onToast('Supprimé')
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#A78BFA')
+      onToast('Erreur : ' + e.message, '#7C3AED')
     }
   }
 
@@ -934,16 +934,16 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       <div className="card" style={{ padding: '14px 16px', marginBottom: 14 }}>
         <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#22C55E' }}>{Math.round(totalEarned)}€</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Encaissé</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#16A34A' }}>{Math.round(totalEarned)}€</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Encaissé</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#F59E0B' }}>{Math.round(totalPending)}€</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>En attente</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#D97706' }}>{Math.round(totalPending)}€</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>En attente</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#A78BFA' }}>{Math.round(totalAll)}€</div>
-            <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>Total</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#7C3AED' }}>{Math.round(totalAll)}€</div>
+            <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Total</div>
           </div>
         </div>
       </div>
@@ -951,15 +951,15 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       {/* Progress bar earned vs pending */}
       {totalAll > 0 && (
         <div className="card" style={{ padding: '10px 14px', marginBottom: 14 }}>
-          <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' }}>
+          <div style={{ height: 8, borderRadius: 4, background: '#E2E8F0', overflow: 'hidden', position: 'relative' }}>
             <div style={{
               position: 'absolute', left: 0, top: 0, bottom: 0,
               width: `${Math.round((totalEarned / totalAll) * 100)}%`,
-              background: 'linear-gradient(90deg, #22C55E, #4A9A7A)',
+              background: 'linear-gradient(90deg, #16A34A, #4A9A7A)',
               borderRadius: 4, transition: 'width 0.3s',
             }} />
           </div>
-          <div style={{ fontSize: 10, color: '#71717A', marginTop: 4, textAlign: 'center' }}>
+          <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4, textAlign: 'center' }}>
             {Math.round((totalEarned / totalAll) * 100)}% encaissé
           </div>
         </div>
@@ -969,7 +969,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <button onClick={() => setShowAdd(!showAdd)} style={{
           padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-          background: showAdd ? 'rgba(255,255,255,0.06)' : '#22C55E', color: showAdd ? '#71717A' : 'white',
+          background: showAdd ? '#E2E8F0' : '#16A34A', color: showAdd ? '#94A3B8' : 'white',
           cursor: 'pointer', border: 'none',
         }}>{showAdd ? 'Annuler' : '+ Ajouter un revenu'}</button>
       </div>
@@ -977,7 +977,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       {/* Add form */}
       {showAdd && (
         <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#FAFAFA', marginBottom: 12 }}>Nouveau revenu</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 12 }}>Nouveau revenu</div>
           <div style={{ marginBottom: 12 }}>
             <label className="label">Type</label>
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -985,8 +985,8 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
                 <button key={k} onClick={() => set('type', k)} style={{
                   padding: '5px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer',
                   background: form.type === k ? `${v.color}15` : 'white',
-                  color: form.type === k ? v.color : '#71717A',
-                  border: `1px solid ${form.type === k ? v.color + '40' : 'rgba(255,255,255,0.06)'}`,
+                  color: form.type === k ? v.color : '#94A3B8',
+                  border: `1px solid ${form.type === k ? v.color + '40' : '#E2E8F0'}`,
                 }}>{v.icon} {v.label}</button>
               ))}
             </div>
@@ -1020,8 +1020,8 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       {sortedIncome.length === 0 && !showAdd ? (
         <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>Aucun revenu enregistré</div>
-          <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>Ajoute tes cachets, factures et remboursements</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun revenu enregistré</div>
+          <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Ajoute tes cachets, factures et remboursements</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1041,10 +1041,10 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
                     background: `${tp.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
                   }}>{tp.icon}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#FAFAFA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.description}
                     </div>
-                    <div style={{ fontSize: 10, color: '#71717A' }}>
+                    <div style={{ fontSize: 10, color: '#94A3B8' }}>
                       {tp.label} · {item.date ? parseDate(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''}
                       {ev ? ` · ${ev.name || ev.lieu}` : ''}
                     </div>
@@ -1057,8 +1057,8 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
                     }}>{st.label}</button>
                   </div>
                   <button onClick={() => deleteIncome(item.id)} style={{
-                    width: 24, height: 24, borderRadius: 6, background: '#A78BFA10',
-                    border: 'none', color: '#A78BFA', fontSize: 11, cursor: 'pointer',
+                    width: 24, height: 24, borderRadius: 6, background: '#7C3AED10',
+                    border: 'none', color: '#7C3AED', fontSize: 11, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>×</button>
                 </div>
@@ -1118,8 +1118,8 @@ function ReadRow({ label, value }) {
   if (!value) return null
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '6px 0', gap: 12 }}>
-      <span style={{ fontSize: 12, color: '#71717A', fontWeight: 600, flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: 13, color: '#FAFAFA', fontWeight: 700, textAlign: 'right', wordBreak: 'break-word' }}>{value}</span>
+      <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600, flexShrink: 0 }}>{label}</span>
+      <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 700, textAlign: 'right', wordBreak: 'break-word' }}>{value}</span>
     </div>
   )
 }
@@ -1128,9 +1128,9 @@ function SensitiveRow({ label, value, masked, show, onToggle }) {
   if (!value) return null
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', background: '#FFFDF5', borderRadius: 8, margin: '2px -4px', paddingLeft: 4, paddingRight: 4 }}>
-      <span style={{ fontSize: 12, color: '#71717A', fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>{label}</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 13, color: '#FAFAFA', fontWeight: 700, fontFamily: 'monospace' }}>
+        <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 700, fontFamily: 'monospace' }}>
           {show ? value : masked}
         </span>
         <button onClick={onToggle} style={{
@@ -1162,7 +1162,7 @@ function SocialBadge({ label, value, color }) {
 }
 
 function Divider() {
-  return <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '12px 0' }} />
+  return <div style={{ height: 1, background: '#E2E8F0', margin: '12px 0' }} />
 }
 
 function SaveBar({ onSave, onCancel, saving, hasId }) {
@@ -1171,7 +1171,7 @@ function SaveBar({ onSave, onCancel, saving, hasId }) {
       {hasId && (
         <button onClick={onCancel} style={{
           flex: 1, padding: 14, borderRadius: 8, fontSize: 13, fontWeight: 700,
-          background: '#18181B', border: '1px solid rgba(255,255,255,0.06)', color: '#71717A', cursor: 'pointer',
+          background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer',
         }}>Annuler</button>
       )}
       <button className="btn-primary" onClick={onSave} disabled={saving} style={{ flex: 2 }}>

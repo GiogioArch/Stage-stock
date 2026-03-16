@@ -57,7 +57,7 @@ export default function Auth({ onAuth, onBack }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#09090B',
+      background: '#FFFFFF',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -72,22 +72,22 @@ export default function Auth({ onAuth, onBack }) {
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             marginBottom: 16,
           }}><Box size={28} color="#fff" /></div>
-          <div style={{ fontSize: 24, fontWeight: 600, color: '#FAFAFA' }}>Stage Stock</div>
-          <div style={{ fontSize: 12, color: '#71717A', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 600, color: '#1E293B' }}>Stage Stock</div>
+          <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
             Gestion de stock pour le spectacle
           </div>
         </div>
 
         {/* Form */}
         <div className="card" style={{ padding: 24 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20, textAlign: 'center', color: '#FAFAFA' }}>
+          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20, textAlign: 'center', color: '#1E293B' }}>
             {mode === 'forgot' ? 'Mot de passe oublié' : mode === 'login' ? 'Connexion' : 'Créer un compte'}
           </h2>
 
           {error && (
             <div style={{
               padding: 10, borderRadius: 6, background: 'rgba(239,68,68,0.12)',
-              border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444',
+              border: '1px solid rgba(239,68,68,0.2)', color: '#DC2626',
               fontSize: 13, fontWeight: 500, marginBottom: 16,
             }}>{error}</div>
           )}
@@ -95,7 +95,7 @@ export default function Auth({ onAuth, onBack }) {
           {success && (
             <div style={{
               padding: 10, borderRadius: 6, background: 'rgba(34,197,94,0.12)',
-              border: '1px solid rgba(34,197,94,0.2)', color: '#22C55E',
+              border: '1px solid rgba(34,197,94,0.2)', color: '#16A34A',
               fontSize: 13, fontWeight: 500, marginBottom: 16,
             }}>{success}</div>
           )}
@@ -135,7 +135,7 @@ export default function Auth({ onAuth, onBack }) {
             {mode === 'login' && (
               <button
                 onClick={() => { setMode('forgot'); setError(''); setSuccess('') }}
-                style={{ fontSize: 12, color: '#71717A', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ fontSize: 12, color: '#94A3B8', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 Mot de passe oublié ?
               </button>
@@ -152,12 +152,12 @@ export default function Auth({ onAuth, onBack }) {
         {onBack && (
           <div style={{ textAlign: 'center', marginTop: 16 }}>
             <button onClick={onBack} style={{
-              fontSize: 12, color: '#71717A', fontWeight: 500,
+              fontSize: 12, color: '#94A3B8', fontWeight: 500,
               background: 'none', border: 'none', cursor: 'pointer',
             }}>Retour</button>
           </div>
         )}
-        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#52525B' }}>
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#CBD5E1' }}>
           v10.5 — Stage Stock
         </div>
       </div>

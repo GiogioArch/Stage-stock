@@ -47,10 +47,10 @@ export default function Transport({
 
   const NEED_CATS = { equipment: ' Matériel', merch: ' Merch', people: ' Personnes', other: ' Autre' }
   const STATUS_CONF = {
-    pending: { label: 'En attente', color: '#F59E0B' },
-    booked: { label: 'Réservé', color: '#3B82F6' },
-    in_transit: { label: 'En transit', color: '#A78BFA' },
-    delivered: { label: 'Livré', color: '#22C55E' },
+    pending: { label: 'En attente', color: '#D97706' },
+    booked: { label: 'Réservé', color: '#2563EB' },
+    in_transit: { label: 'En transit', color: '#7C3AED' },
+    delivered: { label: 'Livré', color: '#16A34A' },
   }
 
   return (
@@ -70,15 +70,15 @@ export default function Transport({
             fontSize: 24, color: 'white', boxShadow: '0 4px 16px #6366F130',
           }}></div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>Transport</div>
-            <div style={{ fontSize: 12, color: '#71717A', fontWeight: 600 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Transport</div>
+            <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>
               Logistique inter-îles & déplacements
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="En attente" value={pendingNeeds} color="#F59E0B" />
-          <KpiBox label="Réservés" value={bookedNeeds} color="#3B82F6" />
+          <KpiBox label="En attente" value={pendingNeeds} color="#D97706" />
+          <KpiBox label="Réservés" value={bookedNeeds} color="#2563EB" />
           <KpiBox label="Coût total" value={`${Math.round(totalCost)}€`} color="#6366F1" />
         </div>
       </div>
@@ -90,8 +90,8 @@ export default function Transport({
             flex: 1, padding: '7px 6px', borderRadius: 10, fontSize: 10, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
             background: section === s.id ? '#6366F115' : 'white',
-            color: section === s.id ? '#6366F1' : '#71717A',
-            border: `1px solid ${section === s.id ? '#6366F140' : 'rgba(255,255,255,0.06)'}`,
+            color: section === s.id ? '#6366F1' : '#94A3B8',
+            border: `1px solid ${section === s.id ? '#6366F140' : '#E2E8F0'}`,
           }}>{s.icon} {s.label}</button>
         ))}
       </div>
@@ -101,7 +101,7 @@ export default function Transport({
         <div>
           {/* Status breakdown */}
           <div className="card" style={{ padding: '14px 16px', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
               Statut des transports
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
@@ -110,7 +110,7 @@ export default function Transport({
                 return (
                   <div key={k}>
                     <div style={{ fontSize: 20, fontWeight: 600, color: v.color }}>{count}</div>
-                    <div style={{ fontSize: 9, color: '#71717A', fontWeight: 600 }}>{v.label}</div>
+                    <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>{v.label}</div>
                   </div>
                 )
               })}
@@ -119,11 +119,11 @@ export default function Transport({
 
           {/* Providers summary */}
           <div className="card" style={{ padding: '14px 16px', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
               Prestataires
             </div>
             {(transportProviders || []).length === 0 ? (
-              <div style={{ fontSize: 12, color: '#71717A', textAlign: 'center', padding: 12 }}>
+              <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', padding: 12 }}>
                 Aucun prestataire configuré
               </div>
             ) : (
@@ -132,14 +132,14 @@ export default function Transport({
                   <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
                     <div style={{
                       width: 36, height: 36, borderRadius: 10,
-                      background: p.type === 'ferry' ? '#3B82F615' : '#6366F115',
+                      background: p.type === 'ferry' ? '#2563EB15' : '#6366F115',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
                     }}>{p.type === 'ferry' ? '⛴️' : p.type === 'truck' ? '' : ''}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>{p.name}</div>
-                      <div style={{ fontSize: 10, color: '#71717A' }}>{p.contact_name || p.type}</div>
+                      <div style={{ fontSize: 10, color: '#94A3B8' }}>{p.contact_name || p.type}</div>
                     </div>
-                    <Badge color={p.active ? '#22C55E' : '#71717A'}>
+                    <Badge color={p.active ? '#16A34A' : '#94A3B8'}>
                       {p.active ? 'Actif' : 'Inactif'}
                     </Badge>
                   </div>
@@ -150,12 +150,12 @@ export default function Transport({
 
           {/* Cost breakdown */}
           <div className="card" style={{ padding: '14px 16px' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#71717A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
               Coûts transport
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 600, color: '#6366F1' }}>{Math.round(totalCost)}€</div>
-              <div style={{ fontSize: 11, color: '#71717A', marginTop: 4 }}>Total dépenses transport</div>
+              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>Total dépenses transport</div>
             </div>
             {(transportCosts || []).length > 0 && (
               <div style={{ marginTop: 10 }}>
@@ -164,8 +164,8 @@ export default function Transport({
                   if (catTotal === 0) return null
                   return (
                     <div key={cat} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 12 }}>
-                      <span style={{ color: '#71717A', textTransform: 'capitalize' }}>{cat}</span>
-                      <span style={{ fontWeight: 600, color: '#FAFAFA' }}>{Math.round(catTotal)}€</span>
+                      <span style={{ color: '#94A3B8', textTransform: 'capitalize' }}>{cat}</span>
+                      <span style={{ fontWeight: 600, color: '#1E293B' }}>{Math.round(catTotal)}€</span>
                     </div>
                   )
                 })}
@@ -181,7 +181,7 @@ export default function Transport({
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddNeed(!showAddNeed)} style={{
               padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddNeed ? 'rgba(255,255,255,0.06)' : '#6366F1', color: showAddNeed ? '#71717A' : 'white',
+              background: showAddNeed ? '#E2E8F0' : '#6366F1', color: showAddNeed ? '#94A3B8' : 'white',
               cursor: 'pointer', border: 'none',
             }}>
               {showAddNeed ? 'Annuler' : '+ Besoin transport'}
@@ -212,29 +212,29 @@ export default function Transport({
                     <button onClick={() => setExpandedEvent(isExpanded ? null : ev.id)}
                       className="card" style={{
                         width: '100%', padding: '14px 16px', cursor: 'pointer', textAlign: 'left',
-                        borderLeft: `4px solid ${needs.length === 0 ? 'rgba(255,255,255,0.06)' : allDone ? '#22C55E' : '#F59E0B'}`,
+                        borderLeft: `4px solid ${needs.length === 0 ? '#E2E8F0' : allDone ? '#16A34A' : '#D97706'}`,
                       }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 14, fontWeight: 600 }}>{ev.name || ev.lieu}</div>
-                          <div style={{ fontSize: 11, color: '#71717A' }}>
+                          <div style={{ fontSize: 11, color: '#94A3B8' }}>
                             {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           {needs.length > 0 ? (
                             <>
-                              <div style={{ fontSize: 14, fontWeight: 600, color: allDone ? '#22C55E' : '#F59E0B' }}>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: allDone ? '#16A34A' : '#D97706' }}>
                                 {needs.filter(n => n.status === 'delivered').length}/{needs.length}
                               </div>
-                              <div style={{ fontSize: 9, color: '#71717A' }}>transports</div>
+                              <div style={{ fontSize: 9, color: '#94A3B8' }}>transports</div>
                             </>
                           ) : (
-                            <div style={{ fontSize: 10, color: '#71717A' }}>Aucun besoin</div>
+                            <div style={{ fontSize: 10, color: '#94A3B8' }}>Aucun besoin</div>
                           )}
                         </div>
                         <span style={{
-                          fontSize: 12, color: '#71717A', transition: 'transform 0.2s',
+                          fontSize: 12, color: '#94A3B8', transition: 'transform 0.2s',
                           transform: isExpanded ? 'rotate(180deg)' : 'none',
                         }}>▼</span>
                       </div>
@@ -242,11 +242,11 @@ export default function Transport({
 
                     {isExpanded && (
                       <div style={{
-                        margin: '0 8px', padding: '12px 14px', background: '#111113',
-                        borderRadius: '0 0 14px 14px', border: '1px solid rgba(255,255,255,0.06)', borderTop: 'none',
+                        margin: '0 8px', padding: '12px 14px', background: '#F8FAFC',
+                        borderRadius: '0 0 14px 14px', border: '1px solid #E2E8F0', borderTop: 'none',
                       }}>
                         {needs.length === 0 ? (
-                          <div style={{ fontSize: 12, color: '#71717A', textAlign: 'center', padding: 8 }}>
+                          <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', padding: 8 }}>
                             Aucun besoin transport pour ce concert
                           </div>
                         ) : (
@@ -255,7 +255,7 @@ export default function Transport({
                             return (
                               <div key={n.id} style={{
                                 display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
-                                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                                borderBottom: '1px solid #E2E8F0',
                               }}>
                                 <span style={{ fontSize: 14 }}>
                                   {NEED_CATS[n.category]?.split(' ')[0] || ''}
@@ -264,7 +264,7 @@ export default function Transport({
                                   <div style={{ fontSize: 12, fontWeight: 700 }}>
                                     {n.description || NEED_CATS[n.category] || n.category}
                                   </div>
-                                  <div style={{ fontSize: 10, color: '#71717A' }}>
+                                  <div style={{ fontSize: 10, color: '#94A3B8' }}>
                                     {n.quantity > 1 ? `${n.quantity} unités` : ''}
                                     {n.weight_kg ? ` · ${n.weight_kg}kg` : ''}
                                   </div>
@@ -290,7 +290,7 @@ export default function Transport({
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddProvider(!showAddProvider)} style={{
               padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddProvider ? 'rgba(255,255,255,0.06)' : '#6366F1', color: showAddProvider ? '#71717A' : 'white',
+              background: showAddProvider ? '#E2E8F0' : '#6366F1', color: showAddProvider ? '#94A3B8' : 'white',
               cursor: 'pointer', border: 'none',
             }}>
               {showAddProvider ? 'Annuler' : '+ Ajouter prestataire'}
@@ -305,7 +305,7 @@ export default function Transport({
             <div className="empty-state" style={{ padding: 40 }}>
               <div className="empty-icon">🏢</div>
               <div className="empty-text">Aucun prestataire transport</div>
-              <div style={{ fontSize: 11, color: '#71717A', marginTop: 4 }}>
+              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>
                 Ajoutez vos compagnies de ferry, loueurs de camions, etc.
               </div>
             </div>
@@ -321,25 +321,25 @@ export default function Transport({
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{
                         width: 44, height: 44, borderRadius: 12,
-                        background: p.type === 'ferry' ? '#3B82F615' : '#6366F115',
+                        background: p.type === 'ferry' ? '#2563EB15' : '#6366F115',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
                       }}>{p.type === 'ferry' ? '⛴️' : p.type === 'truck' ? '' : p.type === 'van' ? '' : '🚗'}</div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>{p.name}</div>
-                        <div style={{ fontSize: 11, color: '#71717A' }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>{p.name}</div>
+                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
                           {p.contact_name || ''}{p.contact_phone ? ` · ${p.contact_phone}` : ''}
                         </div>
                         {p.contact_email && (
-                          <div style={{ fontSize: 10, color: '#71717A' }}>{p.contact_email}</div>
+                          <div style={{ fontSize: 10, color: '#94A3B8' }}>{p.contact_email}</div>
                         )}
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: '#6366F1' }}>
                           {bookings.length}
                         </div>
-                        <div style={{ fontSize: 9, color: '#71717A' }}>résa.</div>
+                        <div style={{ fontSize: 9, color: '#94A3B8' }}>résa.</div>
                         {provCost > 0 && (
-                          <div style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B', marginTop: 2 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#D97706', marginTop: 2 }}>
                             {Math.round(provCost)}€
                           </div>
                         )}
@@ -360,7 +360,7 @@ export default function Transport({
             <div className="empty-state" style={{ padding: 40 }}>
               <div className="empty-icon">🗺️</div>
               <div className="empty-text">Aucune route configurée</div>
-              <div style={{ fontSize: 11, color: '#71717A', marginTop: 4 }}>
+              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>
                 Fort-de-France → Pointe-à-Pitre, etc.
               </div>
             </div>
@@ -372,14 +372,14 @@ export default function Transport({
                     <span style={{ fontSize: 20 }}>🗺️</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 600 }}>{r.name || `${r.origin} → ${r.destination}`}</div>
-                      <div style={{ fontSize: 11, color: '#71717A' }}>
+                      <div style={{ fontSize: 11, color: '#94A3B8' }}>
                         {r.origin} → {r.destination}
                         {r.distance_km ? ` · ${r.distance_km}km` : ''}
                         {r.duration_hours ? ` · ${r.duration_hours}h` : ''}
                       </div>
                     </div>
                     {r.default_cost > 0 && (
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#F59E0B' }}>{r.default_cost}€</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#D97706' }}>{r.default_cost}€</div>
                     )}
                   </div>
                 </div>
@@ -397,10 +397,10 @@ export default function Transport({
 function NeedStatusButton({ need, onReload, onToast }) {
   const statusFlow = ['pending', 'booked', 'in_transit', 'delivered']
   const STATUS_CONF = {
-    pending: { label: 'En attente', color: '#F59E0B' },
-    booked: { label: 'Réservé', color: '#3B82F6' },
-    in_transit: { label: 'En transit', color: '#A78BFA' },
-    delivered: { label: 'Livré', color: '#22C55E' },
+    pending: { label: 'En attente', color: '#D97706' },
+    booked: { label: 'Réservé', color: '#2563EB' },
+    in_transit: { label: 'En transit', color: '#7C3AED' },
+    delivered: { label: 'Livré', color: '#16A34A' },
   }
   const st = STATUS_CONF[need.status] || STATUS_CONF.pending
 
@@ -413,7 +413,7 @@ function NeedStatusButton({ need, onReload, onToast }) {
       onToast(`Transport → ${STATUS_CONF[next].label}`)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#A78BFA')
+      onToast('Erreur: ' + e.message, '#7C3AED')
     }
   }
 
@@ -458,7 +458,7 @@ function AddProviderForm({ onDone, onToast }) {
       onToast('Prestataire ajouté')
       onDone()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#A78BFA')
+      onToast('Erreur: ' + e.message, '#7C3AED')
     } finally {
       setSaving(false)
     }
@@ -466,7 +466,7 @@ function AddProviderForm({ onDone, onToast }) {
 
   return (
     <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#FAFAFA', marginBottom: 12 }}>Nouveau prestataire</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 12 }}>Nouveau prestataire</div>
       <input className="input" value={name} onChange={e => setName(e.target.value)}
         placeholder="Nom (ex: L'Express des Îles)" style={{ marginBottom: 10 }} />
       <div style={{ display: 'flex', gap: 4, marginBottom: 10, flexWrap: 'wrap' }}>
@@ -474,8 +474,8 @@ function AddProviderForm({ onDone, onToast }) {
           <button key={t.id} onClick={() => setType(t.id)} style={{
             padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
             background: type === t.id ? '#6366F115' : 'white',
-            color: type === t.id ? '#6366F1' : '#71717A',
-            border: `1px solid ${type === t.id ? '#6366F140' : 'rgba(255,255,255,0.06)'}`,
+            color: type === t.id ? '#6366F1' : '#94A3B8',
+            border: `1px solid ${type === t.id ? '#6366F140' : '#E2E8F0'}`,
             cursor: 'pointer',
           }}>{t.label}</button>
         ))}
@@ -524,7 +524,7 @@ function AddNeedForm({ events, onDone, onToast }) {
       onToast('Besoin transport ajouté')
       onDone()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#A78BFA')
+      onToast('Erreur: ' + e.message, '#7C3AED')
     } finally {
       setSaving(false)
     }
@@ -532,7 +532,7 @@ function AddNeedForm({ events, onDone, onToast }) {
 
   return (
     <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#FAFAFA', marginBottom: 12 }}>Nouveau besoin transport</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 12 }}>Nouveau besoin transport</div>
       <select className="input" value={eventId} onChange={e => setEventId(e.target.value)} style={{ marginBottom: 10 }}>
         {events.map(ev => (
           <option key={ev.id} value={ev.id}>
@@ -545,8 +545,8 @@ function AddNeedForm({ events, onDone, onToast }) {
           <button key={c.id} onClick={() => setCategory(c.id)} style={{
             padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
             background: category === c.id ? '#6366F115' : 'white',
-            color: category === c.id ? '#6366F1' : '#71717A',
-            border: `1px solid ${category === c.id ? '#6366F140' : 'rgba(255,255,255,0.06)'}`,
+            color: category === c.id ? '#6366F1' : '#94A3B8',
+            border: `1px solid ${category === c.id ? '#6366F140' : '#E2E8F0'}`,
             cursor: 'pointer',
           }}>{c.label}</button>
         ))}
@@ -570,10 +570,10 @@ function KpiBox({ label, value, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: '#18181B', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)',
+      background: '#F1F5F9', borderRadius: 10, border: '1px solid #E2E8F0',
     }}>
       <div style={{ fontSize: 14, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#71717A', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 8, color: '#94A3B8', fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

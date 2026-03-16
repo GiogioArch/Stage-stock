@@ -24,7 +24,7 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
       setDeletingProject(null)
       onProjectsChanged()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#A78BFA')
+      onToast('Erreur: ' + e.message, '#7C3AED')
     } finally {
       setDeleting(false)
     }
@@ -34,8 +34,8 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
     <div style={{ padding: '0 16px 24px' }}>
       {/* Header */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 20, fontWeight: 600, color: '#FAFAFA' }}>Mes projets</div>
-        <div style={{ fontSize: 12, color: '#71717A', marginTop: 2 }}>
+        <div style={{ fontSize: 20, fontWeight: 600, color: '#1E293B' }}>Mes projets</div>
+        <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>
           {active.length} actif{active.length > 1 ? 's' : ''}
           {archived.length > 0 && ` — ${archived.length} archivé${archived.length > 1 ? 's' : ''}`}
         </div>
@@ -55,23 +55,23 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
       {deletingProject && (
         <div className="card" style={{
           padding: 20, marginBottom: 14,
-          border: '2px solid #A78BFA30', background: '#FDF0F4',
+          border: '2px solid #7C3AED30', background: '#FDF0F4',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#A78BFA', marginBottom: 8, textAlign: 'center' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#7C3AED', marginBottom: 8, textAlign: 'center' }}>
             Supprimer ce projet ?
           </div>
-          <div style={{ fontSize: 12, color: '#71717A', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
             <strong>{deletingProject.org?.name}</strong><br />
             Cette action est irréversible. Toutes les données du projet seront perdues.
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={() => setDeletingProject(null)} style={{
               flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 700,
-              background: '#18181B', color: '#71717A', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.06)',
+              background: '#F1F5F9', color: '#94A3B8', cursor: 'pointer', border: '1px solid #E2E8F0',
             }}>Annuler</button>
             <button onClick={handleDelete} disabled={deleting} style={{
               flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 600,
-              background: '#A78BFA', color: 'white', cursor: 'pointer', border: 'none',
+              background: '#7C3AED', color: 'white', cursor: 'pointer', border: 'none',
               opacity: deleting ? 0.6 : 1,
             }}>{deleting ? 'Suppression...' : 'Supprimer'}</button>
           </div>
@@ -94,7 +94,7 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
       {/* Archived */}
       {archived.length > 0 && (
         <>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#71717A', marginBottom: 10, padding: '0 2px' }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#94A3B8', marginBottom: 10, padding: '0 2px' }}>
             Archivés
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20, opacity: 0.6 }}>
@@ -134,9 +134,9 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
   const [showMenu, setShowMenu] = useState(false)
   const roleConf = project.role_code ? ROLE_CONF[project.role_code] : null
   const statusColors = {
-    active: { bg: '#22C55E15', color: '#22C55E', label: 'Actif' },
-    invited: { bg: '#F59E0B15', color: '#F59E0B', label: 'Invitation' },
-    archived: { bg: '#71717A15', color: '#71717A', label: 'Archivé' },
+    active: { bg: '#16A34A15', color: '#16A34A', label: 'Actif' },
+    invited: { bg: '#D9770615', color: '#D97706', label: 'Invitation' },
+    archived: { bg: '#94A3B815', color: '#94A3B8', label: 'Archivé' },
   }
   const st = statusColors[project.status] || statusColors.active
 
@@ -157,7 +157,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
           }}>{project.org?.logo || ''}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA' }}>{project.org?.name || 'Projet'}</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>{project.org?.name || 'Projet'}</div>
             <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
               <span style={{
                 padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 600,
@@ -173,7 +173,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
               )}
             </div>
             {project.created_at && (
-              <div style={{ fontSize: 10, color: '#71717A', marginTop: 4 }}>
+              <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4 }}>
                 Membre depuis {new Date(project.created_at).toLocaleDateString('fr-FR')}
               </div>
             )}
@@ -183,8 +183,8 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
         {/* Menu button */}
         <button onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu) }} style={{
           width: 32, height: 32, borderRadius: 8, fontSize: 16,
-          background: showMenu ? 'rgba(255,255,255,0.06)' : 'transparent',
-          border: 'none', cursor: 'pointer', color: '#71717A',
+          background: showMenu ? '#E2E8F0' : 'transparent',
+          border: 'none', cursor: 'pointer', color: '#94A3B8',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         }}>⋯</button>
       </div>
@@ -193,21 +193,21 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
       {showMenu && (
         <div style={{
           position: 'absolute', top: 56, right: 16, zIndex: 10,
-          background: '#18181B', borderRadius: 12, padding: 6,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.06)',
+          background: '#F1F5F9', borderRadius: 12, padding: 6,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.12)', border: '1px solid #E2E8F0',
           minWidth: 140,
         }}>
           <button onClick={() => { setShowMenu(false); onEdit() }} style={{
             display: 'flex', alignItems: 'center', gap: 8, width: '100%',
             padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-            background: 'none', border: 'none', cursor: 'pointer', color: '#FAFAFA',
+            background: 'none', border: 'none', cursor: 'pointer', color: '#1E293B',
           }}>
             <span>✏️</span> Modifier
           </button>
           <button onClick={() => { setShowMenu(false); onDelete() }} style={{
             display: 'flex', alignItems: 'center', gap: 8, width: '100%',
             padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-            background: 'none', border: 'none', cursor: 'pointer', color: '#A78BFA',
+            background: 'none', border: 'none', cursor: 'pointer', color: '#7C3AED',
           }}>
             <span></span> Supprimer
           </button>
@@ -233,15 +233,15 @@ function EditProjectForm({ project, onSaved, onCancel, onToast }) {
       onToast('Projet modifié')
       onSaved()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#A78BFA')
+      onToast('Erreur: ' + e.message, '#7C3AED')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="card" style={{ padding: 20, marginBottom: 14, border: '2px solid #3B82F630' }}>
-      <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA', marginBottom: 16, textAlign: 'center' }}>
+    <div className="card" style={{ padding: 20, marginBottom: 14, border: '2px solid #2563EB30' }}>
+      <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B', marginBottom: 16, textAlign: 'center' }}>
         Modifier le projet
       </div>
       <div style={{ marginBottom: 14 }}>
@@ -251,12 +251,12 @@ function EditProjectForm({ project, onSaved, onCancel, onToast }) {
       <div style={{ marginBottom: 20 }}>
         <label className="label">Identifiant</label>
         <input className="input" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-          style={{ fontSize: 12, color: '#71717A' }} />
+          style={{ fontSize: 12, color: '#94A3B8' }} />
       </div>
       <div style={{ display: 'flex', gap: 10 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 700,
-          background: 'rgba(255,255,255,0.06)', color: '#71717A', cursor: 'pointer', border: 'none',
+          background: '#E2E8F0', color: '#94A3B8', cursor: 'pointer', border: 'none',
         }}>Annuler</button>
         <button onClick={handleSave} disabled={!name.trim() || saving} className="btn-primary" style={{ flex: 2 }}>
           {saving ? 'Enregistrement...' : 'Enregistrer'}
@@ -295,7 +295,7 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
       onToast('Projet créé !')
       onCreated()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#A78BFA')
+      onToast('Erreur: ' + e.message, '#7C3AED')
     } finally {
       setSaving(false)
     }
@@ -303,7 +303,7 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
 
   return (
     <div className="card" style={{ padding: 20, border: '2px solid #6366F130' }}>
-      <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA', marginBottom: 16, textAlign: 'center' }}>
+      <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B', marginBottom: 16, textAlign: 'center' }}>
         Nouveau projet
       </div>
       <div style={{ marginBottom: 14 }}>
@@ -312,12 +312,12 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
       </div>
       <div style={{ marginBottom: 20 }}>
         <label className="label">Identifiant</label>
-        <input className="input" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} placeholder="ma-tournee-2026" style={{ fontSize: 12, color: '#71717A' }} />
+        <input className="input" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} placeholder="ma-tournee-2026" style={{ fontSize: 12, color: '#94A3B8' }} />
       </div>
       <div style={{ display: 'flex', gap: 10 }}>
         <button onClick={onCancel} style={{
           flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 700,
-          background: 'rgba(255,255,255,0.06)', color: '#71717A', cursor: 'pointer', border: 'none',
+          background: '#E2E8F0', color: '#94A3B8', cursor: 'pointer', border: 'none',
         }}>Annuler</button>
         <button onClick={handleCreate} disabled={!name.trim() || saving} className="btn-primary" style={{ flex: 2 }}>
           {saving ? 'Création...' : 'Créer'}

@@ -20,18 +20,18 @@ import {
 
 // ─── Design tokens ───
 const COLOR = {
-  textPrimary: '#FAFAFA',
-  textSecondary: '#A1A1AA',
-  textTertiary: '#71717A',
+  textPrimary: '#1E293B',
+  textSecondary: '#64748B',
+  textTertiary: '#94A3B8',
   accent: '#6366F1',
   accentSubtle: 'rgba(99,102,241,0.12)',
-  bgSurface: '#111113',
-  bgHover: '#18181B',
-  border: 'rgba(255,255,255,0.06)',
-  success: '#22C55E',
-  danger: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
+  bgSurface: '#F8FAFC',
+  bgHover: '#F1F5F9',
+  border: '#E2E8F0',
+  success: '#16A34A',
+  danger: '#DC2626',
+  warning: '#D97706',
+  info: '#2563EB',
 }
 
 export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, onQuickAction, onNavigate, onReload, onToast }) {

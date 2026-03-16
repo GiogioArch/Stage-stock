@@ -423,9 +423,9 @@ export default function App() {
   // ═══════════════════════════════════════════════
   if (layer === 'personal') {
     return (
-      <div style={{ minHeight: '100dvh', background: '#09090B', paddingBottom: 72 }}>
+      <div style={{ minHeight: '100dvh', background: '#FFFFFF', paddingBottom: 72 }}>
         {/* Header */}
-        <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               width: 36, height: 36, borderRadius: 8,
@@ -433,15 +433,15 @@ export default function App() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}><Box size={20} color="#fff" /></div>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#FAFAFA' }}>Stage Stock</div>
-              <div style={{ fontSize: 11, color: '#71717A' }}>Mon espace</div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Stage Stock</div>
+              <div style={{ fontSize: 11, color: '#94A3B8' }}>Mon espace</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {offline && (
               <span style={{
                 padding: '4px 8px', borderRadius: 6, background: 'rgba(245,158,11,0.12)',
-                border: '1px solid rgba(245,158,11,0.2)', color: '#F59E0B', fontSize: 11, fontWeight: 500,
+                border: '1px solid rgba(245,158,11,0.2)', color: '#D97706', fontSize: 11, fontWeight: 500,
                 display: 'flex', alignItems: 'center', gap: 4,
               }}><WifiOff size={12} /> Hors ligne</span>
             )}
@@ -449,7 +449,7 @@ export default function App() {
               width: 36, height: 36, borderRadius: 8, background: 'rgba(239,68,68,0.1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
               border: '1px solid rgba(239,68,68,0.15)',
-            }}><LogOut size={16} color="#EF4444" /></button>
+            }}><LogOut size={16} color="#DC2626" /></button>
           </div>
         </header>
 
@@ -477,15 +477,15 @@ export default function App() {
           <div style={{ padding: '0 16px' }}>
             <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-                <Calendar size={32} color="#52525B" />
+                <Calendar size={32} color="#CBD5E1" />
               </div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA', marginBottom: 6 }}>Mon calendrier</div>
-              <div style={{ fontSize: 13, color: '#71717A', lineHeight: 1.5, marginBottom: 12 }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B', marginBottom: 6 }}>Mon calendrier</div>
+              <div style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.5, marginBottom: 12 }}>
                 Toutes tes dates de concert, tous projets confondus.
               </div>
               <span style={{
                 display: 'inline-block', padding: '4px 12px', borderRadius: 6,
-                background: '#18181B', color: '#71717A', fontSize: 11, fontWeight: 500,
+                background: '#F1F5F9', color: '#94A3B8', fontSize: 11, fontWeight: 500,
               }}>Bientot disponible</span>
             </div>
           </div>
@@ -537,10 +537,10 @@ export default function App() {
 
   if (error && data.products.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center', background: '#09090B' }}>
-        <AlertTriangle size={32} color="#EF4444" style={{ marginBottom: 16 }} />
-        <div style={{ color: '#EF4444', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>Erreur de connexion</div>
-        <div style={{ color: '#71717A', fontSize: 13, marginBottom: 20 }}>{error}</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center', background: '#FFFFFF' }}>
+        <AlertTriangle size={32} color="#DC2626" style={{ marginBottom: 16 }} />
+        <div style={{ color: '#DC2626', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>Erreur de connexion</div>
+        <div style={{ color: '#94A3B8', fontSize: 13, marginBottom: 20 }}>{error}</div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-primary" style={{ maxWidth: 200 }} onClick={loadAll}>Réessayer</button>
           <button onClick={backToPersonal} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -563,21 +563,21 @@ export default function App() {
     )
   }
 
-  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#71717A', label: userRole.name }) : null
+  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#94A3B8', label: userRole.name }) : null
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#09090B', paddingBottom: 72 }}>
+    <div style={{ minHeight: '100dvh', background: '#FFFFFF', paddingBottom: 72 }}>
       {/* ─── Header (Couche 3) ─── */}
-      <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button onClick={backToPersonal} style={{
             padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 500,
-            background: '#111113', border: '1px solid rgba(255,255,255,0.06)', color: '#A1A1AA', cursor: 'pointer',
+            background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 4,
           }}>
             <ChevronLeft size={14} /> Retour
           </button>
-          <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA' }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>
             {selectedOrg?.name || 'Projet'}
           </div>
         </div>
@@ -585,21 +585,21 @@ export default function App() {
           {offline && (
             <span style={{
               padding: '4px 8px', borderRadius: 6, background: 'rgba(245,158,11,0.12)',
-              border: '1px solid rgba(245,158,11,0.2)', color: '#F59E0B', fontSize: 11, fontWeight: 500,
+              border: '1px solid rgba(245,158,11,0.2)', color: '#D97706', fontSize: 11, fontWeight: 500,
               display: 'flex', alignItems: 'center', gap: 4,
             }}><WifiOff size={12} /> Hors ligne</span>
           )}
           {isModuleActive('stock') && (
             <button onClick={() => setShowScanner(true)} style={{
-              width: 36, height: 36, borderRadius: 8, background: '#111113',
+              width: 36, height: 36, borderRadius: 8, background: '#F8FAFC',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer',
-            }}><Camera size={16} color="#A1A1AA" /></button>
+              border: '1px solid #E2E8F0', cursor: 'pointer',
+            }}><Camera size={16} color="#64748B" /></button>
           )}
           {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('alertes') && (
             <button onClick={() => handleTabChange('alertes')} style={{
               padding: '4px 10px', borderRadius: 6, background: 'rgba(239,68,68,0.12)',
-              border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 11, fontWeight: 500,
+              border: '1px solid rgba(239,68,68,0.15)', color: '#DC2626', fontSize: 11, fontWeight: 500,
               animation: 'pulse 2s infinite', display: 'flex', alignItems: 'center', gap: 4,
             }}>
               <AlertTriangle size={12} /> {alerts.filter(a => a.level === 'rupture').length}
@@ -633,8 +633,8 @@ export default function App() {
                 padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,
                 cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
                 background: isActive ? 'rgba(99,102,241,0.12)' : 'transparent',
-                color: isActive ? '#A5B4FC' : '#71717A',
-                border: `1px solid ${isActive ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                color: isActive ? '#A5B4FC' : '#94A3B8',
+                border: `1px solid ${isActive ? 'rgba(99,102,241,0.2)' : '#E2E8F0'}`,
               }}>
                 {t.label}
               </button>
@@ -949,8 +949,8 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
             flex: 1, padding: '6px', borderRadius: 6, fontSize: 12, fontWeight: 500,
             cursor: 'pointer', textAlign: 'center',
             background: subTab === s.id ? 'rgba(99,102,241,0.12)' : 'transparent',
-            color: subTab === s.id ? '#A5B4FC' : '#71717A',
-            border: `1px solid ${subTab === s.id ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.06)'}`,
+            color: subTab === s.id ? '#A5B4FC' : '#94A3B8',
+            border: `1px solid ${subTab === s.id ? 'rgba(99,102,241,0.2)' : '#E2E8F0'}`,
           }}>{s.label}</button>
         ))}
       </div>
@@ -992,16 +992,16 @@ class LiveErrorBoundary extends React.Component {
       return (
         <div style={{
           minHeight: '100dvh',
-          background: '#09090B',
+          background: '#FFFFFF',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexDirection: 'column', gap: 16, padding: 32, textAlign: 'center',
           fontFamily: "'Inter', sans-serif",
         }}>
-          <AlertTriangle size={40} color="#EF4444" />
-          <div style={{ fontSize: 18, fontWeight: 600, color: '#FAFAFA' }}>
+          <AlertTriangle size={40} color="#DC2626" />
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#1E293B' }}>
             Erreur technique
           </div>
-          <div style={{ fontSize: 14, color: '#71717A', lineHeight: 1.6, maxWidth: 300 }}>
+          <div style={{ fontSize: 14, color: '#94A3B8', lineHeight: 1.6, maxWidth: 300 }}>
             Recharge la page pour continuer.
           </div>
           <button onClick={() => window.location.reload()} className="btn-primary" style={{
@@ -1019,7 +1019,7 @@ function SplashScreen({ text }) {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16,
-      background: '#09090B',
+      background: '#FFFFFF',
     }}>
       <div style={{
         width: 48, height: 48, borderRadius: 12,
@@ -1027,8 +1027,8 @@ function SplashScreen({ text }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}><Box size={28} color="#fff" /></div>
       <div className="loader" />
-      <div style={{ color: '#FAFAFA', fontWeight: 600, fontSize: 18 }}>Stage Stock</div>
-      <div style={{ color: '#71717A', fontSize: 13 }}>{text}</div>
+      <div style={{ color: '#1E293B', fontWeight: 600, fontSize: 18 }}>Stage Stock</div>
+      <div style={{ color: '#94A3B8', fontSize: 13 }}>{text}</div>
     </div>
   )
 }

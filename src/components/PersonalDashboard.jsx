@@ -66,7 +66,7 @@ export default function PersonalDashboard({
               ? `url(${userDetails.avatar_url}) center/cover`
               : 'var(--accent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 22, fontWeight: 600, color: '#FAFAFA',
+            fontSize: 22, fontWeight: 600, color: '#1E293B',
             border: '2px solid var(--border)',
             boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           }}>
@@ -261,7 +261,7 @@ function EventRow({ event, onOpen }) {
         }}>
           <div style={{
             fontSize: 13, fontWeight: 600, lineHeight: 1,
-            color: isUrgent ? '#EF4444' : 'var(--accent)',
+            color: isUrgent ? '#DC2626' : 'var(--accent)',
           }}>
             {daysLeft <= 0 ? 'J' : `J-${daysLeft}`}
           </div>

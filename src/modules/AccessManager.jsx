@@ -32,7 +32,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       const data = await db.get('project_members', `org_id=eq.${membership.org_id}&order=created_at.asc`)
       setMembers(data || [])
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#EF4444')
+      onToast('Erreur: ' + e.message, '#DC2626')
     } finally {
       setLoading(false)
     }
@@ -56,7 +56,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       setInviteMode(false)
       loadMembers()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#EF4444')
+      onToast('Erreur: ' + e.message, '#DC2626')
     }
   }
 
@@ -72,7 +72,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       loadMembers()
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#EF4444')
+      onToast('Erreur: ' + e.message, '#DC2626')
     }
   }
 
@@ -87,7 +87,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       onToast(!currentAdmin ? 'Promu admin' : 'Admin retiré')
       loadMembers()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#EF4444')
+      onToast('Erreur: ' + e.message, '#DC2626')
     }
   }
 
@@ -103,7 +103,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       loadMembers()
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#EF4444')
+      onToast('Erreur: ' + e.message, '#DC2626')
     }
   }
 
@@ -115,7 +115,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       onToast('Membre désactivé')
       loadMembers()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#EF4444')
+      onToast('Erreur: ' + e.message, '#DC2626')
     }
   }
 
@@ -126,22 +126,22 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       {/* Header */}
       <div className="card" style={{
         padding: '16px', marginBottom: 16,
-        background: 'linear-gradient(135deg, #A78BFA08, #A78BFA18)',
-        border: '1px solid #A78BFA25',
+        background: 'linear-gradient(135deg, #7C3AED08, #7C3AED18)',
+        border: '1px solid #7C3AED25',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#FAFAFA' }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
               Membres du projet
             </div>
-            <div style={{ fontSize: 12, color: '#71717A' }}>
+            <div style={{ fontSize: 12, color: '#94A3B8' }}>
               {members.filter(m => m.status === 'active').length} actif(s) · {members.filter(m => m.status === 'invited').length} invité(s)
             </div>
           </div>
           {isAdmin && (
             <button onClick={() => setInviteMode(true)} style={{
               padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: '#A78BFA', color: 'white', border: 'none', cursor: 'pointer',
+              background: '#7C3AED', color: 'white', border: 'none', cursor: 'pointer',
             }}>
               + Inviter
             </button>
@@ -169,24 +169,24 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {members.filter(m => m.status !== 'disabled').map(m => {
             const role = roles.find(r => r.id === m.role_id)
-            const roleConf = role ? (ROLE_CONF[role.code] || { icon: '', color: '#71717A', label: role.name }) : null
+            const roleConf = role ? (ROLE_CONF[role.code] || { icon: '', color: '#94A3B8', label: role.name }) : null
             const isMe = m.user_id === membership.user_id
             const moduleCount = (m.module_access || []).length
 
             return (
               <div key={m.id} className="card" style={{
                 padding: '12px 14px',
-                borderLeft: `3px solid ${roleConf?.color || 'rgba(255,255,255,0.1)'}`,
+                borderLeft: `3px solid ${roleConf?.color || '#CBD5E1'}`,
                 opacity: m.status === 'invited' ? 0.7 : 1,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   {/* Avatar */}
                   <div style={{
                     width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-                    background: roleConf ? `${roleConf.color}20` : '#18181B',
+                    background: roleConf ? `${roleConf.color}20` : '#F1F5F9',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: roleConf ? 18 : 14, fontWeight: 600,
-                    color: roleConf?.color || '#71717A',
+                    color: roleConf?.color || '#94A3B8',
                   }}>
                     {roleConf ? roleConf.icon : (m.display_name || m.email || '?')[0].toUpperCase()}
                   </div>
@@ -203,7 +203,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
                       {isMe && (
                         <span style={{
                           fontSize: 9, padding: '1px 6px', borderRadius: 4,
-                          background: '#22C55E20', color: '#22C55E', fontWeight: 600,
+                          background: '#16A34A20', color: '#16A34A', fontWeight: 600,
                         }}>MOI</span>
                       )}
                       {m.is_admin && (
@@ -219,7 +219,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
                         }}>INVITÉ</span>
                       )}
                     </div>
-                    <div style={{ fontSize: 11, color: '#71717A', marginTop: 1 }}>
+                    <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>
                       {roleConf ? roleConf.label : 'Aucun rôle'}
                       {' · '}{moduleCount} module{moduleCount > 1 ? 's' : ''}
                     </div>
@@ -229,8 +229,8 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
                   {isAdmin && (
                     <button onClick={() => setEditingMember(m)} style={{
                       padding: '6px 10px', borderRadius: 8, fontSize: 12,
-                      background: '#111113', border: '1px solid rgba(255,255,255,0.1)',
-                      color: '#71717A', cursor: 'pointer', fontWeight: 700,
+                      background: '#F8FAFC', border: '1px solid #CBD5E1',
+                      color: '#94A3B8', cursor: 'pointer', fontWeight: 700,
                     }}>
                       Gérer
                     </button>
@@ -246,7 +246,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       {inviteMode && (
         <Modal title="Inviter un membre" onClose={() => setInviteMode(false)}>
           <div style={{ marginBottom: 16 }}>
-            <label style={{ fontSize: 12, fontWeight: 700, color: '#71717A' }}>Email</label>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8' }}>Email</label>
             <input
               type="email"
               value={inviteEmail}
@@ -255,13 +255,13 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
               autoFocus
               style={{
                 width: '100%', padding: '12px 14px', borderRadius: 12,
-                border: '1px solid rgba(255,255,255,0.1)', fontSize: 14, marginTop: 6,
+                border: '1px solid #CBD5E1', fontSize: 14, marginTop: 6,
               }}
             />
           </div>
           <button onClick={handleInvite} disabled={!inviteEmail.trim()} style={{
             width: '100%', padding: 14, borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: inviteEmail.trim() ? '#A78BFA' : 'rgba(255,255,255,0.1)',
+            background: inviteEmail.trim() ? '#7C3AED' : '#CBD5E1',
             color: 'white', border: 'none', cursor: inviteEmail.trim() ? 'pointer' : 'not-allowed',
           }}>
             Envoyer l'invitation
@@ -318,11 +318,11 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
         {/* Member info */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16,
-          padding: '12px 14px', borderRadius: 8, background: '#111113',
+          padding: '12px 14px', borderRadius: 8, background: '#F8FAFC',
         }}>
           <div style={{
             width: 44, height: 44, borderRadius: 12,
-            background: roleConf ? `${roleConf.color}20` : 'rgba(255,255,255,0.1)',
+            background: roleConf ? `${roleConf.color}20` : '#CBD5E1',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 20,
           }}>
@@ -330,13 +330,13 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600 }}>{member.display_name || member.email || 'Membre'}</div>
-            <div style={{ fontSize: 11, color: '#71717A' }}>{member.email || ''}</div>
+            <div style={{ fontSize: 11, color: '#94A3B8' }}>{member.email || ''}</div>
           </div>
         </div>
 
         {/* Role selector */}
         <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: '#71717A', marginBottom: 6, display: 'block' }}>
+          <label style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8', marginBottom: 6, display: 'block' }}>
             Rôle métier
           </label>
           <select
@@ -344,7 +344,7 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
             onChange={e => setLocalRoleId(e.target.value)}
             style={{
               width: '100%', padding: '10px 12px', borderRadius: 10,
-              border: '1px solid rgba(255,255,255,0.1)', fontSize: 13, background: '#18181B',
+              border: '1px solid #CBD5E1', fontSize: 13, background: '#F1F5F9',
             }}
           >
             <option value="">Aucun rôle</option>
@@ -362,20 +362,20 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
         {/* Admin toggle */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '10px 14px', borderRadius: 12, background: '#09090B',
-          border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16,
+          padding: '10px 14px', borderRadius: 12, background: '#FFFFFF',
+          border: '1px solid #CBD5E1', marginBottom: 16,
         }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 700 }}>Administrateur</div>
-            <div style={{ fontSize: 11, color: '#71717A' }}>Peut gérer les membres et les accès</div>
+            <div style={{ fontSize: 11, color: '#94A3B8' }}>Peut gérer les membres et les accès</div>
           </div>
           <button onClick={onToggleAdmin} style={{
             width: 44, height: 26, borderRadius: 13, cursor: 'pointer', border: 'none',
-            background: member.is_admin ? '#22C55E' : 'rgba(255,255,255,0.1)',
+            background: member.is_admin ? '#16A34A' : '#CBD5E1',
             position: 'relative', transition: 'background 0.2s',
           }}>
             <div style={{
-              width: 20, height: 20, borderRadius: 10, background: '#18181B',
+              width: 20, height: 20, borderRadius: 10, background: '#F1F5F9',
               position: 'absolute', top: 3,
               left: member.is_admin ? 21 : 3,
               transition: 'left 0.2s',
@@ -386,7 +386,7 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
 
         {/* Module access */}
         <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: '#71717A', marginBottom: 8, display: 'block' }}>
+          <label style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8', marginBottom: 8, display: 'block' }}>
             Accès aux modules
           </label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -402,20 +402,20 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '10px 12px', borderRadius: 10, textAlign: 'left',
                     background: isActive ? `${mod.color}08` : 'white',
-                    border: `1px solid ${isActive ? mod.color + '30' : '#18181B'}`,
+                    border: `1px solid ${isActive ? mod.color + '30' : '#F1F5F9'}`,
                     cursor: isRequired ? 'default' : 'pointer',
                     opacity: isRequired ? 0.6 : 1,
                   }}
                 >
                   <span style={{ fontSize: 18, display: 'flex', alignItems: 'center' }}>{MOD_ICONS[mod.icon] ? createElement(MOD_ICONS[mod.icon], { size: 18, color: mod.color }) : null}</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: isActive ? mod.color : '#71717A' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: isActive ? mod.color : '#94A3B8' }}>
                       {mod.name}
                     </div>
                   </div>
                   <div style={{
                     width: 22, height: 22, borderRadius: 6,
-                    border: `2px solid ${isActive ? mod.color : '#52525B'}`,
+                    border: `2px solid ${isActive ? mod.color : '#CBD5E1'}`,
                     background: isActive ? mod.color : 'transparent',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'white', fontSize: 12, fontWeight: 600,
@@ -432,13 +432,13 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleSave} style={{
             flex: 1, padding: 14, borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: '#A78BFA', color: 'white', border: 'none', cursor: 'pointer',
+            background: '#7C3AED', color: 'white', border: 'none', cursor: 'pointer',
           }}>
             Sauvegarder
           </button>
           <button onClick={onDisable} style={{
             padding: '14px 16px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: 'rgba(200,164,106,0.08)', color: '#EF4444', border: '1px solid #EF444430',
+            background: 'rgba(200,164,106,0.08)', color: '#DC2626', border: '1px solid #DC262630',
             cursor: 'pointer',
           }}>
             Désactiver

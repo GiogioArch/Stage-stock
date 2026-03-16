@@ -23,8 +23,8 @@ export function Modal({ onClose, title, children }) {
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         {title && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 600, color: '#FAFAFA' }}>{title}</h3>
-            <button onClick={onClose} style={{ color: '#71717A', padding: 4, display: 'flex', alignItems: 'center' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1E293B' }}>{title}</h3>
+            <button onClick={onClose} style={{ color: '#94A3B8', padding: 4, display: 'flex', alignItems: 'center' }}>
               <X size={20} />
             </button>
           </div>
@@ -40,8 +40,8 @@ export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = '
   return (
     <div className="confirm-dialog">
       <div className="confirm-box">
-        <div style={{ fontSize: 15, fontWeight: 600, color: '#FAFAFA', marginBottom: 8 }}>{message}</div>
-        {detail && <div style={{ fontSize: 13, color: '#71717A', marginBottom: 20, lineHeight: 1.5 }}>{detail}</div>}
+        <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B', marginBottom: 8 }}>{message}</div>
+        {detail && <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 20, lineHeight: 1.5 }}>{detail}</div>}
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-secondary" style={{ flex: 1 }} onClick={onCancel}>Annuler</button>
           <button className="btn-primary" style={{ flex: 1, background: confirmColor }} onClick={onConfirm}>{confirmLabel}</button>
@@ -52,7 +52,7 @@ export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = '
 }
 
 // ─── Toast ───
-export function Toast({ message, color = '#22C55E', onDone }) {
+export function Toast({ message, color = '#16A34A', onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 2500)
     return () => clearTimeout(t)
@@ -67,9 +67,9 @@ export function Toast({ message, color = '#22C55E', onDone }) {
 
 // ─── Category helpers ───
 export const CATEGORIES = [
-  { id: 'merch', name: 'Merchandising', icon: Shirt, color: '#EF4444', bg: 'rgba(99,102,241,0.08)' },
-  { id: 'materiel', name: 'Materiel', icon: Guitar, color: '#3B82F6', bg: 'rgba(91,141,184,0.08)' },
-  { id: 'consommables', name: 'Consommables', icon: Battery, color: '#22C55E', bg: 'rgba(47,182,93,0.08)' },
+  { id: 'merch', name: 'Merchandising', icon: Shirt, color: '#DC2626', bg: 'rgba(99,102,241,0.08)' },
+  { id: 'materiel', name: 'Materiel', icon: Guitar, color: '#2563EB', bg: 'rgba(91,141,184,0.08)' },
+  { id: 'consommables', name: 'Consommables', icon: Battery, color: '#16A34A', bg: 'rgba(47,182,93,0.08)' },
 ]
 
 export function getCat(id) {
@@ -95,9 +95,9 @@ export function fmtDate(iso) {
 // ─── Movement config ───
 export function getMoveConf(type) {
   const conf = {
-    in: { icon: ArrowDownToLine, color: '#22C55E', label: 'Entree', bg: 'rgba(47,182,93,0.08)' },
-    out: { icon: ArrowUpFromLine, color: '#EF4444', label: 'Sortie', bg: 'rgba(99,102,241,0.08)' },
-    transfer: { icon: RefreshCw, color: '#3B82F6', label: 'Transfert', bg: 'rgba(91,141,184,0.08)' },
+    in: { icon: ArrowDownToLine, color: '#16A34A', label: 'Entree', bg: 'rgba(47,182,93,0.08)' },
+    out: { icon: ArrowUpFromLine, color: '#DC2626', label: 'Sortie', bg: 'rgba(99,102,241,0.08)' },
+    transfer: { icon: RefreshCw, color: '#2563EB', label: 'Transfert', bg: 'rgba(91,141,184,0.08)' },
   }
   return conf[type] || conf.in
 }
