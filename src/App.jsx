@@ -27,6 +27,8 @@ import ProfilePage from './components/ProfilePage'
 import PersonalDashboard from './components/PersonalDashboard'
 import MyProjects from './components/MyProjects'
 import Landing from './components/Landing'
+import Onboarding from './components/Onboarding'
+import Feedback from './components/Feedback'
 import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
 import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3 } from 'lucide-react'
@@ -430,6 +432,32 @@ export default function App() {
   if (personalLoading && allProjects.length === 0) return <SplashScreen text="Chargement..." />
 
   // ═══════════════════════════════════════════════
+  // ONBOARDING — First-time users
+  // ═══════════════════════════════════════════════
+  const needsOnboarding = !personalLoading
+    && allProjects.length === 0
+    && !localStorage.getItem('onboarding_complete')
+    && layer === 'personal'
+
+  if (needsOnboarding) {
+    return (
+      <>
+        <Onboarding
+          user={user}
+          onComplete={(membership) => {
+            if (membership) {
+              enterProject(membership)
+            }
+            loadPersonalData()
+          }}
+          onToast={(msg, color) => showToast(msg, color)}
+        />
+        {toast && <Toast message={toast.message} color={toast.color} />}
+      </>
+    )
+  }
+
+  // ═══════════════════════════════════════════════
   // COUCHE 2 — Espace personnel
   // ═══════════════════════════════════════════════
   if (layer === 'personal') {
@@ -727,6 +755,9 @@ export default function App() {
           onToast={showToast}
         />
       )}
+
+      {/* ─── Feedback widget (terrain) ─── */}
+      <Feedback user={user} orgId={selectedOrg?.id} context={tab} />
 
       {/* ─── Toast ─── */}
       {toast && <Toast message={toast.message} color={toast.color} onDone={() => setToast(null)} />}

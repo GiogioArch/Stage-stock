@@ -145,6 +145,7 @@ button { cursor: pointer; border: none; background: none; }
 /* ─── Utility ─── */
 .fade-in { animation: fadeIn 0.15s ease-out; }
 .slide-up { animation: slideUp 0.25s ease-out; }
+.spin { animation: spin 0.8s linear infinite; }
 
 /* ─── Card ─── */
 .card {

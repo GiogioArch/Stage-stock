@@ -63,37 +63,65 @@ export default function PackingList({ event, products, stock, locations, roles, 
     }
   }, [event.id, onReload, onToast])
 
-  // Print / export packing list
-  const handlePrint = useCallback(() => {
+  // Build packing list HTML for print/export
+  const buildPackingHTML = useCallback((forDownload = false) => {
     const roleEntries = Object.entries(groupedByRole)
     const dateStr = parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Packing - ${event.name || event.lieu}</title>
-    <style>
-      body { font-family: Arial, sans-serif; padding: 20px; color: #333; font-size: 12px; }
-      h1 { font-size: 18px; margin-bottom: 4px; }
-      h2 { font-size: 14px; margin: 16px 0 6px; border-bottom: 2px solid #6366F1; padding-bottom: 4px; }
-      .sub { color: #888; font-size: 11px; margin-bottom: 16px; }
-      table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-      th { text-align: left; font-size: 10px; text-transform: uppercase; color: #888; border-bottom: 1px solid #ccc; padding: 4px 6px; }
-      td { padding: 4px 6px; border-bottom: 1px solid #eee; }
-      .check { width: 20px; text-align: center; }
-      .qty { text-align: right; width: 50px; }
-      .shortage { color: #DC2626; font-weight: bold; }
-      @media print { body { padding: 0; } }
-    </style></head><body>`
-    html += `<h1>Packing List — ${event.name || event.lieu}</h1>`
-    html += `<div class="sub">${dateStr} · ${event.lieu} · ${event.ville} (${event.territoire}) · ${event.format} · ${event.capacite || '?'} pers.</div>`
+    const eventName = event.name || event.lieu
 
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Packing - ${eventName}</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Inter', Arial, sans-serif; padding: 24px; color: #1E293B; font-size: 12px; }
+      .header { border-bottom: 3px solid #6366F1; padding-bottom: 12px; margin-bottom: 16px; }
+      h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+      .meta { color: #64748B; font-size: 11px; line-height: 1.6; }
+      .stats { display: flex; gap: 16px; margin: 12px 0; }
+      .stat { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+      .stat-ok { background: #F0FDF4; color: #16A34A; }
+      .stat-warn { background: #FEF2F2; color: #DC2626; }
+      .stat-info { background: #EFF6FF; color: #2563EB; }
+      h2 { font-size: 13px; font-weight: 700; margin: 18px 0 6px; padding: 6px 10px; border-radius: 6px; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+      th { text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; border-bottom: 1px solid #E2E8F0; padding: 4px 8px; font-weight: 600; }
+      td { padding: 5px 8px; border-bottom: 1px solid #F1F5F9; font-size: 11px; }
+      tr:hover td { background: #F8FAFC; }
+      .check { width: 24px; text-align: center; font-size: 14px; }
+      .qty { text-align: right; width: 50px; font-weight: 500; }
+      .shortage { color: #DC2626; font-weight: 700; }
+      .packed-row { opacity: 0.5; }
+      .packed-row td:nth-child(2) { text-decoration: line-through; }
+      .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #E2E8F0; font-size: 9px; color: #94A3B8; display: flex; justify-content: space-between; }
+      @media print { body { padding: 12px; } .no-print { display: none; } }
+    </style></head><body>`
+
+    // Header
+    html += `<div class="header">
+      <h1>📦 Packing List — ${eventName}</h1>
+      <div class="meta">${dateStr} · ${event.lieu || ''} · ${event.ville || ''} ${event.territoire ? '(' + event.territoire + ')' : ''} · ${event.format || ''} · ${event.capacite || '?'} pers.</div>
+    </div>`
+
+    // Stats bar
+    html += `<div class="stats">
+      <span class="stat stat-info">${totalItems} items</span>
+      <span class="stat stat-ok">${packedItems} emballés (${overallPercent}%)</span>
+      ${shortageItems.length > 0 ? `<span class="stat stat-warn">${shortageItems.length} manquants (-${totalShortage})</span>` : ''}
+    </div>`
+
+    // Role sections
     roleEntries.forEach(([role, items]) => {
-      const rc = ROLE_CONF[role] || { label: role }
+      const rc = ROLE_CONF[role] || { label: role, color: '#94A3B8' }
       const done = items.filter(i => i.packed).length
-      html += `<h2>${rc.label || role} (${done}/${items.length})</h2>`
-      html += `<table><tr><th class="check">OK</th><th>Produit</th><th class="qty">Besoin</th><th class="qty">Préparé</th><th class="qty">Manque</th></tr>`
+      const pct = items.length > 0 ? Math.round((done / items.length) * 100) : 0
+      html += `<h2 style="background:${rc.color}10;color:${rc.color};border-left:3px solid ${rc.color}">${rc.label || role} — ${done}/${items.length} (${pct}%)</h2>`
+      html += `<table><tr><th class="check">OK</th><th>Produit</th><th>SKU</th><th class="qty">Besoin</th><th class="qty">Préparé</th><th class="qty">Manque</th></tr>`
       items.forEach(item => {
         const p = products.find(pr => pr.id === item.product_id)
-        html += `<tr>
-          <td class="check">${item.packed ? '✓' : '☐'}</td>
+        const rowClass = item.packed ? 'packed-row' : ''
+        html += `<tr class="${rowClass}">
+          <td class="check">${item.packed ? '✅' : '☐'}</td>
           <td>${p?.name || '?'}</td>
+          <td style="color:#94A3B8;font-size:10px">${p?.sku || ''}</td>
           <td class="qty">${item.quantity_needed}</td>
           <td class="qty">${item.quantity_packed}</td>
           <td class="qty ${item.shortage > 0 ? 'shortage' : ''}">${item.shortage > 0 ? '-' + item.shortage : '—'}</td>
@@ -102,14 +130,83 @@ export default function PackingList({ event, products, stock, locations, roles, 
       html += `</table>`
     })
 
-    html += `<div style="margin-top:20px;font-size:10px;color:#aaa">Généré le ${new Date().toLocaleDateString('fr-FR')} — Stage Stock</div></body></html>`
+    // Footer
+    html += `<div class="footer">
+      <span>Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+      <span>Stage Stock — ${eventName}</span>
+    </div>`
 
+    html += `</body></html>`
+    return html
+  }, [event, groupedByRole, products, totalItems, packedItems, overallPercent, shortageItems, totalShortage])
+
+  // Print packing list
+  const handlePrint = useCallback(() => {
+    const html = buildPackingHTML(false)
     const printWindow = window.open('', '_blank')
     printWindow.document.write(html)
     printWindow.document.close()
     printWindow.focus()
     printWindow.print()
-  }, [event, groupedByRole, products])
+  }, [buildPackingHTML])
+
+  // Download as HTML file (openable in any browser, saveable as PDF)
+  const handleDownload = useCallback(() => {
+    const html = buildPackingHTML(true)
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    const eventSlug = (event.name || event.lieu || 'packing').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+    const dateSlug = event.date ? event.date.slice(0, 10) : new Date().toISOString().slice(0, 10)
+    a.href = url
+    a.download = `packing-${eventSlug}-${dateSlug}.html`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    onToast('Packing list téléchargée')
+  }, [buildPackingHTML, event, onToast])
+
+  // Share via native share API (mobile)
+  const handleShare = useCallback(async () => {
+    const eventName = event.name || event.lieu || 'Concert'
+    const dateStr = parseDate(event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+
+    // Build a simple text summary for sharing
+    const roleEntries = Object.entries(groupedByRole)
+    let text = `📦 Packing List — ${eventName}\n📅 ${dateStr}\n📍 ${event.lieu || ''}, ${event.ville || ''}\n\n`
+    text += `✅ ${packedItems}/${totalItems} emballés (${overallPercent}%)\n`
+    if (shortageItems.length > 0) text += `⚠️ ${shortageItems.length} manquants (-${totalShortage} unités)\n`
+    text += '\n'
+
+    roleEntries.forEach(([role, items]) => {
+      const rc = ROLE_CONF[role] || { label: role }
+      const done = items.filter(i => i.packed).length
+      text += `── ${rc.label} (${done}/${items.length}) ──\n`
+      items.forEach(item => {
+        const p = products.find(pr => pr.id === item.product_id)
+        const check = item.packed ? '✅' : '☐'
+        const shortage = item.shortage > 0 ? ` ⚠️-${item.shortage}` : ''
+        text += `${check} ${p?.name || '?'} — ${item.quantity_packed}/${item.quantity_needed}${shortage}\n`
+      })
+      text += '\n'
+    })
+    text += `\nGénéré par Stage Stock — ${new Date().toLocaleDateString('fr-FR')}`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `Packing — ${eventName}`, text })
+      } catch { /* user cancelled */ }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(text)
+        onToast('Copié dans le presse-papier')
+      } catch {
+        onToast('Partage non disponible', '#D97706')
+      }
+    }
+  }, [event, groupedByRole, products, packedItems, totalItems, overallPercent, shortageItems, totalShortage, onToast])
 
   // Toggle packed status
   const togglePacked = useCallback(async (item) => {
@@ -219,17 +316,27 @@ export default function PackingList({ event, products, stock, locations, roles, 
         </div>
       </div>
 
-      {/* Print / regenerate buttons */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+      {/* Export / action buttons */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
         <button onClick={handlePrint} style={{
-          flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-          background: 'rgba(91,141,184,0.08)', border: '1px solid #2563EB30', color: '#2563EB', cursor: 'pointer',
-        }}>🖨️ Imprimer / PDF</button>
+          flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+          background: '#EFF6FF', border: '1px solid #2563EB25', color: '#2563EB', cursor: 'pointer',
+        }}>🖨️ Imprimer</button>
+        <button onClick={handleDownload} style={{
+          flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+          background: '#F0FDF4', border: '1px solid #16A34A25', color: '#16A34A', cursor: 'pointer',
+        }}>📥 Télécharger</button>
+        <button onClick={handleShare} style={{
+          flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+          background: '#FAF5FF', border: '1px solid #8B5CF625', color: '#8B5CF6', cursor: 'pointer',
+        }}>📤 Partager</button>
+      </div>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
         <button onClick={handleGenerate} disabled={generating} style={{
-          flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-          background: 'rgba(200,164,106,0.08)', border: '1px solid #DC262630', color: '#DC2626', cursor: 'pointer',
+          flex: 1, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+          background: '#FEF2F2', border: '1px solid #DC262625', color: '#DC2626', cursor: 'pointer',
           opacity: generating ? 0.5 : 1,
-        }}>{generating ? '...' : ' Recalculer'}</button>
+        }}>{generating ? '...' : '🔄 Recalculer'}</button>
       </div>
 
       {/* Shortage warning */}

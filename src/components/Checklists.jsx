@@ -307,7 +307,7 @@ function AddItemModal({ events, categories, defaultEventId, onClose, onSave }) {
           <label className="label">Catégorie</label>
           <select className="input" value={category} onChange={e => setCategory(e.target.value)}>
             {allCats.map(([id, conf]) => (
-              <option key={id} value={id}>{conf.icon} {conf.label}</option>
+              <option key={id} value={id}>{typeof conf.icon === 'string' ? conf.icon : ''} {conf.label}</option>
             ))}
           </select>
         </div>

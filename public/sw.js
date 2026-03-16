@@ -1,5 +1,5 @@
-// Stage Stock — Service Worker v7 (Light Theme)
-const CACHE_NAME = 'stage-stock-v7'
+// Stage Stock — Service Worker v8 (Onboarding + Export + Feedback)
+const CACHE_NAME = 'stage-stock-v8'
 
 // Static assets to pre-cache on install
 const PRECACHE = [

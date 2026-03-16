@@ -24,7 +24,7 @@ const LEGAL_FORM_LABELS = {
 const SKILL_OPTIONS = Object.entries(ROLE_CONF).map(([code, conf]) => ({
   code,
   label: conf.label,
-  icon: conf.icon,
+  // icon deliberately excluded — ROLE_CONF.icon is a Lucide component, not renderable as text
 }))
 
 const TABS = [

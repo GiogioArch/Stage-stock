@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Stage Stock — Audit Rendu d'Icônes React — 16 mars 2026</title>
+<style>
+body { font-family: Inter, Arial, sans-serif; max-width: 800px; margin: 40px auto; color: #1E293B; line-height: 1.6; padding: 0 20px; }
+h1 { color: #6366F1; border-bottom: 3px solid #6366F1; padding-bottom: 8px; }
+h2 { color: #334155; margin-top: 32px; }
+h3 { color: #475569; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+th { background: #1E293B; color: white; text-align: left; padding: 10px 12px; font-size: 13px; }
+td { padding: 8px 12px; border: 1px solid #E2E8F0; font-size: 13px; }
+tr:nth-child(even) td { background: #F8FAFC; }
+.safe { color: #16A34A; font-weight: 600; background: #F0FDF4; }
+.risk { color: #DC2626; font-weight: 600; background: #FEF2F2; }
+.result { background: #F0FDF4; border-left: 4px solid #16A34A; padding: 12px 16px; margin: 16px 0; font-weight: 600; color: #16A34A; }
+blockquote { border-left: 4px solid #6366F1; padding: 8px 16px; background: #F8FAFC; margin: 16px 0; }
+code { background: #F1F5F9; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+ul { margin: 8px 0; }
+li { margin: 4px 0; }
+.footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #E2E8F0; color: #94A3B8; font-size: 12px; text-align: center; }
+.subtitle { color: #64748B; font-size: 16px; text-align: center; margin-bottom: 32px; }
+.title-main { text-align: center; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<h1 class="title-main">Stage Stock — Audit Rendu d'Icônes React</h1>
+<p class="subtitle">Audit structuré — 16 mars 2026</p>
+
+<h2>1. Résumé Exécutif</h2>
+<p>Le projet Stage Stock utilise des icônes provenant de la librairie <strong>Lucide React</strong>. Lors de la migration vers des références de composants React (au lieu de chaînes emoji), certains fichiers rendaient ces composants comme du texte, provoquant le <strong>crash React Error #31</strong>. Cet audit a identifié et corrigé toutes les instances.</p>
+
+<div class="result">Résultat : 0 crash runtime restant, 2 corrections préventives appliquées.</div>
+
+<h2>2. Sources de Configuration d'Icônes</h2>
+<table>
+<tr><th>Source</th><th>Fichier</th><th>Type d'icône</th><th>Nb</th><th>Risque</th></tr>
+<tr><td>ROLE_CONF</td><td>src/modules/roles.js</td><td>Composants Lucide</td><td>12</td><td class="risk">⚠️ Élevé (corrigé)</td></tr>
+<tr><td>CATEGORIES</td><td>src/modules/categories.js</td><td>Composants Lucide</td><td>3</td><td class="risk">⚠️ Élevé (corrigé)</td></tr>
+<tr><td>getMoveConf()</td><td>src/components/MovementModal.jsx</td><td>Composants Lucide</td><td>4</td><td class="risk">⚠️ Élevé (corrigé)</td></tr>
+<tr><td>MODULES</td><td>src/modules/registry.js</td><td>Noms string</td><td>15</td><td class="safe">✅ Sûr</td></tr>
+<tr><td>CAT_CONFIG</td><td>src/components/Checklists.jsx</td><td>Chaînes vides ''</td><td>7</td><td class="safe">✅ Sûr (protégé)</td></tr>
+<tr><td>CHECK_CATS</td><td>src/components/EventDetail.jsx</td><td>Chaînes vides ''</td><td>7</td><td class="safe">✅ Sûr</td></tr>
+<tr><td>TABS</td><td>src/components/ProfilePage.jsx</td><td>Aucune icône</td><td>6</td><td class="safe">✅ Sûr</td></tr>
+<tr><td>MOD_ICONS</td><td>src/modules/Settings.jsx</td><td>Map string→composant</td><td>14</td><td class="safe">✅ Sûr (createElement)</td></tr>
+</table>
+
+<h2>3. Fichiers Corrigés</h2>
+
+<h3>3.1 AccessManager.jsx — Crash React #31</h3>
+<ul>
+<li><strong>Ligne 191</strong> : <code>{roleConf.icon}</code> → <code>createElement(roleConf.icon, { size: 18, color: roleConf.color })</code></li>
+<li><strong>Ligne 329</strong> : Même pattern corrigé dans le modal d'édition membre</li>
+<li><strong>Ligne 355</strong> : <code>{rc?.icon || ''}</code> retiré des balises <code>&lt;option&gt;</code> (impossible de rendre des composants dans des options HTML)</li>
+</ul>
+
+<h3>3.2 ProfilePage.jsx — Préventif</h3>
+<ul>
+<li><strong>Ligne 27</strong> : Champ <code>icon</code> retiré de <code>SKILL_OPTIONS</code> — stockait une référence composant Lucide inutilisée (dead weight)</li>
+</ul>
+
+<h3>3.3 Checklists.jsx — Préventif</h3>
+<ul>
+<li><strong>Ligne 310</strong> : <code>{conf.icon}</code> → <code>{typeof conf.icon === 'string' ? conf.icon : ''}</code> — protection contre une future migration vers des icônes composant</li>
+</ul>
+
+<h2>4. Fichiers Consommateurs Vérifiés (Aucun Bug)</h2>
+<table>
+<tr><th>Fichier</th><th>Pattern utilisé</th><th>Statut</th></tr>
+<tr><td>App.jsx</td><td>createElement() pour ROLE_CONF</td><td class="safe">✅ OK</td></tr>
+<tr><td>Board.jsx</td><td>createElement() pour ROLE_CONF</td><td class="safe">✅ OK</td></tr>
+<tr><td>EventDetail.jsx</td><td>createElement() pour CHECK_CATS</td><td class="safe">✅ OK</td></tr>
+<tr><td>MovementModal.jsx</td><td>createElement() pour getMoveConf</td><td class="safe">✅ OK</td></tr>
+<tr><td>Settings.jsx</td><td>createElement() pour MOD_ICONS</td><td class="safe">✅ OK</td></tr>
+<tr><td>Products.jsx</td><td>createElement() pour CATEGORIES</td><td class="safe">✅ OK</td></tr>
+<tr><td>Stocks.jsx</td><td>createElement() pour CATEGORIES</td><td class="safe">✅ OK</td></tr>
+<tr><td>PackingList.jsx</td><td>createElement() pour CATEGORIES</td><td class="safe">✅ OK</td></tr>
+</table>
+
+<h2>5. Recommandations</h2>
+<ol>
+<li><strong>Convention à adopter</strong> : Toujours utiliser <code>createElement(icon, props)</code> ou <code>&lt;Icon {...props} /&gt;</code> pour rendre des icônes Lucide. Ne jamais insérer <code>{icon}</code> directement dans le JSX.</li>
+<li><strong>Balises <code>&lt;option&gt;</code></strong> : Les balises HTML <code>&lt;option&gt;</code> ne supportent que du texte. Toujours vérifier <code>typeof icon === 'string'</code> avant insertion.</li>
+<li><strong>Tests futurs</strong> : Ajouter un test de non-régression qui vérifie que toute config exportée avec un champ <code>icon</code> de type Function est consommée via <code>createElement</code>.</li>
+</ol>
+
+<h2>6. Statut Déploiement</h2>
+<ul>
+<li>✅ <strong>Build Vite</strong> : Compile sans erreur</li>
+<li>✅ <strong>Cloudflare Pages</strong> : Déployé automatiquement</li>
+<li>✅ <strong>Cache SW</strong> : v7 (bumped)</li>
+</ul>
+
+<div class="footer">Audit réalisé le 16 mars 2026 — Stage Stock v9.0 — EK SHOP</div>
+
+</body>
+</html>
