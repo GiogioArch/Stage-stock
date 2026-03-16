@@ -188,7 +188,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
                     fontSize: roleConf ? 18 : 14, fontWeight: 600,
                     color: roleConf?.color || '#94A3B8',
                   }}>
-                    {roleConf ? roleConf.icon : (m.display_name || m.email || '?')[0].toUpperCase()}
+                    {roleConf?.icon ? createElement(roleConf.icon, { size: 18, color: roleConf.color }) : (m.display_name || m.email || '?')[0].toUpperCase()}
                   </div>
 
                   {/* Info */}
@@ -326,7 +326,7 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 20,
           }}>
-            {roleConf ? roleConf.icon : ''}
+            {roleConf?.icon ? createElement(roleConf.icon, { size: 20, color: roleConf.color }) : ''}
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600 }}>{member.display_name || member.email || 'Membre'}</div>
@@ -352,7 +352,7 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
               const rc = ROLE_CONF[r.code]
               return (
                 <option key={r.id} value={r.id}>
-                  {rc?.icon || ''} {rc?.label || r.name} ({r.code})
+                  {rc?.label || r.name} ({r.code})
                 </option>
               )
             })}
