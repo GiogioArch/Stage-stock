@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createRealtimeWs } from '../lib/supabase'
+import { EK } from './LiveApp'
 
 export default function LiveDisplay() {
   const [emojis, setEmojis] = useState([])
-  const [emojiCounts, setEmojiCounts] = useState({}) // emoji → count
+  const [emojiCounts, setEmojiCounts] = useState({})
   const [totalCount, setTotalCount] = useState(0)
   const nextId = useRef(0)
   const containerRef = useRef(null)
 
-  // Auto fullscreen on first click
   const requestFullscreen = useCallback(() => {
     const el = containerRef.current || document.documentElement
     if (el.requestFullscreen) el.requestFullscreen()
@@ -25,9 +25,7 @@ export default function LiveDisplay() {
         setEmojis(prev => [...prev, { id, emoji: row.emoji, left, size }])
         setTotalCount(prev => prev + 1)
         setEmojiCounts(prev => ({ ...prev, [row.emoji]: (prev[row.emoji] || 0) + 1 }))
-        setTimeout(() => {
-          setEmojis(prev => prev.filter(e => e.id !== id))
-        }, 3000)
+        setTimeout(() => { setEmojis(prev => prev.filter(e => e.id !== id)) }, 3000)
       }
     )
     return cleanup
@@ -36,59 +34,55 @@ export default function LiveDisplay() {
   return (
     <div ref={containerRef} onClick={requestFullscreen} style={{
       position: 'fixed', inset: 0,
-      background: '#000000',
+      background: '#000',
       overflow: 'hidden',
-      fontFamily: "'Nunito', sans-serif",
+      fontFamily: "'Jost', sans-serif",
       cursor: 'pointer',
     }}>
-      {/* EK LIVE branding */}
+      {/* Branding */}
       <div style={{
-        position: 'absolute', top: 20, left: 20,
-        display: 'flex', alignItems: 'center', gap: 10,
+        position: 'absolute', top: 24, left: 24,
+        display: 'flex', alignItems: 'center', gap: 12,
       }}>
-        <div style={{
-          width: 44, height: 44, borderRadius: 14,
-          background: 'linear-gradient(135deg, #C5A55A, #A8883D)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 22, boxShadow: '0 4px 20px rgba(197,165,90,0.4)',
-        }}>🎪</div>
+        <img
+          src="https://images.squarespace-cdn.com/content/6674cfe71695a578165178c4/2bae59e9-2a91-41ba-80db-8bc7f5aba758/Logo+EK25+Ce%CC%81le%CC%81bration-09.png?content-type=image%2Fpng"
+          alt="EK 25"
+          style={{ height: 50, objectFit: 'contain', opacity: 0.8 }}
+        />
         <div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#C5A55A', letterSpacing: 2 }}>EK LIVE</div>
-          <div style={{ fontSize: 10, color: 'rgba(240,236,226,0.3)', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 700 }}>
-            Réactions du public
-          </div>
+          <div style={{
+            fontSize: 10, color: EK.camel, letterSpacing: '0.2em',
+            textTransform: 'uppercase', fontWeight: 700,
+          }}>Réactions du public</div>
         </div>
       </div>
 
-      {/* Per-emoji counters */}
+      {/* Counters */}
       <div style={{
-        position: 'absolute', top: 20, right: 20,
-        display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end',
+        position: 'absolute', top: 24, right: 24,
+        display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end',
       }}>
-        {/* Total */}
         <div style={{
-          padding: '10px 20px', borderRadius: 14,
-          background: 'rgba(197,165,90,0.08)', backdropFilter: 'blur(8px)',
-          color: '#F0ECE2', fontSize: 22, fontWeight: 900,
-          display: 'flex', alignItems: 'center', gap: 8,
-          border: '1px solid rgba(197,165,90,0.15)',
+          padding: '12px 24px', borderRadius: 14,
+          background: EK.card, backdropFilter: 'blur(8px)',
+          color: EK.text, fontSize: 28, fontWeight: 900,
+          display: 'flex', alignItems: 'center', gap: 10,
+          border: `1px solid ${EK.cardBorder}`,
         }}>
-          <span style={{ fontSize: 24 }}>🔥</span>
+          <span style={{ fontSize: 28 }}>🔥</span>
           {totalCount}
         </div>
-        {/* Per emoji breakdown */}
         <div style={{ display: 'flex', gap: 6 }}>
           {Object.entries(emojiCounts)
             .sort((a, b) => b[1] - a[1])
             .map(([emoji, count]) => (
               <div key={emoji} style={{
-                padding: '6px 10px', borderRadius: 10,
-                background: 'rgba(197,165,90,0.15)',
-                color: '#F0ECE2', fontSize: 13, fontWeight: 800,
-                display: 'flex', alignItems: 'center', gap: 4,
-                border: '1px solid rgba(197,165,90,0.08)',
+                padding: '6px 12px', borderRadius: 10,
+                background: EK.card, border: `1px solid ${EK.cardBorder}`,
+                color: EK.text, fontSize: 14, fontWeight: 800,
+                display: 'flex', alignItems: 'center', gap: 5,
               }}>
-                <span style={{ fontSize: 16 }}>{emoji}</span>
+                <span style={{ fontSize: 18 }}>{emoji}</span>
                 {count}
               </div>
             ))}
@@ -98,20 +92,18 @@ export default function LiveDisplay() {
       {/* Floating emojis */}
       {emojis.map(e => (
         <div key={e.id} style={{
-          position: 'absolute',
-          bottom: 0,
-          left: `${e.left}%`,
+          position: 'absolute', bottom: 0, left: `${e.left}%`,
           fontSize: e.size,
           animation: 'display-float 3s ease-out forwards',
           pointerEvents: 'none',
         }}>{e.emoji}</div>
       ))}
 
-      {/* Tap hint (fades after 5s) */}
+      {/* Tap hint */}
       <div style={{
         position: 'absolute', bottom: 30, left: 0, right: 0,
-        textAlign: 'center', color: 'rgba(240,236,226,0.2)', fontSize: 12, fontWeight: 700,
-        animation: 'ek-fade-hint 5s forwards',
+        textAlign: 'center', color: EK.textMuted, fontSize: 12, fontWeight: 600,
+        animation: 'ek-fade-hint 5s forwards', letterSpacing: '0.1em',
       }}>
         Cliquez pour plein écran
       </div>

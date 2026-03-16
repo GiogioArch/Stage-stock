@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { db } from '../lib/supabase'
+import { EK } from './LiveApp'
 
 const EMOJIS = ['🔥', '❤️', '🎵', '👏', '🤩']
 const COOLDOWN_MS = 1000
@@ -16,33 +17,22 @@ export default function LiveReactions({ eventId, fanId }) {
     if (now - lastTap.current < COOLDOWN_MS) return
     lastTap.current = now
 
-    // Haptic feedback
     if (navigator.vibrate) navigator.vibrate(50)
 
-    // Scale bounce feedback
     setTappedEmoji(emoji)
     setTimeout(() => setTappedEmoji(null), 200)
 
-    // Cooldown visual
     setCooldown(true)
     setTimeout(() => setCooldown(false), COOLDOWN_MS)
 
-    // Float-up animation
     const id = nextId.current++
     const left = 10 + Math.random() * 80
     setFloaters(prev => [...prev, { id, emoji, left }])
-    setTimeout(() => {
-      setFloaters(prev => prev.filter(f => f.id !== id))
-    }, 2000)
+    setTimeout(() => { setFloaters(prev => prev.filter(f => f.id !== id)) }, 2000)
 
-    // Insert reaction (fire and forget)
     try {
-      db.insert('live_reactions', {
-        event_id: eventId,
-        fan_id: fanId,
-        emoji,
-      })
-    } catch { /* ignore */ }
+      db.insert('live_reactions', { event_id: eventId, fan_id: fanId, emoji })
+    } catch { /* fire & forget */ }
   }, [eventId, fanId])
 
   return (
@@ -56,31 +46,32 @@ export default function LiveReactions({ eventId, fanId }) {
         }}>{f.emoji}</div>
       ))}
 
-      {/* Emoji bar */}
+      {/* Emoji bar — frosted glass */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(27,34,68,0.95)', backdropFilter: 'blur(12px)',
-        borderTop: '1px solid rgba(197,165,90,0.15)',
+        background: 'rgba(8,8,8,0.92)',
+        backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        borderTop: `1px solid ${EK.cardBorder}`,
         display: 'flex', justifyContent: 'space-around', alignItems: 'center',
-        padding: '8px 0 max(8px, env(safe-area-inset-bottom))',
+        padding: '8px 8px max(8px, env(safe-area-inset-bottom))',
       }}>
         {EMOJIS.map(emoji => (
           <button key={emoji} onClick={() => handleTap(emoji)} style={{
-            width: 54, height: 54, borderRadius: 16,
-            background: cooldown ? 'rgba(197,165,90,0.08)' : 'rgba(197,165,90,0.15)',
-            border: '1px solid rgba(197,165,90,0.15)',
-            fontSize: 26, cursor: cooldown ? 'default' : 'pointer',
+            width: 52, height: 52, borderRadius: 14,
+            background: cooldown ? `${EK.camel}08` : EK.card,
+            border: `1px solid ${tappedEmoji === emoji ? EK.camel : EK.cardBorder}`,
+            fontSize: 24, cursor: cooldown ? 'default' : 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transform: tappedEmoji === emoji ? 'scale(1.3)' : 'scale(1)',
-            transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transform: tappedEmoji === emoji ? 'scale(1.25)' : 'scale(1)',
+            transition: 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease',
             opacity: cooldown ? 0.5 : 1,
           }}>{emoji}</button>
         ))}
-        {/* Cooldown indicator */}
+        {/* Cooldown bar */}
         {cooldown && (
           <div style={{
             position: 'absolute', top: -2, left: 0, right: 0, height: 2,
-            background: '#C5A55A',
+            background: `linear-gradient(90deg, ${EK.camel}, ${EK.green})`,
             animation: 'ek-cooldown 1s linear forwards',
           }} />
         )}
