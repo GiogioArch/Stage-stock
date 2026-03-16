@@ -653,6 +653,7 @@ export default function App() {
         isAdmin={isAdmin}
         membership={membership}
         orgId={selectedOrg?.id}
+        selectedOrg={selectedOrg}
         onNavigate={handleTabChange}
         onReload={loadAll}
         onToast={showToast}
@@ -718,7 +719,7 @@ export default function App() {
 function TabContent({
   tab, activeModuleIds, data,
   filteredProducts, filteredStock, filteredMovements, alerts,
-  user, userRole, userProfile, isAdmin, membership, orgId,
+  user, userRole, userProfile, isAdmin, membership, orgId, selectedOrg,
   onNavigate, onReload, onToast, onQuickAction, onMovement, onModulesChanged,
 }) {
   switch (tab) {
