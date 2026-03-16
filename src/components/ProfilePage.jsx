@@ -48,9 +48,9 @@ function maskSS(v) {
 
 export default function ProfilePage({
   user, userProfile, userRole, userDetails: initialDetails,
-  membership, selectedOrg, roles,
+  membership, selectedOrg, allProjects, roles,
   userGear, userAvailability, userIncome, allEvents,
-  onClose, onToast, onReload, onLogout, onSwitchProject,
+  onClose, onToast, onReload, onLogout, onSwitchProject, onOpenProject,
 }) {
   const [tab, setTab] = useState('identity')
   const [editing, setEditing] = useState(!initialDetails)
@@ -196,8 +196,9 @@ export default function ProfilePage({
         )}
         {tab === 'projects' && (
           <ProjectsTab
-            user={user} membership={membership} selectedOrg={selectedOrg} roles={roles}
-            onSwitchProject={onSwitchProject}
+            user={user} membership={membership} selectedOrg={selectedOrg}
+            allProjects={allProjects || []} roles={roles}
+            onSwitchProject={onSwitchProject} onOpenProject={onOpenProject}
           />
         )}
         {tab === 'gear' && (
@@ -454,43 +455,74 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
 // ════════════════════════════════════════
 // Section 3 — Projets
 // ════════════════════════════════════════
-function ProjectsTab({ user, membership, selectedOrg, roles, onSwitchProject }) {
+function ProjectsTab({ user, membership, selectedOrg, allProjects, roles, onSwitchProject, onOpenProject }) {
+  const projects = allProjects || []
+
   return (
     <div>
-      {selectedOrg && (
-        <div className="card" style={{ padding: 16, borderLeft: '4px solid #7C3AED' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: 8,
-              background: 'linear-gradient(135deg, #7C3AED20, #7C3AED10)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-            }}></div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>{selectedOrg.name}</div>
-              <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-                {membership?.is_admin && (
-                  <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#6366F115', color: '#6366F1' }}>Admin</span>
-                )}
-                {membership?.role_code && (
-                  <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#7C3AED15', color: '#7C3AED' }}>
-                    {ROLE_CONF[membership.role_code]?.label || membership.role_code}
-                  </span>
-                )}
-              </div>
-              {membership?.created_at && (
-                <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4 }}>
-                  Membre depuis {new Date(membership.created_at).toLocaleDateString('fr-FR')}
+      {projects.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: 32, color: '#94A3B8' }}>
+          <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 8 }}>Aucun projet</div>
+          <div style={{ fontSize: 12 }}>Rejoignez ou créez un projet pour commencer</div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {projects.map(p => {
+            const isActive = selectedOrg?.id === p.org_id
+            const roleConf = p.role_code ? ROLE_CONF[p.role_code] : null
+            return (
+              <button
+                key={p.id}
+                onClick={() => onOpenProject && onOpenProject(p)}
+                className="card"
+                style={{
+                  width: '100%', padding: '14px 16px', textAlign: 'left', cursor: 'pointer',
+                  borderLeft: `4px solid ${isActive ? '#6366F1' : '#E2E8F0'}`,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 10,
+                    background: isActive ? '#6366F110' : '#F1F5F9',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 14, fontWeight: 600, color: isActive ? '#6366F1' : '#94A3B8',
+                  }}>
+                    {(p.org?.name || 'P')[0].toUpperCase()}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
+                      {p.org?.name || 'Projet'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+                      {p.is_admin && (
+                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#6366F110', color: '#6366F1' }}>Admin</span>
+                      )}
+                      {roleConf && (
+                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: `${roleConf.color}10`, color: roleConf.color }}>
+                          {roleConf.label}
+                        </span>
+                      )}
+                      {isActive && (
+                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#16A34A10', color: '#16A34A' }}>Actif</span>
+                      )}
+                    </div>
+                    {p.created_at && (
+                      <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4 }}>
+                        Membre depuis {new Date(p.created_at).toLocaleDateString('fr-FR')}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
+              </button>
+            )
+          })}
         </div>
       )}
 
       <button onClick={onSwitchProject} style={{
         width: '100%', padding: 14, borderRadius: 8, marginTop: 12,
-        fontSize: 13, fontWeight: 700, cursor: 'pointer', textAlign: 'center',
-        background: '#EEF4FA', border: '1px solid #2563EB30', color: '#2563EB',
+        fontSize: 13, fontWeight: 600, cursor: 'pointer', textAlign: 'center',
+        background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#6366F1',
       }}>+ Changer de projet / Créer un projet</button>
     </div>
   )

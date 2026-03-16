@@ -498,6 +498,7 @@ export default function App() {
             userDetails={userDetails}
             membership={membership}
             selectedOrg={selectedOrg}
+            allProjects={allProjects}
             roles={data.roles}
             userGear={userGear}
             userAvailability={userAvailability}
@@ -508,6 +509,7 @@ export default function App() {
             onReload={loadPersonalData}
             onLogout={handleLogout}
             onSwitchProject={() => setPersonalTab('projects')}
+            onOpenProject={enterProject}
           />
         )}
 
