@@ -348,7 +348,7 @@ export default function Equipe({
       </div>
 
       {/* ═══ VIEW: ORGANIGRAMME (HIÉRARCHIE) ═══ */}
-      {view === 'organigramme' && !selectedMember && (
+      {view === 'organigramme' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {Object.entries(HIERARCHY).map(([level, data]) => {
             const isExpanded = expandedLevel === level
@@ -513,7 +513,7 @@ export default function Equipe({
       )}
 
       {/* ═══ VIEW: MEMBRES (TROMBINOSCOPE) ═══ */}
-      {view === 'membres' && !selectedMember && (
+      {view === 'membres' && (
         <div>
           {/* Search bar */}
           <div style={{
@@ -663,7 +663,7 @@ export default function Equipe({
       )}
 
       {/* ═══ VIEW: PLANNING JOURNALIER ═══ */}
-      {view === 'planning' && !selectedMember && (
+      {view === 'planning' && (
         <div>
           {/* Date selector */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
@@ -822,24 +822,63 @@ export default function Equipe({
         </div>
       )}
 
-      {/* ═══ MEMBER DETAIL SHEET ═══ */}
+      {/* ═══ MEMBER DETAIL BOTTOM SHEET ═══ */}
       {selectedMember && (
-        <MemberDetail
-          member={selectedMember}
-          allMembers={allMembers}
-          roles={roles}
-          events={events}
-          eventTasks={eventTasks}
-          eventPacking={eventPacking}
-          checklists={checklists}
-          userAvailability={userAvailability}
-          user={user}
-          today={today}
-          upcomingEvents={upcomingEvents}
-          onBack={() => setSelectedMember(null)}
-          onSelectMember={setSelectedMember}
-          onTaskToggle={handleTaskToggle}
-        />
+        <div
+          onClick={() => setSelectedMember(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(15,23,42,0.35)',
+            backdropFilter: 'blur(2px)',
+            WebkitBackdropFilter: 'blur(2px)',
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+            animation: 'fadeIn 0.15s ease',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 480,
+              maxHeight: '82vh',
+              background: 'white',
+              borderRadius: '20px 20px 0 0',
+              boxShadow: '0 -8px 40px rgba(0,0,0,0.15)',
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              animation: 'slideUp 0.25s ease',
+              padding: '0 0 env(safe-area-inset-bottom, 16px)',
+            }}
+          >
+            {/* Drag handle */}
+            <div style={{
+              display: 'flex', justifyContent: 'center', padding: '10px 0 4px',
+              position: 'sticky', top: 0, background: 'white', zIndex: 1,
+              borderRadius: '20px 20px 0 0',
+            }}>
+              <div style={{
+                width: 36, height: 4, borderRadius: 2, background: '#E2E8F0',
+              }} />
+            </div>
+            <div style={{ padding: '0 16px 24px' }}>
+              <MemberDetail
+                member={selectedMember}
+                allMembers={allMembers}
+                roles={roles}
+                events={events}
+                eventTasks={eventTasks}
+                eventPacking={eventPacking}
+                checklists={checklists}
+                userAvailability={userAvailability}
+                user={user}
+                today={today}
+                upcomingEvents={upcomingEvents}
+                onBack={() => setSelectedMember(null)}
+                onSelectMember={setSelectedMember}
+                onTaskToggle={handleTaskToggle}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
@@ -925,21 +964,22 @@ function MemberDetail({
 
   return (
     <div>
-      {/* Back button */}
-      <button onClick={onBack} style={{
-        display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', marginBottom: 12,
-        background: 'none', border: 'none', cursor: 'pointer', color: '#64748B',
-        fontSize: 13, fontWeight: 700,
-      }}>
-        {createElement(ChevronLeft, { size: 16 })} Retour
-      </button>
-
       {/* ─── Profile card ─── */}
       <div className="card" style={{
         padding: '24px 16px 20px', marginBottom: 16, textAlign: 'center',
         background: conf ? `linear-gradient(180deg, ${conf.color}08, white)` : 'white',
         borderTop: `4px solid ${conf?.color || '#E2E8F0'}`,
+        position: 'relative',
       }}>
+        {/* Close button */}
+        <button onClick={onBack} style={{
+          position: 'absolute', top: 10, right: 10,
+          width: 30, height: 30, borderRadius: 8,
+          background: '#F1F5F9', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {createElement(X, { size: 16, color: '#94A3B8' })}
+        </button>
         {/* Avatar */}
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <div style={{
