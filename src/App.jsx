@@ -72,6 +72,7 @@ export default function App() {
   const [userGear, setUserGear] = useState([])
   const [userAvailability, setUserAvailability] = useState([])
   const [userIncome, setUserIncome] = useState([])
+  const [personalEvents, setPersonalEvents] = useState([])
   const [personalLoading, setPersonalLoading] = useState(true)
 
   // ─── Module state ───
@@ -169,6 +170,15 @@ export default function App() {
       try { setUserGear(await safe('user_gear', `user_id=eq.${user.id}&order=created_at.desc`)) } catch { setUserGear([]) }
       try { setUserAvailability(await safe('user_availability', `user_id=eq.${user.id}`)) } catch { setUserAvailability([]) }
       try { setUserIncome(await safe('user_income', `user_id=eq.${user.id}&order=date.desc`)) } catch { setUserIncome([]) }
+
+      // Load events across all user's projects for personal calendar
+      try {
+        const orgIds = enriched.map(m => m.org_id).filter(Boolean)
+        if (orgIds.length > 0) {
+          const evts = await safe('events', `org_id=in.(${orgIds.join(',')})&order=date.asc`)
+          setPersonalEvents(evts || [])
+        } else { setPersonalEvents([]) }
+      } catch { setPersonalEvents([]) }
     } catch {
       setAllProjects([])
       setUserDetails(null)
@@ -390,6 +400,7 @@ export default function App() {
     setMembership(undefined)
     setSelectedOrg(null)
     setAllProjects([])
+    setPersonalEvents([])
     setLayer('personal')
     setPersonalTab('home')
   }, [])
@@ -503,7 +514,7 @@ export default function App() {
             userGear={userGear}
             userAvailability={userAvailability}
             userIncome={userIncome}
-            allEvents={data.events}
+            allEvents={personalEvents.length > 0 ? personalEvents : data.events}
             onClose={() => setPersonalTab('home')}
             onToast={showToast}
             onReload={loadPersonalData}
