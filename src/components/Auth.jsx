@@ -56,7 +56,7 @@ export default function Auth({ onAuth, onBack }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      background: 'linear-gradient(180deg, #080808 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -67,13 +67,13 @@ export default function Auth({ onAuth, onBack }) {
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
             width: 72, height: 72, borderRadius: 22,
-            background: 'linear-gradient(135deg, #F7A072, #E8735A)',
+            background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 36, boxShadow: '0 8px 32px rgba(232,115,90,0.25)',
             marginBottom: 16,
           }}>🎪</div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>STAGE STOCK</div>
-          <div style={{ fontSize: 11, color: '#B8A0AE', letterSpacing: 3, textTransform: 'uppercase', fontWeight: 700, marginTop: 4 }}>
+          <div style={{ fontSize: 28, fontWeight: 900, color: '#C8A46A', letterSpacing: 0.5 }}>STAGE STOCK</div>
+          <div style={{ fontSize: 11, color: '#6B6058', letterSpacing: 3, textTransform: 'uppercase', fontWeight: 700, marginTop: 4 }}>
             WMS pour artistes
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function Auth({ onAuth, onBack }) {
           {error && (
             <div style={{
               padding: 12, borderRadius: 12, background: '#FDF0F4',
-              border: '1px solid #F5C4BC', color: '#D4648A',
+              border: '1px solid #F5C4BC', color: '#8B1A2B',
               fontSize: 13, fontWeight: 600, marginBottom: 16,
             }}>{error}</div>
           )}
@@ -135,14 +135,14 @@ export default function Auth({ onAuth, onBack }) {
             {mode === 'login' && (
               <button
                 onClick={() => { setMode('forgot'); setError(''); setSuccess('') }}
-                style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 Mot de passe oublié ?
               </button>
             )}
             <button
               onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess('') }}
-              style={{ fontSize: 13, color: '#E8735A', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ fontSize: 13, color: '#C8A46A', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
             >
               {mode === 'forgot' ? 'Retour à la connexion' : mode === 'login' ? 'Pas encore de compte ? Créer' : 'Déjà un compte ? Se connecter'}
             </button>
@@ -152,7 +152,7 @@ export default function Auth({ onAuth, onBack }) {
         {onBack && (
           <div style={{ textAlign: 'center', marginTop: 16 }}>
             <button onClick={onBack} style={{
-              fontSize: 12, color: '#9A8B94', fontWeight: 600,
+              fontSize: 12, color: '#8A7D75', fontWeight: 600,
               background: 'none', border: 'none', cursor: 'pointer',
             }}>← Retour à l'accueil</button>
           </div>

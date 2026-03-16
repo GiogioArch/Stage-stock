@@ -7,7 +7,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
   const [selectedEvent, setSelectedEvent] = useState(null)
 
   // ─── Role config ───
-  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#9A8B94', label: userRole.name }) : null
+  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#8A7D75', label: userRole.name }) : null
   const isAdmin = !userRole || ['TM', 'PM', 'LOG', 'PA'].includes(userRole?.code)
 
   // ─── KPI calculations ───
@@ -96,10 +96,10 @@ export default function Board({ products, locations, stock, movements, alerts, e
               boxShadow: `0 4px 16px ${roleConf.color}30`,
             }}>{roleConf.icon}</div>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2' }}>
                 {roleConf.label}
               </div>
-              <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>
+              <div style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600 }}>
                 {isAdmin ? 'Vue complète — tous les stocks' : `${totalProducts} produit${totalProducts > 1 ? 's' : ''} sous ta responsabilité`}
               </div>
             </div>
@@ -108,10 +108,10 @@ export default function Board({ products, locations, stock, movements, alerts, e
           {/* Role KPI row */}
           <div style={{ display: 'flex', gap: 8 }}>
             <MiniKpi label="Stock" value={totalStock} color={roleConf.color} />
-            <MiniKpi label="Alertes" value={totalAlerts} color={totalAlerts > 0 ? '#E8935A' : '#5DAB8B'} />
-            <MiniKpi label="Ruptures" value={criticalAlerts.length} color={criticalAlerts.length > 0 ? '#D4648A' : '#5DAB8B'} />
+            <MiniKpi label="Alertes" value={totalAlerts} color={totalAlerts > 0 ? '#C8A46A' : '#2FB65D'} />
+            <MiniKpi label="Ruptures" value={criticalAlerts.length} color={criticalAlerts.length > 0 ? '#8B1A2B' : '#2FB65D'} />
             {packingTotal > 0 && (
-              <MiniKpi label="Packing" value={`${packingPct}%`} color={packingPct === 100 ? '#5DAB8B' : '#5B8DB8'} />
+              <MiniKpi label="Packing" value={`${packingPct}%`} color={packingPct === 100 ? '#2FB65D' : '#5B8DB8'} />
             )}
           </div>
         </div>
@@ -122,25 +122,25 @@ export default function Board({ products, locations, stock, movements, alerts, e
         <div className="card" style={{ marginBottom: 16, padding: '14px 16px', borderLeft: `4px solid ${roleConf?.color || '#5B8DB8'}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042' }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#F0ECE2' }}>
                 Mon packing — {nextEvent.name || nextEvent.lieu}
               </div>
-              <div style={{ fontSize: 11, color: '#9A8B94' }}>
+              <div style={{ fontSize: 11, color: '#8A7D75' }}>
                 {packingDone}/{packingTotal} items prêts
               </div>
             </div>
             <div style={{
               fontSize: 20, fontWeight: 900,
-              color: packingPct === 100 ? '#5DAB8B' : packingPct >= 50 ? '#E8935A' : '#D4648A',
+              color: packingPct === 100 ? '#2FB65D' : packingPct >= 50 ? '#C8A46A' : '#8B1A2B',
             }}>{packingPct}%</div>
           </div>
           <div style={{
-            height: 6, borderRadius: 3, background: '#F0E8E4',
+            height: 6, borderRadius: 3, background: '#1a1a1a',
             overflow: 'hidden',
           }}>
             <div style={{
               width: `${packingPct}%`, height: '100%', borderRadius: 3,
-              background: packingPct === 100 ? '#5DAB8B' : roleConf?.color || '#5B8DB8',
+              background: packingPct === 100 ? '#2FB65D' : roleConf?.color || '#5B8DB8',
               transition: 'width 0.3s',
             }} />
           </div>
@@ -148,15 +148,15 @@ export default function Board({ products, locations, stock, movements, alerts, e
           {nextEventPacking.filter(ep => !ep.packed).slice(0, 3).map((ep, i) => (
             <div key={i} style={{
               display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
-              fontSize: 12, color: '#9A8B94',
+              fontSize: 12, color: '#8A7D75',
             }}>
-              <span style={{ color: '#D4648A' }}>○</span>
+              <span style={{ color: '#8B1A2B' }}>○</span>
               <span>{pName(ep.product_id)}</span>
               <span style={{ marginLeft: 'auto', fontWeight: 700 }}>×{ep.quantity_needed}</span>
             </div>
           ))}
           {nextEventPacking.filter(ep => !ep.packed).length > 3 && (
-            <div style={{ fontSize: 11, color: '#B8A0AE', marginTop: 6, textAlign: 'center' }}>
+            <div style={{ fontSize: 11, color: '#6B6058', marginTop: 6, textAlign: 'center' }}>
               +{nextEventPacking.filter(ep => !ep.packed).length - 3} autres items...
             </div>
           )}
@@ -165,21 +165,21 @@ export default function Board({ products, locations, stock, movements, alerts, e
 
       {/* ─── Next Event ─── */}
       {nextEvent && (
-        <div className="card" style={{ marginBottom: 16, borderLeft: '4px solid #E8735A', cursor: 'pointer' }}
+        <div className="card" style={{ marginBottom: 16, borderLeft: '4px solid #C8A46A', cursor: 'pointer' }}
           onClick={() => setSelectedEvent(nextEvent)}>
           <div className="section-title">Prochain concert</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <div style={{ fontSize: 15, fontWeight: 800 }}>{nextEvent.name || nextEvent.lieu}</div>
-              <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#8A7D75', marginTop: 2 }}>
                 {nextEvent.ville} — {nextEvent.format} — {nextEvent.capacite} pers.
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#E8735A' }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#C8A46A' }}>
                 {new Date(nextEvent.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
-              <div style={{ fontSize: 10, color: '#B8A0AE', marginTop: 2 }}>Voir fiche →</div>
+              <div style={{ fontSize: 10, color: '#6B6058', marginTop: 2 }}>Voir fiche →</div>
             </div>
           </div>
         </div>
@@ -188,9 +188,9 @@ export default function Board({ products, locations, stock, movements, alerts, e
       {/* ─── Quick Actions ─── */}
       <div className="section-title">Actions rapides</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
-        <QuickBtn icon="📥" label="Entrée" color="#5DAB8B" bg="#EDF7F2" onClick={() => onQuickAction('in')} />
-        <QuickBtn icon="📤" label="Sortie" color="#D4648A" bg="#FDF0F4" onClick={() => onQuickAction('out')} />
-        <QuickBtn icon="🔄" label="Transfert" color="#5B8DB8" bg="#EEF4FA" onClick={() => onQuickAction('transfer')} />
+        <QuickBtn icon="📥" label="Entrée" color="#2FB65D" bg="rgba(47,182,93,0.08)" onClick={() => onQuickAction('in')} />
+        <QuickBtn icon="📤" label="Sortie" color="#8B1A2B" bg="rgba(200,164,106,0.08)" onClick={() => onQuickAction('out')} />
+        <QuickBtn icon="🔄" label="Transfert" color="#5B8DB8" bg="rgba(91,141,184,0.08)" onClick={() => onQuickAction('transfer')} />
       </div>
 
       {/* ─── EK LIVE link ─── */}
@@ -198,17 +198,17 @@ export default function Board({ products, locations, stock, movements, alerts, e
         display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none',
         padding: '14px 16px', borderRadius: 16, marginBottom: 20, cursor: 'pointer',
         background: 'linear-gradient(135deg, #1a1520, #2a1f30)',
-        border: '1.5px solid rgba(232,115,90,0.3)',
+        border: '1.5px solid rgba(200,164,106,0.3)',
         boxShadow: '0 4px 16px rgba(26,21,32,0.15)',
       }}>
         <div style={{
           width: 40, height: 40, borderRadius: 12,
-          background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+          background: 'linear-gradient(135deg, #C8A46A, #8B1A2B)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 18, flexShrink: 0,
         }}>🎪</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>EK LIVE</div>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#C8A46A', letterSpacing: 0.5 }}>EK LIVE</div>
           <div style={{ fontSize: 11, color: 'rgba(240,236,226,0.5)' }}>Ouvrir l'app fan — vote setlist & réactions</div>
         </div>
         <div style={{ color: 'rgba(240,236,226,0.3)', fontSize: 14 }}>→</div>
@@ -224,16 +224,16 @@ export default function Board({ products, locations, stock, movements, alerts, e
             {myLowStock.map((a, i) => (
               <div key={i} className="card" style={{
                 padding: '10px 14px',
-                borderLeft: `4px solid ${a.level === 'rupture' ? '#D4648A' : '#E8935A'}`,
+                borderLeft: `4px solid ${a.level === 'rupture' ? '#8B1A2B' : '#C8A46A'}`,
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 700 }}>{a.name}</div>
-                    <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                    <div style={{ fontSize: 11, color: '#8A7D75' }}>
                       Stock: {a.currentStock} / Seuil: {a.minStock}
                     </div>
                   </div>
-                  <Badge color={a.level === 'rupture' ? '#D4648A' : '#E8935A'}>
+                  <Badge color={a.level === 'rupture' ? '#8B1A2B' : '#C8A46A'}>
                     {a.level === 'rupture' ? '🚨 Rupture' : '⚠️ Alerte'}
                   </Badge>
                 </div>
@@ -241,7 +241,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
             ))}
             {alerts.length > 5 && (
               <button onClick={() => onNavigate('stocks')} style={{
-                fontSize: 13, fontWeight: 700, color: '#E8735A', padding: 8, textAlign: 'center',
+                fontSize: 13, fontWeight: 700, color: '#C8A46A', padding: 8, textAlign: 'center',
               }}>
                 Voir les {alerts.length} alertes →
               </button>
@@ -261,7 +261,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
             }}>{cat.icon}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700 }}>{cat.name}</div>
-              <div style={{ fontSize: 11, color: '#9A8B94' }}>{cat.count} produit{cat.count > 1 ? 's' : ''}</div>
+              <div style={{ fontSize: 11, color: '#8A7D75' }}>{cat.count} produit{cat.count > 1 ? 's' : ''}</div>
             </div>
             <div style={{ fontSize: 20, fontWeight: 900, color: cat.color }}>{cat.qty}</div>
           </div>
@@ -279,27 +279,27 @@ export default function Board({ products, locations, stock, movements, alerts, e
                   <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 80, width: '100%' }}>
                     <div style={{
                       flex: 1, borderRadius: '4px 4px 0 0',
-                      background: '#5DAB8B',
+                      background: '#2FB65D',
                       height: `${Math.max(2, (d.in / maxMoveVal) * 80)}px`,
                       transition: 'height 0.3s',
                     }} title={`Entrées: ${d.in}`} />
                     <div style={{
                       flex: 1, borderRadius: '4px 4px 0 0',
-                      background: '#D4648A',
+                      background: '#8B1A2B',
                       height: `${Math.max(2, (d.out / maxMoveVal) * 80)}px`,
                       transition: 'height 0.3s',
                     }} title={`Sorties: ${d.out}`} />
                   </div>
-                  <div style={{ fontSize: 8, color: '#B8A0AE', fontWeight: 700 }}>{d.label}</div>
+                  <div style={{ fontSize: 8, color: '#6B6058', fontWeight: 700 }}>{d.label}</div>
                 </div>
               ))}
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 10 }}>
-              <span style={{ fontSize: 10, color: '#5DAB8B', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: '#5DAB8B', display: 'inline-block' }} /> Entrées
+              <span style={{ fontSize: 10, color: '#2FB65D', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: '#2FB65D', display: 'inline-block' }} /> Entrées
               </span>
-              <span style={{ fontSize: 10, color: '#D4648A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: '#D4648A', display: 'inline-block' }} /> Sorties
+              <span style={{ fontSize: 10, color: '#8B1A2B', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: '#8B1A2B', display: 'inline-block' }} /> Sorties
               </span>
             </div>
           </div>
@@ -326,8 +326,8 @@ export default function Board({ products, locations, stock, movements, alerts, e
               {stockByCategory.filter(c => c.qty > 0).map(cat => (
                 <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 3, background: cat.color, display: 'inline-block' }} />
-                  <span style={{ fontSize: 11, color: '#3D3042', fontWeight: 600 }}>
-                    {cat.name} <span style={{ color: '#9A8B94' }}>({cat.qty})</span>
+                  <span style={{ fontSize: 11, color: '#F0ECE2', fontWeight: 600 }}>
+                    {cat.name} <span style={{ color: '#8A7D75' }}>({cat.qty})</span>
                   </span>
                 </div>
               ))}
@@ -343,14 +343,14 @@ export default function Board({ products, locations, stock, movements, alerts, e
           <div key={loc.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
             <div style={{
               width: 42, height: 42, borderRadius: 12,
-              background: (loc.color || '#E8735A') + '15',
+              background: (loc.color || '#C8A46A') + '15',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
             }}>{loc.icon || '📍'}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700 }}>{loc.name}</div>
-              <div style={{ fontSize: 11, color: '#9A8B94' }}>{loc.nbProducts} réf. en stock</div>
+              <div style={{ fontSize: 11, color: '#8A7D75' }}>{loc.nbProducts} réf. en stock</div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#3D3042' }}>{loc.qty}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#F0ECE2' }}>{loc.qty}</div>
           </div>
         ))}
       </div>
@@ -376,7 +376,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                   <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {pName(m.product_id)}
                   </div>
-                  <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                  <div style={{ fontSize: 11, color: '#8A7D75' }}>
                     {m.type === 'transfer'
                       ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
                       : lName(m.type === 'in' ? m.to_loc : m.from_loc)
@@ -387,7 +387,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                   <div style={{ fontSize: 14, fontWeight: 800, color: conf.color }}>
                     {m.type === 'out' ? '−' : '+'}{m.quantity}
                   </div>
-                  <div style={{ fontSize: 10, color: '#B8A0AE' }}>{fmtDate(m.created_at)}</div>
+                  <div style={{ fontSize: 10, color: '#6B6058' }}>{fmtDate(m.created_at)}</div>
                 </div>
               </div>
             )
@@ -406,9 +406,9 @@ export default function Board({ products, locations, stock, movements, alerts, e
                 <div key={ev.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', cursor: 'pointer' }}
                   onClick={() => setSelectedEvent(ev)}>
                   <div style={{
-                    width: 42, height: 42, borderRadius: 12, background: '#E8735A15',
+                    width: 42, height: 42, borderRadius: 12, background: '#C8A46A15',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 900, color: '#E8735A', lineHeight: 1.1, textAlign: 'center',
+                    fontSize: 12, fontWeight: 900, color: '#C8A46A', lineHeight: 1.1, textAlign: 'center',
                   }}>
                     {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                   </div>
@@ -416,9 +416,9 @@ export default function Board({ products, locations, stock, movements, alerts, e
                     <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {ev.name || ev.lieu}
                     </div>
-                    <div style={{ fontSize: 11, color: '#9A8B94' }}>{ev.ville} · {ev.format}</div>
+                    <div style={{ fontSize: 11, color: '#8A7D75' }}>{ev.ville} · {ev.format}</div>
                   </div>
-                  <Badge color={d <= 7 ? '#E8935A' : '#5B8DB8'}>J-{d}</Badge>
+                  <Badge color={d <= 7 ? '#C8A46A' : '#5B8DB8'}>J-{d}</Badge>
                 </div>
               )
             })}
@@ -430,11 +430,11 @@ export default function Board({ products, locations, stock, movements, alerts, e
       {events.length > 0 && (
         <button onClick={() => onNavigate('tournee')} style={{
           width: '100%', marginTop: 16, padding: '14px', borderRadius: 14,
-          background: 'linear-gradient(135deg, #E8735A08, #9B7DC418)',
-          border: '1.5px solid #E8735A25', cursor: 'pointer', textAlign: 'center',
+          background: 'linear-gradient(135deg, #C8A46A08, #9B7DC418)',
+          border: '1.5px solid #C8A46A25', cursor: 'pointer', textAlign: 'center',
         }}>
           <span style={{ fontSize: 14 }}>🎪</span>
-          <span style={{ fontSize: 13, fontWeight: 800, color: '#E8735A', marginLeft: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: '#C8A46A', marginLeft: 8 }}>
             Voir toute la tournée ({events.length} dates)
           </span>
         </button>
@@ -471,10 +471,10 @@ function MiniKpi({ label, value, color }) {
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
       background: 'white', borderRadius: 10,
-      border: '1px solid #F0E8E4',
+      border: '1px solid #1a1a1a',
     }}>
       <div style={{ fontSize: 18, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 9, color: '#8A7D75', fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

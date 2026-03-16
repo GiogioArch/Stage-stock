@@ -13,9 +13,9 @@ export default function Alerts({ alerts, events, products, stock, locations, use
     events.filter(e => e.date >= today).forEach(ev => {
       const d = Math.ceil((new Date(ev.date) - now) / 86400000)
       if (d <= 3) {
-        list.push({ type: 'event_urgent', icon: '🔴', label: `Concert dans ${d}j`, detail: `${ev.name || ev.lieu} — ${ev.ville}`, color: '#D4648A', date: ev.date, event: ev })
+        list.push({ type: 'event_urgent', icon: '🔴', label: `Concert dans ${d}j`, detail: `${ev.name || ev.lieu} — ${ev.ville}`, color: '#8B1A2B', date: ev.date, event: ev })
       } else if (d <= 7) {
-        list.push({ type: 'event_soon', icon: '🟠', label: `Concert dans ${d}j`, detail: `${ev.name || ev.lieu} — ${ev.ville}`, color: '#E8935A', date: ev.date, event: ev })
+        list.push({ type: 'event_soon', icon: '🟠', label: `Concert dans ${d}j`, detail: `${ev.name || ev.lieu} — ${ev.ville}`, color: '#C8A46A', date: ev.date, event: ev })
       } else if (d <= 14) {
         list.push({ type: 'event_upcoming', icon: '🔵', label: `Concert dans ${d}j`, detail: `${ev.name || ev.lieu} — ${ev.ville}`, color: '#5B8DB8', date: ev.date, event: ev })
       }
@@ -37,7 +37,7 @@ export default function Alerts({ alerts, events, products, stock, locations, use
         detail: stockLocs.length > 0
           ? stockLocs.map(sl => `${sl.loc}: ${sl.qty}`).join(' · ')
           : 'Aucun stock disponible',
-        color: a.level === 'rupture' ? '#D4648A' : '#E8935A',
+        color: a.level === 'rupture' ? '#8B1A2B' : '#C8A46A',
       }
     })
   }, [alerts, stock, locations])
@@ -63,16 +63,16 @@ export default function Alerts({ alerts, events, products, stock, locations, use
       <div className="card" style={{
         marginBottom: 16, padding: '16px',
         background: ruptures > 0
-          ? 'linear-gradient(135deg, #D4648A08, #D4648A18)'
-          : 'linear-gradient(135deg, #5DAB8B08, #5DAB8B18)',
-        border: `1.5px solid ${ruptures > 0 ? '#D4648A25' : '#5DAB8B25'}`,
+          ? 'linear-gradient(135deg, #8B1A2B08, #8B1A2B18)'
+          : 'linear-gradient(135deg, #2FB65D08, #2FB65D18)',
+        border: `1.5px solid ${ruptures > 0 ? '#8B1A2B25' : '#2FB65D25'}`,
       }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042', marginBottom: 10 }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#F0ECE2', marginBottom: 10 }}>
           Centre de notifications
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <SummaryPill value={ruptures} label="Ruptures" color="#D4648A" />
-          <SummaryPill value={alertes} label="Alertes" color="#E8935A" />
+          <SummaryPill value={ruptures} label="Ruptures" color="#8B1A2B" />
+          <SummaryPill value={alertes} label="Alertes" color="#C8A46A" />
           <SummaryPill value={evtCount} label="Événements" color="#5B8DB8" />
         </div>
       </div>
@@ -80,17 +80,17 @@ export default function Alerts({ alerts, events, products, stock, locations, use
       {/* ─── Filter pills ─── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto' }}>
         {[
-          { id: 'all', label: `Tout (${allNotifs.length})`, color: '#3D3042' },
-          { id: 'rupture', label: `🚨 Ruptures (${ruptures})`, color: '#D4648A' },
-          { id: 'alerte', label: `⚠️ Alertes (${alertes})`, color: '#E8935A' },
+          { id: 'all', label: `Tout (${allNotifs.length})`, color: '#F0ECE2' },
+          { id: 'rupture', label: `🚨 Ruptures (${ruptures})`, color: '#8B1A2B' },
+          { id: 'alerte', label: `⚠️ Alertes (${alertes})`, color: '#C8A46A' },
           { id: 'event', label: `📅 Concerts (${evtCount})`, color: '#5B8DB8' },
         ].map(f => (
           <button key={f.id} onClick={() => setFilter(f.id)} style={{
             padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
             whiteSpace: 'nowrap', cursor: 'pointer',
             background: filter === f.id ? `${f.color}15` : 'white',
-            color: filter === f.id ? f.color : '#9A8B94',
-            border: `1.5px solid ${filter === f.id ? f.color + '30' : '#E8DED8'}`,
+            color: filter === f.id ? f.color : '#8A7D75',
+            border: `1.5px solid ${filter === f.id ? f.color + '30' : '#222222'}`,
           }}>{f.label}</button>
         ))}
       </div>
@@ -100,7 +100,7 @@ export default function Alerts({ alerts, events, products, stock, locations, use
         <div className="empty-state" style={{ padding: 40 }}>
           <div className="empty-icon">✅</div>
           <div className="empty-text">Aucune notification</div>
-          <div style={{ fontSize: 12, color: '#B8A0AE', marginTop: 4 }}>Tout est en ordre !</div>
+          <div style={{ fontSize: 12, color: '#6B6058', marginTop: 4 }}>Tout est en ordre !</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -112,18 +112,18 @@ export default function Alerts({ alerts, events, products, stock, locations, use
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                 <div style={{ fontSize: 20, lineHeight: 1, marginTop: 2 }}>{n.icon}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#3D3042' }}>{n.label}</div>
-                  <div style={{ fontSize: 11, color: '#9A8B94', marginTop: 2 }}>{n.detail}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#F0ECE2' }}>{n.label}</div>
+                  <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2 }}>{n.detail}</div>
                   {n.currentStock !== undefined && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                       <div style={{
-                        flex: 1, height: 4, borderRadius: 2, background: '#F0E8E4',
+                        flex: 1, height: 4, borderRadius: 2, background: '#1a1a1a',
                         overflow: 'hidden',
                       }}>
                         <div style={{
                           width: `${Math.min(100, (n.currentStock / n.minStock) * 100)}%`,
                           height: '100%', borderRadius: 2,
-                          background: n.level === 'rupture' ? '#D4648A' : '#E8935A',
+                          background: n.level === 'rupture' ? '#8B1A2B' : '#C8A46A',
                         }} />
                       </div>
                       <span style={{ fontSize: 10, fontWeight: 700, color: n.color }}>
@@ -148,10 +148,10 @@ function SummaryPill({ value, label, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: 'white', borderRadius: 10, border: '1px solid #F0E8E4',
+      background: 'white', borderRadius: 10, border: '1px solid #1a1a1a',
     }}>
       <div style={{ fontSize: 18, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 9, color: '#8A7D75', fontWeight: 600, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

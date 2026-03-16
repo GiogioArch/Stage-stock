@@ -29,7 +29,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
         }
       } catch (err) {
         if (mounted) {
-          onToast('Camera non disponible — mode manuel activé', '#E8935A')
+          onToast('Camera non disponible — mode manuel activé', '#C8A46A')
           setManualMode(true)
         }
       }
@@ -137,7 +137,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
           {scanning && (
             <button onClick={() => setManualMode(!manualMode)} style={{
               padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-              background: manualMode ? '#E8735A' : 'rgba(255,255,255,0.15)',
+              background: manualMode ? '#C8A46A' : 'rgba(255,255,255,0.15)',
               color: 'white', border: 'none', cursor: 'pointer',
             }}>
               {manualMode ? '📷 Caméra' : '⌨️ Manuel'}
@@ -200,11 +200,11 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
               autoFocus
               style={{
                 flex: 1, padding: '12px 16px', borderRadius: 12, fontSize: 15,
-                border: '2px solid #E8735A', background: 'rgba(255,255,255,0.95)',
+                border: '2px solid #C8A46A', background: 'rgba(255,255,255,0.95)',
               }}
             />
             <button onClick={handleManualSearch} style={{
-              padding: '12px 20px', borderRadius: 12, background: '#E8735A',
+              padding: '12px 20px', borderRadius: 12, background: '#C8A46A',
               color: 'white', fontWeight: 800, fontSize: 14, border: 'none', cursor: 'pointer',
             }}>OK</button>
           </div>
@@ -217,11 +217,11 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
                 <button key={p.id} onClick={() => { setMatchedProduct(p); setScannedCode(p.sku || p.name); setScanning(false) }}
                   style={{
                     width: '100%', padding: '10px 14px', marginBottom: 4, borderRadius: 10,
-                    background: 'rgba(255,255,255,0.9)', border: '1px solid #E8DED8',
+                    background: 'rgba(255,255,255,0.9)', border: '1px solid #222222',
                     textAlign: 'left', cursor: 'pointer',
                   }}>
                   <div style={{ fontSize: 13, fontWeight: 700 }}>{p.name}</div>
-                  <div style={{ fontSize: 11, color: '#9A8B94' }}>{p.sku || 'pas de SKU'}</div>
+                  <div style={{ fontSize: 11, color: '#8A7D75' }}>{p.sku || 'pas de SKU'}</div>
                 </button>
               ))
             }
@@ -237,7 +237,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
             textAlign: 'center', marginBottom: 20, padding: '12px 16px',
             background: 'rgba(255,255,255,0.08)', borderRadius: 12,
           }}>
-            <div style={{ fontSize: 11, color: '#9A8B94', fontWeight: 600 }}>Code scanné</div>
+            <div style={{ fontSize: 11, color: '#8A7D75', fontWeight: 600 }}>Code scanné</div>
             <div style={{ fontSize: 18, fontWeight: 900, color: 'white', fontFamily: 'monospace', marginTop: 4 }}>{scannedCode}</div>
           </div>
 
@@ -254,22 +254,22 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28,
                   }}>{matchedProduct.image || '📦'}</div>
                   <div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#3D3042' }}>{matchedProduct.name}</div>
-                    <div style={{ fontSize: 12, color: '#9A8B94' }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#F0ECE2' }}>{matchedProduct.name}</div>
+                    <div style={{ fontSize: 12, color: '#8A7D75' }}>
                       {matchedProduct.sku} · {matchedProduct.category}
                     </div>
                   </div>
                 </div>
 
                 {/* Stock by location */}
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#9A8B94', marginBottom: 8 }}>Stock actuel</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#8A7D75', marginBottom: 8 }}>Stock actuel</div>
                 {productStock.length === 0 ? (
-                  <div style={{ fontSize: 13, color: '#D4648A', fontWeight: 700 }}>🚨 Aucun stock disponible</div>
+                  <div style={{ fontSize: 13, color: '#8B1A2B', fontWeight: 700 }}>🚨 Aucun stock disponible</div>
                 ) : (
                   productStock.map((ps, i) => (
                     <div key={i} style={{
                       display: 'flex', justifyContent: 'space-between', padding: '6px 0',
-                      borderBottom: i < productStock.length - 1 ? '1px solid #F0E8E4' : 'none',
+                      borderBottom: i < productStock.length - 1 ? '1px solid #1a1a1a' : 'none',
                     }}>
                       <span style={{ fontSize: 13 }}>{ps.location}</span>
                       <span style={{ fontSize: 13, fontWeight: 800 }}>{ps.qty}</span>
@@ -278,12 +278,12 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
                 )}
                 <div style={{
                   display: 'flex', justifyContent: 'space-between', padding: '8px 0 0',
-                  marginTop: 8, borderTop: '2px solid #F0E8E4',
+                  marginTop: 8, borderTop: '2px solid #1a1a1a',
                 }}>
                   <span style={{ fontSize: 14, fontWeight: 800 }}>Total</span>
                   <span style={{
                     fontSize: 18, fontWeight: 900,
-                    color: totalQty <= 0 ? '#D4648A' : totalQty <= (matchedProduct.min_stock || 5) ? '#E8935A' : '#5DAB8B',
+                    color: totalQty <= 0 ? '#8B1A2B' : totalQty <= (matchedProduct.min_stock || 5) ? '#C8A46A' : '#2FB65D',
                   }}>{totalQty}</span>
                 </div>
               </div>
@@ -291,11 +291,11 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
               {/* Action buttons */}
               <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                 <button onClick={() => { onMovement('in'); onClose() }} style={{
-                  flex: 1, padding: 14, borderRadius: 14, background: '#5DAB8B',
+                  flex: 1, padding: 14, borderRadius: 14, background: '#2FB65D',
                   color: 'white', fontWeight: 800, fontSize: 14, border: 'none', cursor: 'pointer',
                 }}>📥 Entrée</button>
                 <button onClick={() => { onMovement('out'); onClose() }} style={{
-                  flex: 1, padding: 14, borderRadius: 14, background: '#D4648A',
+                  flex: 1, padding: 14, borderRadius: 14, background: '#8B1A2B',
                   color: 'white', fontWeight: 800, fontSize: 14, border: 'none', cursor: 'pointer',
                 }}>📤 Sortie</button>
                 <button onClick={() => { onMovement('transfer'); onClose() }} style={{
@@ -310,8 +310,8 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
               textAlign: 'center',
             }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>❓</div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#3D3042', marginBottom: 4 }}>Produit non trouvé</div>
-              <div style={{ fontSize: 12, color: '#9A8B94' }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#F0ECE2', marginBottom: 4 }}>Produit non trouvé</div>
+              <div style={{ fontSize: 12, color: '#8A7D75' }}>
                 Aucun produit ne correspond au code "{scannedCode}"
               </div>
             </div>

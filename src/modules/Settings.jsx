@@ -41,13 +41,13 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
           { id: 'access', label: '👥 Accès', color: '#9B7DC4' },
-          { id: 'modules', label: '⚙️ Modules', color: '#3D3042' },
+          { id: 'modules', label: '⚙️ Modules', color: '#F0ECE2' },
         ].map(t => (
           <button key={t.id} onClick={() => setSubTab(t.id)} style={{
             flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 13, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
             background: subTab === t.id ? `${t.color}12` : 'white',
-            color: subTab === t.id ? t.color : '#9A8B94',
+            color: subTab === t.id ? t.color : '#8A7D75',
             border: `1.5px solid ${subTab === t.id ? t.color + '40' : '#E8DED8'}`,
           }}>{t.label}</button>
         ))}
@@ -70,26 +70,26 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
           {/* Header */}
           <div className="card" style={{
             marginBottom: 16, padding: '18px 16px',
-            background: 'linear-gradient(135deg, #3D304208, #9A8B9418)',
-            border: '1.5px solid #3D304215',
+            background: 'linear-gradient(135deg, #F0ECE208, #8A7D7518)',
+            border: '1.5px solid #F0ECE215',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 14,
-                background: 'linear-gradient(135deg, #3D3042, #9A8B94)',
+                background: 'linear-gradient(135deg, #F0ECE2, #8A7D75)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 24, color: 'white',
               }}>⚙️</div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>Modules</div>
-                <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>
+                <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2' }}>Modules</div>
+                <div style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600 }}>
                   Active ou désactive les modules de Stage Stock
                 </div>
               </div>
             </div>
           </div>
 
-          <div style={{ fontSize: 11, color: '#9A8B94', lineHeight: 1.6, marginBottom: 16, padding: '0 4px' }}>
+          <div style={{ fontSize: 11, color: '#8A7D75', lineHeight: 1.6, marginBottom: 16, padding: '0 4px' }}>
             Chaque module ajoute un onglet et ses fonctionnalités. Les dépendances sont activées automatiquement.
           </div>
 
@@ -134,25 +134,25 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
                     }}>{mod.icon}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: isActive ? '#3D3042' : '#9A8B94' }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: isActive ? '#F0ECE2' : '#8A7D75' }}>
                           {mod.name}
                         </span>
                         {isLocked && (
-                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#3D3042', color: 'white', fontWeight: 800 }}>
+                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#F0ECE2', color: 'white', fontWeight: 800 }}>
                             REQUIS
                           </span>
                         )}
                         {isRequired && !isLocked && (
-                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#E8935A', color: 'white', fontWeight: 800 }}>
+                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#C8A46A', color: 'white', fontWeight: 800 }}>
                             DÉPENDANCE
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: 11, color: '#9A8B94', marginTop: 2, lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2, lineHeight: 1.4 }}>
                         {mod.description}
                       </div>
                       {mod.deps.length > 0 && (
-                        <div style={{ fontSize: 9, color: '#B8A0AE', marginTop: 3 }}>
+                        <div style={{ fontSize: 9, color: '#6B6058', marginTop: 3 }}>
                           Requiert : {mod.deps.map(d => MODULES[d]?.name).filter(Boolean).join(', ')}
                         </div>
                       )}

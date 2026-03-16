@@ -48,7 +48,7 @@ export default function Products({ products, families, subfamilies, stock, locat
       setModal(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
+      onToast('Erreur: ' + e.message, '#8B1A2B')
     }
   }
 
@@ -96,14 +96,14 @@ export default function Products({ products, families, subfamilies, stock, locat
 
       {/* Product count + Add button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <span style={{ fontSize: 13, color: '#9A8B94', fontWeight: 600 }}>{filtered.length} produit{filtered.length > 1 ? 's' : ''}</span>
+        <span style={{ fontSize: 13, color: '#8A7D75', fontWeight: 600 }}>{filtered.length} produit{filtered.length > 1 ? 's' : ''}</span>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setModal({ type: 'csv' })} style={{
-            padding: '8px 12px', borderRadius: 12, background: '#EEF4FA',
+            padding: '8px 12px', borderRadius: 12, background: 'rgba(91,141,184,0.08)',
             border: '1.5px solid #5B8DB830', color: '#5B8DB8', fontSize: 12, fontWeight: 700, cursor: 'pointer',
           }}>📄 CSV</button>
           <button onClick={() => setModal({ type: 'add' })} style={{
-            padding: '8px 16px', borderRadius: 12, background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+            padding: '8px 16px', borderRadius: 12, background: 'linear-gradient(135deg, #C8A46A, #8B1A2B)',
             color: 'white', fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer',
           }}>+ Ajouter</button>
         </div>
@@ -134,17 +134,17 @@ export default function Products({ products, families, subfamilies, stock, locat
                   <div style={{ fontSize: 14, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {p.name}
                   </div>
-                  <div style={{ fontSize: 11, color: '#9A8B94', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2 }}>
                     {p.sku} · <span style={{ color: cat.color }}>{cat.name}</span>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{
                     fontSize: 18, fontWeight: 900,
-                    color: isZero ? '#D4648A' : isLow ? '#E8935A' : '#5DAB8B',
+                    color: isZero ? '#8B1A2B' : isLow ? '#C8A46A' : '#2FB65D',
                   }}>{qty}</div>
-                  {isZero && <div style={{ fontSize: 9, color: '#D4648A', fontWeight: 700 }}>RUPTURE</div>}
-                  {isLow && !isZero && <div style={{ fontSize: 9, color: '#E8935A', fontWeight: 700 }}>BAS</div>}
+                  {isZero && <div style={{ fontSize: 9, color: '#8B1A2B', fontWeight: 700 }}>RUPTURE</div>}
+                  {isLow && !isZero && <div style={{ fontSize: 9, color: '#C8A46A', fontWeight: 700 }}>BAS</div>}
                 </div>
               </div>
             )
@@ -193,7 +193,7 @@ export default function Products({ products, families, subfamilies, stock, locat
               setModal(null)
               onReload()
             } catch (e) {
-              onToast('Erreur: ' + e.message, '#D4648A')
+              onToast('Erreur: ' + e.message, '#8B1A2B')
             }
           }}
         />
@@ -217,7 +217,7 @@ export default function Products({ products, families, subfamilies, stock, locat
           message={confirm.message}
           detail={confirm.detail}
           confirmLabel="Supprimer"
-          confirmColor="#D4648A"
+          confirmColor="#8B1A2B"
           onConfirm={confirm.onConfirm}
           onCancel={() => setConfirm(null)}
         />
@@ -327,8 +327,8 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
         </div>
 
         {/* Amortissement */}
-        <div style={{ borderTop: '1px solid #F0E8E4', paddingTop: 14, marginTop: 4 }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+        <div style={{ borderTop: '1px solid #1a1a1a', paddingTop: 14, marginTop: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Comptabilité
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -349,7 +349,7 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
               onChange={e => setUsefulLife(intOnly(e.target.value))} placeholder="Ex: 36 (3 ans)" />
           </div>
           {costHt && parseFloat(costHt) > 0 && parseFloat(costHt) < 500 && (
-            <div style={{ fontSize: 11, color: '#E8935A', marginTop: 6, fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: '#C8A46A', marginTop: 6, fontWeight: 600 }}>
               Sous le seuil de 500€ HT → comptabilisé en charge
             </div>
           )}
@@ -377,9 +377,9 @@ function FilterPill({ active, color, small, onClick, children }) {
       fontSize: small ? 11 : 12,
       fontWeight: 700,
       whiteSpace: 'nowrap',
-      border: `1.5px solid ${active ? (color || '#E8735A') : '#E8DED8'}`,
-      background: active ? `${color || '#E8735A'}12` : 'white',
-      color: active ? (color || '#E8735A') : '#9A8B94',
+      border: `1.5px solid ${active ? (color || '#C8A46A') : '#222222'}`,
+      background: active ? `${color || '#C8A46A'}12` : 'white',
+      color: active ? (color || '#C8A46A') : '#8A7D75',
       cursor: 'pointer',
       transition: 'all 0.15s',
     }}>{children}</button>

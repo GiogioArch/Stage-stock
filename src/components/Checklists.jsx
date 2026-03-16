@@ -4,16 +4,16 @@ import { Modal, Confirm, Badge, fmtDate } from './UI'
 
 const CAT_CONFIG = {
   son:          { icon: '🔊', color: '#5B8DB8', label: 'Son' },
-  lumiere:      { icon: '💡', color: '#E8935A', label: 'Lumière' },
-  instruments:  { icon: '🎸', color: '#D4648A', label: 'Instruments' },
+  lumiere:      { icon: '💡', color: '#C8A46A', label: 'Lumière' },
+  instruments:  { icon: '🎸', color: '#8B1A2B', label: 'Instruments' },
   decor:        { icon: '🎭', color: '#9B7DC4', label: 'Décor' },
-  merch:        { icon: '👕', color: '#E8735A', label: 'Merch' },
-  logistique:   { icon: '🚛', color: '#5DAB8B', label: 'Logistique' },
+  merch:        { icon: '👕', color: '#C8A46A', label: 'Merch' },
+  logistique:   { icon: '🚛', color: '#2FB65D', label: 'Logistique' },
   consommables: { icon: '🔋', color: '#8BAB5D', label: 'Consommables' },
 }
 
 function getCatConf(cat) {
-  return CAT_CONFIG[cat] || { icon: '📋', color: '#9A8B94', label: cat || 'Autre' }
+  return CAT_CONFIG[cat] || { icon: '📋', color: '#8A7D75', label: cat || 'Autre' }
 }
 
 export default function Checklists({ checklists, events, orgId, onReload, onToast }) {
@@ -67,7 +67,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       })
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
+      onToast('Erreur: ' + e.message, '#8B1A2B')
     }
   }
 
@@ -79,7 +79,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       setConfirm(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
+      onToast('Erreur: ' + e.message, '#8B1A2B')
     }
   }
 
@@ -93,7 +93,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       setConfirm(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
+      onToast('Erreur: ' + e.message, '#8B1A2B')
     }
   }
 
@@ -137,20 +137,20 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       {/* Progress bar */}
       <div className="card" style={{ padding: '14px 16px', marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#3D3042' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#F0ECE2' }}>
             {checked}/{total} complété{checked > 1 ? 's' : ''}
           </span>
-          <span style={{ fontSize: 22, fontWeight: 900, color: pct === 100 ? '#5DAB8B' : '#E8735A' }}>
+          <span style={{ fontSize: 22, fontWeight: 900, color: pct === 100 ? '#2FB65D' : '#C8A46A' }}>
             {pct}%
           </span>
         </div>
-        <div style={{ height: 8, borderRadius: 4, background: '#F0E8E4', overflow: 'hidden' }}>
+        <div style={{ height: 8, borderRadius: 4, background: '#1a1a1a', overflow: 'hidden' }}>
           <div style={{
             height: '100%', borderRadius: 4, transition: 'width 0.3s',
             width: `${pct}%`,
             background: pct === 100
-              ? 'linear-gradient(90deg, #5DAB8B, #4A9A7A)'
-              : 'linear-gradient(90deg, #E8735A, #D4648A)',
+              ? 'linear-gradient(90deg, #2FB65D, #4A9A7A)'
+              : 'linear-gradient(90deg, #C8A46A, #8B1A2B)',
           }} />
         </div>
       </div>
@@ -159,7 +159,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <button onClick={() => setAddModal(true)} style={{
           flex: 1, padding: '10px 14px', borderRadius: 12,
-          background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+          background: 'linear-gradient(135deg, #C8A46A, #8B1A2B)',
           color: 'white', fontSize: 13, fontWeight: 800,
         }}>+ Ajouter</button>
         {checked > 0 && (
@@ -169,8 +169,8 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
             onConfirm: resetAll,
           })} style={{
             padding: '10px 14px', borderRadius: 12,
-            background: '#F8F0FA', border: '1.5px solid #E8DED8',
-            color: '#9A8B94', fontSize: 13, fontWeight: 700,
+            background: '#F8F0FA', border: '1.5px solid #222222',
+            color: '#8A7D75', fontSize: 13, fontWeight: 700,
           }}>🔄 Reset</button>
         )}
       </div>
@@ -192,7 +192,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
                 <span style={{ fontSize: 13, fontWeight: 800, color: conf.color, textTransform: 'uppercase', letterSpacing: 1 }}>
                   {conf.label}
                 </span>
-                <span style={{ fontSize: 11, color: '#B8A0AE', fontWeight: 600 }}>
+                <span style={{ fontSize: 11, color: '#6B6058', fontWeight: 600 }}>
                   {items.filter(i => i.checked).length}/{items.length}
                 </span>
               </div>
@@ -229,7 +229,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
               setAddModal(false)
               onReload()
             } catch (e) {
-              onToast('Erreur: ' + e.message, '#D4648A')
+              onToast('Erreur: ' + e.message, '#8B1A2B')
             }
           }}
         />
@@ -268,14 +268,14 @@ function CheckItem({ item, color, onToggle, onDelete }) {
       </button>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontSize: 13, fontWeight: 600, color: '#3D3042',
+          fontSize: 13, fontWeight: 600, color: '#F0ECE2',
           textDecoration: item.checked ? 'line-through' : 'none',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
           {item.item}
         </div>
         {item.checked_at && (
-          <div style={{ fontSize: 10, color: '#B8A0AE', marginTop: 2 }}>
+          <div style={{ fontSize: 10, color: '#6B6058', marginTop: 2 }}>
             {fmtDate(item.checked_at)}
           </div>
         )}
@@ -342,9 +342,9 @@ function EventPill({ active, onClick, children }) {
     <button onClick={onClick} style={{
       padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
       whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.15s',
-      border: `1.5px solid ${active ? '#E8735A' : '#E8DED8'}`,
-      background: active ? '#E8735A12' : 'white',
-      color: active ? '#E8735A' : '#9A8B94',
+      border: `1.5px solid ${active ? '#C8A46A' : '#222222'}`,
+      background: active ? '#C8A46A12' : 'white',
+      color: active ? '#C8A46A' : '#8A7D75',
     }}>{children}</button>
   )
 }
@@ -354,9 +354,9 @@ function CatPill({ active, color, onClick, children }) {
     <button onClick={onClick} style={{
       padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700,
       whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.15s',
-      border: `1.5px solid ${active ? (color || '#E8735A') : '#E8DED8'}`,
-      background: active ? `${color || '#E8735A'}12` : 'white',
-      color: active ? (color || '#E8735A') : '#9A8B94',
+      border: `1.5px solid ${active ? (color || '#C8A46A') : '#222222'}`,
+      background: active ? `${color || '#C8A46A'}12` : 'white',
+      color: active ? (color || '#C8A46A') : '#8A7D75',
     }}>{children}</button>
   )
 }

@@ -3,16 +3,16 @@ import { db } from '../lib/supabase'
 
 // Role display config — shared with PackingList
 export const ROLE_CONF = {
-  TM:   { icon: '🎯', color: '#E8735A', label: 'Tour Manager' },
+  TM:   { icon: '🎯', color: '#C8A46A', label: 'Tour Manager' },
   PM:   { icon: '🎬', color: '#9B7DC4', label: 'Chef de Production' },
   SE:   { icon: '🔊', color: '#5B8DB8', label: 'Ingé Son' },
-  LD:   { icon: '💡', color: '#E8935A', label: 'Régisseur Lumière' },
-  BL:   { icon: '🎸', color: '#D4648A', label: 'Backline' },
+  LD:   { icon: '💡', color: '#C8A46A', label: 'Régisseur Lumière' },
+  BL:   { icon: '🎸', color: '#8B1A2B', label: 'Backline' },
   SM:   { icon: '🎭', color: '#8BAB5D', label: 'Régisseur Scène' },
-  TD:   { icon: '⚙️', color: '#5DAB8B', label: 'Directeur Technique' },
-  MM:   { icon: '👕', color: '#E8735A', label: 'Merch Manager' },
+  TD:   { icon: '⚙️', color: '#2FB65D', label: 'Directeur Technique' },
+  MM:   { icon: '👕', color: '#C8A46A', label: 'Merch Manager' },
   LOG:  { icon: '🚛', color: '#5B8DB8', label: 'Logistique' },
-  SAFE: { icon: '🛡️', color: '#D4648A', label: 'Sécurité' },
+  SAFE: { icon: '🛡️', color: '#8B1A2B', label: 'Sécurité' },
   AA:   { icon: '🎤', color: '#9B7DC4', label: 'Assistant Artiste' },
   PA:   { icon: '📋', color: '#8BAB5D', label: 'Assistant Production' },
 }
@@ -42,7 +42,7 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
           await db.insert('user_profiles', { user_id: userId, role_id: selected.id, org_id: orgId })
         }
       } catch (e2) {
-        onToast('Erreur: ' + e2.message, '#D4648A')
+        onToast('Erreur: ' + e2.message, '#8B1A2B')
         setSaving(false)
         return
       }
@@ -62,22 +62,22 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 100,
-      background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      background: 'linear-gradient(180deg, #080808 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
       overflowY: 'auto', padding: '24px 16px',
     }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <div style={{
           width: 64, height: 64, borderRadius: 20,
-          background: 'linear-gradient(135deg, #F7A072, #E8735A)',
+          background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 32, boxShadow: '0 6px 24px rgba(232,115,90,0.25)',
           marginBottom: 14,
         }}>🎪</div>
-        <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A', marginBottom: 4 }}>
+        <div style={{ fontSize: 20, fontWeight: 900, color: '#C8A46A', marginBottom: 4 }}>
           Bienvenue sur Stage Stock
         </div>
-        <div style={{ fontSize: 14, color: '#9A8B94', fontWeight: 600, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 14, color: '#8A7D75', fontWeight: 600, lineHeight: 1.5 }}>
           Choisis ton rôle dans l'équipe pour personnaliser ton expérience
         </div>
       </div>
@@ -88,14 +88,14 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
         gap: 12, marginBottom: 24,
       }}>
         {sortedRoles.map(role => {
-          const conf = ROLE_CONF[role.code] || { icon: '📋', color: '#9A8B94', label: role.name }
+          const conf = ROLE_CONF[role.code] || { icon: '📋', color: '#8A7D75', label: role.name }
           const isSelected = selected?.id === role.id
           const isAdmin = role.code === 'TM' || role.code === 'PM'
           return (
             <button key={role.id} onClick={() => setSelected(role)} style={{
               padding: '18px 14px', borderRadius: 18, textAlign: 'center',
               background: isSelected ? `${conf.color}12` : 'white',
-              border: `2px solid ${isSelected ? conf.color : '#F0E8E4'}`,
+              border: `2px solid ${isSelected ? conf.color : '#1a1a1a'}`,
               boxShadow: isSelected
                 ? `0 4px 16px ${conf.color}25`
                 : '0 2px 12px rgba(180,150,130,0.08)',
@@ -112,11 +112,11 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
               )}
               <div style={{ fontSize: 32, marginBottom: 8 }}>{conf.icon}</div>
               <div style={{
-                fontSize: 13, fontWeight: 800, color: isSelected ? conf.color : '#3D3042',
+                fontSize: 13, fontWeight: 800, color: isSelected ? conf.color : '#F0ECE2',
                 marginBottom: 4,
               }}>{conf.label}</div>
               <div style={{
-                fontSize: 10, color: '#B8A0AE', lineHeight: 1.4,
+                fontSize: 10, color: '#6B6058', lineHeight: 1.4,
                 display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
                 overflow: 'hidden',
               }}>{role.description}</div>
@@ -142,11 +142,11 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
           style={{
             width: '100%', padding: 16, borderRadius: 16,
             background: selected
-              ? `linear-gradient(135deg, ${ROLE_CONF[selected.code]?.color || '#E8735A'}, ${ROLE_CONF[selected.code]?.color || '#E8735A'}CC)`
-              : '#E8DED8',
+              ? `linear-gradient(135deg, ${ROLE_CONF[selected.code]?.color || '#C8A46A'}, ${ROLE_CONF[selected.code]?.color || '#C8A46A'}CC)`
+              : '#222222',
             color: 'white', fontSize: 16, fontWeight: 800,
             cursor: selected && !saving ? 'pointer' : 'not-allowed',
-            boxShadow: selected ? `0 6px 24px ${ROLE_CONF[selected.code]?.color || '#E8735A'}30` : 'none',
+            boxShadow: selected ? `0 6px 24px ${ROLE_CONF[selected.code]?.color || '#C8A46A'}30` : 'none',
             transition: 'all 0.2s', border: 'none',
             opacity: saving ? 0.6 : 1,
           }}

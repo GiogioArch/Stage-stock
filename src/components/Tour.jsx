@@ -4,9 +4,9 @@ import { Modal, Confirm, Badge, intOnly } from './UI'
 import EventDetail from './EventDetail'
 
 const FORMAT_CONF = {
-  'concert live': { icon: '🎤', color: '#E8735A' },
-  'concert':      { icon: '🎤', color: '#E8735A' },
-  'live':         { icon: '🎤', color: '#E8735A' },
+  'concert live': { icon: '🎤', color: '#C8A46A' },
+  'concert':      { icon: '🎤', color: '#C8A46A' },
+  'live':         { icon: '🎤', color: '#C8A46A' },
   'sound system':  { icon: '🔊', color: '#5B8DB8' },
   'soundsystem':   { icon: '🔊', color: '#5B8DB8' },
   'impro':         { icon: '🎭', color: '#9B7DC4' },
@@ -14,8 +14,8 @@ const FORMAT_CONF = {
 }
 
 function getFormatConf(format) {
-  if (!format) return { icon: '🎵', color: '#E8735A' }
-  return FORMAT_CONF[format.toLowerCase().trim()] || { icon: '🎵', color: '#E8735A' }
+  if (!format) return { icon: '🎵', color: '#C8A46A' }
+  return FORMAT_CONF[format.toLowerCase().trim()] || { icon: '🎵', color: '#C8A46A' }
 }
 
 export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, orgName, onReload, onToast }) {
@@ -102,33 +102,33 @@ export default function Tour({ events, products, stock, locations, families, sub
       {/* Header */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #E8735A08, #9B7DC418)',
-        border: '1.5px solid #E8735A25',
+        background: 'linear-gradient(135deg, #C8A46A08, #9B7DC418)',
+        border: '1.5px solid #C8A46A25',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,
-            background: 'linear-gradient(135deg, #E8735A, #9B7DC4)',
+            background: 'linear-gradient(135deg, #C8A46A, #9B7DC4)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 24, color: 'white',
-            boxShadow: '0 4px 16px #E8735A30',
+            boxShadow: '0 4px 16px #C8A46A30',
           }}>🎪</div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>{orgName || 'Tournée'}</div>
-            <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2' }}>{orgName || 'Tournée'}</div>
+            <div style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600 }}>
               {totalEvents} date{totalEvents > 1 ? 's' : ''} programm{totalEvents > 1 ? 'ées' : 'ée'}
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <StatBox label="A venir" value={upcomingCount} color="#E8735A" />
-          <StatBox label="Passées" value={pastCount} color="#9A8B94" />
+          <StatBox label="A venir" value={upcomingCount} color="#C8A46A" />
+          <StatBox label="Passées" value={pastCount} color="#8A7D75" />
           <StatBox label="Total" value={totalEvents} color="#5B8DB8" />
           {nextEvent && (
             <StatBox
               label="Prochain"
               value={`J-${Math.max(0, Math.ceil((new Date(nextEvent.date) - new Date()) / 86400000))}`}
-              color="#5DAB8B"
+              color="#2FB65D"
             />
           )}
         </div>
@@ -141,25 +141,25 @@ export default function Tour({ events, products, stock, locations, families, sub
           className="card"
           style={{
             width: '100%', marginBottom: 16, padding: '14px 16px',
-            borderLeft: '4px solid #E8735A', cursor: 'pointer', textAlign: 'left',
-            background: '#E8735A06',
+            borderLeft: '4px solid #C8A46A', cursor: 'pointer', textAlign: 'left',
+            background: '#C8A46A06',
           }}
         >
-          <div style={{ fontSize: 10, fontWeight: 800, color: '#E8735A', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: '#C8A46A', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>
             Prochain concert
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#3D3042' }}>{nextEvent.name || nextEvent.lieu}</div>
-              <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 2 }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#F0ECE2' }}>{nextEvent.name || nextEvent.lieu}</div>
+              <div style={{ fontSize: 12, color: '#8A7D75', marginTop: 2 }}>
                 {nextEvent.lieu} — {nextEvent.ville} ({nextEvent.territoire})
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 14, fontWeight: 900, color: '#E8735A' }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: '#C8A46A' }}>
                 {new Date(nextEvent.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
               </div>
-              <div style={{ fontSize: 10, color: '#9A8B94', marginTop: 2 }}>
+              <div style={{ fontSize: 10, color: '#8A7D75', marginTop: 2 }}>
                 {nextEvent.format} · {nextEvent.capacite} pers.
               </div>
             </div>
@@ -180,16 +180,16 @@ export default function Tour({ events, products, stock, locations, families, sub
       {/* Filters */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
-          { id: 'upcoming', label: `A venir (${upcomingCount})`, color: '#E8735A' },
-          { id: 'past', label: `Passées (${pastCount})`, color: '#9A8B94' },
+          { id: 'upcoming', label: `A venir (${upcomingCount})`, color: '#C8A46A' },
+          { id: 'past', label: `Passées (${pastCount})`, color: '#8A7D75' },
           { id: 'all', label: `Toutes (${totalEvents})`, color: '#5B8DB8' },
         ].map(f => (
           <button key={f.id} onClick={() => setFilter(f.id)} style={{
             flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 11, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
-            background: filter === f.id ? `${f.color}15` : 'white',
-            color: filter === f.id ? f.color : '#9A8B94',
-            border: `1.5px solid ${filter === f.id ? f.color + '40' : '#E8DED8'}`,
+            background: filter === f.id ? `${f.color}15` : '#0e0e0e',
+            color: filter === f.id ? f.color : '#8A7D75',
+            border: `1.5px solid ${filter === f.id ? f.color + '40' : '#222222'}`,
           }}>{f.label}</button>
         ))}
       </div>
@@ -197,8 +197,8 @@ export default function Tour({ events, products, stock, locations, families, sub
       {/* Add event button */}
       <button onClick={() => setEventModal({ type: 'add' })} style={{
         width: '100%', padding: '12px 16px', borderRadius: 14, marginBottom: 16,
-        background: 'white', border: '1.5px dashed #E8735A40', cursor: 'pointer',
-        fontSize: 13, fontWeight: 700, color: '#E8735A',
+        background: '#0e0e0e', border: '1.5px dashed #C8A46A40', cursor: 'pointer',
+        fontSize: 13, fontWeight: 700, color: '#C8A46A',
       }}>+ Ajouter un événement</button>
 
       {/* Event list grouped by month */}
@@ -213,12 +213,12 @@ export default function Tour({ events, products, stock, locations, families, sub
         groupedByMonth.map(([key, group]) => (
           <div key={key} style={{ marginBottom: 20 }}>
             <div style={{
-              fontSize: 12, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase',
+              fontSize: 12, fontWeight: 800, color: '#8A7D75', textTransform: 'uppercase',
               letterSpacing: 1.5, marginBottom: 10, padding: '0 4px',
               display: 'flex', alignItems: 'center', gap: 8,
             }}>
               <span>{group.label}</span>
-              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#F0E8E4', color: '#B8A0AE', fontWeight: 700 }}>
+              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#1a1a1a', color: '#6B6058', fontWeight: 700 }}>
                 {group.events.length}
               </span>
             </div>
@@ -246,7 +246,7 @@ export default function Tour({ events, products, stock, locations, families, sub
                     {/* Timeline connector */}
                     {i > 0 && (
                       <div style={{
-                        width: 2, height: 12, background: '#E8DED8', marginLeft: 19,
+                        width: 2, height: 12, background: '#222222', marginLeft: 19,
                       }} />
                     )}
 
@@ -255,7 +255,7 @@ export default function Tour({ events, products, stock, locations, families, sub
                       className="card"
                       style={{
                         width: '100%', padding: '14px 16px', cursor: 'pointer', textAlign: 'left',
-                        borderLeft: `4px solid ${isNext ? '#E8735A' : isPast ? '#B8A0AE' : fmt.color}`,
+                        borderLeft: `4px solid ${isNext ? '#C8A46A' : isPast ? '#6B6058' : fmt.color}`,
                         opacity: isPast ? 0.7 : 1,
                       }}
                     >
@@ -263,17 +263,17 @@ export default function Tour({ events, products, stock, locations, families, sub
                         {/* Date block */}
                         <div style={{
                           width: 48, height: 52, borderRadius: 12, flexShrink: 0,
-                          background: isPast ? '#F0E8E4' : isNext ? '#E8735A12' : `${fmt.color}12`,
+                          background: isPast ? '#1a1a1a' : isNext ? '#C8A46A12' : `${fmt.color}12`,
                           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                          border: isNext ? '2px solid #E8735A40' : 'none',
+                          border: isNext ? '2px solid #C8A46A40' : 'none',
                         }}>
-                          <div style={{ fontSize: 16, fontWeight: 900, color: isPast ? '#B8A0AE' : isNext ? '#E8735A' : fmt.color, lineHeight: 1 }}>
+                          <div style={{ fontSize: 16, fontWeight: 900, color: isPast ? '#6B6058' : isNext ? '#C8A46A' : fmt.color, lineHeight: 1 }}>
                             {d.getDate()}
                           </div>
-                          <div style={{ fontSize: 9, fontWeight: 700, color: isPast ? '#B8A0AE' : '#9A8B94', textTransform: 'uppercase' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: isPast ? '#6B6058' : '#8A7D75', textTransform: 'uppercase' }}>
                             {d.toLocaleDateString('fr-FR', { month: 'short' })}
                           </div>
-                          <div style={{ fontSize: 8, color: '#B8A0AE', fontWeight: 600 }}>
+                          <div style={{ fontSize: 8, color: '#6B6058', fontWeight: 600 }}>
                             {d.toLocaleDateString('fr-FR', { weekday: 'short' })}
                           </div>
                         </div>
@@ -281,12 +281,12 @@ export default function Tour({ events, products, stock, locations, families, sub
                         {/* Info */}
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                            <span style={{ fontSize: 15, fontWeight: 800, color: '#3D3042', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: 15, fontWeight: 800, color: '#F0ECE2', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {ev.name || ev.lieu}
                             </span>
-                            {isNext && <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#E8735A', color: 'white', fontWeight: 800 }}>PROCHAIN</span>}
+                            {isNext && <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#C8A46A', color: 'white', fontWeight: 800 }}>PROCHAIN</span>}
                           </div>
-                          <div style={{ fontSize: 12, color: '#9A8B94', marginBottom: 6 }}>
+                          <div style={{ fontSize: 12, color: '#8A7D75', marginBottom: 6 }}>
                             {ev.lieu && ev.lieu !== ev.name ? `${ev.lieu} — ` : ''}{ev.ville} ({ev.territoire})
                           </div>
 
@@ -295,12 +295,12 @@ export default function Tour({ events, products, stock, locations, families, sub
                             <Badge color={fmt.color}>{fmt.icon} {ev.format}</Badge>
                             {ev.capacite && <Badge color="#9B7DC4">{ev.capacite} pers.</Badge>}
                             {!isPast && daysUntil >= 0 && (
-                              <Badge color={daysUntil <= 3 ? '#D4648A' : daysUntil <= 7 ? '#E8935A' : '#5B8DB8'}>
+                              <Badge color={daysUntil <= 3 ? '#8B1A2B' : daysUntil <= 7 ? '#C8A46A' : '#5B8DB8'}>
                                 J-{daysUntil}
                               </Badge>
                             )}
-                            {isPast && <Badge color="#B8A0AE">Terminé</Badge>}
-                            {ev.transport_inter_iles && <Badge color="#E8935A">Inter-îles</Badge>}
+                            {isPast && <Badge color="#6B6058">Terminé</Badge>}
+                            {ev.transport_inter_iles && <Badge color="#C8A46A">Inter-îles</Badge>}
                           </div>
 
                           {/* Progress indicators */}
@@ -311,7 +311,7 @@ export default function Tour({ events, products, stock, locations, families, sub
                                   label="Checklist"
                                   done={checksDone}
                                   total={checksTotal}
-                                  color="#5DAB8B"
+                                  color="#2FB65D"
                                 />
                               )}
                               {packTotal > 0 && (
@@ -354,7 +354,7 @@ export default function Tour({ events, products, stock, locations, families, sub
           message="Supprimer cet événement ?"
           detail={`${confirmDelete.name || confirmDelete.lieu} — ${new Date(confirmDelete.date).toLocaleDateString('fr-FR')}`}
           confirmLabel="Supprimer"
-          confirmColor="#D4648A"
+          confirmColor="#8B1A2B"
           onConfirm={async () => {
             try {
               await db.delete('event_packing', `event_id=eq.${confirmDelete.id}`)
@@ -365,7 +365,7 @@ export default function Tour({ events, products, stock, locations, families, sub
               setSelectedEvent(null)
               onReload()
             } catch (e) {
-              onToast('Erreur: ' + e.message, '#D4648A')
+              onToast('Erreur: ' + e.message, '#8B1A2B')
             }
           }}
           onCancel={() => setConfirmDelete(null)}
@@ -379,10 +379,10 @@ function StatBox({ label, value, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: 'white', borderRadius: 10, border: '1px solid #F0E8E4',
+      background: '#0e0e0e', borderRadius: 10, border: '1px solid #1a1a1a',
     }}>
       <div style={{ fontSize: 16, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#9A8B94', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 8, color: '#8A7D75', fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }
@@ -392,13 +392,13 @@ function ProgressMini({ label, done, total, color }) {
   return (
     <div style={{ flex: 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-        <span style={{ fontSize: 9, color: '#9A8B94', fontWeight: 700 }}>{label}</span>
+        <span style={{ fontSize: 9, color: '#8A7D75', fontWeight: 700 }}>{label}</span>
         <span style={{ fontSize: 9, color, fontWeight: 800 }}>{done}/{total}</span>
       </div>
-      <div style={{ height: 3, borderRadius: 2, background: '#F0E8E4', overflow: 'hidden' }}>
+      <div style={{ height: 3, borderRadius: 2, background: '#1a1a1a', overflow: 'hidden' }}>
         <div style={{
           width: `${pct}%`, height: '100%', borderRadius: 2,
-          background: pct === 100 ? '#5DAB8B' : color,
+          background: pct === 100 ? '#2FB65D' : color,
           transition: 'width 0.3s',
         }} />
       </div>
@@ -449,7 +449,7 @@ function EventFormModal({ event, orgId, onClose, onSave, onToast }) {
       }
       onSave()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
+      onToast('Erreur: ' + e.message, '#8B1A2B')
     } finally {
       setSaving(false)
     }
@@ -494,7 +494,7 @@ function EventFormModal({ event, orgId, onClose, onSave, onToast }) {
           <label className="label">Capacité (pers.)</label>
           <input className="input" type="number" value={capacite} onChange={e => setCapacite(intOnly(e.target.value))} placeholder="500" />
         </div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#3D3042', fontWeight: 600, cursor: 'pointer' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#F0ECE2', fontWeight: 600, cursor: 'pointer' }}>
           <input type="checkbox" checked={transport} onChange={e => setTransport(e.target.checked)} />
           Transport inter-îles
         </label>

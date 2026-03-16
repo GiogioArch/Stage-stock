@@ -45,7 +45,7 @@ export default function Depots({ locations, stock, products, movements, families
       setDeletingLocation(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
+      onToast('Erreur: ' + e.message, '#8B1A2B')
     } finally {
       setDeleting(false)
     }
@@ -88,16 +88,16 @@ export default function Depots({ locations, stock, products, movements, families
             fontSize: 24, color: 'white', boxShadow: '0 4px 16px #5B8DB830',
           }}>🏭</div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>Dépôts de stockage</div>
-            <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2' }}>Dépôts de stockage</div>
+            <div style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600 }}>
               {locations.length} lieu{locations.length > 1 ? 'x' : ''} de stockage
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <KpiBox label="Lieux" value={locations.length} color="#5B8DB8" />
-          <KpiBox label="Actifs" value={activeLocations} color="#5DAB8B" />
-          <KpiBox label="Stock total" value={totalStock} color="#E8735A" />
+          <KpiBox label="Actifs" value={activeLocations} color="#2FB65D" />
+          <KpiBox label="Stock total" value={totalStock} color="#C8A46A" />
         </div>
       </div>
 
@@ -116,12 +116,12 @@ export default function Depots({ locations, stock, products, movements, families
       {deletingLocation && (
         <div className="card" style={{
           padding: 20, marginBottom: 14,
-          border: '2px solid #D4648A30', background: '#FDF0F4',
+          border: '2px solid #8B1A2B30', background: 'rgba(200,164,106,0.08)',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#D4648A', marginBottom: 8, textAlign: 'center' }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#8B1A2B', marginBottom: 8, textAlign: 'center' }}>
             Supprimer ce dépôt ?
           </div>
-          <div style={{ fontSize: 12, color: '#9A8B94', textAlign: 'center', marginBottom: 6, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: '#8A7D75', textAlign: 'center', marginBottom: 6, lineHeight: 1.5 }}>
             <strong>{deletingLocation.icon} {deletingLocation.name}</strong>
           </div>
           {(() => {
@@ -139,17 +139,17 @@ export default function Depots({ locations, stock, products, movements, families
             }
             return null
           })()}
-          <div style={{ fontSize: 11, color: '#9A8B94', textAlign: 'center', marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: '#8A7D75', textAlign: 'center', marginBottom: 16 }}>
             Cette action est irréversible.
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={() => setDeletingLocation(null)} style={{
               flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 700,
-              background: 'white', color: '#9A8B94', cursor: 'pointer', border: '1.5px solid #E8DED8',
+              background: 'white', color: '#8A7D75', cursor: 'pointer', border: '1.5px solid #222222',
             }}>Annuler</button>
             <button onClick={handleDelete} disabled={deleting} style={{
               flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 800,
-              background: '#D4648A', color: 'white', cursor: 'pointer', border: 'none',
+              background: '#8B1A2B', color: 'white', cursor: 'pointer', border: 'none',
               opacity: deleting ? 0.6 : 1,
             }}>{deleting ? 'Suppression...' : 'Supprimer'}</button>
           </div>
@@ -160,7 +160,7 @@ export default function Depots({ locations, stock, products, movements, families
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <button onClick={() => setShowAdd(!showAdd)} style={{
           padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 800,
-          background: showAdd ? '#F0E8E4' : '#5B8DB8', color: showAdd ? '#9A8B94' : 'white',
+          background: showAdd ? '#1a1a1a' : '#5B8DB8', color: showAdd ? '#8A7D75' : 'white',
           cursor: 'pointer', border: 'none',
         }}>
           {showAdd ? 'Annuler' : '+ Ajouter un dépôt'}
@@ -202,13 +202,13 @@ export default function Depots({ locations, stock, products, movements, families
                       fontSize: 22,
                     }}>{loc.icon || '📍'}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#3D3042' }}>{loc.name}</div>
-                      <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#F0ECE2' }}>{loc.name}</div>
+                      <div style={{ fontSize: 11, color: '#8A7D75' }}>
                         {loc.nbProducts} réf. · {loc.totalQty} unités
                         {loc.description && ` · ${loc.description}`}
                       </div>
                       {/* Fill bar */}
-                      <div style={{ marginTop: 6, height: 4, borderRadius: 2, background: '#F0E8E4', overflow: 'hidden' }}>
+                      <div style={{ marginTop: 6, height: 4, borderRadius: 2, background: '#1a1a1a', overflow: 'hidden' }}>
                         <div style={{
                           width: `${fillPct}%`, height: '100%', borderRadius: 2,
                           background: loc.color || '#5B8DB8', transition: 'width 0.3s',
@@ -217,10 +217,10 @@ export default function Depots({ locations, stock, products, movements, families
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{ fontSize: 20, fontWeight: 900, color: loc.color || '#5B8DB8' }}>{loc.totalQty}</div>
-                      <div style={{ fontSize: 9, color: '#B8A0AE', fontWeight: 600 }}>{fillPct}% du stock</div>
+                      <div style={{ fontSize: 9, color: '#6B6058', fontWeight: 600 }}>{fillPct}% du stock</div>
                     </div>
                     <span style={{
-                      fontSize: 12, color: '#B8A0AE', transition: 'transform 0.2s',
+                      fontSize: 12, color: '#6B6058', transition: 'transform 0.2s',
                       transform: isExpanded ? 'rotate(180deg)' : 'none',
                     }}>▼</span>
                   </div>
@@ -230,34 +230,34 @@ export default function Depots({ locations, stock, products, movements, families
                 {isExpanded && (
                   <div style={{
                     margin: '0 8px', padding: '12px 14px', background: '#FEFBF8',
-                    borderRadius: '0 0 14px 14px', border: '1px solid #F0E8E4', borderTop: 'none',
+                    borderRadius: '0 0 14px 14px', border: '1px solid #1a1a1a', borderTop: 'none',
                   }}>
                     {loc.productDetails.length === 0 ? (
-                      <div style={{ fontSize: 12, color: '#B8A0AE', textAlign: 'center', padding: 12 }}>
+                      <div style={{ fontSize: 12, color: '#6B6058', textAlign: 'center', padding: 12 }}>
                         Aucun stock dans ce dépôt
                       </div>
                     ) : (
                       <>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
                           {loc.productDetails.length} produit{loc.productDetails.length > 1 ? 's' : ''} en stock
                         </div>
                         {loc.productDetails.slice(0, 20).map(p => (
                           <div key={p.id} style={{
                             display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0',
-                            borderBottom: '1px solid #F0E8E410',
+                            borderBottom: '1px solid #1a1a1a10',
                           }}>
                             <span style={{ fontSize: 14 }}>{p.image || '📦'}</span>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {p.name}
                               </div>
-                              <div style={{ fontSize: 10, color: '#B8A0AE' }}>{p.sku || ''}</div>
+                              <div style={{ fontSize: 10, color: '#6B6058' }}>{p.sku || ''}</div>
                             </div>
                             <div style={{ fontSize: 14, fontWeight: 900, color: loc.color || '#5B8DB8' }}>{p.qty}</div>
                           </div>
                         ))}
                         {loc.productDetails.length > 20 && (
-                          <div style={{ fontSize: 11, color: '#B8A0AE', textAlign: 'center', marginTop: 6 }}>
+                          <div style={{ fontSize: 11, color: '#6B6058', textAlign: 'center', marginTop: 6 }}>
                             +{loc.productDetails.length - 20} autres produits
                           </div>
                         )}
@@ -284,7 +284,7 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
   const [saving, setSaving] = useState(false)
 
   const ICONS = ['📍', '🏭', '🏢', '🚛', '🏠', '📦', '🎪', '🛒']
-  const COLORS = ['#5B8DB8', '#E8735A', '#5DAB8B', '#D4648A', '#E8935A', '#9B7DC4', '#8BAB5D']
+  const COLORS = ['#5B8DB8', '#C8A46A', '#2FB65D', '#8B1A2B', '#C8A46A', '#9B7DC4', '#8BAB5D']
 
   const handleSave = async () => {
     if (!name.trim()) return
@@ -305,15 +305,15 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
       }
       onDone()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
+      onToast('Erreur: ' + e.message, '#8B1A2B')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="card" style={{ padding: 16, marginBottom: 14, border: `2px solid ${isEdit ? '#5B8DB830' : '#E8DED8'}` }}>
-      <div style={{ fontSize: 13, fontWeight: 800, color: '#3D3042', marginBottom: 12 }}>
+    <div className="card" style={{ padding: 16, marginBottom: 14, border: `2px solid ${isEdit ? '#5B8DB830' : '#222222'}` }}>
+      <div style={{ fontSize: 13, fontWeight: 800, color: '#F0ECE2', marginBottom: 12 }}>
         {isEdit ? 'Modifier le dépôt' : 'Nouveau dépôt'}
       </div>
       <input className="input" value={name} onChange={e => setName(e.target.value)}
@@ -322,12 +322,12 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
         placeholder="Description (optionnel)" style={{ marginBottom: 10 }} />
       <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
         <div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#9A8B94', marginBottom: 4 }}>Icône</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#8A7D75', marginBottom: 4 }}>Icône</div>
           <div style={{ display: 'flex', gap: 4 }}>
             {ICONS.map(i => (
               <button key={i} onClick={() => setIcon(i)} style={{
                 width: 32, height: 32, borderRadius: 8, fontSize: 16,
-                border: icon === i ? '2px solid #5B8DB8' : '1px solid #E8DED8',
+                border: icon === i ? '2px solid #5B8DB8' : '1px solid #222222',
                 background: icon === i ? '#5B8DB812' : 'white', cursor: 'pointer',
               }}>{i}</button>
             ))}
@@ -335,12 +335,12 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
         </div>
       </div>
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: '#9A8B94', marginBottom: 4 }}>Couleur</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#8A7D75', marginBottom: 4 }}>Couleur</div>
         <div style={{ display: 'flex', gap: 6 }}>
           {COLORS.map(c => (
             <button key={c} onClick={() => setColor(c)} style={{
               width: 28, height: 28, borderRadius: 8, background: c, cursor: 'pointer',
-              border: color === c ? '3px solid #3D3042' : '2px solid transparent',
+              border: color === c ? '3px solid #F0ECE2' : '2px solid transparent',
             }} />
           ))}
         </div>
@@ -349,7 +349,7 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
         {onCancel && (
           <button onClick={onCancel} style={{
             flex: 1, padding: 12, borderRadius: 14, fontSize: 13, fontWeight: 700,
-            background: '#F0E8E4', color: '#9A8B94', cursor: 'pointer', border: 'none',
+            background: '#1a1a1a', color: '#8A7D75', cursor: 'pointer', border: 'none',
           }}>Annuler</button>
         )}
         <button onClick={handleSave} disabled={!name.trim() || saving} className="btn-primary" style={{ flex: 2 }}>
@@ -364,10 +364,10 @@ function KpiBox({ label, value, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: 'white', borderRadius: 10, border: '1px solid #F0E8E4',
+      background: 'white', borderRadius: 10, border: '1px solid #1a1a1a',
     }}>
       <div style={{ fontSize: 16, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#9A8B94', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 8, color: '#8A7D75', fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

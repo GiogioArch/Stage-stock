@@ -68,12 +68,12 @@ export default function Movements({ movements, products, locations, onToast }) {
         background: 'linear-gradient(135deg, #5B8DB808, #5B8DB818)',
         border: '1.5px solid #5B8DB825',
       }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042', marginBottom: 10 }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#F0ECE2', marginBottom: 10 }}>
           Historique ({filtered.length} mouvement{filtered.length > 1 ? 's' : ''})
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <StatPill icon="📥" value={totalIn} label="Entrées" color="#5DAB8B" />
-          <StatPill icon="📤" value={totalOut} label="Sorties" color="#D4648A" />
+          <StatPill icon="📥" value={totalIn} label="Entrées" color="#2FB65D" />
+          <StatPill icon="📤" value={totalOut} label="Sorties" color="#8B1A2B" />
           <StatPill icon="🔄" value={totalTransfer} label="Transferts" color="#5B8DB8" />
         </div>
       </div>
@@ -87,14 +87,14 @@ export default function Movements({ movements, products, locations, onToast }) {
           placeholder="Rechercher produit, lieu..."
           style={{
             flex: 1, padding: '10px 14px', borderRadius: 12,
-            border: '1.5px solid #E8DED8', fontSize: 13,
+            border: '1.5px solid #222222', fontSize: 13,
             background: 'white',
           }}
         />
         <button onClick={() => setShowFilters(!showFilters)} style={{
           padding: '10px 14px', borderRadius: 12,
           background: showFilters ? '#5B8DB815' : 'white',
-          border: `1.5px solid ${showFilters ? '#5B8DB8' : '#E8DED8'}`,
+          border: `1.5px solid ${showFilters ? '#5B8DB8' : '#222222'}`,
           fontSize: 16, cursor: 'pointer',
         }}>
           {showFilters ? '✕' : '🔍'}
@@ -104,22 +104,22 @@ export default function Movements({ movements, products, locations, onToast }) {
       {/* ─── Expanded filters ─── */}
       {showFilters && (
         <div className="card" style={{ marginBottom: 12, padding: '12px 14px' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#9A8B94', marginBottom: 8 }}>Filtres avancés</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#8A7D75', marginBottom: 8 }}>Filtres avancés</div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
             <div style={{ flex: 1 }}>
-              <label style={{ fontSize: 11, color: '#B8A0AE', fontWeight: 600 }}>Du</label>
+              <label style={{ fontSize: 11, color: '#6B6058', fontWeight: 600 }}>Du</label>
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #E8DED8', fontSize: 12 }} />
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #222222', fontSize: 12 }} />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={{ fontSize: 11, color: '#B8A0AE', fontWeight: 600 }}>Au</label>
+              <label style={{ fontSize: 11, color: '#6B6058', fontWeight: 600 }}>Au</label>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #E8DED8', fontSize: 12 }} />
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: '1.5px solid #222222', fontSize: 12 }} />
             </div>
           </div>
           {(dateFrom || dateTo || typeFilter !== 'all' || search) && (
             <button onClick={() => { setDateFrom(''); setDateTo(''); setTypeFilter('all'); setSearch('') }}
-              style={{ fontSize: 12, color: '#D4648A', fontWeight: 700, padding: '4px 0' }}>
+              style={{ fontSize: 12, color: '#8B1A2B', fontWeight: 700, padding: '4px 0' }}>
               Réinitialiser les filtres
             </button>
           )}
@@ -129,17 +129,17 @@ export default function Movements({ movements, products, locations, onToast }) {
       {/* ─── Type filter pills ─── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto' }}>
         {[
-          { id: 'all', label: 'Tous', color: '#3D3042' },
-          { id: 'in', label: '📥 Entrées', color: '#5DAB8B' },
-          { id: 'out', label: '📤 Sorties', color: '#D4648A' },
+          { id: 'all', label: 'Tous', color: '#F0ECE2' },
+          { id: 'in', label: '📥 Entrées', color: '#2FB65D' },
+          { id: 'out', label: '📤 Sorties', color: '#8B1A2B' },
           { id: 'transfer', label: '🔄 Transferts', color: '#5B8DB8' },
         ].map(f => (
           <button key={f.id} onClick={() => setTypeFilter(f.id)} style={{
             padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
             whiteSpace: 'nowrap', cursor: 'pointer',
             background: typeFilter === f.id ? `${f.color}15` : 'white',
-            color: typeFilter === f.id ? f.color : '#9A8B94',
-            border: `1.5px solid ${typeFilter === f.id ? f.color + '30' : '#E8DED8'}`,
+            color: typeFilter === f.id ? f.color : '#8A7D75',
+            border: `1.5px solid ${typeFilter === f.id ? f.color + '30' : '#222222'}`,
           }}>{f.label}</button>
         ))}
       </div>
@@ -154,7 +154,7 @@ export default function Movements({ movements, products, locations, onToast }) {
         grouped.map(([day, moves]) => (
           <div key={day} style={{ marginBottom: 16 }}>
             <div style={{
-              fontSize: 12, fontWeight: 800, color: '#9A8B94', marginBottom: 8,
+              fontSize: 12, fontWeight: 800, color: '#8A7D75', marginBottom: 8,
               textTransform: 'capitalize',
             }}>{formatDay(day)}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -171,7 +171,7 @@ export default function Movements({ movements, products, locations, onToast }) {
                       <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {pName(m.product_id)}
                       </div>
-                      <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                      <div style={{ fontSize: 11, color: '#8A7D75' }}>
                         {m.type === 'transfer'
                           ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
                           : m.type === 'in'
@@ -180,7 +180,7 @@ export default function Movements({ movements, products, locations, onToast }) {
                         }
                       </div>
                       {m.note && (
-                        <div style={{ fontSize: 10, color: '#B8A0AE', marginTop: 2, fontStyle: 'italic' }}>
+                        <div style={{ fontSize: 10, color: '#6B6058', marginTop: 2, fontStyle: 'italic' }}>
                           {m.note}
                         </div>
                       )}
@@ -189,7 +189,7 @@ export default function Movements({ movements, products, locations, onToast }) {
                       <div style={{ fontSize: 15, fontWeight: 900, color: conf.color }}>
                         {m.type === 'out' ? '−' : '+'}{m.quantity}
                       </div>
-                      <div style={{ fontSize: 10, color: '#B8A0AE' }}>
+                      <div style={{ fontSize: 10, color: '#6B6058' }}>
                         {m.created_at ? new Date(m.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
                       </div>
                     </div>
@@ -208,11 +208,11 @@ function StatPill({ icon, value, label, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: 'white', borderRadius: 10, border: '1px solid #F0E8E4',
+      background: 'white', borderRadius: 10, border: '1px solid #1a1a1a',
     }}>
       <div style={{ fontSize: 10, marginBottom: 2 }}>{icon}</div>
       <div style={{ fontSize: 16, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 9, color: '#8A7D75', fontWeight: 600, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

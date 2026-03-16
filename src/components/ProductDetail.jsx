@@ -111,7 +111,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 100,
-      background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      background: 'linear-gradient(180deg, #080808 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
       overflowY: 'auto',
       animation: 'fadeIn 0.2s ease-out',
     }}>
@@ -120,22 +120,22 @@ export default function ProductDetail({ product, stock, locations, movements, ev
         position: 'sticky', top: 0, zIndex: 10,
         background: 'rgba(255,248,240,0.95)', backdropFilter: 'blur(16px)',
         padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid #F0E8E4',
+        borderBottom: '1px solid #1a1a1a',
       }}>
         <button onClick={onClose} style={{
           display: 'flex', alignItems: 'center', gap: 6,
-          fontSize: 14, fontWeight: 700, color: '#E8735A',
+          fontSize: 14, fontWeight: 700, color: '#C8A46A',
         }}>
           ← Retour
         </button>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={onEdit} style={{
             padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            background: '#EEF4FA', color: '#5B8DB8', border: '1px solid #5B8DB830',
+            background: 'rgba(91,141,184,0.08)', color: '#5B8DB8', border: '1px solid #5B8DB830',
           }}>Modifier</button>
           <button onClick={onDelete} style={{
             padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            background: '#FDF0F4', color: '#D4648A', border: '1px solid #D4648A30',
+            background: 'rgba(200,164,106,0.08)', color: '#8B1A2B', border: '1px solid #8B1A2B30',
           }}>Supprimer</button>
         </div>
       </div>
@@ -165,15 +165,15 @@ export default function ProductDetail({ product, stock, locations, movements, ev
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#3D3042', marginBottom: 4, lineHeight: 1.2 }}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#F0ECE2', marginBottom: 4, lineHeight: 1.2 }}>
                 {product.name}
               </div>
-              <div style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600, marginBottom: 8 }}>
+              <div style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600, marginBottom: 8 }}>
                 SKU: {product.sku}
               </div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <Badge color={cat.color}>{cat.icon} {cat.name}</Badge>
-                {product.variants && <Badge color="#9A8B94">{product.variants}</Badge>}
+                {product.variants && <Badge color="#8A7D75">{product.variants}</Badge>}
                 {product.unit && product.unit !== 'pièce' && <Badge color="#5B8DB8">{product.unit}</Badge>}
               </div>
             </div>
@@ -183,8 +183,8 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           {product.description && (
             <div style={{
               marginTop: 14, padding: '10px 12px', borderRadius: 10,
-              background: 'white', border: '1px solid #F0E8E4',
-              fontSize: 13, color: '#3D3042', lineHeight: 1.6,
+              background: 'white', border: '1px solid #1a1a1a',
+              fontSize: 13, color: '#F0ECE2', lineHeight: 1.6,
             }}>
               {product.description}
             </div>
@@ -196,25 +196,25 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           <KpiCard
             label="Stock total"
             value={totalQty}
-            color={totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#E8935A' : '#5DAB8B'}
+            color={totalQty === 0 ? '#8B1A2B' : totalQty <= (product.min_stock || 5) ? '#C8A46A' : '#2FB65D'}
             sub={`seuil: ${product.min_stock || 5}`}
           />
           <KpiCard
             label="Entrées"
             value={moveStats.totalIn}
-            color="#5DAB8B"
+            color="#2FB65D"
             sub={`${moveStats.ins} mvts`}
           />
           <KpiCard
             label="Sorties"
             value={moveStats.totalOut}
-            color="#D4648A"
+            color="#8B1A2B"
             sub={`${moveStats.outs} mvts`}
           />
           <KpiCard
             label="Concerts"
             value={linkedEvents.length}
-            color="#E8735A"
+            color="#C8A46A"
             sub={`liés`}
           />
         </div>
@@ -225,9 +225,9 @@ export default function ProductDetail({ product, stock, locations, movements, ev
             <button key={s.id} onClick={() => setSection(s.id)} style={{
               padding: '7px 14px', borderRadius: 12, fontSize: 12, fontWeight: 700,
               whiteSpace: 'nowrap', cursor: 'pointer',
-              border: `1.5px solid ${section === s.id ? cat.color : '#E8DED8'}`,
+              border: `1.5px solid ${section === s.id ? cat.color : '#222222'}`,
               background: section === s.id ? `${cat.color}12` : 'white',
-              color: section === s.id ? cat.color : '#9A8B94',
+              color: section === s.id ? cat.color : '#8A7D75',
             }}>
               {s.icon} {s.label}
             </button>
@@ -276,23 +276,23 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                   {caPerConcert.map((c, i) => (
                     <div key={i} style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '8px 0', borderBottom: i < caPerConcert.length - 1 ? '1px solid #F0E8E4' : 'none',
+                      padding: '8px 0', borderBottom: i < caPerConcert.length - 1 ? '1px solid #1a1a1a' : 'none',
                     }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700 }}>{c.event.name || c.event.lieu}</div>
-                        <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                        <div style={{ fontSize: 11, color: '#8A7D75' }}>
                           {new Date(c.event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {c.qty} vendus
                         </div>
                       </div>
-                      <div style={{ fontSize: 16, fontWeight: 900, color: '#5DAB8B' }}>{c.ca}€</div>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: '#2FB65D' }}>{c.ca}€</div>
                     </div>
                   ))}
                   <div style={{
-                    marginTop: 8, paddingTop: 8, borderTop: '2px solid #F0E8E4',
+                    marginTop: 8, paddingTop: 8, borderTop: '2px solid #1a1a1a',
                     display: 'flex', justifyContent: 'space-between',
                   }}>
                     <span style={{ fontSize: 13, fontWeight: 800 }}>Total</span>
-                    <span style={{ fontSize: 18, fontWeight: 900, color: '#5DAB8B' }}>
+                    <span style={{ fontSize: 18, fontWeight: 900, color: '#2FB65D' }}>
                       {caPerConcert.reduce((s, c) => s + c.ca, 0)}€
                     </span>
                   </div>
@@ -308,18 +308,18 @@ export default function ProductDetail({ product, stock, locations, movements, ev
             {/* Total */}
             <div className="card" style={{
               textAlign: 'center', marginBottom: 16, padding: 20,
-              background: totalQty === 0 ? '#FDF0F4' : totalQty <= (product.min_stock || 5) ? '#FEF6F0' : '#EDF7F2',
+              background: totalQty === 0 ? 'rgba(200,164,106,0.08)' : totalQty <= (product.min_stock || 5) ? '#FEF6F0' : 'rgba(47,182,93,0.08)',
             }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#9A8B94', textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#8A7D75', textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
               <div style={{
                 fontSize: 48, fontWeight: 900, lineHeight: 1.1,
-                color: totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#E8935A' : '#5DAB8B',
+                color: totalQty === 0 ? '#8B1A2B' : totalQty <= (product.min_stock || 5) ? '#C8A46A' : '#2FB65D',
               }}>{totalQty}</div>
-              <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: '#8A7D75', marginTop: 4 }}>
                 Seuil min : {product.min_stock || 5} · Unité : {product.unit || 'pièce'}
               </div>
-              {totalQty === 0 && <Badge color="#D4648A">RUPTURE DE STOCK</Badge>}
-              {totalQty > 0 && totalQty <= (product.min_stock || 5) && <Badge color="#E8935A">STOCK BAS</Badge>}
+              {totalQty === 0 && <Badge color="#8B1A2B">RUPTURE DE STOCK</Badge>}
+              {totalQty > 0 && totalQty <= (product.min_stock || 5) && <Badge color="#C8A46A">STOCK BAS</Badge>}
             </div>
 
             {/* By location with bar chart */}
@@ -338,10 +338,10 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       </div>
                       <span style={{
                         fontSize: 18, fontWeight: 900,
-                        color: qty > 0 ? '#3D3042' : '#B8A0AE',
+                        color: qty > 0 ? '#F0ECE2' : '#6B6058',
                       }}>{qty}</span>
                     </div>
-                    <div style={{ height: 6, borderRadius: 3, background: '#F0E8E4', overflow: 'hidden' }}>
+                    <div style={{ height: 6, borderRadius: 3, background: '#1a1a1a', overflow: 'hidden' }}>
                       <div style={{
                         width: `${pct}%`, height: '100%', borderRadius: 3,
                         background: qty > 0 ? cat.color : 'transparent',
@@ -360,8 +360,8 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           <div>
             {/* Stats */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              <StatPill icon="📥" label="Entrées" value={moveStats.totalIn} count={moveStats.ins} color="#5DAB8B" />
-              <StatPill icon="📤" label="Sorties" value={moveStats.totalOut} count={moveStats.outs} color="#D4648A" />
+              <StatPill icon="📥" label="Entrées" value={moveStats.totalIn} count={moveStats.ins} color="#2FB65D" />
+              <StatPill icon="📤" label="Sorties" value={moveStats.totalOut} count={moveStats.outs} color="#8B1A2B" />
               <StatPill icon="🔄" label="Transferts" value={moveStats.transfers} count={moveStats.transfers} color="#5B8DB8" />
             </div>
 
@@ -384,21 +384,21 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: conf.color }}>
                           {conf.label}
-                          <span style={{ fontWeight: 400, color: '#9A8B94', marginLeft: 6, fontSize: 11 }}>
+                          <span style={{ fontWeight: 400, color: '#8A7D75', marginLeft: 6, fontSize: 11 }}>
                             {m.type === 'transfer'
                               ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
                               : lName(m.type === 'in' ? m.to_loc : m.from_loc)
                             }
                           </span>
                         </div>
-                        <div style={{ fontSize: 10, color: '#B8A0AE', marginTop: 2 }}>
+                        <div style={{ fontSize: 10, color: '#6B6058', marginTop: 2 }}>
                           {fmtDate(m.created_at)}
                           {m.note && ` · ${m.note}`}
                         </div>
                       </div>
                       <div style={{
                         fontSize: 16, fontWeight: 900,
-                        color: m.type === 'out' ? '#D4648A' : m.type === 'in' ? '#5DAB8B' : '#5B8DB8',
+                        color: m.type === 'out' ? '#8B1A2B' : m.type === 'in' ? '#2FB65D' : '#5B8DB8',
                       }}>
                         {m.type === 'out' ? '−' : m.type === 'in' ? '+' : '↔'}{m.quantity}
                       </div>
@@ -428,19 +428,19 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       {linkedEvents.filter(e => !e.isPast).map(ev => (
                         <div key={ev.id} className="card" style={{
                           padding: '12px 14px',
-                          borderLeft: `4px solid ${ev.daysUntil <= 7 ? '#E8935A' : '#5B8DB8'}`,
+                          borderLeft: `4px solid ${ev.daysUntil <= 7 ? '#C8A46A' : '#5B8DB8'}`,
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
-                              <div style={{ fontSize: 14, fontWeight: 800, color: '#3D3042' }}>
+                              <div style={{ fontSize: 14, fontWeight: 800, color: '#F0ECE2' }}>
                                 {ev.name || ev.lieu}
                               </div>
-                              <div style={{ fontSize: 11, color: '#9A8B94', marginTop: 2 }}>
+                              <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2 }}>
                                 {new Date(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
                                 {' · '}{ev.ville} · {ev.format}
                               </div>
                             </div>
-                            <Badge color={ev.daysUntil <= 3 ? '#D4648A' : ev.daysUntil <= 7 ? '#E8935A' : '#5B8DB8'}>
+                            <Badge color={ev.daysUntil <= 3 ? '#8B1A2B' : ev.daysUntil <= 7 ? '#C8A46A' : '#5B8DB8'}>
                               J-{ev.daysUntil}
                             </Badge>
                           </div>
@@ -448,10 +448,10 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                           {/* Needs */}
                           <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
                             {ev.packing && (
-                              <MiniInfo label="Besoin packing" value={ev.packing.quantity_needed} color="#E8735A" />
+                              <MiniInfo label="Besoin packing" value={ev.packing.quantity_needed} color="#C8A46A" />
                             )}
                             {ev.projectedSales > 0 && (
-                              <MiniInfo label="Ventes proj." value={`~${ev.projectedSales}`} color="#E8935A" />
+                              <MiniInfo label="Ventes proj." value={`~${ev.projectedSales}`} color="#C8A46A" />
                             )}
                             {ev.capacite && (
                               <MiniInfo label="Capacité" value={ev.capacite} color="#5B8DB8" />
@@ -462,11 +462,11 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                           {ev.packing && (
                             <div style={{ marginTop: 8 }}>
                               {totalQty >= ev.packing.quantity_needed ? (
-                                <div style={{ fontSize: 11, color: '#5DAB8B', fontWeight: 700 }}>
+                                <div style={{ fontSize: 11, color: '#2FB65D', fontWeight: 700 }}>
                                   Stock suffisant ({totalQty} dispo / {ev.packing.quantity_needed} requis)
                                 </div>
                               ) : (
-                                <div style={{ fontSize: 11, color: '#D4648A', fontWeight: 700 }}>
+                                <div style={{ fontSize: 11, color: '#8B1A2B', fontWeight: 700 }}>
                                   Stock insuffisant ! Manque {ev.packing.quantity_needed - totalQty} unité(s)
                                 </div>
                               )}
@@ -490,14 +490,14 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div>
                                 <div style={{ fontSize: 13, fontWeight: 700 }}>{ev.name || ev.lieu}</div>
-                                <div style={{ fontSize: 11, color: '#9A8B94' }}>
+                                <div style={{ fontSize: 11, color: '#8A7D75' }}>
                                   {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {ev.ville}
                                 </div>
                               </div>
                               {concertCA && (
                                 <div style={{ textAlign: 'right' }}>
-                                  <div style={{ fontSize: 14, fontWeight: 900, color: '#5DAB8B' }}>{concertCA.ca}€</div>
-                                  <div style={{ fontSize: 10, color: '#9A8B94' }}>{concertCA.qty} vendus</div>
+                                  <div style={{ fontSize: 14, fontWeight: 900, color: '#2FB65D' }}>{concertCA.ca}€</div>
+                                  <div style={{ fontSize: 10, color: '#8A7D75' }}>{concertCA.qty} vendus</div>
                                 </div>
                               )}
                             </div>
@@ -531,11 +531,11 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                   )}
                   <div style={{
                     marginTop: 8, padding: '8px 12px', borderRadius: 8,
-                    background: product.cost_ht >= 500 ? '#EEF4FA' : '#FEF6F0',
+                    background: product.cost_ht >= 500 ? 'rgba(91,141,184,0.08)' : '#FEF6F0',
                   }}>
                     <span style={{
                       fontSize: 12, fontWeight: 800,
-                      color: product.cost_ht >= 500 ? '#5B8DB8' : '#E8935A',
+                      color: product.cost_ht >= 500 ? '#5B8DB8' : '#C8A46A',
                     }}>
                       {product.cost_ht >= 500 ? 'Immobilisation' : 'Charge'} — {product.cost_ht >= 500 ? 'amortissement linéaire' : 'sous le seuil de 500€ HT'}
                     </span>
@@ -567,13 +567,13 @@ export default function ProductDetail({ product, stock, locations, movements, ev
 
                       <div style={{ margin: '12px 0 8px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <span style={{ fontSize: 11, color: '#9A8B94' }}>Amorti : {pct}%</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: nbv > 0 ? '#5B8DB8' : '#5DAB8B' }}>VNC : {nbv.toFixed(2)}€</span>
+                          <span style={{ fontSize: 11, color: '#8A7D75' }}>Amorti : {pct}%</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: nbv > 0 ? '#5B8DB8' : '#2FB65D' }}>VNC : {nbv.toFixed(2)}€</span>
                         </div>
-                        <div style={{ height: 10, borderRadius: 5, background: '#F0E8E4', overflow: 'hidden' }}>
+                        <div style={{ height: 10, borderRadius: 5, background: '#1a1a1a', overflow: 'hidden' }}>
                           <div style={{
                             width: `${pct}%`, height: '100%', borderRadius: 5,
-                            background: 'linear-gradient(90deg, #5B8DB8, #5DAB8B)',
+                            background: 'linear-gradient(90deg, #5B8DB8, #2FB65D)',
                             transition: 'width 0.3s',
                           }} />
                         </div>
@@ -581,7 +581,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
 
                       <div style={{
                         marginTop: 10, padding: '8px 10px', borderRadius: 8,
-                        background: '#FEF6F0', fontSize: 10, color: '#E8935A', lineHeight: 1.5, fontWeight: 600,
+                        background: '#FEF6F0', fontSize: 10, color: '#C8A46A', lineHeight: 1.5, fontWeight: 600,
                       }}>
                         Amortissement linéaire, prorata temporis base 360j. Durées à valider par expert-comptable.
                       </div>
@@ -593,7 +593,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               <div className="empty-state" style={{ padding: 32 }}>
                 <div className="empty-icon">💰</div>
                 <div className="empty-text">Aucune donnée comptable</div>
-                <div style={{ fontSize: 12, color: '#B8A0AE', marginTop: 4 }}>Renseigner le coût HT pour activer le suivi</div>
+                <div style={{ fontSize: 12, color: '#6B6058', marginTop: 4 }}>Renseigner le coût HT pour activer le suivi</div>
               </div>
             )}
           </div>
@@ -608,7 +608,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
 function SectionLabel({ children }) {
   return (
     <div style={{
-      fontSize: 12, fontWeight: 800, color: '#9A8B94',
+      fontSize: 12, fontWeight: 800, color: '#8A7D75',
       textTransform: 'uppercase', letterSpacing: 1.5,
       marginBottom: 10, marginTop: 4, padding: '0 2px',
     }}>{children}</div>
@@ -619,10 +619,10 @@ function InfoRow({ label, value }) {
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '7px 0', borderBottom: '1px solid #F0E8E420',
+      padding: '7px 0', borderBottom: '1px solid #1a1a1a20',
     }}>
-      <span style={{ fontSize: 12, color: '#9A8B94', fontWeight: 600 }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 700, color: '#3D3042', textAlign: 'right', maxWidth: '60%' }}>{value}</span>
+      <span style={{ fontSize: 12, color: '#8A7D75', fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 700, color: '#F0ECE2', textAlign: 'right', maxWidth: '60%' }}>{value}</span>
     </div>
   )
 }
@@ -631,11 +631,11 @@ function OpRow({ icon, label, value }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 10,
-      padding: '8px 0', borderBottom: '1px solid #F0E8E420',
+      padding: '8px 0', borderBottom: '1px solid #1a1a1a20',
     }}>
       <span style={{ fontSize: 16 }}>{icon}</span>
-      <span style={{ fontSize: 12, fontWeight: 800, color: '#9A8B94', minWidth: 60 }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: '#3D3042', flex: 1 }}>{value}</span>
+      <span style={{ fontSize: 12, fontWeight: 800, color: '#8A7D75', minWidth: 60 }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#F0ECE2', flex: 1 }}>{value}</span>
     </div>
   )
 }
@@ -644,12 +644,12 @@ function KpiCard({ label, value, color, sub }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '10px 4px',
-      background: 'white', borderRadius: 14, border: '1px solid #F0E8E4',
+      background: 'white', borderRadius: 14, border: '1px solid #1a1a1a',
       boxShadow: '0 2px 8px rgba(180,150,130,0.06)',
     }}>
       <div style={{ fontSize: 20, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 700, marginTop: 3 }}>{label}</div>
-      {sub && <div style={{ fontSize: 8, color: '#B8A0AE', marginTop: 1 }}>{sub}</div>}
+      <div style={{ fontSize: 9, color: '#8A7D75', fontWeight: 700, marginTop: 3 }}>{label}</div>
+      {sub && <div style={{ fontSize: 8, color: '#6B6058', marginTop: 1 }}>{sub}</div>}
     </div>
   )
 }
@@ -659,7 +659,7 @@ function StatPill({ icon, label, value, count, color }) {
     <div className="card" style={{ flex: 1, textAlign: 'center', padding: '10px 6px' }}>
       <div style={{ fontSize: 18, marginBottom: 2 }}>{icon}</div>
       <div style={{ fontSize: 18, fontWeight: 900, color }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 700 }}>{label}</div>
+      <div style={{ fontSize: 9, color: '#8A7D75', fontWeight: 700 }}>{label}</div>
     </div>
   )
 }
@@ -671,7 +671,7 @@ function MiniInfo({ label, value, color }) {
       background: `${color}08`, borderRadius: 8, border: `1px solid ${color}15`,
     }}>
       <div style={{ fontSize: 14, fontWeight: 900, color }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#9A8B94', fontWeight: 600 }}>{label}</div>
+      <div style={{ fontSize: 9, color: '#8A7D75', fontWeight: 600 }}>{label}</div>
     </div>
   )
 }

@@ -413,18 +413,18 @@ export default function App() {
   // ═══════════════════════════════════════════════
   if (layer === 'personal') {
     return (
-      <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)', paddingBottom: 80 }}>
+      <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #080808 0%, #0C1425 50%, #0A0F1E 100%)', paddingBottom: 80 }}>
         {/* Header */}
         <header style={{ padding: '16px 18px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
             <div style={{
               width: 42, height: 42, borderRadius: 14,
-              background: 'linear-gradient(135deg, #F7A072, #E8735A)',
+              background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 22, boxShadow: '0 4px 16px rgba(232,115,90,0.25)',
             }}>🎪</div>
             <div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#E8735A', letterSpacing: 0.5 }}>STAGE STOCK</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#C8A46A', letterSpacing: 0.5 }}>STAGE STOCK</div>
               <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>
                 Mon espace
               </div>
@@ -440,7 +440,7 @@ export default function App() {
             <button onClick={handleLogout} style={{
               width: 36, height: 36, borderRadius: 10, background: '#FDF0F4',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer',
-              border: '1.5px solid #D4648A30',
+              border: '1px solid #222',
             }}>🚪</button>
           </div>
         </header>
@@ -469,13 +469,13 @@ export default function App() {
           <div style={{ padding: '0 16px' }}>
             <div className="card" style={{ padding: '32px 20px', textAlign: 'center', opacity: 0.6 }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>📅</div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042', marginBottom: 6 }}>Mon calendrier</div>
-              <div style={{ fontSize: 13, color: '#9A8B94', lineHeight: 1.5, marginBottom: 12 }}>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2', marginBottom: 6 }}>Mon calendrier</div>
+              <div style={{ fontSize: 13, color: '#8A7D75', lineHeight: 1.5, marginBottom: 12 }}>
                 Toutes tes dates de concert, tous projets confondus.
               </div>
               <span style={{
                 display: 'inline-block', padding: '4px 14px', borderRadius: 8,
-                background: '#E8DED8', color: '#9A8B94', fontSize: 11, fontWeight: 800,
+                background: '#222', color: '#8A7D75', fontSize: 11, fontWeight: 800,
               }}>Bientôt disponible</span>
             </div>
           </div>
@@ -529,13 +529,13 @@ export default function App() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
-        <div style={{ color: '#D4648A', fontWeight: 800, fontSize: 16, marginBottom: 8 }}>Erreur de connexion</div>
-        <div style={{ color: '#9A8B94', fontSize: 13, marginBottom: 20 }}>{error}</div>
+        <div style={{ color: '#8B1A2B', fontWeight: 800, fontSize: 16, marginBottom: 8 }}>Erreur de connexion</div>
+        <div style={{ color: '#8A7D75', fontSize: 13, marginBottom: 20 }}>{error}</div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-primary" style={{ maxWidth: 200 }} onClick={loadAll}>Réessayer</button>
           <button onClick={backToPersonal} style={{
             padding: '10px 20px', borderRadius: 14, fontSize: 13, fontWeight: 700,
-            background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+            background: '#0e0e0e', border: '1px solid #222', color: '#C8A46A', cursor: 'pointer',
           }}>← Mon Espace</button>
         </div>
       </div>
@@ -554,23 +554,23 @@ export default function App() {
     )
   }
 
-  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#9A8B94', label: userRole.name }) : null
+  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: '📋', color: '#8A7D75', label: userRole.name }) : null
 
   return (
-    <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)', paddingBottom: 80 }}>
+    <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #080808 0%, #0C1425 50%, #0A0F1E 100%)', paddingBottom: 80 }}>
       {/* ─── Header (Couche 3) ─── */}
       <header style={{ padding: '16px 18px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
           {/* Back to personal layer */}
           <button onClick={backToPersonal} style={{
             padding: '8px 12px', borderRadius: 12, fontSize: 12, fontWeight: 800,
-            background: '#EEF4FA', border: '1.5px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+            background: '#0e0e0e', border: '1px solid #222', color: '#C8A46A', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 4,
           }}>
             ← Mon Espace
           </button>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042', letterSpacing: 0.3 }}>
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#F0ECE2', letterSpacing: 0.3 }}>
               {selectedOrg?.name || 'Projet'}
             </div>
           </div>
@@ -584,15 +584,15 @@ export default function App() {
           )}
           {isModuleActive('stock') && (
             <button onClick={() => setShowScanner(true)} style={{
-              width: 36, height: 36, borderRadius: 10, background: '#EEF4FA',
+              width: 36, height: 36, borderRadius: 10, background: '#0e0e0e',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
-              border: '1.5px solid #5B8DB830', cursor: 'pointer',
+              border: '1px solid #222', cursor: 'pointer',
             }}>📷</button>
           )}
           {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('alertes') && (
             <button onClick={() => handleTabChange('alertes')} style={{
               padding: '5px 12px', borderRadius: 10, background: '#FDF0F4',
-              border: '1.5px solid #F5C4BC', color: '#D4648A', fontSize: 11, fontWeight: 800,
+              border: '1px solid rgba(200,164,106,0.2)', color: '#8B1A2B', fontSize: 11, fontWeight: 800,
               animation: 'pulse 2s infinite',
             }}>
               {alerts.filter(a => a.level === 'rupture').length} 🚨
@@ -937,7 +937,7 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
       <div style={{ display: 'flex', gap: 8, padding: '0 16px 12px' }}>
         {[
           { id: 'stock', label: 'Niveaux de stock', color: '#5DAB8B' },
-          { id: 'mouvements', label: 'Mouvements', color: '#5B8DB8' },
+          { id: 'mouvements', label: 'Mouvements', color: '#C8A46A' },
         ].map(s => (
           <button key={s.id} onClick={() => setSubTab(s.id)} style={{
             flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700,
@@ -1000,7 +1000,7 @@ class LiveErrorBoundary extends React.Component {
           </div>
           <button onClick={() => window.location.reload()} style={{
             marginTop: 8, padding: '12px 28px', borderRadius: 14,
-            background: '#E8735A', color: 'white', fontSize: 14, fontWeight: 800,
+            background: '#10204E', color: 'white', fontSize: 14, fontWeight: 800,
             border: 'none', cursor: 'pointer',
           }}>Recharger</button>
         </div>
@@ -1015,17 +1015,17 @@ function SplashScreen({ text }) {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16,
-      background: 'linear-gradient(180deg, #FFF8F0 0%, #FEF0E8 30%, #F8F0FA 70%, #F0F4FD 100%)',
+      background: 'linear-gradient(180deg, #080808 0%, #0C1425 50%, #0A0F1E 100%)',
     }}>
       <div style={{
         width: 72, height: 72, borderRadius: 22,
-        background: 'linear-gradient(135deg, #F7A072, #E8735A)',
+        background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 36, boxShadow: '0 8px 32px rgba(232,115,90,0.25)',
       }}>🎪</div>
       <div className="loader" />
-      <div style={{ color: '#E8735A', fontWeight: 900, fontSize: 20 }}>STAGE STOCK</div>
-      <div style={{ color: '#B8A0AE', fontSize: 13 }}>{text}</div>
+      <div style={{ color: '#C8A46A', fontWeight: 900, fontSize: 20 }}>STAGE STOCK</div>
+      <div style={{ color: '#6B6058', fontSize: 13 }}>{text}</div>
     </div>
   )
 }
