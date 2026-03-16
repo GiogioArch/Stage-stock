@@ -145,7 +145,7 @@ export default function DepotDetail({
       </div>
 
       {/* Content */}
-      <div style={{ padding: '12px 16px 100px' }}>
+      <div style={{ padding: `12px 16px ${embedded ? '24px' : '100px'}` }}>
 
         {/* ─── Inventory ─── */}
         {section === 'inventory' && (

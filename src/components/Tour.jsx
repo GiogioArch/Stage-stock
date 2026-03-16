@@ -71,10 +71,9 @@ export default function Tour({ events, products, stock, locations, families, sub
   }, [filteredEvents, filter])
 
   return (
-    <div style={{ padding: '0 16px 24px' }}>
-
-      {/* ─── Event Detail Bottom Sheet ─── */}
-      {selectedEvent && (
+    <>
+    {/* ─── Event Detail Bottom Sheet ─── */}
+    {selectedEvent && (
         <div
           onClick={() => setSelectedEvent(null)}
           style={{
@@ -125,6 +124,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         </div>
       )}
 
+    <div style={{ padding: '0 16px 24px' }}>
       {/* Header */}
       <div className="card" style={{ marginBottom: 16, padding: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
@@ -391,6 +391,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         />
       )}
     </div>
+    </>
   )
 }
 

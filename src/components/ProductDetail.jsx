@@ -140,7 +140,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
         </div>
       </div>
 
-      <div style={{ padding: '16px 16px 100px' }}>
+      <div style={{ padding: `16px 16px ${embedded ? '24px' : '100px'}` }}>
 
         {/* ─── Header card with photo ─── */}
         <div className="card" style={{

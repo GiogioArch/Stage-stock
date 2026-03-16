@@ -5,7 +5,6 @@ import DepotDetail from './DepotDetail'
 
 export default function Depots({ locations, stock, products, movements, families, subfamilies, orgId, onReload, onToast, onMovement }) {
   const [showAdd, setShowAdd] = useState(false)
-  const [expandedId, setExpandedId] = useState(null)
   const [selectedDepot, setSelectedDepot] = useState(null)
   const [editingLocation, setEditingLocation] = useState(null)
   const [deletingLocation, setDeletingLocation] = useState(null)
@@ -210,7 +209,6 @@ export default function Depots({ locations, stock, products, movements, families
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {locationStats.map(loc => {
-            const isExpanded = expandedId === loc.id
             const fillPct = totalStock > 0 ? Math.round((loc.totalQty / totalStock) * 100) : 0
             return (
               <div key={loc.id}>
@@ -244,52 +242,9 @@ export default function Depots({ locations, stock, products, movements, families
                       <div style={{ fontSize: 20, fontWeight: 600, color: loc.color || '#2563EB' }}>{loc.totalQty}</div>
                       <div style={{ fontSize: 9, color: '#CBD5E1', fontWeight: 600 }}>{fillPct}% du stock</div>
                     </div>
-                    <span style={{
-                      fontSize: 12, color: '#CBD5E1', transition: 'transform 0.2s',
-                      transform: isExpanded ? 'rotate(180deg)' : 'none',
-                    }}>▼</span>
+                    <span style={{ fontSize: 12, color: '#CBD5E1' }}>›</span>
                   </div>
                 </button>
-
-                {/* Expanded: products in this location */}
-                {isExpanded && (
-                  <div style={{
-                    margin: '0 8px', padding: '12px 14px', background: '#F8FAFC',
-                    borderRadius: '0 0 14px 14px', border: '1px solid #F1F5F9', borderTop: 'none',
-                  }}>
-                    {loc.productDetails.length === 0 ? (
-                      <div style={{ fontSize: 12, color: '#CBD5E1', textAlign: 'center', padding: 12 }}>
-                        Aucun stock dans ce dépôt
-                      </div>
-                    ) : (
-                      <>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-                          {loc.productDetails.length} produit{loc.productDetails.length > 1 ? 's' : ''} en stock
-                        </div>
-                        {loc.productDetails.slice(0, 20).map(p => (
-                          <div key={p.id} style={{
-                            display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0',
-                            borderBottom: '1px solid #F1F5F910',
-                          }}>
-                            <span style={{ fontSize: 14 }}>{p.image || ''}</span>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {p.name}
-                              </div>
-                              <div style={{ fontSize: 10, color: '#CBD5E1' }}>{p.sku || ''}</div>
-                            </div>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: loc.color || '#2563EB' }}>{p.qty}</div>
-                          </div>
-                        ))}
-                        {loc.productDetails.length > 20 && (
-                          <div style={{ fontSize: 11, color: '#CBD5E1', textAlign: 'center', marginTop: 6 }}>
-                            +{loc.productDetails.length - 20} autres produits
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
               </div>
             )
           })}
