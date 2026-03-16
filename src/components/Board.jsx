@@ -110,31 +110,31 @@ export default function Board({ products, locations, stock, movements, alerts, e
 
   return (
     <>
-    {/* ─── Event Detail Bottom Sheet ─── */}
+    {/* ─── Event Detail (floating window) ─── */}
     {selectedEvent && (
       <div
         onClick={() => setSelectedEvent(null)}
         style={{
           position: 'fixed', inset: 0, zIndex: 200,
-          background: 'rgba(15,23,42,0.35)',
-          backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+          background: 'rgba(15,23,42,0.4)',
+          backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 16,
           animation: 'fadeIn 0.15s ease',
         }}
       >
         <div
           onClick={e => e.stopPropagation()}
           style={{
-            width: '100%', maxWidth: 480, maxHeight: '85vh',
-            background: 'white', borderRadius: '20px 20px 0 0',
-            boxShadow: '0 -8px 40px rgba(0,0,0,0.15)',
+            width: '100%', maxWidth: 420, maxHeight: '78vh',
+            background: 'white', borderRadius: 20,
+            boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
             overflowY: 'auto', WebkitOverflowScrolling: 'touch',
-            animation: 'slideUp 0.25s ease',
-            padding: '0 0 env(safe-area-inset-bottom, 16px)',
+            animation: 'scaleIn 0.2s ease',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px', position: 'sticky', top: 0, background: 'white', zIndex: 1, borderRadius: '20px 20px 0 0' }}>
-            <div style={{ width: 36, height: 4, borderRadius: 2, background: '#E2E8F0' }} />
+          <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={() => setSelectedEvent(null)} style={{ width: 30, height: 30, borderRadius: 15, background: '#F1F5F9', border: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           <EventDetail
             embedded

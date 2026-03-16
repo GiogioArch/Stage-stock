@@ -142,6 +142,11 @@ button { cursor: pointer; border: none; background: none; }
   to { transform: rotate(360deg); }
 }
 
+@keyframes scaleIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 /* ─── Utility ─── */
 .fade-in { animation: fadeIn 0.15s ease-out; }
 .slide-up { animation: slideUp 0.25s ease-out; }
