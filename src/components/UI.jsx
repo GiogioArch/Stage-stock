@@ -1,5 +1,16 @@
 import React, { useEffect } from 'react'
 
+// ─── Date helper: parse "2026-03-20" as local date (not UTC) ───
+// Prevents timezone shift where March 20 UTC becomes March 19 in UTC-4
+export function parseDate(d) {
+  if (!d) return new Date()
+  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    const [y, m, day] = d.split('-').map(Number)
+    return new Date(y, m - 1, day)
+  }
+  return new Date(d)
+}
+
 // ─── Bottom Sheet Modal ───
 export function Modal({ onClose, title, children }) {
   useEffect(() => {

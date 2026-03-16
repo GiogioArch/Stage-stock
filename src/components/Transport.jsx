@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
-import { Badge } from './UI'
+import { Badge, parseDate } from './UI'
 
 export default function Transport({
   events, transportProviders, vehicles, transportRoutes,
@@ -218,7 +218,7 @@ export default function Transport({
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 14, fontWeight: 800 }}>{ev.name || ev.lieu}</div>
                           <div style={{ fontSize: 11, color: '#9A8B94' }}>
-                            {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
+                            {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
@@ -536,7 +536,7 @@ function AddNeedForm({ events, onDone, onToast }) {
       <select className="input" value={eventId} onChange={e => setEventId(e.target.value)} style={{ marginBottom: 10 }}>
         {events.map(ev => (
           <option key={ev.id} value={ev.id}>
-            {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.name || ev.lieu || ev.ville}
+            {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.name || ev.lieu || ev.ville}
           </option>
         ))}
       </select>

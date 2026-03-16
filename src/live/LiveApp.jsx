@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { safe } from '../lib/supabase'
+import { parseDate } from '../components/UI'
 import LiveSetlist from './LiveSetlist'
 import LiveReactions from './LiveReactions'
 import LiveShop from './LiveShop'
@@ -121,7 +122,7 @@ export default function LiveApp() {
               background: EK.card, border: `1px solid ${EK.cardBorder}`,
               color: EK.camel, fontSize: 11, fontWeight: 700, letterSpacing: '0.05em',
             }}>
-              {new Date(event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).toUpperCase()}
+              {parseDate(event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).toUpperCase()}
             </div>
           )}
           <div style={{
@@ -284,15 +285,15 @@ function LiveHome({ event, onNavigate }) {
               background: `${EK.camel}12`, border: `1px solid ${EK.camel}25`,
             }}>
               <div style={{ fontSize: 28, fontWeight: 900, color: EK.camel, lineHeight: 1 }}>
-                {new Date(event.date).getDate()}
+                {parseDate(event.date).getDate()}
               </div>
               <div style={{ fontSize: 10, color: EK.camel, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                {new Date(event.date).toLocaleDateString('fr-FR', { month: 'short' })}
+                {parseDate(event.date).toLocaleDateString('fr-FR', { month: 'short' })}
               </div>
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, color: EK.text }}>
-                {new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long' })}
+                {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long' })}
               </div>
               {event.time && <div style={{ fontSize: 12, color: EK.textDim }}>{event.time}</div>}
               {event.capacity && <div style={{ fontSize: 11, color: EK.textMuted }}>{event.capacity} places</div>}
@@ -366,7 +367,7 @@ function LiveInfo({ event }) {
           <div style={{ fontSize: 15, fontWeight: 700, color: EK.text, marginBottom: 10 }}>
             {event.name || 'Concert'}
           </div>
-          <InfoRow label="Date" value={new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} />
+          <InfoRow label="Date" value={parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} />
           {event.time && <InfoRow label="Heure" value={event.time} />}
           {event.venue && <InfoRow label="Lieu" value={event.venue} />}
           {event.location && <InfoRow label="Ville" value={event.location} />}

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
-import { Modal, Confirm, Badge, intOnly } from './UI'
+import { Modal, Confirm, Badge, intOnly, parseDate } from './UI'
 import EventDetail from './EventDetail'
 
 const FORMAT_CONF = {
@@ -58,7 +58,7 @@ export default function Tour({ events, products, stock, locations, families, sub
   const groupedByMonth = useMemo(() => {
     const groups = {}
     filteredEvents.forEach(ev => {
-      const d = new Date(ev.date)
+      const d = parseDate(ev.date)
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
       const label = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
       if (!groups[key]) groups[key] = { label, events: [] }
@@ -157,7 +157,7 @@ export default function Tour({ events, products, stock, locations, families, sub
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 14, fontWeight: 900, color: '#C8A46A' }}>
-                {new Date(nextEvent.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
+                {parseDate(nextEvent.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
               </div>
               <div style={{ fontSize: 10, color: '#8A7D75', marginTop: 2 }}>
                 {nextEvent.format} · {nextEvent.capacite} pers.
@@ -225,7 +225,7 @@ export default function Tour({ events, products, stock, locations, families, sub
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
               {group.events.map((ev, i) => {
-                const d = new Date(ev.date)
+                const d = parseDate(ev.date)
                 const daysUntil = Math.ceil((d - new Date()) / 86400000)
                 const isPast = ev.date < today
                 const isNext = nextEvent && ev.id === nextEvent.id
@@ -352,7 +352,7 @@ export default function Tour({ events, products, stock, locations, families, sub
       {confirmDelete && (
         <Confirm
           message="Supprimer cet événement ?"
-          detail={`${confirmDelete.name || confirmDelete.lieu} — ${new Date(confirmDelete.date).toLocaleDateString('fr-FR')}`}
+          detail={`${confirmDelete.name || confirmDelete.lieu} — ${parseDate(confirmDelete.date).toLocaleDateString('fr-FR')}`}
           confirmLabel="Supprimer"
           confirmColor="#8B1A2B"
           onConfirm={async () => {

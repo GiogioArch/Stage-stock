@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge } from './UI'
+import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
 
@@ -177,7 +177,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#C8A46A' }}>
-                {new Date(nextEvent.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                {parseDate(nextEvent.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
               <div style={{ fontSize: 10, color: '#6B6058', marginTop: 2 }}>Voir fiche →</div>
             </div>
@@ -410,7 +410,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 12, fontWeight: 900, color: '#C8A46A', lineHeight: 1.1, textAlign: 'center',
                   }}>
-                    {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                    {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

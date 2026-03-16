@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { db } from '../lib/supabase'
-import { Badge } from './UI'
+import { Badge, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
 
 export default function PackingList({ event, products, stock, locations, roles, eventPacking, onReload, onToast }) {
@@ -66,7 +66,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
   // Print / export packing list
   const handlePrint = useCallback(() => {
     const roleEntries = Object.entries(groupedByRole)
-    const dateStr = new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    const dateStr = parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
     let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Packing - ${event.name || event.lieu}</title>
     <style>
       body { font-family: Arial, sans-serif; padding: 20px; color: #333; font-size: 12px; }

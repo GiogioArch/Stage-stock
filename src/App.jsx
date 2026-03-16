@@ -421,11 +421,11 @@ export default function App() {
               width: 42, height: 42, borderRadius: 14,
               background: 'linear-gradient(135deg, #C8A46A, #A8883D)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 22, boxShadow: '0 4px 16px rgba(232,115,90,0.25)',
+              fontSize: 22, boxShadow: '0 4px 16px rgba(200,164,106,0.2)',
             }}>🎪</div>
             <div>
               <div style={{ fontSize: 20, fontWeight: 900, color: '#C8A46A', letterSpacing: 0.5 }}>STAGE STOCK</div>
-              <div style={{ fontSize: 10, color: '#C4A8B6', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>
+              <div style={{ fontSize: 10, color: '#8A7D75', letterSpacing: 2.5, textTransform: 'uppercase', fontWeight: 700 }}>
                 Mon espace
               </div>
             </div>
@@ -433,14 +433,14 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {offline && (
               <span style={{
-                padding: '5px 10px', borderRadius: 10, background: '#FEF3CD',
-                border: '1.5px solid #F0D78C', color: '#856404', fontSize: 11, fontWeight: 800,
+                padding: '5px 10px', borderRadius: 10, background: 'rgba(200,164,106,0.15)',
+                border: '1px solid rgba(200,164,106,0.3)', color: '#C8A46A', fontSize: 11, fontWeight: 800,
               }}>Hors ligne</span>
             )}
             <button onClick={handleLogout} style={{
-              width: 36, height: 36, borderRadius: 10, background: '#FDF0F4',
+              width: 36, height: 36, borderRadius: 10, background: 'rgba(139,26,43,0.12)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer',
-              border: '1px solid #222',
+              border: '1px solid rgba(139,26,43,0.3)',
             }}>🚪</button>
           </div>
         </header>
@@ -578,8 +578,8 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {offline && (
             <span style={{
-              padding: '5px 10px', borderRadius: 10, background: '#FEF3CD',
-              border: '1.5px solid #F0D78C', color: '#856404', fontSize: 11, fontWeight: 800,
+              padding: '5px 10px', borderRadius: 10, background: 'rgba(200,164,106,0.15)',
+              border: '1px solid rgba(200,164,106,0.3)', color: '#C8A46A', fontSize: 11, fontWeight: 800,
             }}>Hors ligne</span>
           )}
           {isModuleActive('stock') && (
@@ -591,7 +591,7 @@ export default function App() {
           )}
           {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('alertes') && (
             <button onClick={() => handleTabChange('alertes')} style={{
-              padding: '5px 12px', borderRadius: 10, background: '#FDF0F4',
+              padding: '5px 12px', borderRadius: 10, background: 'rgba(139,26,43,0.12)',
               border: '1px solid rgba(200,164,106,0.2)', color: '#8B1A2B', fontSize: 11, fontWeight: 800,
               animation: 'pulse 2s infinite',
             }}>
@@ -986,10 +986,10 @@ class LiveErrorBoundary extends React.Component {
       return (
         <div style={{
           minHeight: '100dvh',
-          background: 'linear-gradient(180deg, #1a1520 0%, #2a1f30 100%)',
+          background: 'linear-gradient(180deg, #080808 0%, #0C1425 100%)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexDirection: 'column', gap: 16, padding: 32, textAlign: 'center',
-          fontFamily: "'Nunito', sans-serif",
+          fontFamily: "'Jost', sans-serif",
         }}>
           <div style={{ fontSize: 64 }}>🎤</div>
           <div style={{ fontSize: 20, fontWeight: 900, color: '#F0ECE2' }}>

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
-import { Badge } from './UI'
+import { Badge, parseDate } from './UI'
 
 export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, orgName, onReload, onToast }) {
   const [section, setSection] = useState('overview')
@@ -219,7 +219,7 @@ export default function Finance({ products, stock, events, locations, depreciati
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>{ev.name || ev.lieu}</div>
                       <div style={{ fontSize: 11, color: '#8A7D75' }}>
-                        {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
+                        {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
                       </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
@@ -250,7 +250,7 @@ export default function Finance({ products, stock, events, locations, depreciati
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700 }}>{ev.name || ev.lieu}</div>
                         <div style={{ fontSize: 11, color: '#8A7D75' }}>
-                          {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
+                          {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -362,7 +362,7 @@ export default function Finance({ products, stock, events, locations, depreciati
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 800 }}>{ev.name || ev.lieu}</div>
                         <div style={{ fontSize: 11, color: '#8A7D75' }}>
-                          {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
+                          {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -435,7 +435,7 @@ export default function Finance({ products, stock, events, locations, depreciati
                           {d.product?.name || 'Produit inconnu'}
                         </div>
                         <div style={{ fontSize: 10, color: '#8A7D75' }}>
-                          Durée: {d.duree_amort || '?'} ans · Acquis: {d.date_acquisition ? new Date(d.date_acquisition).toLocaleDateString('fr-FR') : '?'}
+                          Durée: {d.duree_amort || '?'} ans · Acquis: {d.date_acquisition ? parseDate(d.date_acquisition).toLocaleDateString('fr-FR') : '?'}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>

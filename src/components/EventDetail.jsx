@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { db } from '../lib/supabase'
-import { Badge, CATEGORIES, fmtDate } from './UI'
+import { Badge, CATEGORIES, fmtDate, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import PackingList from './PackingList'
 
@@ -109,7 +109,7 @@ export default function EventDetail({
             {event.name || event.lieu}
           </div>
           <div style={{ fontSize: 10, color: '#8A7D75' }}>
-            {new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
         </div>
         <Badge color={isPast ? '#6B6058' : daysUntil <= 3 ? '#8B1A2B' : daysUntil <= 7 ? '#C8A46A' : '#2FB65D'}>
@@ -139,7 +139,7 @@ export default function EventDetail({
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
           <Badge color="#C8A46A">
-            {new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
+            {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
           </Badge>
           {event.format && <Badge color="#5B8DB8">{event.format}</Badge>}
           {event.capacite && <Badge color="#9B7DC4">{event.capacite} pers.</Badge>}
@@ -274,7 +274,7 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
           Informations
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <InfoRow label="Date" value={new Date(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} />
+          <InfoRow label="Date" value={parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} />
           <InfoRow label="Compte à rebours" value={daysUntil > 0 ? `J-${daysUntil}` : daysUntil === 0 ? "Aujourd'hui" : 'Terminé'} color={daysUntil <= 3 && daysUntil >= 0 ? '#8B1A2B' : undefined} />
           <InfoRow label="Lieu" value={event.lieu || '—'} />
           <InfoRow label="Ville" value={event.ville || '—'} />

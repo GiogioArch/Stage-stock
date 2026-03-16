@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { db, safe } from '../lib/supabase'
 import { ROLE_CONF } from './RolePicker'
+import { parseDate } from './UI'
 
 const LEGAL_STATUS_LABELS = {
   intermittent: 'Intermittent du spectacle',
@@ -761,7 +762,7 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
               {ev.name || ev.lieu}
             </div>
             <div style={{ fontSize: 10, color: '#9A8B94' }}>
-              {new Date(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
+              {parseDate(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
               {ev.ville ? ` — ${ev.ville}` : ''}
               {!isPast && daysUntil >= 0 ? ` · J-${daysUntil}` : ''}
             </div>
@@ -1002,7 +1003,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
                 <option value="">— Aucun —</option>
                 {(events || []).sort((a, b) => a.date.localeCompare(b.date)).map(ev => (
                   <option key={ev.id} value={ev.id}>
-                    {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.name || ev.lieu}
+                    {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.name || ev.lieu}
                   </option>
                 ))}
               </select>
@@ -1044,7 +1045,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
                       {item.description}
                     </div>
                     <div style={{ fontSize: 10, color: '#9A8B94' }}>
-                      {tp.label} · {item.date ? new Date(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''}
+                      {tp.label} · {item.date ? parseDate(item.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''}
                       {ev ? ` · ${ev.name || ev.lieu}` : ''}
                     </div>
                   </div>

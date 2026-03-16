@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { db } from '../lib/supabase'
+import { parseDate } from './UI'
 
 const PAYMENT_METHODS = [
   { id: 'cash', label: 'Espèces', icon: '💵' },
@@ -316,7 +317,7 @@ export default function ConcertMode({
                 }}>
                   <div style={{ fontSize: 16, fontWeight: 900 }}>{ev.name || ev.lieu}</div>
                   <div style={{ fontSize: 12, color: '#9A8B94', marginTop: 4 }}>
-                    {new Date(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
+                    {parseDate(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
                     {ev.ville ? ` — ${ev.ville}` : ''}
                     {ev.capacite ? ` · ${ev.capacite} places` : ''}
                   </div>

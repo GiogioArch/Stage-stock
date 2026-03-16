@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { Badge, getCat, fmtDate, getMoveConf } from './UI'
+import { Badge, getCat, fmtDate, getMoveConf, parseDate } from './UI'
 
 // ─── Forecast helpers (same logic as Forecast.jsx) ───
 const CONV_RATES = {
@@ -247,7 +247,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               <InfoRow label="Unité" value={product.unit || 'pièce'} />
               <InfoRow label="Seuil alerte" value={`${product.min_stock || 5} unités`} />
               {product.purchase_date && (
-                <InfoRow label="Date d'achat" value={new Date(product.purchase_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} />
+                <InfoRow label="Date d'achat" value={parseDate(product.purchase_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} />
               )}
               {product.cost_ht != null && product.cost_ht > 0 && (
                 <InfoRow label="Coût HT" value={`${product.cost_ht.toFixed(2)} €`} />
@@ -263,7 +263,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               <OpRow icon="👤" label="Qui" value={userRole ? `Géré par ${userRole.name}` : 'Tout le monde'} />
               <OpRow icon="📦" label="Quoi" value={`${totalQty} en stock, ${productStock.filter(s => s.quantity > 0).length} lieu(x)`} />
               <OpRow icon="📍" label="Où" value={productStock.filter(s => s.quantity > 0).map(s => lName(s.location_id)).join(', ') || 'Aucun stock'} />
-              <OpRow icon="📅" label="Quand" value={product.purchase_date ? `Acheté le ${new Date(product.purchase_date).toLocaleDateString('fr-FR')}` : 'Date non renseignée'} />
+              <OpRow icon="📅" label="Quand" value={product.purchase_date ? `Acheté le ${parseDate(product.purchase_date).toLocaleDateString('fr-FR')}` : 'Date non renseignée'} />
               <OpRow icon="🔄" label="Comment" value={`${moveStats.ins + moveStats.outs + moveStats.transfers} mouvements enregistrés`} />
               <OpRow icon="🎪" label="Avec quoi" value={linkedEvents.length > 0 ? `${linkedEvents.length} concert(s) lié(s)` : 'Aucun concert lié'} />
             </div>
@@ -281,7 +281,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700 }}>{c.event.name || c.event.lieu}</div>
                         <div style={{ fontSize: 11, color: '#8A7D75' }}>
-                          {new Date(c.event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {c.qty} vendus
+                          {parseDate(c.event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {c.qty} vendus
                         </div>
                       </div>
                       <div style={{ fontSize: 16, fontWeight: 900, color: '#2FB65D' }}>{c.ca}€</div>
@@ -436,7 +436,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                                 {ev.name || ev.lieu}
                               </div>
                               <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2 }}>
-                                {new Date(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
+                                {parseDate(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
                                 {' · '}{ev.ville} · {ev.format}
                               </div>
                             </div>
@@ -491,7 +491,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                               <div>
                                 <div style={{ fontSize: 13, fontWeight: 700 }}>{ev.name || ev.lieu}</div>
                                 <div style={{ fontSize: 11, color: '#8A7D75' }}>
-                                  {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {ev.ville}
+                                  {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {ev.ville}
                                 </div>
                               </div>
                               {concertCA && (
@@ -527,7 +527,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                     </>
                   )}
                   {product.purchase_date && (
-                    <InfoRow label="Date d'achat" value={new Date(product.purchase_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} />
+                    <InfoRow label="Date d'achat" value={parseDate(product.purchase_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} />
                   )}
                   <div style={{
                     marginTop: 8, padding: '8px 12px', borderRadius: 8,

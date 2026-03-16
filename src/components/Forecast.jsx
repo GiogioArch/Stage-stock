@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { Badge } from './UI'
+import { Badge, parseDate } from './UI'
 
 // ─── Forecast configuration ───
 const CONVERSION_RATES = {
@@ -177,7 +177,7 @@ export default function Forecast({ products, stock, events, locations }) {
             <div>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#8B1A2B' }}>Rupture projetée</div>
               <div style={{ fontSize: 12, color: '#F0ECE2' }}>
-                {firstRupture.name || firstRupture.lieu} — {new Date(firstRupture.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+                {firstRupture.name || firstRupture.lieu} — {parseDate(firstRupture.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
               </div>
               <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2 }}>
                 Stock insuffisant dès ce concert ({firstRupture.stockAfter} unités manquantes)
@@ -197,7 +197,7 @@ export default function Forecast({ products, stock, events, locations }) {
             <div>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#C8A46A' }}>Réappro recommandé</div>
               <div style={{ fontSize: 12, color: '#F0ECE2' }}>
-                Avant {firstReappro.name || firstReappro.lieu} — {new Date(firstReappro.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+                Avant {firstReappro.name || firstReappro.lieu} — {parseDate(firstReappro.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
               </div>
               <div style={{ fontSize: 11, color: '#8A7D75', marginTop: 2 }}>
                 Stock projeté : {firstReappro.stockAfter} unités ({firstReappro.pctRemaining}% restant)
@@ -285,7 +285,7 @@ export default function Forecast({ products, stock, events, locations }) {
                       fontSize: 10, fontWeight: 900, textAlign: 'center', lineHeight: 1.2,
                       color: ev.rupture ? '#8B1A2B' : ev.reappro ? '#C8A46A' : '#2FB65D',
                     }}>
-                      {new Date(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                      {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                     </div>
 
                     {/* Info */}
