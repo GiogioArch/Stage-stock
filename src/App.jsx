@@ -1,43 +1,46 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from 'react'
 import { auth, db, safe } from './lib/supabase'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
 
-// ─── Components ───
+// ─── Critical components (loaded immediately) ───
 import Auth from './components/Auth'
-import Melodie from './components/Melodie'
 import Board from './components/Board'
-import Products from './components/Products'
-import Stocks from './components/Stocks'
-import Checklists from './components/Checklists'
-import Movements from './components/Movements'
-import Alerts from './components/Alerts'
-import Scanner from './components/Scanner'
-import MovementModal from './components/MovementModal'
-import RolePicker, { ROLE_CONF } from './components/RolePicker'
-import Tour from './components/Tour'
-import Depots from './components/Depots'
-import Equipe from './components/Equipe'
-import Finance from './components/Finance'
-import Forecast from './components/Forecast'
-import EventTimeline from './components/EventTimeline'
-import Transport from './components/Transport'
-import ConcertMode from './components/ConcertMode'
-import Achats from './components/Achats'
-import Inventaire from './components/Inventaire'
-import Settings from './modules/Settings'
-import ProfilePage from './components/ProfilePage'
-import PersonalDashboard from './components/PersonalDashboard'
-import MyProjects from './components/MyProjects'
 import Landing from './components/Landing'
-import Onboarding from './components/Onboarding'
-import Feedback from './components/Feedback'
-import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
+import RolePicker, { ROLE_CONF } from './components/RolePicker'
+import MovementModal from './components/MovementModal'
+import Scanner from './components/Scanner'
+
+// ─── Lazy-loaded components (loaded on demand) ───
+const Melodie = lazy(() => import('./components/Melodie'))
+const Products = lazy(() => import('./components/Products'))
+const Stocks = lazy(() => import('./components/Stocks'))
+const Checklists = lazy(() => import('./components/Checklists'))
+const Movements = lazy(() => import('./components/Movements'))
+const Alerts = lazy(() => import('./components/Alerts'))
+const Tour = lazy(() => import('./components/Tour'))
+const Depots = lazy(() => import('./components/Depots'))
+const Equipe = lazy(() => import('./components/Equipe'))
+const Finance = lazy(() => import('./components/Finance'))
+const Forecast = lazy(() => import('./components/Forecast'))
+const EventTimeline = lazy(() => import('./components/EventTimeline'))
+const Transport = lazy(() => import('./components/Transport'))
+const ConcertMode = lazy(() => import('./components/ConcertMode'))
+const Achats = lazy(() => import('./components/Achats'))
+const Inventaire = lazy(() => import('./components/Inventaire'))
+const Settings = lazy(() => import('./modules/Settings'))
+const ProfilePage = lazy(() => import('./components/ProfilePage'))
+const PersonalDashboard = lazy(() => import('./components/PersonalDashboard'))
+const MyProjects = lazy(() => import('./components/MyProjects'))
+const Onboarding = lazy(() => import('./components/Onboarding'))
+const Feedback = lazy(() => import('./components/Feedback'))
+const CGU = lazy(() => import('./components/Legal').then(m => ({ default: m.CGU })))
+const Privacy = lazy(() => import('./components/Legal').then(m => ({ default: m.Privacy })))
 import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3, Clock } from 'lucide-react'
 
 // ─── EK LIVE (fan-facing, no auth) ───
-import LiveApp from './live/LiveApp'
-import LiveDisplay from './live/LiveDisplay'
+const LiveApp = lazy(() => import('./live/LiveApp'))
+const LiveDisplay = lazy(() => import('./live/LiveDisplay'))
 
 // Admin role codes that see everything
 const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
@@ -418,19 +421,20 @@ export default function App() {
 
   // ─── EK LIVE routing (no auth required) ───
   const pathname = window.location.pathname
-  if (pathname.startsWith('/live')) return <LiveErrorBoundary><LiveApp /></LiveErrorBoundary>
-  if (pathname.startsWith('/display')) return <LiveErrorBoundary><LiveDisplay /></LiveErrorBoundary>
+  if (pathname.startsWith('/live')) return <LiveErrorBoundary><Suspense fallback={<SplashScreen text="Chargement..." />}><LiveApp /></Suspense></LiveErrorBoundary>
+  if (pathname.startsWith('/display')) return <LiveErrorBoundary><Suspense fallback={<SplashScreen text="Chargement..." />}><LiveDisplay /></Suspense></LiveErrorBoundary>
 
   if (user === undefined) return <SplashScreen text="Verification..." />
 
   // Legal pages (accessible from landing)
-  if (legalPage === 'cgu') return <CGU onClose={() => setLegalPage(null)} />
-  if (legalPage === 'privacy') return <Privacy onClose={() => setLegalPage(null)} />
+  if (legalPage === 'cgu') return <Suspense fallback={<SplashScreen text="Chargement..." />}><CGU onClose={() => setLegalPage(null)} /></Suspense>
+  if (legalPage === 'privacy') return <Suspense fallback={<SplashScreen text="Chargement..." />}><Privacy onClose={() => setLegalPage(null)} /></Suspense>
 
   // Not logged in → Mélodie handles splash + welcome + auth + onboarding
   if (user === null) {
     return (
       <>
+        <Suspense fallback={<SplashScreen text="Chargement..." />}>
         <Melodie
           roles={data.roles}
           onAuth={(u) => setUser(u)}
@@ -440,6 +444,7 @@ export default function App() {
           }}
           onToast={(msg, color) => showToast(msg, color)}
         />
+        </Suspense>
         {toast && <Toast message={toast.message} color={toast.color} />}
       </>
     )
@@ -457,6 +462,7 @@ export default function App() {
   if (needsOnboarding) {
     return (
       <>
+        <Suspense fallback={<SplashScreen text="Chargement..." />}>
         <Melodie
           existingUser={user}
           startStep="ask_name"
@@ -468,6 +474,7 @@ export default function App() {
           }}
           onToast={(msg, color) => showToast(msg, color)}
         />
+        </Suspense>
         {toast && <Toast message={toast.message} color={toast.color} />}
       </>
     )
@@ -509,6 +516,7 @@ export default function App() {
         </header>
 
         {/* Personal tab content */}
+        <Suspense fallback={<div style={{ padding: 32, textAlign: 'center' }}><div className="loader" /></div>}>
         {personalTab === 'home' && (
           <PersonalDashboard
             user={user}
@@ -567,6 +575,7 @@ export default function App() {
             onOpenProject={enterProject}
           />
         )}
+        </Suspense>
 
         {/* Personal bottom nav */}
         {personalTab !== 'profile' && (
@@ -701,6 +710,7 @@ export default function App() {
       )}
 
       {/* ─── Tab Content (module-driven) ─── */}
+      <Suspense fallback={<div style={{ padding: 32, textAlign: 'center' }}><div className="loader" /></div>}>
       <TabContent
         tab={tab}
         activeModuleIds={activeModuleIds}
@@ -723,6 +733,7 @@ export default function App() {
         onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
         onModulesChanged={handleModulesChanged}
       />
+      </Suspense>
 
       {/* ─── Bottom Nav (Couche 3 — grouped) ─── */}
       <nav className="bottom-nav">
@@ -773,7 +784,7 @@ export default function App() {
       )}
 
       {/* ─── Feedback widget (terrain) ─── */}
-      <Feedback user={user} orgId={selectedOrg?.id} context={tab} />
+      <Suspense fallback={null}><Feedback user={user} orgId={selectedOrg?.id} context={tab} /></Suspense>
 
       {/* ─── Toast ─── */}
       {toast && <Toast message={toast.message} color={toast.color} onDone={() => setToast(null)} />}
