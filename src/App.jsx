@@ -4,6 +4,7 @@ import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, get
 
 // ─── Components ───
 import Auth from './components/Auth'
+import Melodie from './components/Melodie'
 import Board from './components/Board'
 import Products from './components/Products'
 import Stocks from './components/Stocks'
@@ -420,24 +421,34 @@ export default function App() {
   if (pathname.startsWith('/live')) return <LiveErrorBoundary><LiveApp /></LiveErrorBoundary>
   if (pathname.startsWith('/display')) return <LiveErrorBoundary><LiveDisplay /></LiveErrorBoundary>
 
-  if (user === undefined) return <SplashScreen text="Vérification..." />
+  if (user === undefined) return <SplashScreen text="Verification..." />
 
   // Legal pages (accessible from landing)
   if (legalPage === 'cgu') return <CGU onClose={() => setLegalPage(null)} />
   if (legalPage === 'privacy') return <Privacy onClose={() => setLegalPage(null)} />
 
-  // Not logged in: show landing or auth
+  // Not logged in → Mélodie handles splash + welcome + auth + onboarding
   if (user === null) {
-    if (showAuth) return <Auth onAuth={(u) => setUser(u)} onBack={() => setShowAuth(false)} />
-    return <Landing onGetStarted={() => setShowAuth(true)} />
+    return (
+      <>
+        <Melodie
+          roles={data.roles}
+          onAuth={(u) => setUser(u)}
+          onComplete={(membership) => {
+            if (membership) enterProject(membership)
+            loadPersonalData()
+          }}
+          onToast={(msg, color) => showToast(msg, color)}
+        />
+        {toast && <Toast message={toast.message} color={toast.color} />}
+      </>
+    )
   }
 
   // Loading personal data
   if (personalLoading && allProjects.length === 0) return <SplashScreen text="Chargement..." />
 
-  // ═══════════════════════════════════════════════
-  // ONBOARDING — First-time users
-  // ═══════════════════════════════════════════════
+  // Onboarding for users who logged in but never completed setup
   const needsOnboarding = !personalLoading
     && allProjects.length === 0
     && !localStorage.getItem('onboarding_complete')
@@ -446,12 +457,13 @@ export default function App() {
   if (needsOnboarding) {
     return (
       <>
-        <Onboarding
-          user={user}
+        <Melodie
+          existingUser={user}
+          startStep="ask_name"
+          roles={data.roles}
+          onAuth={(u) => setUser(u)}
           onComplete={(membership) => {
-            if (membership) {
-              enterProject(membership)
-            }
+            if (membership) enterProject(membership)
             loadPersonalData()
           }}
           onToast={(msg, color) => showToast(msg, color)}

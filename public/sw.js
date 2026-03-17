@@ -1,5 +1,5 @@
-// Stage Stock — Service Worker v9 (Bottom sheets → Fiches flottantes)
-const CACHE_NAME = 'stage-stock-v9'
+// Stage Stock — Service Worker v10 (Melodie onboarding)
+const CACHE_NAME = 'stage-stock-v10'
 
 // Static assets to pre-cache on install
 const PRECACHE = [
