@@ -101,61 +101,35 @@ export default function ConcertMode({
 
   const clearCart = useCallback(() => setCart([]), [])
 
-  // ─── Process sale ───
+  // ─── Process sale (atomic via RPC) ───
   const processSale = async () => {
     if (cart.length === 0) return
     setSaving(true)
     try {
-      // 1. Create sale record
       const saleNum = `V${Date.now().toString(36).toUpperCase()}`
-      const saleData = {
-        org_id: orgId,
-        event_id: selectedEvent?.id || null,
-        sale_number: saleNum,
-        payment_method: payMethod,
-        total_amount: cartTotal,
-        items_count: cartCount,
-        sold_by: userId,
-      }
-      const saleResult = await db.insert('sales', saleData)
-      const saleId = saleResult?.[0]?.id
 
-      if (!saleId) throw new Error('Vente non créée')
+      // Préparer le payload des articles
+      const itemsPayload = cart.map(item => ({
+        product_id: item.productId,
+        variant: item.variant,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        line_total: item.lineTotal,
+      }))
 
-      // 2. Create sale items
-      for (const item of cart) {
-        try {
-          await db.insert('sale_items', {
-            org_id: orgId,
-            sale_id: saleId,
-            product_id: item.productId,
-            variant: item.variant,
-            quantity: item.quantity,
-            unit_price: item.unitPrice,
-            line_total: item.lineTotal,
-          })
-        } catch (e) {
-          console.error('Sale item error:', e)
-        }
-      }
+      // Appel atomique à la procédure stockée
+      await db.rpc('process_sale', {
+        p_org_id: orgId,
+        p_event_id: selectedEvent?.id || null,
+        p_sale_number: saleNum,
+        p_payment_method: payMethod,
+        p_total_amount: cartTotal,
+        p_items_count: cartCount,
+        p_sold_by: userId,
+        p_items: itemsPayload,
+      })
 
-      // 3. Decrement stock (find first location with stock for each product)
-      for (const item of cart) {
-        try {
-          const productStock = (stock || [])
-            .filter(s => s.product_id === item.productId && s.quantity > 0)
-            .sort((a, b) => b.quantity - a.quantity)
-          if (productStock.length > 0) {
-            const loc = productStock[0]
-            const newQty = Math.max(0, loc.quantity - item.quantity)
-            await db.update('stock', `id=eq.${loc.id}`, { quantity: newQty })
-          }
-        } catch (e) {
-          console.error('Stock decrement error:', e)
-        }
-      }
-
-      // 4. Log + reset
+      // Log + reset
       setSalesLog(prev => [{
         num: saleNum,
         total: cartTotal,
