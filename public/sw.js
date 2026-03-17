@@ -1,5 +1,5 @@
-// Stage Stock — Service Worker v10 (Melodie onboarding)
-const CACHE_NAME = 'stage-stock-v10'
+// Stage Stock — Service Worker v11 (Melodie chatbot IA)
+const CACHE_NAME = 'stage-stock-v11'
 
 // Static assets to pre-cache on install
 const PRECACHE = [

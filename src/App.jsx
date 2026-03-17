@@ -4,6 +4,7 @@ import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, get
 
 // ─── Critical components (loaded immediately) ───
 import Auth from './components/Auth'
+import MelodieChat from './components/MelodieChat'
 import Board from './components/Board'
 import Landing from './components/Landing'
 import { Toast } from './components/UI'
@@ -782,6 +783,15 @@ export default function App() {
           onToast={showToast}
         />
       )}
+
+      {/* ─── Melodie Chatbot ─── */}
+      <MelodieChat
+        user={user}
+        userRole={userRole}
+        orgName={selectedOrg?.name}
+        events={data.events}
+        data={data}
+      />
 
       {/* ─── Feedback widget (terrain) ─── */}
       <Suspense fallback={null}><Feedback user={user} orgId={selectedOrg?.id} context={tab} /></Suspense>
