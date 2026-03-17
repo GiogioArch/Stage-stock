@@ -152,6 +152,11 @@ button { cursor: pointer; border: none; background: none; }
   to { transform: scale(1); opacity: 1; }
 }
 
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ─── Utility ─── */
 .fade-in { animation: fadeIn 0.15s ease-out; }
 .slide-up { animation: slideUp 0.25s ease-out; }
