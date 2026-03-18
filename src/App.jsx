@@ -692,14 +692,15 @@ export default function App() {
         }}>
           {currentGroup.groupTabs.map(t => {
             const isActive = tab === t.id
+            const modColor = MODULES[t.moduleId]?.color || '#5B8DB8'
             return (
               <button key={t.id} onClick={() => handleTabChange(t.id)} style={{
                 padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: isActive ? 700 : 500,
                 cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-                background: isActive ? '#5B8DB8' : '#F1F5F9',
+                background: isActive ? modColor : '#F1F5F9',
                 color: isActive ? '#FFFFFF' : '#64748B',
                 border: 'none',
-                boxShadow: isActive ? '0 2px 8px rgba(91,141,184,0.3)' : 'none',
+                boxShadow: isActive ? `0 2px 8px ${modColor}40` : 'none',
                 transition: 'all 0.2s ease',
               }}>
                 {t.label}
@@ -740,9 +741,12 @@ export default function App() {
         {activeGroups.map(g => {
           const isActive = currentGroup?.id === g.id
           const IconComp = TAB_ICONS[g.id] || Box
+          // Couleur du premier module du groupe
+          const groupColor = MODULES[g.groupTabs[0]?.moduleId]?.color || '#5B8DB8'
           return (
             <button key={g.id}
               className={`nav-tab ${isActive ? 'active' : ''}`}
+              style={isActive ? { color: groupColor } : undefined}
               onClick={() => {
                 if (!isActive) handleTabChange(g.groupTabs[0].id)
               }}>

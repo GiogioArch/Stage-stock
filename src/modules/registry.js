@@ -19,7 +19,7 @@ export const MODULES = {
     id: 'tournee',
     name: 'Tournee',
     icon: 'tent',
-    color: '#9B7DC4',
+    color: '#E8735A',
     description: 'Dates de concert, fiches detaillees, checklists et packing lists',
     tables: {
       events: 'order=date.asc',
@@ -34,7 +34,7 @@ export const MODULES = {
     id: 'articles',
     name: 'Articles',
     icon: 'package',
-    color: '#D4648A',
+    color: '#8B6DB8',
     description: 'Catalogue produits, familles et sous-familles',
     tables: {
       products: 'order=name.asc',
@@ -76,7 +76,7 @@ export const MODULES = {
     id: 'equipe',
     name: 'Equipe',
     icon: 'users',
-    color: '#9B7DC4',
+    color: '#E8735A',
     description: 'Gestion de l\'equipe, roles et responsabilites',
     tables: {
       user_profiles: 'order=display_name.asc',
@@ -157,7 +157,7 @@ export const MODULES = {
     id: 'achats',
     name: 'Achats',
     icon: 'shopping-bag',
-    color: '#9B7DC4',
+    color: '#D4648A',
     description: 'Fournisseurs, bons de commande et receptions',
     tables: {
       suppliers: 'order=name.asc',
