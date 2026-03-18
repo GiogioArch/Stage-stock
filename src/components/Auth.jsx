@@ -68,11 +68,11 @@ export default function Auth({ onAuth, onBack }) {
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 12,
-            background: '#6366F1',
+            background: '#5B8DB8',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             marginBottom: 16,
           }}><Box size={28} color="#fff" /></div>
-          <div style={{ fontSize: 24, fontWeight: 600, color: '#1E293B' }}>Stage Stock</div>
+          <div style={{ fontSize: 24, fontWeight: 600, color: '#1E293B' }}>BackStage</div>
           <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
             Gestion de stock pour le spectacle
           </div>
@@ -86,8 +86,8 @@ export default function Auth({ onAuth, onBack }) {
 
           {error && (
             <div style={{
-              padding: 10, borderRadius: 6, background: 'rgba(239,68,68,0.12)',
-              border: '1px solid rgba(239,68,68,0.2)', color: '#DC2626',
+              padding: 10, borderRadius: 6, background: 'rgba(212,100,138,0.12)',
+              border: '1px solid rgba(212,100,138,0.2)', color: '#D4648A',
               fontSize: 13, fontWeight: 500, marginBottom: 16,
             }}>{error}</div>
           )}
@@ -95,7 +95,7 @@ export default function Auth({ onAuth, onBack }) {
           {success && (
             <div style={{
               padding: 10, borderRadius: 6, background: 'rgba(34,197,94,0.12)',
-              border: '1px solid rgba(34,197,94,0.2)', color: '#16A34A',
+              border: '1px solid rgba(34,197,94,0.2)', color: '#5DAB8B',
               fontSize: 13, fontWeight: 500, marginBottom: 16,
             }}>{success}</div>
           )}
@@ -142,7 +142,7 @@ export default function Auth({ onAuth, onBack }) {
             )}
             <button
               onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess('') }}
-              style={{ fontSize: 13, color: '#6366F1', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ fontSize: 13, color: '#5B8DB8', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
             >
               {mode === 'forgot' ? 'Retour à la connexion' : mode === 'login' ? 'Pas encore de compte ? Créer' : 'Déjà un compte ? Se connecter'}
             </button>
@@ -158,7 +158,7 @@ export default function Auth({ onAuth, onBack }) {
           </div>
         )}
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#CBD5E1' }}>
-          v10.5 — Stage Stock
+          v10.5 — BackStage
         </div>
       </div>
     </div>

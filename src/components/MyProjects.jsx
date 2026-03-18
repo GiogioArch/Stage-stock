@@ -25,7 +25,7 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
       setDeletingProject(null)
       onProjectsChanged()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#7C3AED')
+      onToast('Erreur: ' + e.message, '#8B6DB8')
     } finally {
       setDeleting(false)
     }
@@ -56,9 +56,9 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
       {deletingProject && (
         <div className="card" style={{
           padding: 20, marginBottom: 14,
-          border: '2px solid #7C3AED30', background: '#FDF0F4',
+          border: '2px solid #8B6DB830', background: '#FDF0F4',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#7C3AED', marginBottom: 8, textAlign: 'center' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#8B6DB8', marginBottom: 8, textAlign: 'center' }}>
             Supprimer ce projet ?
           </div>
           <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
@@ -72,7 +72,7 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
             }}>Annuler</button>
             <button onClick={handleDelete} disabled={deleting} style={{
               flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 600,
-              background: '#7C3AED', color: 'white', cursor: 'pointer', border: 'none',
+              background: '#8B6DB8', color: 'white', cursor: 'pointer', border: 'none',
               opacity: deleting ? 0.6 : 1,
             }}>{deleting ? 'Suppression...' : 'Supprimer'}</button>
           </div>
@@ -135,8 +135,8 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
   const [showMenu, setShowMenu] = useState(false)
   const roleConf = project.role_code ? ROLE_CONF[project.role_code] : null
   const statusColors = {
-    active: { bg: '#16A34A15', color: '#16A34A', label: 'Actif' },
-    invited: { bg: '#D9770615', color: '#D97706', label: 'Invitation' },
+    active: { bg: '#5DAB8B15', color: '#5DAB8B', label: 'Actif' },
+    invited: { bg: '#E8935A15', color: '#E8935A', label: 'Invitation' },
     archived: { bg: '#94A3B815', color: '#94A3B8', label: 'Archivé' },
   }
   const st = statusColors[project.status] || statusColors.active
@@ -144,7 +144,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
   return (
     <div className="card" style={{
       padding: '18px 16px',
-      borderLeft: `4px solid ${roleConf?.color || '#6366F1'}`,
+      borderLeft: `4px solid ${roleConf?.color || '#5B8DB8'}`,
       position: 'relative',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -154,7 +154,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
         }}>
           <div style={{
             width: 50, height: 50, borderRadius: 12, flexShrink: 0,
-            background: `linear-gradient(135deg, ${roleConf?.color || '#6366F1'}15, ${roleConf?.color || '#6366F1'}08)`,
+            background: `linear-gradient(135deg, ${roleConf?.color || '#5B8DB8'}15, ${roleConf?.color || '#5B8DB8'}08)`,
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
           }}>{project.org?.logo || ''}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -165,7 +165,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
                 background: st.bg, color: st.color,
               }}>{st.label}</span>
               {project.is_admin && (
-                <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 600, background: '#6366F115', color: '#6366F1' }}>Admin</span>
+                <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 600, background: '#5B8DB815', color: '#5B8DB8' }}>Admin</span>
               )}
               {roleConf && (
                 <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 600, background: `${roleConf.color}15`, color: roleConf.color }}>
@@ -208,7 +208,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
           <button onClick={() => { setShowMenu(false); onDelete() }} style={{
             display: 'flex', alignItems: 'center', gap: 8, width: '100%',
             padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-            background: 'none', border: 'none', cursor: 'pointer', color: '#7C3AED',
+            background: 'none', border: 'none', cursor: 'pointer', color: '#8B6DB8',
           }}>
             <span></span> Supprimer
           </button>
@@ -234,14 +234,14 @@ function EditProjectForm({ project, onSaved, onCancel, onToast }) {
       onToast('Projet modifié')
       onSaved()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#7C3AED')
+      onToast('Erreur: ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="card" style={{ padding: 20, marginBottom: 14, border: '2px solid #2563EB30' }}>
+    <div className="card" style={{ padding: 20, marginBottom: 14, border: '2px solid #5B8DB830' }}>
       <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B', marginBottom: 16, textAlign: 'center' }}>
         Modifier le projet
       </div>
@@ -296,14 +296,14 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
       onToast('Projet créé !')
       onCreated()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#7C3AED')
+      onToast('Erreur: ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="card" style={{ padding: 20, border: '2px solid #6366F130' }}>
+    <div className="card" style={{ padding: 20, border: '2px solid #5B8DB830' }}>
       <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B', marginBottom: 16, textAlign: 'center' }}>
         Nouveau projet
       </div>

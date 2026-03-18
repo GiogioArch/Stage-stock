@@ -72,7 +72,7 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
       onToast(`Inventaire terminé — ${diffs.length} correction${diffs.length > 1 ? 's' : ''}`)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -84,11 +84,11 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
       <div style={{ padding: '0 16px 24px' }}>
         <div className="card" style={{
           padding: '24px 16px', textAlign: 'center', marginBottom: 16,
-          background: 'linear-gradient(135deg, #16A34A08, #16A34A18)',
-          border: '1px solid #16A34A25',
+          background: 'linear-gradient(135deg, #5DAB8B08, #5DAB8B18)',
+          border: '1px solid #5DAB8B25',
         }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 18, fontWeight: 600, color: '#16A34A' }}>Inventaire terminé</div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#5DAB8B' }}>Inventaire terminé</div>
           <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 6 }}>
             {selectedLocation.icon} {selectedLocation.name} · {results.total} produits vérifiés
           </div>
@@ -111,7 +111,7 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
                 </div>
                 <span style={{
                   fontSize: 14, fontWeight: 600,
-                  color: d.diff > 0 ? '#16A34A' : '#7C3AED',
+                  color: d.diff > 0 ? '#5DAB8B' : '#8B6DB8',
                 }}>{d.diff > 0 ? '+' : ''}{d.diff}</span>
               </div>
             ))}
@@ -164,7 +164,7 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 12,
-                    background: (loc.color || '#2563EB') + '15',
+                    background: (loc.color || '#5B8DB8') + '15',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
                   }}>{loc.icon || ''}</div>
                   <div style={{ flex: 1 }}>
@@ -223,7 +223,7 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
           return (
             <div key={p.id} className="card" style={{
               padding: '12px 14px',
-              borderLeft: hasDiff ? `4px solid ${countedInt > p.systemQty ? '#16A34A' : '#7C3AED'}` : hasCount ? '4px solid #8BAB5D' : '4px solid #E2E8F0',
+              borderLeft: hasDiff ? `4px solid ${countedInt > p.systemQty ? '#5DAB8B' : '#8B6DB8'}` : hasCount ? '4px solid #8BAB5D' : '4px solid #E2E8F0',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 16 }}>{p.image || ''}</span>
@@ -231,7 +231,7 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
                   <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
                   <div style={{ fontSize: 10, color: '#94A3B8' }}>
                     Système : <strong>{p.systemQty}</strong>
-                    {hasDiff && <span style={{ color: countedInt > p.systemQty ? '#16A34A' : '#7C3AED', fontWeight: 600 }}>
+                    {hasDiff && <span style={{ color: countedInt > p.systemQty ? '#5DAB8B' : '#8B6DB8', fontWeight: 600 }}>
                       {' '}→ {countedInt} ({countedInt - p.systemQty > 0 ? '+' : ''}{countedInt - p.systemQty})
                     </span>}
                   </div>
@@ -243,9 +243,9 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
                   inputMode="numeric"
                   style={{
                     width: 64, padding: '8px 6px', borderRadius: 10, textAlign: 'center',
-                    fontSize: 16, fontWeight: 600, border: `2px solid ${hasDiff ? '#7C3AED' : hasCount ? '#8BAB5D' : '#E2E8F0'}`,
+                    fontSize: 16, fontWeight: 600, border: `2px solid ${hasDiff ? '#8B6DB8' : hasCount ? '#8BAB5D' : '#E2E8F0'}`,
                     background: hasDiff ? '#FDF0F410' : 'white', outline: 'none',
-                    color: hasDiff ? '#7C3AED' : '#1E293B',
+                    color: hasDiff ? '#8B6DB8' : '#1E293B',
                   }}
                 />
               </div>

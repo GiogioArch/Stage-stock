@@ -124,18 +124,18 @@ export default function ProductDetail({ product, stock, locations, movements, ev
       }}>
         <button onClick={onClose} style={{
           display: 'flex', alignItems: 'center', gap: 6,
-          fontSize: 14, fontWeight: 700, color: '#6366F1',
+          fontSize: 14, fontWeight: 700, color: '#5B8DB8',
         }}>
           ← Retour
         </button>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={onEdit} style={{
             padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            background: 'rgba(91,141,184,0.08)', color: '#2563EB', border: '1px solid #2563EB30',
+            background: 'rgba(91,141,184,0.08)', color: '#5B8DB8', border: '1px solid #5B8DB830',
           }}>Modifier</button>
           <button onClick={onDelete} style={{
             padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            background: 'rgba(200,164,106,0.08)', color: '#DC2626', border: '1px solid #DC262630',
+            background: 'rgba(200,164,106,0.08)', color: '#D4648A', border: '1px solid #D4648A30',
           }}>Supprimer</button>
         </div>
       </div>
@@ -174,7 +174,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <Badge color={cat.color}>{cat.icon && React.createElement(cat.icon, { size: 12 })} {cat.name}</Badge>
                 {product.variants && <Badge color="#94A3B8">{product.variants}</Badge>}
-                {product.unit && product.unit !== 'pièce' && <Badge color="#2563EB">{product.unit}</Badge>}
+                {product.unit && product.unit !== 'pièce' && <Badge color="#5B8DB8">{product.unit}</Badge>}
               </div>
             </div>
           </div>
@@ -196,25 +196,25 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           <KpiCard
             label="Stock total"
             value={totalQty}
-            color={totalQty === 0 ? '#DC2626' : totalQty <= (product.min_stock || 5) ? '#6366F1' : '#16A34A'}
+            color={totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#5B8DB8' : '#5DAB8B'}
             sub={`seuil: ${product.min_stock || 5}`}
           />
           <KpiCard
             label="Entrées"
             value={moveStats.totalIn}
-            color="#16A34A"
+            color="#5DAB8B"
             sub={`${moveStats.ins} mvts`}
           />
           <KpiCard
             label="Sorties"
             value={moveStats.totalOut}
-            color="#DC2626"
+            color="#D4648A"
             sub={`${moveStats.outs} mvts`}
           />
           <KpiCard
             label="Concerts"
             value={linkedEvents.length}
-            color="#6366F1"
+            color="#5B8DB8"
             sub={`liés`}
           />
         </div>
@@ -284,7 +284,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                           {parseDate(c.event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {c.qty} vendus
                         </div>
                       </div>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#16A34A' }}>{c.ca}€</div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: '#5DAB8B' }}>{c.ca}€</div>
                     </div>
                   ))}
                   <div style={{
@@ -292,7 +292,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                     display: 'flex', justifyContent: 'space-between',
                   }}>
                     <span style={{ fontSize: 13, fontWeight: 600 }}>Total</span>
-                    <span style={{ fontSize: 18, fontWeight: 600, color: '#16A34A' }}>
+                    <span style={{ fontSize: 18, fontWeight: 600, color: '#5DAB8B' }}>
                       {caPerConcert.reduce((s, c) => s + c.ca, 0)}€
                     </span>
                   </div>
@@ -313,13 +313,13 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
               <div style={{
                 fontSize: 48, fontWeight: 600, lineHeight: 1.1,
-                color: totalQty === 0 ? '#DC2626' : totalQty <= (product.min_stock || 5) ? '#6366F1' : '#16A34A',
+                color: totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#5B8DB8' : '#5DAB8B',
               }}>{totalQty}</div>
               <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
                 Seuil min : {product.min_stock || 5} · Unité : {product.unit || 'pièce'}
               </div>
-              {totalQty === 0 && <Badge color="#DC2626">RUPTURE DE STOCK</Badge>}
-              {totalQty > 0 && totalQty <= (product.min_stock || 5) && <Badge color="#6366F1">STOCK BAS</Badge>}
+              {totalQty === 0 && <Badge color="#D4648A">RUPTURE DE STOCK</Badge>}
+              {totalQty > 0 && totalQty <= (product.min_stock || 5) && <Badge color="#5B8DB8">STOCK BAS</Badge>}
             </div>
 
             {/* By location with bar chart */}
@@ -360,9 +360,9 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           <div>
             {/* Stats */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              <StatPill icon="" label="Entrées" value={moveStats.totalIn} count={moveStats.ins} color="#16A34A" />
-              <StatPill icon="" label="Sorties" value={moveStats.totalOut} count={moveStats.outs} color="#DC2626" />
-              <StatPill icon="" label="Transferts" value={moveStats.transfers} count={moveStats.transfers} color="#2563EB" />
+              <StatPill icon="" label="Entrées" value={moveStats.totalIn} count={moveStats.ins} color="#5DAB8B" />
+              <StatPill icon="" label="Sorties" value={moveStats.totalOut} count={moveStats.outs} color="#D4648A" />
+              <StatPill icon="" label="Transferts" value={moveStats.transfers} count={moveStats.transfers} color="#5B8DB8" />
             </div>
 
             {/* List */}
@@ -398,7 +398,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       </div>
                       <div style={{
                         fontSize: 16, fontWeight: 600,
-                        color: m.type === 'out' ? '#DC2626' : m.type === 'in' ? '#16A34A' : '#2563EB',
+                        color: m.type === 'out' ? '#D4648A' : m.type === 'in' ? '#5DAB8B' : '#5B8DB8',
                       }}>
                         {m.type === 'out' ? '−' : m.type === 'in' ? '+' : '↔'}{m.quantity}
                       </div>
@@ -428,7 +428,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       {linkedEvents.filter(e => !e.isPast).map(ev => (
                         <div key={ev.id} className="card" style={{
                           padding: '12px 14px',
-                          borderLeft: `4px solid ${ev.daysUntil <= 7 ? '#6366F1' : '#2563EB'}`,
+                          borderLeft: `4px solid ${ev.daysUntil <= 7 ? '#5B8DB8' : '#5B8DB8'}`,
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
@@ -440,7 +440,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                                 {' · '}{ev.ville} · {ev.format}
                               </div>
                             </div>
-                            <Badge color={ev.daysUntil <= 3 ? '#DC2626' : ev.daysUntil <= 7 ? '#6366F1' : '#2563EB'}>
+                            <Badge color={ev.daysUntil <= 3 ? '#D4648A' : ev.daysUntil <= 7 ? '#5B8DB8' : '#5B8DB8'}>
                               J-{ev.daysUntil}
                             </Badge>
                           </div>
@@ -448,13 +448,13 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                           {/* Needs */}
                           <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
                             {ev.packing && (
-                              <MiniInfo label="Besoin packing" value={ev.packing.quantity_needed} color="#6366F1" />
+                              <MiniInfo label="Besoin packing" value={ev.packing.quantity_needed} color="#5B8DB8" />
                             )}
                             {ev.projectedSales > 0 && (
-                              <MiniInfo label="Ventes proj." value={`~${ev.projectedSales}`} color="#6366F1" />
+                              <MiniInfo label="Ventes proj." value={`~${ev.projectedSales}`} color="#5B8DB8" />
                             )}
                             {ev.capacite && (
-                              <MiniInfo label="Capacité" value={ev.capacite} color="#2563EB" />
+                              <MiniInfo label="Capacité" value={ev.capacite} color="#5B8DB8" />
                             )}
                           </div>
 
@@ -462,11 +462,11 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                           {ev.packing && (
                             <div style={{ marginTop: 8 }}>
                               {totalQty >= ev.packing.quantity_needed ? (
-                                <div style={{ fontSize: 11, color: '#16A34A', fontWeight: 700 }}>
+                                <div style={{ fontSize: 11, color: '#5DAB8B', fontWeight: 700 }}>
                                   Stock suffisant ({totalQty} dispo / {ev.packing.quantity_needed} requis)
                                 </div>
                               ) : (
-                                <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 700 }}>
+                                <div style={{ fontSize: 11, color: '#D4648A', fontWeight: 700 }}>
                                   Stock insuffisant ! Manque {ev.packing.quantity_needed - totalQty} unité(s)
                                 </div>
                               )}
@@ -496,7 +496,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                               </div>
                               {concertCA && (
                                 <div style={{ textAlign: 'right' }}>
-                                  <div style={{ fontSize: 14, fontWeight: 600, color: '#16A34A' }}>{concertCA.ca}€</div>
+                                  <div style={{ fontSize: 14, fontWeight: 600, color: '#5DAB8B' }}>{concertCA.ca}€</div>
                                   <div style={{ fontSize: 10, color: '#94A3B8' }}>{concertCA.qty} vendus</div>
                                 </div>
                               )}
@@ -535,7 +535,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                   }}>
                     <span style={{
                       fontSize: 12, fontWeight: 600,
-                      color: product.cost_ht >= 500 ? '#2563EB' : '#6366F1',
+                      color: product.cost_ht >= 500 ? '#5B8DB8' : '#5B8DB8',
                     }}>
                       {product.cost_ht >= 500 ? 'Immobilisation' : 'Charge'} — {product.cost_ht >= 500 ? 'amortissement linéaire' : 'sous le seuil de 500€ HT'}
                     </span>
@@ -568,12 +568,12 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       <div style={{ margin: '12px 0 8px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                           <span style={{ fontSize: 11, color: '#94A3B8' }}>Amorti : {pct}%</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: nbv > 0 ? '#2563EB' : '#16A34A' }}>VNC : {nbv.toFixed(2)}€</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: nbv > 0 ? '#5B8DB8' : '#5DAB8B' }}>VNC : {nbv.toFixed(2)}€</span>
                         </div>
                         <div style={{ height: 10, borderRadius: 5, background: '#F1F5F9', overflow: 'hidden' }}>
                           <div style={{
                             width: `${pct}%`, height: '100%', borderRadius: 5,
-                            background: 'linear-gradient(90deg, #2563EB, #16A34A)',
+                            background: 'linear-gradient(90deg, #5B8DB8, #5DAB8B)',
                             transition: 'width 0.3s',
                           }} />
                         </div>
@@ -581,7 +581,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
 
                       <div style={{
                         marginTop: 10, padding: '8px 10px', borderRadius: 8,
-                        background: '#FEF6F0', fontSize: 10, color: '#6366F1', lineHeight: 1.5, fontWeight: 600,
+                        background: '#FEF6F0', fontSize: 10, color: '#5B8DB8', lineHeight: 1.5, fontWeight: 600,
                       }}>
                         Amortissement linéaire, prorata temporis base 360j. Durées à valider par expert-comptable.
                       </div>

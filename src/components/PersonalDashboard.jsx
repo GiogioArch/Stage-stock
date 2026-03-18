@@ -255,13 +255,13 @@ function EventRow({ event, onOpen }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{
           width: 40, height: 40, borderRadius: 8,
-          background: isUrgent ? 'rgba(239,68,68,0.1)' : 'var(--accent-subtle)',
+          background: isUrgent ? 'rgba(212,100,138,0.1)' : 'var(--accent-subtle)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexDirection: 'column',
         }}>
           <div style={{
             fontSize: 13, fontWeight: 600, lineHeight: 1,
-            color: isUrgent ? '#DC2626' : 'var(--accent)',
+            color: isUrgent ? '#D4648A' : 'var(--accent)',
           }}>
             {daysLeft <= 0 ? 'J' : `J-${daysLeft}`}
           </div>

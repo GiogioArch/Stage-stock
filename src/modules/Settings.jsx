@@ -48,7 +48,7 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
       {/* ─── Sub-tab navigation ─── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
-          { id: 'access', label: ' Accès', color: '#7C3AED' },
+          { id: 'access', label: ' Accès', color: '#8B6DB8' },
           { id: 'modules', label: ' Modules', color: '#1E293B' },
         ].map(t => (
           <button key={t.id} onClick={() => setSubTab(t.id)} style={{
@@ -91,7 +91,7 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
               <div>
                 <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Modules</div>
                 <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>
-                  Active ou désactive les modules de Stage Stock
+                  Active ou désactive les modules de BackStage
                 </div>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
                           </span>
                         )}
                         {isRequired && !isLocked && (
-                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#6366F1', color: 'white', fontWeight: 600 }}>
+                          <span style={{ fontSize: 8, padding: '2px 6px', borderRadius: 4, background: '#5B8DB8', color: 'white', fontWeight: 600 }}>
                             DÉPENDANCE
                           </span>
                         )}

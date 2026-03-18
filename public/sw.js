@@ -1,5 +1,5 @@
-// Stage Stock — Service Worker v11 (Melodie chatbot IA)
-const CACHE_NAME = 'stage-stock-v11'
+// BackStage — Service Worker v12 (rebranding + palette harmonisée)
+const CACHE_NAME = 'backstage-v12'
 
 // Static assets to pre-cache on install
 const PRECACHE = [

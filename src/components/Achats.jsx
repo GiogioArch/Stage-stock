@@ -5,11 +5,11 @@ import { ShoppingCart, Users } from 'lucide-react'
 
 const STATUS_CONF = {
   draft:     { label: 'Brouillon', color: '#94A3B8' },
-  sent:      { label: 'Envoyé', color: '#2563EB' },
-  confirmed: { label: 'Confirmé', color: '#7C3AED' },
-  shipped:   { label: 'Expédié', color: '#D97706' },
-  received:  { label: 'Reçu', color: '#16A34A' },
-  cancelled: { label: 'Annulé', color: '#7C3AED' },
+  sent:      { label: 'Envoyé', color: '#5B8DB8' },
+  confirmed: { label: 'Confirmé', color: '#8B6DB8' },
+  shipped:   { label: 'Expédié', color: '#E8935A' },
+  received:  { label: 'Reçu', color: '#5DAB8B' },
+  cancelled: { label: 'Annulé', color: '#8B6DB8' },
 }
 
 export default function Achats({
@@ -64,7 +64,7 @@ export default function Achats({
         onReload()
         setSelectedOrder(null)
       } catch (e) {
-        onToast('Erreur : ' + e.message, '#7C3AED')
+        onToast('Erreur : ' + e.message, '#8B6DB8')
       }
     }
 
@@ -87,7 +87,7 @@ export default function Achats({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
             <div><span style={{ color: '#94A3B8' }}>Date :</span> <strong>{order.order_date || '—'}</strong></div>
             <div><span style={{ color: '#94A3B8' }}>Livraison prévue :</span> <strong>{order.expected_date || '—'}</strong></div>
-            <div><span style={{ color: '#94A3B8' }}>Total HT :</span> <strong style={{ color: '#D97706' }}>{order.total_ht}€</strong></div>
+            <div><span style={{ color: '#94A3B8' }}>Total HT :</span> <strong style={{ color: '#E8935A' }}>{order.total_ht}€</strong></div>
             <div><span style={{ color: '#94A3B8' }}>TVA :</span> <strong>{order.tva_rate}%</strong></div>
           </div>
           {order.notes && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 8 }}>{order.notes}</div>}
@@ -118,7 +118,7 @@ export default function Achats({
                       {l.quantity_received > 0 && ` · Reçu: ${l.quantity_received}`}
                     </div>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#D97706' }}>{l.line_total_ht}€</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#E8935A' }}>{l.line_total_ht}€</div>
                 </div>
               )
             })}
@@ -140,15 +140,15 @@ export default function Achats({
       {/* Header */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #7C3AED08, #7C3AED18)',
-        border: '1px solid #7C3AED25',
+        background: 'linear-gradient(135deg, #8B6DB808, #8B6DB818)',
+        border: '1px solid #8B6DB825',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 8,
-            background: 'linear-gradient(135deg, #7C3AED, #8A6CB3)',
+            background: 'linear-gradient(135deg, #8B6DB8, #8A6CB3)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #7C3AED30',
+            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #8B6DB830',
           }}></div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Achats & Appro</div>
@@ -158,9 +158,9 @@ export default function Achats({
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Fournisseurs" value={activeSuppliers.length} color="#7C3AED" />
-          <KpiBox label="En cours" value={pendingOrders.length} color="#D97706" />
-          <KpiBox label="Dépensé" value={`${Math.round(totalSpent)}€`} color="#16A34A" />
+          <KpiBox label="Fournisseurs" value={activeSuppliers.length} color="#8B6DB8" />
+          <KpiBox label="En cours" value={pendingOrders.length} color="#E8935A" />
+          <KpiBox label="Dépensé" value={`${Math.round(totalSpent)}€`} color="#5DAB8B" />
         </div>
       </div>
 
@@ -170,9 +170,9 @@ export default function Achats({
           <button key={s.id} onClick={() => setSection(s.id)} style={{
             flex: 1, padding: '7px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
-            background: section === s.id ? '#7C3AED15' : 'white',
-            color: section === s.id ? '#7C3AED' : '#94A3B8',
-            border: `1px solid ${section === s.id ? '#7C3AED40' : '#E2E8F0'}`,
+            background: section === s.id ? '#8B6DB815' : 'white',
+            color: section === s.id ? '#8B6DB8' : '#94A3B8',
+            border: `1px solid ${section === s.id ? '#8B6DB840' : '#E2E8F0'}`,
           }}>{createElement(s.icon, { size: 14 })} {s.label}</button>
         ))}
       </div>
@@ -183,7 +183,7 @@ export default function Achats({
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddOrder(!showAddOrder)} style={{
               padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddOrder ? '#E2E8F0' : '#7C3AED', color: showAddOrder ? '#94A3B8' : 'white',
+              background: showAddOrder ? '#E2E8F0' : '#8B6DB8', color: showAddOrder ? '#94A3B8' : 'white',
               cursor: 'pointer', border: 'none',
             }}>
               {showAddOrder ? 'Annuler' : '+ Nouvelle commande'}
@@ -228,7 +228,7 @@ export default function Achats({
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#D97706' }}>{o.total_ht}€</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#E8935A' }}>{o.total_ht}€</div>
                         <Badge color={st.color}>{st.label}</Badge>
                       </div>
                     </div>
@@ -246,7 +246,7 @@ export default function Achats({
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddSupplier(!showAddSupplier)} style={{
               padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddSupplier ? '#E2E8F0' : '#7C3AED', color: showAddSupplier ? '#94A3B8' : 'white',
+              background: showAddSupplier ? '#E2E8F0' : '#8B6DB8', color: showAddSupplier ? '#94A3B8' : 'white',
               cursor: 'pointer', border: 'none',
             }}>
               {showAddSupplier ? 'Annuler' : '+ Ajouter fournisseur'}
@@ -271,7 +271,7 @@ export default function Achats({
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{
                         width: 44, height: 44, borderRadius: 12,
-                        background: '#7C3AED15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
+                        background: '#8B6DB815', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
                       }}></div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>{s.name}</div>
@@ -281,7 +281,7 @@ export default function Achats({
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#7C3AED' }}>{nbOrders}</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#8B6DB8' }}>{nbOrders}</div>
                         <div style={{ fontSize: 9, color: '#94A3B8' }}>cmd.</div>
                       </div>
                     </div>
@@ -321,7 +321,7 @@ function AddSupplierForm({ orgId, onDone, onToast }) {
       onToast('Fournisseur ajouté')
       onDone()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -365,7 +365,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
   const handleSave = async () => {
     if (!supplierId) return
     const validLines = lines.filter(l => (l.productId || l.description) && l.unitPrice)
-    if (validLines.length === 0) { onToast('Ajoutez au moins une ligne', '#7C3AED'); return }
+    if (validLines.length === 0) { onToast('Ajoutez au moins une ligne', '#8B6DB8'); return }
 
     setSaving(true)
     try {
@@ -404,7 +404,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
       onToast(`Commande ${orderNum} créée`)
       onDone()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -439,8 +439,8 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
           <input className="input" value={l.unitPrice} onChange={e => updateLine(i, 'unitPrice', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="PU HT" style={{ flex: '0 0 70px' }} />
           {lines.length > 1 && (
             <button onClick={() => removeLine(i)} style={{
-              width: 28, height: 28, borderRadius: 8, background: '#7C3AED15',
-              border: 'none', color: '#7C3AED', fontSize: 14, cursor: 'pointer',
+              width: 28, height: 28, borderRadius: 8, background: '#8B6DB815',
+              border: 'none', color: '#8B6DB8', fontSize: 14, cursor: 'pointer',
             }}>×</button>
           )}
         </div>
@@ -454,7 +454,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <span style={{ fontSize: 12, color: '#94A3B8' }}>Total HT :</span>
-        <span style={{ fontSize: 18, fontWeight: 600, color: '#D97706' }}>{totalHT}€</span>
+        <span style={{ fontSize: 18, fontWeight: 600, color: '#E8935A' }}>{totalHT}€</span>
       </div>
 
       <button onClick={handleSave} disabled={!supplierId || saving} className="btn-primary">

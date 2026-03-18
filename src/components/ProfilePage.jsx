@@ -96,7 +96,7 @@ export default function ProfilePage({
       onToast('Profil enregistré')
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -132,7 +132,7 @@ export default function ProfilePage({
             padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
             background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer',
           }}>← Retour</button>
-          <div style={{ fontSize: 15, fontWeight: 600, color: '#7C3AED' }}>Mon profil</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#8B6DB8' }}>Mon profil</div>
           <div style={{ width: 80 }} />
         </header>
       )}
@@ -155,8 +155,8 @@ export default function ProfilePage({
         </div>
         <div style={{
           display: 'inline-block', marginTop: 6, padding: '3px 12px', borderRadius: 8,
-          background: isPhysical ? '#7C3AED15' : '#2563EB15',
-          color: isPhysical ? '#7C3AED' : '#2563EB',
+          background: isPhysical ? '#8B6DB815' : '#5B8DB815',
+          color: isPhysical ? '#8B6DB8' : '#5B8DB8',
           fontSize: 11, fontWeight: 600,
         }}>
           {isPhysical ? 'Personne physique' : 'Personne morale'}
@@ -170,9 +170,9 @@ export default function ProfilePage({
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
             whiteSpace: 'nowrap', cursor: 'pointer', flexShrink: 0,
-            background: tab === t.id ? '#7C3AED' : 'white',
+            background: tab === t.id ? '#8B6DB8' : 'white',
             color: tab === t.id ? 'white' : '#94A3B8',
-            border: `1px solid ${tab === t.id ? '#7C3AED' : '#E2E8F0'}`,
+            border: `1px solid ${tab === t.id ? '#8B6DB8' : '#E2E8F0'}`,
           }}>
             {t.label}
           </button>
@@ -223,11 +223,11 @@ export default function ProfilePage({
         }}>
           <button onClick={onSwitchProject} style={{
             flex: 1, padding: '12px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-            background: '#EEF4FA', border: '1px solid #2563EB30', color: '#2563EB', cursor: 'pointer',
+            background: '#EEF4FA', border: '1px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
           }}> Changer projet</button>
           <button onClick={() => { onClose(); onLogout() }} style={{
             flex: 1, padding: '12px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-            background: '#FDF0F4', border: '1px solid #7C3AED30', color: '#7C3AED', cursor: 'pointer',
+            background: '#FDF0F4', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
           }}> Déconnexion</button>
         </div>
       )}
@@ -245,7 +245,7 @@ function IdentityTab({ form, details, editing, isPhysical, set, onSave, onEdit, 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
           <button onClick={onEdit} style={{
             padding: '7px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-            background: '#7C3AED15', border: '1px solid #7C3AED30', color: '#7C3AED', cursor: 'pointer',
+            background: '#8B6DB815', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
           }}>Modifier</button>
         </div>
         <ReadCard>
@@ -286,8 +286,8 @@ function IdentityTab({ form, details, editing, isPhysical, set, onSave, onEdit, 
         <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', marginBottom: 8 }}>Type de compte</div>
         <div style={{ display: 'flex', gap: 8 }}>
           {[
-            { val: 'physical', label: 'Personne physique', color: '#7C3AED' },
-            { val: 'legal', label: 'Personne morale', color: '#2563EB' },
+            { val: 'physical', label: 'Personne physique', color: '#8B6DB8' },
+            { val: 'legal', label: 'Personne morale', color: '#5B8DB8' },
           ].map(o => (
             <button key={o.val} onClick={() => set('account_type', o.val)} style={{
               flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
@@ -358,7 +358,7 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
           <button onClick={onEdit} style={{
             padding: '7px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-            background: '#7C3AED15', border: '1px solid #7C3AED30', color: '#7C3AED', cursor: 'pointer',
+            background: '#8B6DB815', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
           }}>Modifier</button>
         </div>
         <ReadCard>
@@ -391,7 +391,7 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
                 return (
                   <span key={s} style={{
                     padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-                    background: '#7C3AED15', color: '#7C3AED',
+                    background: '#8B6DB815', color: '#8B6DB8',
                   }}>{opt ? opt.label : s}</span>
                 )
               })}
@@ -437,9 +437,9 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
                 }} style={{
                   padding: '6px 12px', borderRadius: 10, fontSize: 11, fontWeight: 700,
                   cursor: 'pointer',
-                  background: selected ? '#7C3AED' : 'white',
+                  background: selected ? '#8B6DB8' : 'white',
                   color: selected ? 'white' : '#94A3B8',
-                  border: `1px solid ${selected ? '#7C3AED' : '#E2E8F0'}`,
+                  border: `1px solid ${selected ? '#8B6DB8' : '#E2E8F0'}`,
                 }}>{opt.label}</button>
               )
             })}
@@ -478,15 +478,15 @@ function ProjectsTab({ user, membership, selectedOrg, allProjects, roles, onSwit
                 className="card"
                 style={{
                   width: '100%', padding: '14px 16px', textAlign: 'left', cursor: 'pointer',
-                  borderLeft: `4px solid ${isActive ? '#6366F1' : '#E2E8F0'}`,
+                  borderLeft: `4px solid ${isActive ? '#5B8DB8' : '#E2E8F0'}`,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 10,
-                    background: isActive ? '#6366F110' : '#F1F5F9',
+                    background: isActive ? '#5B8DB810' : '#F1F5F9',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 14, fontWeight: 600, color: isActive ? '#6366F1' : '#94A3B8',
+                    fontSize: 14, fontWeight: 600, color: isActive ? '#5B8DB8' : '#94A3B8',
                   }}>
                     {(p.org?.name || 'P')[0].toUpperCase()}
                   </div>
@@ -496,7 +496,7 @@ function ProjectsTab({ user, membership, selectedOrg, allProjects, roles, onSwit
                     </div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
                       {p.is_admin && (
-                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#6366F110', color: '#6366F1' }}>Admin</span>
+                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#5B8DB810', color: '#5B8DB8' }}>Admin</span>
                       )}
                       {roleConf && (
                         <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: `${roleConf.color}10`, color: roleConf.color }}>
@@ -504,7 +504,7 @@ function ProjectsTab({ user, membership, selectedOrg, allProjects, roles, onSwit
                         </span>
                       )}
                       {isActive && (
-                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#16A34A10', color: '#16A34A' }}>Actif</span>
+                        <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, background: '#5DAB8B10', color: '#5DAB8B' }}>Actif</span>
                       )}
                     </div>
                     {p.created_at && (
@@ -523,7 +523,7 @@ function ProjectsTab({ user, membership, selectedOrg, allProjects, roles, onSwit
       <button onClick={onSwitchProject} style={{
         width: '100%', padding: 14, borderRadius: 8, marginTop: 12,
         fontSize: 13, fontWeight: 600, cursor: 'pointer', textAlign: 'center',
-        background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#6366F1',
+        background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#5B8DB8',
       }}>+ Changer de projet / Créer un projet</button>
     </div>
   )
@@ -533,20 +533,20 @@ function ProjectsTab({ user, membership, selectedOrg, allProjects, roles, onSwit
 // Section 4 — Matériel personnel
 // ════════════════════════════════════════
 const GEAR_CATS = {
-  instrument: { icon: '', label: 'Instrument', color: '#7C3AED' },
-  son:        { icon: '', label: 'Son', color: '#2563EB' },
-  lumiere:    { icon: '', label: 'Lumière', color: '#D97706' },
-  tech:       { icon: '', label: 'Tech', color: '#7C3AED' },
-  scene:      { icon: '', label: 'Scène', color: '#6366F1' },
-  transport:  { icon: '', label: 'Transport', color: '#16A34A' },
+  instrument: { icon: '', label: 'Instrument', color: '#8B6DB8' },
+  son:        { icon: '', label: 'Son', color: '#5B8DB8' },
+  lumiere:    { icon: '', label: 'Lumière', color: '#E8935A' },
+  tech:       { icon: '', label: 'Tech', color: '#8B6DB8' },
+  scene:      { icon: '', label: 'Scène', color: '#5B8DB8' },
+  transport:  { icon: '', label: 'Transport', color: '#5DAB8B' },
   other:      { icon: '', label: 'Autre', color: '#94A3B8' },
 }
 
 const CONDITION_CONF = {
-  neuf:      { label: 'Neuf', color: '#16A34A' },
-  excellent: { label: 'Excellent', color: '#2563EB' },
-  bon:       { label: 'Bon', color: '#D97706' },
-  use:       { label: 'Usé', color: '#7C3AED' },
+  neuf:      { label: 'Neuf', color: '#5DAB8B' },
+  excellent: { label: 'Excellent', color: '#5B8DB8' },
+  bon:       { label: 'Bon', color: '#E8935A' },
+  use:       { label: 'Usé', color: '#8B6DB8' },
   hs:        { label: 'HS', color: '#94A3B8' },
 }
 
@@ -579,7 +579,7 @@ function GearTab({ user, gear, onToast, onReload }) {
       setShowAdd(false)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -591,7 +591,7 @@ function GearTab({ user, gear, onToast, onReload }) {
       onToast('Supprimé')
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     }
   }
 
@@ -601,15 +601,15 @@ function GearTab({ user, gear, onToast, onReload }) {
       <div className="card" style={{ padding: '14px 16px', marginBottom: 14 }}>
         <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#6366F1' }}>{gear.length}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#5B8DB8' }}>{gear.length}</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Équipements</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#16A34A' }}>{Math.round(totalValue)}€</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#5DAB8B' }}>{Math.round(totalValue)}€</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Valeur totale</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#2563EB' }}>{gear.filter(g => g.available).length}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#5B8DB8' }}>{gear.filter(g => g.available).length}</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Disponibles</div>
           </div>
         </div>
@@ -619,7 +619,7 @@ function GearTab({ user, gear, onToast, onReload }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <button onClick={() => setShowAdd(!showAdd)} style={{
           padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-          background: showAdd ? '#E2E8F0' : '#7C3AED', color: showAdd ? '#94A3B8' : 'white',
+          background: showAdd ? '#E2E8F0' : '#8B6DB8', color: showAdd ? '#94A3B8' : 'white',
           cursor: 'pointer', border: 'none',
         }}>{showAdd ? 'Annuler' : '+ Ajouter'}</button>
       </div>
@@ -699,15 +699,15 @@ function GearTab({ user, gear, onToast, onReload }) {
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    {g.purchase_value > 0 && <div style={{ fontSize: 13, fontWeight: 600, color: '#D97706' }}>{g.purchase_value}€</div>}
+                    {g.purchase_value > 0 && <div style={{ fontSize: 13, fontWeight: 600, color: '#E8935A' }}>{g.purchase_value}€</div>}
                     <span style={{
                       padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 600,
                       background: `${cond.color}15`, color: cond.color,
                     }}>{cond.label}</span>
                   </div>
                   <button onClick={() => deleteGear(g.id)} style={{
-                    width: 28, height: 28, borderRadius: 8, background: '#7C3AED10',
-                    border: 'none', color: '#7C3AED', fontSize: 12, cursor: 'pointer',
+                    width: 28, height: 28, borderRadius: 8, background: '#8B6DB810',
+                    border: 'none', color: '#8B6DB8', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>×</button>
                 </div>
@@ -725,9 +725,9 @@ function GearTab({ user, gear, onToast, onReload }) {
 // Section 5 — Calendrier / Disponibilités
 // ════════════════════════════════════════
 const AVAIL_CONF = {
-  available:   { label: 'Dispo', color: '#16A34A', icon: '' },
-  unavailable: { label: 'Indispo', color: '#7C3AED', icon: '' },
-  maybe:       { label: 'Peut-être', color: '#D97706', icon: '' },
+  available:   { label: 'Dispo', color: '#5DAB8B', icon: '' },
+  unavailable: { label: 'Indispo', color: '#8B6DB8', icon: '' },
+  maybe:       { label: 'Peut-être', color: '#E8935A', icon: '' },
   unknown:     { label: 'Non renseigné', color: '#94A3B8', icon: '' },
 }
 
@@ -775,7 +775,7 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
       onToast(AVAIL_CONF[status].label)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     }
   }
 
@@ -832,19 +832,19 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
       <div className="card" style={{ padding: '14px 16px', marginBottom: 14 }}>
         <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#6366F1' }}>{upcomingEvents.length}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#5B8DB8' }}>{upcomingEvents.length}</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Dates à venir</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#16A34A' }}>{stats.available}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#5DAB8B' }}>{stats.available}</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Dispo</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#D97706' }}>{stats.maybe}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#E8935A' }}>{stats.maybe}</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Peut-être</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#7C3AED' }}>{stats.unavailable}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#8B6DB8' }}>{stats.unavailable}</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Indispo</div>
           </div>
         </div>
@@ -886,17 +886,17 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
 // Section 6 — Finances personnelles
 // ════════════════════════════════════════
 const INCOME_TYPES = {
-  cachet:         { label: 'Cachet', color: '#16A34A', icon: '' },
-  facture:        { label: 'Facture', color: '#2563EB', icon: '' },
-  remboursement:  { label: 'Remboursement', color: '#D97706', icon: '' },
-  prime:          { label: 'Prime', color: '#7C3AED', icon: '' },
+  cachet:         { label: 'Cachet', color: '#5DAB8B', icon: '' },
+  facture:        { label: 'Facture', color: '#5B8DB8', icon: '' },
+  remboursement:  { label: 'Remboursement', color: '#E8935A', icon: '' },
+  prime:          { label: 'Prime', color: '#8B6DB8', icon: '' },
   autre:          { label: 'Autre', color: '#94A3B8', icon: '' },
 }
 
 const INCOME_STATUS = {
-  pending:   { label: 'En attente', color: '#D97706' },
-  paid:      { label: 'Payé', color: '#16A34A' },
-  cancelled: { label: 'Annulé', color: '#7C3AED' },
+  pending:   { label: 'En attente', color: '#E8935A' },
+  paid:      { label: 'Payé', color: '#5DAB8B' },
+  cancelled: { label: 'Annulé', color: '#8B6DB8' },
 }
 
 function FinancesTab({ user, income, events, onToast, onReload }) {
@@ -934,7 +934,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       setShowAdd(false)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -947,7 +947,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       onToast(next === 'paid' ? 'Marqué payé' : 'Marqué en attente')
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     }
   }
 
@@ -957,7 +957,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       onToast('Supprimé')
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     }
   }
 
@@ -967,15 +967,15 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       <div className="card" style={{ padding: '14px 16px', marginBottom: 14 }}>
         <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#16A34A' }}>{Math.round(totalEarned)}€</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#5DAB8B' }}>{Math.round(totalEarned)}€</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Encaissé</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#D97706' }}>{Math.round(totalPending)}€</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#E8935A' }}>{Math.round(totalPending)}€</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>En attente</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#7C3AED' }}>{Math.round(totalAll)}€</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#8B6DB8' }}>{Math.round(totalAll)}€</div>
             <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Total</div>
           </div>
         </div>
@@ -988,7 +988,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
             <div style={{
               position: 'absolute', left: 0, top: 0, bottom: 0,
               width: `${Math.round((totalEarned / totalAll) * 100)}%`,
-              background: 'linear-gradient(90deg, #16A34A, #4A9A7A)',
+              background: 'linear-gradient(90deg, #5DAB8B, #4A9A7A)',
               borderRadius: 4, transition: 'width 0.3s',
             }} />
           </div>
@@ -1002,7 +1002,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <button onClick={() => setShowAdd(!showAdd)} style={{
           padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-          background: showAdd ? '#E2E8F0' : '#16A34A', color: showAdd ? '#94A3B8' : 'white',
+          background: showAdd ? '#E2E8F0' : '#5DAB8B', color: showAdd ? '#94A3B8' : 'white',
           cursor: 'pointer', border: 'none',
         }}>{showAdd ? 'Annuler' : '+ Ajouter un revenu'}</button>
       </div>
@@ -1090,8 +1090,8 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
                     }}>{st.label}</button>
                   </div>
                   <button onClick={() => deleteIncome(item.id)} style={{
-                    width: 24, height: 24, borderRadius: 6, background: '#7C3AED10',
-                    border: 'none', color: '#7C3AED', fontSize: 11, cursor: 'pointer',
+                    width: 24, height: 24, borderRadius: 6, background: '#8B6DB810',
+                    border: 'none', color: '#8B6DB8', fontSize: 11, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>×</button>
                 </div>

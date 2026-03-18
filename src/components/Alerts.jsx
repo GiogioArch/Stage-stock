@@ -3,11 +3,11 @@ import { AlertOctagon, AlertTriangle, CheckCircle, Calendar, Circle, Filter } fr
 import { Badge } from './UI'
 
 const COLORS = {
-  danger: '#DC2626',
-  warning: '#D97706',
-  info: '#2563EB',
-  success: '#16A34A',
-  accent: '#6366F1',
+  danger: '#D4648A',
+  warning: '#E8935A',
+  info: '#5B8DB8',
+  success: '#5DAB8B',
+  accent: '#5B8DB8',
   textPrimary: '#1E293B',
   textSecondary: '#64748B',
   textTertiary: '#94A3B8',

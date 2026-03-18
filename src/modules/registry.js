@@ -117,7 +117,7 @@ export const MODULES = {
     id: 'timeline',
     name: 'Mode Evenement',
     icon: 'clock',
-    color: '#6366F1',
+    color: '#5B8DB8',
     description: 'Planning 48h heure par heure autour des evenements',
     tables: {
       event_tasks: 'order=hour_offset.asc',

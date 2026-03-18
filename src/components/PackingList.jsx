@@ -58,7 +58,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       onToast('Packing list generee')
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
       setGenerating(false)
     }
@@ -74,14 +74,14 @@ export default function PackingList({ event, products, stock, locations, roles, 
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
       body { font-family: 'Inter', Arial, sans-serif; padding: 24px; color: #1E293B; font-size: 12px; }
-      .header { border-bottom: 3px solid #6366F1; padding-bottom: 12px; margin-bottom: 16px; }
+      .header { border-bottom: 3px solid #5B8DB8; padding-bottom: 12px; margin-bottom: 16px; }
       h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
       .meta { color: #64748B; font-size: 11px; line-height: 1.6; }
       .stats { display: flex; gap: 16px; margin: 12px 0; }
       .stat { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-      .stat-ok { background: #F0FDF4; color: #16A34A; }
-      .stat-warn { background: #FEF2F2; color: #DC2626; }
-      .stat-info { background: #EFF6FF; color: #2563EB; }
+      .stat-ok { background: #F0FDF4; color: #5DAB8B; }
+      .stat-warn { background: #FEF2F2; color: #D4648A; }
+      .stat-info { background: #EFF6FF; color: #5B8DB8; }
       h2 { font-size: 13px; font-weight: 700; margin: 18px 0 6px; padding: 6px 10px; border-radius: 6px; }
       table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
       th { text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; border-bottom: 1px solid #E2E8F0; padding: 4px 8px; font-weight: 600; }
@@ -89,7 +89,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       tr:hover td { background: #F8FAFC; }
       .check { width: 24px; text-align: center; font-size: 14px; }
       .qty { text-align: right; width: 50px; font-weight: 500; }
-      .shortage { color: #DC2626; font-weight: 700; }
+      .shortage { color: #D4648A; font-weight: 700; }
       .packed-row { opacity: 0.5; }
       .packed-row td:nth-child(2) { text-decoration: line-through; }
       .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #E2E8F0; font-size: 9px; color: #94A3B8; display: flex; justify-content: space-between; }
@@ -134,7 +134,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
     // Footer
     html += `<div class="footer">
       <span>Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
-      <span>Stage Stock — ${eventName}</span>
+      <span>BackStage — ${eventName}</span>
     </div>`
 
     html += `</body></html>`
@@ -192,7 +192,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       })
       text += '\n'
     })
-    text += `\nGénéré par Stage Stock — ${new Date().toLocaleDateString('fr-FR')}`
+    text += `\nGénéré par BackStage — ${new Date().toLocaleDateString('fr-FR')}`
 
     if (navigator.share) {
       try {
@@ -204,7 +204,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
         await navigator.clipboard.writeText(text)
         onToast('Copié dans le presse-papier')
       } catch {
-        onToast('Partage non disponible', '#D97706')
+        onToast('Partage non disponible', '#E8935A')
       }
     }
   }, [event, groupedByRole, products, packedItems, totalItems, overallPercent, shortageItems, totalShortage, onToast])
@@ -220,7 +220,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       })
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }, [onReload, onToast])
 
@@ -234,7 +234,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       })
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }, [onReload, onToast])
 
@@ -252,7 +252,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       onToast(`${items.length} items emballes`)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }, [groupedByRole, onReload, onToast])
 
@@ -271,9 +271,9 @@ export default function PackingList({ event, products, stock, locations, roles, 
         <div style={{
           display: 'inline-flex', gap: 8, marginBottom: 20, flexWrap: 'wrap', justifyContent: 'center',
         }}>
-          {event.format && <Badge color="#2563EB">{event.format}</Badge>}
-          {event.capacite && <Badge color="#6366F1">{event.capacite} pers.</Badge>}
-          {event.territoire && <Badge color="#16A34A">{event.territoire}</Badge>}
+          {event.format && <Badge color="#5B8DB8">{event.format}</Badge>}
+          {event.capacite && <Badge color="#5B8DB8">{event.capacite} pers.</Badge>}
+          {event.territoire && <Badge color="#5DAB8B">{event.territoire}</Badge>}
         </div>
         <div>
           <button
@@ -281,7 +281,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
             disabled={generating}
             style={{
               padding: '12px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-              background: generating ? '#CBD5E1' : 'linear-gradient(135deg, #6366F1, #DC2626)',
+              background: generating ? '#CBD5E1' : 'linear-gradient(135deg, #5B8DB8, #D4648A)',
               color: 'white', cursor: generating ? 'wait' : 'pointer',
               boxShadow: '0 4px 16px rgba(232,115,90,0.25)', border: 'none',
             }}
@@ -303,7 +303,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
           </span>
           <span style={{
             fontSize: 22, fontWeight: 600,
-            color: overallPercent === 100 ? '#16A34A' : overallPercent >= 50 ? '#6366F1' : '#DC2626',
+            color: overallPercent === 100 ? '#5DAB8B' : overallPercent >= 50 ? '#5B8DB8' : '#D4648A',
           }}>{overallPercent}%</span>
         </div>
         <div style={{ height: 8, borderRadius: 4, background: '#F1F5F9', overflow: 'hidden' }}>
@@ -311,8 +311,8 @@ export default function PackingList({ event, products, stock, locations, roles, 
             height: '100%', borderRadius: 4, transition: 'width 0.3s',
             width: `${overallPercent}%`,
             background: overallPercent === 100
-              ? 'linear-gradient(90deg, #16A34A, #4A9A7A)'
-              : 'linear-gradient(90deg, #6366F1, #DC2626)',
+              ? 'linear-gradient(90deg, #5DAB8B, #4A9A7A)'
+              : 'linear-gradient(90deg, #5B8DB8, #D4648A)',
           }} />
         </div>
       </div>
@@ -321,21 +321,21 @@ export default function PackingList({ event, products, stock, locations, roles, 
       <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
         <button onClick={handlePrint} style={{
           flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-          background: '#EFF6FF', border: '1px solid #2563EB25', color: '#2563EB', cursor: 'pointer',
+          background: '#EFF6FF', border: '1px solid #5B8DB825', color: '#5B8DB8', cursor: 'pointer',
         }}>{createElement(Printer, { size: 12 })} Imprimer</button>
         <button onClick={handleDownload} style={{
           flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-          background: '#F0FDF4', border: '1px solid #16A34A25', color: '#16A34A', cursor: 'pointer',
+          background: '#F0FDF4', border: '1px solid #5DAB8B25', color: '#5DAB8B', cursor: 'pointer',
         }}>{createElement(Download, { size: 12 })} Télécharger</button>
         <button onClick={handleShare} style={{
           flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-          background: '#FAF5FF', border: '1px solid #8B5CF625', color: '#8B5CF6', cursor: 'pointer',
+          background: '#FAF5FF', border: '1px solid #8B6DB825', color: '#8B6DB8', cursor: 'pointer',
         }}>{createElement(Share2, { size: 12 })} Partager</button>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
         <button onClick={handleGenerate} disabled={generating} style={{
           flex: 1, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-          background: '#FEF2F2', border: '1px solid #DC262625', color: '#DC2626', cursor: 'pointer',
+          background: '#FEF2F2', border: '1px solid #D4648A25', color: '#D4648A', cursor: 'pointer',
           opacity: generating ? 0.5 : 1,
         }}>{generating ? '...' : <>{createElement(RefreshCw, { size: 12 })} Recalculer</>}</button>
       </div>
@@ -344,9 +344,9 @@ export default function PackingList({ event, products, stock, locations, roles, 
       {shortageItems.length > 0 && (
         <div className="card" style={{
           padding: '10px 14px', marginBottom: 10,
-          background: 'rgba(200,164,106,0.08)', border: '1px solid #DC262625',
+          background: 'rgba(200,164,106,0.08)', border: '1px solid #D4648A25',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#DC2626', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#D4648A', marginBottom: 4 }}>
             Manque de stock
           </div>
           <div style={{ fontSize: 11, color: '#94A3B8' }}>
@@ -356,7 +356,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
             {shortageItems.slice(0, 5).map((i, idx) => (
               <span key={idx} style={{
                 fontSize: 10, padding: '2px 8px', borderRadius: 6,
-                background: '#DC262615', color: '#DC2626', fontWeight: 700,
+                background: '#D4648A15', color: '#D4648A', fontWeight: 700,
               }}>
                 {i.product?.name || '?'} (-{i.shortage})
               </span>
@@ -406,7 +406,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
                   {roleShortages > 0 && (
                     <span style={{
                       fontSize: 9, padding: '1px 5px', borderRadius: 4,
-                      background: '#DC2626', color: 'white', fontWeight: 600,
+                      background: '#D4648A', color: 'white', fontWeight: 600,
                     }}>{roleShortages} manque</span>
                   )}
                 </div>
@@ -417,7 +417,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
                   fontSize: 16, fontWeight: 600,
-                  color: rolePercent === 100 ? '#16A34A' : rolePercent > 0 ? '#6366F1' : '#DC2626',
+                  color: rolePercent === 100 ? '#5DAB8B' : rolePercent > 0 ? '#5B8DB8' : '#D4648A',
                 }}>{rolePercent}%</span>
                 <span style={{
                   fontSize: 12, color: '#CBD5E1',
@@ -431,7 +431,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
               <div style={{
                 height: '100%', borderRadius: 2, transition: 'width 0.3s',
                 width: `${rolePercent}%`,
-                background: rolePercent === 100 ? '#16A34A' : conf.color,
+                background: rolePercent === 100 ? '#5DAB8B' : conf.color,
               }} />
             </div>
 
@@ -451,8 +451,8 @@ export default function PackingList({ event, products, stock, locations, roles, 
                   {items.map(item => {
                     const p = item.product
                     if (!p) return null
-                    const statusColor = item.packed ? '#16A34A'
-                      : item.quantity_packed > 0 ? '#6366F1' : '#DC2626'
+                    const statusColor = item.packed ? '#5DAB8B'
+                      : item.quantity_packed > 0 ? '#5B8DB8' : '#D4648A'
                     const statusBg = item.packed ? 'rgba(47,182,93,0.08)'
                       : item.quantity_packed > 0 ? '#FFF5EB' : 'rgba(200,164,106,0.08)'
 
@@ -465,8 +465,8 @@ export default function PackingList({ event, products, stock, locations, roles, 
                         {/* Checkbox */}
                         <button onClick={() => togglePacked(item)} style={{
                           width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                          border: `2px solid ${item.packed ? '#16A34A' : '#CBD5E1'}`,
-                          background: item.packed ? '#16A34A' : 'transparent',
+                          border: `2px solid ${item.packed ? '#5DAB8B' : '#CBD5E1'}`,
+                          background: item.packed ? '#5DAB8B' : 'transparent',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
                         }}>
@@ -487,7 +487,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
                             {item.shortage > 0 && (
                               <span style={{
                                 fontSize: 9, padding: '1px 5px', borderRadius: 4,
-                                background: '#DC262615', color: '#DC2626', fontWeight: 600,
+                                background: '#D4648A15', color: '#D4648A', fontWeight: 600,
                               }}>
                                 Stock: {item.available} (manque {item.shortage})
                               </span>

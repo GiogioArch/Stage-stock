@@ -9,11 +9,11 @@ import LiveShop from './LiveShop'
 export const EK = {
   bleu: '#10204E',
   bleuF: '#0B1735',
-  camel: '#6366F1',
-  camelH: '#818CF8',
+  camel: '#5B8DB8',
+  camelH: '#8BB8D8',
   kaki: '#3D4825',
-  bordeaux: '#DC2626',
-  green: '#16A34A',
+  bordeaux: '#D4648A',
+  green: '#5DAB8B',
   card: '#F8FAFC',
   cardBorder: '#CBD5E1',
   bg: '#FFFFFF',
@@ -410,7 +410,7 @@ function LiveInfo({ event }) {
 
       {/* Powered by */}
       <div style={{ textAlign: 'center', padding: '20px 0', color: EK.textMuted, fontSize: 11 }}>
-        Propulsé par <span style={{ color: EK.camel, fontWeight: 700 }}>Stage Stock</span>
+        Propulsé par <span style={{ color: EK.camel, fontWeight: 700 }}>BackStage</span>
       </div>
     </div>
   )

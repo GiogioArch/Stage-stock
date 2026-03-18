@@ -36,7 +36,7 @@ export function Modal({ onClose, title, children }) {
 }
 
 // ─── Confirm Dialog ───
-export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = 'Confirmer', confirmColor = '#6366F1' }) {
+export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = 'Confirmer', confirmColor = '#5B8DB8' }) {
   return (
     <div className="confirm-dialog">
       <div className="confirm-box">
@@ -52,7 +52,7 @@ export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = '
 }
 
 // ─── Toast ───
-export function Toast({ message, color = '#16A34A', onDone }) {
+export function Toast({ message, color = '#5DAB8B', onDone }) {
   useEffect(() => {
     const t = setTimeout(() => onDone?.(), 2500)
     return () => clearTimeout(t)
@@ -67,9 +67,9 @@ export function Toast({ message, color = '#16A34A', onDone }) {
 
 // ─── Category helpers ───
 export const CATEGORIES = [
-  { id: 'merch', name: 'Merchandising', icon: Shirt, color: '#DC2626', bg: 'rgba(99,102,241,0.08)' },
-  { id: 'materiel', name: 'Matériel', icon: Guitar, color: '#2563EB', bg: 'rgba(91,141,184,0.08)' },
-  { id: 'consommables', name: 'Consommables', icon: Battery, color: '#16A34A', bg: 'rgba(47,182,93,0.08)' },
+  { id: 'merch', name: 'Merchandising', icon: Shirt, color: '#D4648A', bg: 'rgba(212,100,138,0.08)' },
+  { id: 'materiel', name: 'Matériel', icon: Guitar, color: '#5B8DB8', bg: 'rgba(91,141,184,0.08)' },
+  { id: 'consommables', name: 'Consommables', icon: Battery, color: '#5DAB8B', bg: 'rgba(93,171,139,0.08)' },
 ]
 
 export function getCat(id) {
@@ -95,9 +95,9 @@ export function fmtDate(iso) {
 // ─── Movement config ───
 export function getMoveConf(type) {
   const conf = {
-    in: { icon: ArrowDownToLine, color: '#16A34A', label: 'Entrée', bg: 'rgba(47,182,93,0.08)' },
-    out: { icon: ArrowUpFromLine, color: '#DC2626', label: 'Sortie', bg: 'rgba(99,102,241,0.08)' },
-    transfer: { icon: RefreshCw, color: '#2563EB', label: 'Transfert', bg: 'rgba(91,141,184,0.08)' },
+    in: { icon: ArrowDownToLine, color: '#5DAB8B', label: 'Entrée', bg: 'rgba(93,171,139,0.08)' },
+    out: { icon: ArrowUpFromLine, color: '#D4648A', label: 'Sortie', bg: 'rgba(212,100,138,0.08)' },
+    transfer: { icon: RefreshCw, color: '#5B8DB8', label: 'Transfert', bg: 'rgba(91,141,184,0.08)' },
   }
   return conf[type] || conf.in
 }

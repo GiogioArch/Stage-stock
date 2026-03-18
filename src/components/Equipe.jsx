@@ -15,7 +15,7 @@ import {
 const HIERARCHY = {
   direction: {
     label: 'Direction',
-    color: '#6366F1',
+    color: '#5B8DB8',
     icon: Crown,
     codes: ['TM', 'PM'],
     description: 'Pilotage stratégique et décisionnel de la tournée',
@@ -62,9 +62,9 @@ const TASK_STATUS_CONF = {
 }
 
 const CATEGORY_COLORS = {
-  logistique: '#5B8DB8', son: '#2563EB', lumiere: '#E8935A', scene: '#9B7DC4',
-  merch: '#D4648A', artiste: '#E8735A', securite: '#DC2626', transport: '#5DAB8B',
-  communication: '#6366F1', autre: '#94A3B8',
+  logistique: '#5B8DB8', son: '#5B8DB8', lumiere: '#E8935A', scene: '#9B7DC4',
+  merch: '#D4648A', artiste: '#E8735A', securite: '#D4648A', transport: '#5DAB8B',
+  communication: '#5B8DB8', autre: '#94A3B8',
 }
 
 // ─── Missions par rôle ───
@@ -272,7 +272,7 @@ export default function Equipe({
       onToast?.(newStatus === 'done' ? 'Tâche terminée ✓' : 'Tâche rouverte')
       onReload?.()
     } catch (e) {
-      onToast?.('Erreur: ' + e.message, '#DC2626')
+      onToast?.('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -285,15 +285,15 @@ export default function Equipe({
       {/* ─── Header KPI ─── */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #6366F108, #6366F118)',
-        border: '1.5px solid #6366F125',
+        background: 'linear-gradient(135deg, #5B8DB808, #5B8DB818)',
+        border: '1.5px solid #5B8DB825',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,
-            background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+            background: 'linear-gradient(135deg, #5B8DB8, #4A7DA8)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', boxShadow: '0 4px 16px #6366F130',
+            color: 'white', boxShadow: '0 4px 16px #5B8DB830',
           }}>{createElement(Users, { size: 24 })}</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#1E293B' }}>Équipe</div>
@@ -303,10 +303,10 @@ export default function Equipe({
           </div>
           {nextEvent && (
             <div style={{
-              padding: '6px 10px', borderRadius: 8, background: '#6366F110',
+              padding: '6px 10px', borderRadius: 8, background: '#5B8DB810',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: 9, color: '#6366F1', fontWeight: 700 }}>PROCHAIN</div>
+              <div style={{ fontSize: 9, color: '#5B8DB8', fontWeight: 700 }}>PROCHAIN</div>
               <div style={{ fontSize: 11, fontWeight: 800, color: '#1E293B' }}>
                 {new Date(nextEvent.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
@@ -314,10 +314,10 @@ export default function Equipe({
           )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Membres" value={totalMembers} color="#6366F1" />
+          <KpiBox label="Membres" value={totalMembers} color="#5B8DB8" />
           <KpiBox label="Rôles actifs" value={assignedRoles} color="#14B8A6" />
           <KpiBox label="Tâches" value={totalPendingTasks} color="#E8935A" />
-          <KpiBox label="Événements" value={upcomingEvents.length} color="#8B5CF6" />
+          <KpiBox label="Événements" value={upcomingEvents.length} color="#8B6DB8" />
         </div>
       </div>
 
@@ -597,8 +597,8 @@ export default function Equipe({
                         </span>
                         {user && m.user_id === user.id && (
                           <span style={{
-                            fontSize: 9, fontWeight: 700, color: '#6366F1',
-                            padding: '1px 6px', borderRadius: 4, background: '#6366F110',
+                            fontSize: 9, fontWeight: 700, color: '#5B8DB8',
+                            padding: '1px 6px', borderRadius: 4, background: '#5B8DB810',
                           }}>MOI</span>
                         )}
                       </div>
@@ -624,7 +624,7 @@ export default function Equipe({
                           }}>
                             <div style={{
                               width: `${completionRate}%`, height: '100%', borderRadius: 2,
-                              background: completionRate >= 80 ? '#10B981' : completionRate >= 50 ? '#E8935A' : '#94A3B8',
+                              background: completionRate >= 80 ? '#5DAB8B' : completionRate >= 50 ? '#E8935A' : '#94A3B8',
                               transition: 'width 0.3s',
                             }} />
                           </div>
@@ -681,7 +681,7 @@ export default function Equipe({
                 {new Date(selectedDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </div>
               {selectedDate === today && (
-                <div style={{ fontSize: 10, color: '#10B981', fontWeight: 700 }}>Aujourd'hui</div>
+                <div style={{ fontSize: 10, color: '#5DAB8B', fontWeight: 700 }}>Aujourd'hui</div>
               )}
             </div>
             <button onClick={() => {
@@ -705,9 +705,9 @@ export default function Equipe({
                 <button key={evt.id} onClick={() => setSelectedDate(evt.date)} style={{
                   padding: '6px 12px', borderRadius: 8, whiteSpace: 'nowrap',
                   fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                  background: selectedDate === evt.date ? '#6366F110' : '#F8FAFC',
-                  color: selectedDate === evt.date ? '#6366F1' : '#64748B',
-                  border: `1px solid ${selectedDate === evt.date ? '#6366F130' : '#E2E8F0'}`,
+                  background: selectedDate === evt.date ? '#5B8DB810' : '#F8FAFC',
+                  color: selectedDate === evt.date ? '#5B8DB8' : '#64748B',
+                  border: `1px solid ${selectedDate === evt.date ? '#5B8DB830' : '#E2E8F0'}`,
                   flexShrink: 0,
                 }}>
                   {new Date(evt.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
@@ -720,10 +720,10 @@ export default function Equipe({
           {upcomingEvents.filter(e => e.date === selectedDate).map(evt => (
             <div key={evt.id} className="card" style={{
               padding: '12px 14px', marginBottom: 12,
-              borderLeft: '4px solid #6366F1',
+              borderLeft: '4px solid #5B8DB8',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {createElement(Calendar, { size: 16, color: '#6366F1' })}
+                {createElement(Calendar, { size: 16, color: '#5B8DB8' })}
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#1E293B' }}>{evt.name}</span>
               </div>
               {evt.lieu && (
@@ -798,12 +798,12 @@ export default function Equipe({
                               }}>{task.title}</div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
                                 <span style={{
-                                  fontSize: 10, fontWeight: 800, color: '#6366F1',
-                                  padding: '1px 6px', borderRadius: 4, background: '#6366F108',
+                                  fontSize: 10, fontWeight: 800, color: '#5B8DB8',
+                                  padding: '1px 6px', borderRadius: 4, background: '#5B8DB808',
                                   fontFamily: 'monospace',
                                 }}>{hour}</span>
                                 {task.priority === 'critical' && (
-                                  <span style={{ fontSize: 9, color: '#DC2626', fontWeight: 800 }}>CRITIQUE</span>
+                                  <span style={{ fontSize: 9, color: '#D4648A', fontWeight: 800 }}>CRITIQUE</span>
                                 )}
                                 {task.priority === 'high' && (
                                   <span style={{ fontSize: 9, color: '#E8935A', fontWeight: 800 }}>PRIORITÉ</span>
@@ -1027,9 +1027,9 @@ function MemberDetail({
         {/* ─── Stats row ─── */}
         <div style={{ display: 'flex', gap: 8, marginTop: 18 }}>
           <KpiBox label="À faire" value={pendingTasks} color="#E8935A" />
-          <KpiBox label="Fait" value={doneTasks} color="#10B981" />
-          <KpiBox label="Packing" value={myPacking.length > 0 ? `${packDone}/${myPacking.length}` : '—'} color="#2563EB" />
-          <KpiBox label="Dispo" value={availableCount > 0 ? `${availableCount}/${upcomingEvents.length}` : '—'} color="#8B5CF6" />
+          <KpiBox label="Fait" value={doneTasks} color="#5DAB8B" />
+          <KpiBox label="Packing" value={myPacking.length > 0 ? `${packDone}/${myPacking.length}` : '—'} color="#5B8DB8" />
+          <KpiBox label="Dispo" value={availableCount > 0 ? `${availableCount}/${upcomingEvents.length}` : '—'} color="#8B6DB8" />
         </div>
 
         {/* Completion bar */}
@@ -1039,14 +1039,14 @@ function MemberDetail({
               display: 'flex', justifyContent: 'space-between', marginBottom: 4,
             }}>
               <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600 }}>Progression tâches</span>
-              <span style={{ fontSize: 10, fontWeight: 800, color: completionRate >= 80 ? '#10B981' : '#E8935A' }}>
+              <span style={{ fontSize: 10, fontWeight: 800, color: completionRate >= 80 ? '#5DAB8B' : '#E8935A' }}>
                 {completionRate}%
               </span>
             </div>
             <div style={{ height: 6, borderRadius: 3, background: '#F1F5F9' }}>
               <div style={{
                 width: `${completionRate}%`, height: '100%', borderRadius: 3,
-                background: completionRate >= 80 ? '#10B981' : completionRate >= 50 ? '#E8935A' : '#94A3B8',
+                background: completionRate >= 80 ? '#5DAB8B' : completionRate >= 50 ? '#E8935A' : '#94A3B8',
                 transition: 'width 0.5s ease',
               }} />
             </div>
@@ -1147,7 +1147,7 @@ function MemberDetail({
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</div>
                     {evt && <div style={{ fontSize: 10, color: '#94A3B8' }}>{evt.name}</div>}
                   </div>
-                  {task.priority === 'critical' && createElement(AlertTriangle, { size: 12, color: '#DC2626' })}
+                  {task.priority === 'critical' && createElement(AlertTriangle, { size: 12, color: '#D4648A' })}
                   {task.priority === 'high' && createElement(AlertTriangle, { size: 12, color: '#E8935A' })}
                 </div>
               )
@@ -1160,7 +1160,7 @@ function MemberDetail({
             {myTasks.filter(t => t.status !== 'done').length > 4 && (
               <button onClick={() => setSubTab('taches')} style={{
                 width: '100%', padding: '8px 0', background: 'none', border: 'none',
-                cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#6366F1',
+                cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#5B8DB8',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
               }}>
                 Voir les {myTasks.filter(t => t.status !== 'done').length} tâches
@@ -1173,8 +1173,8 @@ function MemberDetail({
           {upcomingEvents.slice(0, 2).map(evt => {
             const avail = myAvailability.find(a => a.event_id === evt.id)
             const statusMap = {
-              available: { color: '#10B981', label: 'Dispo' },
-              unavailable: { color: '#DC2626', label: 'Absent' },
+              available: { color: '#5DAB8B', label: 'Dispo' },
+              unavailable: { color: '#D4648A', label: 'Absent' },
               maybe: { color: '#E8935A', label: 'Incertain' },
             }
             const status = avail ? (statusMap[avail.status] || { color: '#94A3B8', label: '?' }) : { color: '#94A3B8', label: 'Non renseigné' }
@@ -1182,7 +1182,7 @@ function MemberDetail({
               <div key={evt.id} className="card" style={{
                 padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10,
               }}>
-                {createElement(Calendar, { size: 16, color: '#6366F1' })}
+                {createElement(Calendar, { size: 16, color: '#5B8DB8' })}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>{evt.name}</div>
                   <div style={{ fontSize: 10, color: '#94A3B8' }}>
@@ -1271,7 +1271,7 @@ function MemberDetail({
               }}>
                 <div style={{
                   fontSize: 22, fontWeight: 900,
-                  color: packDone === myPacking.length ? '#10B981' : '#E8935A',
+                  color: packDone === myPacking.length ? '#5DAB8B' : '#E8935A',
                 }}>
                   {Math.round((packDone / myPacking.length) * 100)}%
                 </div>
@@ -1304,7 +1304,7 @@ function MemberDetail({
                   display: 'flex', alignItems: 'center', gap: 8,
                   padding: '6px 0', marginBottom: 6,
                 }}>
-                  {createElement(Calendar, { size: 14, color: '#6366F1' })}
+                  {createElement(Calendar, { size: 14, color: '#5B8DB8' })}
                   <span style={{ fontSize: 12, fontWeight: 800, color: '#1E293B' }}>
                     {evt?.name || 'Sans événement'}
                   </span>
@@ -1315,7 +1315,7 @@ function MemberDetail({
                   )}
                   <span style={{
                     marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                    color: tasks.filter(t => t.status === 'done').length === tasks.length ? '#10B981' : '#64748B',
+                    color: tasks.filter(t => t.status === 'done').length === tasks.length ? '#5DAB8B' : '#64748B',
                   }}>
                     {tasks.filter(t => t.status === 'done').length}/{tasks.length}
                   </span>
@@ -1343,8 +1343,8 @@ function MemberDetail({
                           )}
                           <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap', alignItems: 'center' }}>
                             <span style={{
-                              fontSize: 10, fontWeight: 800, color: '#6366F1',
-                              padding: '1px 6px', borderRadius: 4, background: '#6366F108',
+                              fontSize: 10, fontWeight: 800, color: '#5B8DB8',
+                              padding: '1px 6px', borderRadius: 4, background: '#5B8DB808',
                               fontFamily: 'monospace',
                             }}>
                               {task.hour_offset >= 0 ? `H+${task.hour_offset}` : `H${task.hour_offset}`}
@@ -1354,13 +1354,13 @@ function MemberDetail({
                               background: `${catColor}10`, color: catColor, fontWeight: 700,
                             }}>{task.category}</span>
                             {task.priority === 'critical' && (
-                              <span style={{ fontSize: 9, color: '#DC2626', fontWeight: 800 }}>CRITIQUE</span>
+                              <span style={{ fontSize: 9, color: '#D4648A', fontWeight: 800 }}>CRITIQUE</span>
                             )}
                             {task.flow_type && (
                               <span style={{
                                 fontSize: 8, padding: '1px 5px', borderRadius: 4,
-                                background: task.flow_type === 'physique' ? '#10B98110' : '#2563EB10',
-                                color: task.flow_type === 'physique' ? '#10B981' : '#2563EB',
+                                background: task.flow_type === 'physique' ? '#5DAB8B10' : '#5B8DB810',
+                                color: task.flow_type === 'physique' ? '#5DAB8B' : '#5B8DB8',
                                 fontWeight: 700,
                               }}>
                                 {task.flow_type === 'physique' ? 'PHY' : task.flow_type === 'info' ? 'INFO' : 'PHY+INFO'}
@@ -1482,7 +1482,7 @@ function MemberDetail({
                         {pending > 0 && (
                           <span style={{ fontSize: 10, fontWeight: 700, color: '#E8935A' }}>{pending}</span>
                         )}
-                        <span style={{ fontSize: 10, color: '#10B981', fontWeight: 700 }}>{done}✓</span>
+                        <span style={{ fontSize: 10, color: '#5DAB8B', fontWeight: 700 }}>{done}✓</span>
                       </div>
                     </div>
                   )
@@ -1500,8 +1500,8 @@ function MemberDetail({
             padding: '12px 16px', display: 'flex', gap: 12, justifyContent: 'center',
           }}>
             {[
-              { label: 'Dispo', count: myAvailability.filter(a => a.status === 'available').length, color: '#10B981' },
-              { label: 'Absent', count: myAvailability.filter(a => a.status === 'unavailable').length, color: '#DC2626' },
+              { label: 'Dispo', count: myAvailability.filter(a => a.status === 'available').length, color: '#5DAB8B' },
+              { label: 'Absent', count: myAvailability.filter(a => a.status === 'unavailable').length, color: '#D4648A' },
               { label: 'Incertain', count: myAvailability.filter(a => a.status === 'maybe').length, color: '#E8935A' },
               { label: 'Non renseigné', count: upcomingEvents.length - myAvailability.length, color: '#94A3B8' },
             ].filter(s => s.count > 0).map(s => (
@@ -1516,8 +1516,8 @@ function MemberDetail({
           {(events || []).filter(e => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 12).map(evt => {
             const avail = myAvailability.find(a => a.event_id === evt.id)
             const statusMap = {
-              available: { color: '#10B981', label: 'Disponible', bg: '#10B98110' },
-              unavailable: { color: '#DC2626', label: 'Indisponible', bg: '#DC262610' },
+              available: { color: '#5DAB8B', label: 'Disponible', bg: '#5DAB8B10' },
+              unavailable: { color: '#D4648A', label: 'Indisponible', bg: '#D4648A10' },
               maybe: { color: '#E8935A', label: 'Peut-être', bg: '#E8935A10' },
             }
             const status = avail ? (statusMap[avail.status] || { color: '#94A3B8', label: 'Inconnu', bg: '#94A3B810' }) : { color: '#94A3B8', label: 'Non renseigné', bg: '#94A3B810' }
@@ -1591,7 +1591,7 @@ function MemberMiniCard({ member, onSelect, user }) {
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
             {member.display_name || member.pseudo || 'Membre'}
           </span>
-          {isMe && <span style={{ fontSize: 9, color: '#6366F1', fontWeight: 700 }}>(moi)</span>}
+          {isMe && <span style={{ fontSize: 9, color: '#5B8DB8', fontWeight: 700 }}>(moi)</span>}
         </div>
         {conf && (
           <div style={{ fontSize: 11, color: conf.color, fontWeight: 600 }}>{conf.label}</div>

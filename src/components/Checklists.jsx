@@ -4,12 +4,12 @@ import { Modal, Confirm, Badge, fmtDate } from './UI'
 import { Speaker, Lightbulb, Guitar, Palette, ShoppingBag, Truck, Package, HelpCircle } from 'lucide-react'
 
 const CAT_CONFIG = {
-  son:          { icon: Speaker,     color: '#2563EB', label: 'Son' },
-  lumiere:      { icon: Lightbulb,   color: '#6366F1', label: 'Lumière' },
-  instruments:  { icon: Guitar,      color: '#DC2626', label: 'Instruments' },
-  decor:        { icon: Palette,     color: '#7C3AED', label: 'Décor' },
-  merch:        { icon: ShoppingBag, color: '#6366F1', label: 'Merch' },
-  logistique:   { icon: Truck,       color: '#16A34A', label: 'Logistique' },
+  son:          { icon: Speaker,     color: '#5B8DB8', label: 'Son' },
+  lumiere:      { icon: Lightbulb,   color: '#5B8DB8', label: 'Lumière' },
+  instruments:  { icon: Guitar,      color: '#D4648A', label: 'Instruments' },
+  decor:        { icon: Palette,     color: '#8B6DB8', label: 'Décor' },
+  merch:        { icon: ShoppingBag, color: '#5B8DB8', label: 'Merch' },
+  logistique:   { icon: Truck,       color: '#5DAB8B', label: 'Logistique' },
   consommables: { icon: Package,     color: '#8BAB5D', label: 'Consommables' },
 }
 
@@ -68,7 +68,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       })
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -80,7 +80,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       setConfirm(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -94,7 +94,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       setConfirm(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -141,7 +141,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
             {checked}/{total} complété{checked > 1 ? 's' : ''}
           </span>
-          <span style={{ fontSize: 22, fontWeight: 600, color: pct === 100 ? '#16A34A' : '#6366F1' }}>
+          <span style={{ fontSize: 22, fontWeight: 600, color: pct === 100 ? '#5DAB8B' : '#5B8DB8' }}>
             {pct}%
           </span>
         </div>
@@ -150,8 +150,8 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
             height: '100%', borderRadius: 4, transition: 'width 0.3s',
             width: `${pct}%`,
             background: pct === 100
-              ? 'linear-gradient(90deg, #16A34A, #4A9A7A)'
-              : 'linear-gradient(90deg, #6366F1, #DC2626)',
+              ? 'linear-gradient(90deg, #5DAB8B, #4A9A7A)'
+              : 'linear-gradient(90deg, #5B8DB8, #D4648A)',
           }} />
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <button onClick={() => setAddModal(true)} style={{
           flex: 1, padding: '10px 14px', borderRadius: 12,
-          background: 'linear-gradient(135deg, #6366F1, #DC2626)',
+          background: 'linear-gradient(135deg, #5B8DB8, #D4648A)',
           color: 'white', fontSize: 13, fontWeight: 600,
         }}>+ Ajouter</button>
         {checked > 0 && (
@@ -230,7 +230,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
               setAddModal(false)
               onReload()
             } catch (e) {
-              onToast('Erreur: ' + e.message, '#DC2626')
+              onToast('Erreur: ' + e.message, '#D4648A')
             }
           }}
         />
@@ -343,9 +343,9 @@ function EventPill({ active, onClick, children }) {
     <button onClick={onClick} style={{
       padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
       whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.15s',
-      border: `1px solid ${active ? '#6366F1' : '#CBD5E1'}`,
-      background: active ? '#6366F112' : 'white',
-      color: active ? '#6366F1' : '#94A3B8',
+      border: `1px solid ${active ? '#5B8DB8' : '#CBD5E1'}`,
+      background: active ? '#5B8DB812' : 'white',
+      color: active ? '#5B8DB8' : '#94A3B8',
     }}>{children}</button>
   )
 }
@@ -355,9 +355,9 @@ function CatPill({ active, color, onClick, children }) {
     <button onClick={onClick} style={{
       padding: '5px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700,
       whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.15s',
-      border: `1px solid ${active ? (color || '#6366F1') : '#CBD5E1'}`,
-      background: active ? `${color || '#6366F1'}12` : 'white',
-      color: active ? (color || '#6366F1') : '#94A3B8',
+      border: `1px solid ${active ? (color || '#5B8DB8') : '#CBD5E1'}`,
+      background: active ? `${color || '#5B8DB8'}12` : 'white',
+      color: active ? (color || '#5B8DB8') : '#94A3B8',
     }}>{children}</button>
   )
 }

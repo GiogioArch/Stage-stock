@@ -143,7 +143,7 @@ export default function ConcertMode({
       onToast(`Vente ${saleNum} — ${cartTotal}€`)
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -162,7 +162,7 @@ export default function ConcertMode({
 
   // ─── Close cash register ───
   const closeCaisse = async () => {
-    if (salesLog.length === 0) { onToast('Aucune vente à clôturer', '#7C3AED'); return }
+    if (salesLog.length === 0) { onToast('Aucune vente à clôturer', '#8B6DB8'); return }
     setClosingCaisse(true)
     try {
       await db.insert('cash_reports', {
@@ -179,7 +179,7 @@ export default function ConcertMode({
       onToast('Caisse clôturée')
       setShowReport(true)
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#7C3AED')
+      onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
       setClosingCaisse(false)
     }
@@ -195,8 +195,8 @@ export default function ConcertMode({
         background: '#1A1520', color: 'white', overflow: 'auto',
       }}>
         <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-          <div style={{ marginBottom: 16 }}>{createElement(Receipt, { size: 48, color: '#16A34A' })}</div>
-          <div style={{ fontSize: 22, fontWeight: 600, color: '#16A34A', marginBottom: 4 }}>Caisse clôturée</div>
+          <div style={{ marginBottom: 16 }}>{createElement(Receipt, { size: 48, color: '#5DAB8B' })}</div>
+          <div style={{ fontSize: 22, fontWeight: 600, color: '#5DAB8B', marginBottom: 4 }}>Caisse clôturée</div>
           <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 24 }}>
             {selectedEvent?.name || 'Vente libre'}
           </div>
@@ -205,22 +205,22 @@ export default function ConcertMode({
             background: '#2A2530', borderRadius: 12, padding: '20px 16px', marginBottom: 20,
             border: '1px solid #3A3540',
           }}>
-            <div style={{ fontSize: 36, fontWeight: 600, color: '#6366F1', marginBottom: 4 }}>{sessionTotal}€</div>
+            <div style={{ fontSize: 36, fontWeight: 600, color: '#5B8DB8', marginBottom: 4 }}>{sessionTotal}€</div>
             <div style={{ fontSize: 12, color: '#94A3B8' }}>{sessionCount} vente{sessionCount > 1 ? 's' : ''} · {sessionItems} article{sessionItems > 1 ? 's' : ''}</div>
 
             <div style={{ height: 1, background: '#3A3540', margin: '16px 0' }} />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 600, color: '#16A34A' }}>{sessionCash}€</div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: '#5DAB8B' }}>{sessionCash}€</div>
                 <div style={{ fontSize: 10, color: '#94A3B8' }}>Espèces</div>
               </div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 600, color: '#2563EB' }}>{sessionCard}€</div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: '#5B8DB8' }}>{sessionCard}€</div>
                 <div style={{ fontSize: 10, color: '#94A3B8' }}>CB</div>
               </div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 600, color: '#7C3AED' }}>{sessionMobile}€</div>
+                <div style={{ fontSize: 18, fontWeight: 600, color: '#8B6DB8' }}>{sessionMobile}€</div>
                 <div style={{ fontSize: 10, color: '#94A3B8' }}>Mobile</div>
               </div>
             </div>
@@ -248,7 +248,7 @@ export default function ConcertMode({
 
           <button onClick={onClose} style={{
             width: '100%', padding: 16, borderRadius: 8, marginTop: 20,
-            fontSize: 15, fontWeight: 600, background: '#6366F1', border: 'none', color: 'white', cursor: 'pointer',
+            fontSize: 15, fontWeight: 600, background: '#5B8DB8', border: 'none', color: 'white', cursor: 'pointer',
           }}>Fermer le mode concert</button>
         </div>
       </div>
@@ -269,7 +269,7 @@ export default function ConcertMode({
             padding: '10px 16px', borderRadius: 12, fontSize: 14, fontWeight: 600,
             background: '#2A2530', border: 'none', color: '#94A3B8', cursor: 'pointer',
           }}>← Retour</button>
-          <div style={{ fontSize: 18, fontWeight: 600, color: '#6366F1' }}>Mode Concert</div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#5B8DB8' }}>Mode Concert</div>
           <div style={{ width: 80 }} />
         </header>
 
@@ -334,7 +334,7 @@ export default function ConcertMode({
           fontSize: 14, cursor: 'pointer', border: 'none', color: '#94A3B8',
         }}>←</button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#6366F1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#5B8DB8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {selectedEvent.name || 'Concert'}
           </div>
           <div style={{ fontSize: 10, color: '#94A3B8' }}>
@@ -344,14 +344,14 @@ export default function ConcertMode({
         {salesLog.length > 0 && (
           <>
             <div style={{
-              padding: '4px 10px', borderRadius: 8, background: '#16A34A20',
-              color: '#16A34A', fontSize: 12, fontWeight: 600,
+              padding: '4px 10px', borderRadius: 8, background: '#5DAB8B20',
+              color: '#5DAB8B', fontSize: 12, fontWeight: 600,
             }}>
               {sessionTotal}€
             </div>
             <button onClick={closeCaisse} disabled={closingCaisse} style={{
               padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 600,
-              background: '#D9770620', border: 'none', color: '#D97706', cursor: 'pointer',
+              background: '#E8935A20', border: 'none', color: '#E8935A', cursor: 'pointer',
             }}>{createElement(Receipt, { size: 12 })} Clôturer</button>
           </>
         )}
@@ -384,7 +384,7 @@ export default function ConcertMode({
             <button
               key={p.id}
               onClick={() => {
-                if (pStock <= inCart) { onToast('Stock épuisé', '#7C3AED'); return }
+                if (pStock <= inCart) { onToast('Stock épuisé', '#8B6DB8'); return }
                 if (hasVariants) { setSelectedVariant(p); return }
                 addToCart(p)
               }}
@@ -400,15 +400,15 @@ export default function ConcertMode({
                 fontSize: 12, fontWeight: 600, lineHeight: 1.2, marginBottom: 4,
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }}>{p.name}</div>
-              <div style={{ fontSize: 18, fontWeight: 600, color: '#6366F1' }}>{p.sale_price}€</div>
-              <div style={{ fontSize: 10, color: pStock <= 3 ? '#7C3AED' : '#94A3B8', marginTop: 2 }}>
+              <div style={{ fontSize: 18, fontWeight: 600, color: '#5B8DB8' }}>{p.sale_price}€</div>
+              <div style={{ fontSize: 10, color: pStock <= 3 ? '#8B6DB8' : '#94A3B8', marginTop: 2 }}>
                 Stock : {pStock}
               </div>
               {inCart > 0 && (
                 <div style={{
                   position: 'absolute', top: -6, right: -6,
                   width: 24, height: 24, borderRadius: '50%',
-                  background: '#6366F1', color: 'white',
+                  background: '#5B8DB8', color: 'white',
                   fontSize: 12, fontWeight: 600,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>{inCart}</div>
@@ -463,18 +463,18 @@ export default function ConcertMode({
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <button onClick={() => removeFromCart(item.key)} style={{
-                    width: 28, height: 28, borderRadius: 8, background: '#7C3AED30',
-                    color: '#7C3AED', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
+                    width: 28, height: 28, borderRadius: 8, background: '#8B6DB830',
+                    color: '#8B6DB8', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>-</button>
                   <span style={{ fontSize: 14, fontWeight: 600, minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
                   <button onClick={() => addToCart({ id: item.productId, name: item.name, image: item.image, sale_price: item.unitPrice }, item.variant)} style={{
-                    width: 28, height: 28, borderRadius: 8, background: '#16A34A30',
-                    color: '#16A34A', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
+                    width: 28, height: 28, borderRadius: 8, background: '#5DAB8B30',
+                    color: '#5DAB8B', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>+</button>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#6366F1', minWidth: 50, textAlign: 'right' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#5B8DB8', minWidth: 50, textAlign: 'right' }}>
                   {item.lineTotal}€
                 </div>
               </div>
@@ -489,7 +489,7 @@ export default function ConcertMode({
                   <button key={pm.id} onClick={() => setPayMethod(pm.id)} style={{
                     flex: 1, padding: '10px 6px', borderRadius: 10, fontSize: 12, fontWeight: 600,
                     textAlign: 'center', cursor: 'pointer',
-                    background: payMethod === pm.id ? '#6366F1' : '#3A3540',
+                    background: payMethod === pm.id ? '#5B8DB8' : '#3A3540',
                     color: payMethod === pm.id ? 'white' : '#94A3B8',
                     border: 'none',
                   }}>{pm.icon ? createElement(pm.icon, { size: 14 }) : null} {pm.label}</button>
@@ -502,7 +502,7 @@ export default function ConcertMode({
                 }}>Annuler</button>
                 <button onClick={processSale} disabled={saving} style={{
                   flex: 2, padding: 14, borderRadius: 12, fontSize: 16, fontWeight: 600,
-                  background: saving ? '#94A3B8' : '#16A34A', border: 'none', color: 'white', cursor: 'pointer',
+                  background: saving ? '#94A3B8' : '#5DAB8B', border: 'none', color: 'white', cursor: 'pointer',
                 }}>
                   {saving ? 'Enregistrement...' : `Encaisser ${cartTotal}€`}
                 </button>
@@ -512,11 +512,11 @@ export default function ConcertMode({
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={clearCart} style={{
                 padding: '14px 16px', borderRadius: 12, fontSize: 13, fontWeight: 700,
-                background: '#7C3AED20', border: 'none', color: '#7C3AED', cursor: 'pointer',
+                background: '#8B6DB820', border: 'none', color: '#8B6DB8', cursor: 'pointer',
               }}>Vider</button>
               <button onClick={() => setShowPayment(true)} style={{
                 flex: 1, padding: 14, borderRadius: 12, fontSize: 16, fontWeight: 600,
-                background: '#6366F1', border: 'none', color: 'white', cursor: 'pointer',
+                background: '#5B8DB8', border: 'none', color: 'white', cursor: 'pointer',
               }}>
                 {cartCount} article{cartCount > 1 ? 's' : ''} · {cartTotal}€
               </button>

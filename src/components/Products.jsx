@@ -9,12 +9,12 @@ const colors = {
   textPrimary: '#1E293B',
   textSecondary: '#64748B',
   textTertiary: '#94A3B8',
-  accent: '#6366F1',
+  accent: '#5B8DB8',
   bgSurface: '#F8FAFC',
   border: '#E2E8F0',
-  danger: '#DC2626',
-  warning: '#D97706',
-  success: '#16A34A',
+  danger: '#D4648A',
+  warning: '#E8935A',
+  success: '#5DAB8B',
 }
 
 export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast }) {
@@ -87,7 +87,7 @@ export default function Products({ products, families, subfamilies, stock, locat
         <div
           onClick={e => e.stopPropagation()}
           style={{
-            width: '100%', maxWidth: 420, maxHeight: '78vh',
+            width: '100%', maxWidth: 520, maxHeight: '85vh',
             background: 'white', borderRadius: 20,
             boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
             overflowY: 'auto', WebkitOverflowScrolling: 'touch',
@@ -177,8 +177,8 @@ export default function Products({ products, families, subfamilies, stock, locat
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setModal({ type: 'csv' })} style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 12px', borderRadius: 8, background: 'rgba(99,102,241,0.08)',
-            border: `1px solid rgba(99,102,241,0.2)`, color: colors.accent, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            padding: '8px 12px', borderRadius: 8, background: 'rgba(91,141,184,0.08)',
+            border: `1px solid rgba(91,141,184,0.2)`, color: colors.accent, fontSize: 12, fontWeight: 700, cursor: 'pointer',
           }}>
             <FileDown size={14} /> CSV
           </button>

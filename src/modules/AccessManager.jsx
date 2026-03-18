@@ -32,7 +32,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       const data = await db.get('project_members', `org_id=eq.${membership.org_id}&order=created_at.asc`)
       setMembers(data || [])
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
       setLoading(false)
     }
@@ -56,7 +56,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       setInviteMode(false)
       loadMembers()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -72,7 +72,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       loadMembers()
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -87,7 +87,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       onToast(!currentAdmin ? 'Promu admin' : 'Admin retiré')
       loadMembers()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -103,7 +103,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       loadMembers()
       if (onReload) onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -115,7 +115,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       onToast('Membre désactivé')
       loadMembers()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -126,8 +126,8 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       {/* Header */}
       <div className="card" style={{
         padding: '16px', marginBottom: 16,
-        background: 'linear-gradient(135deg, #7C3AED08, #7C3AED18)',
-        border: '1px solid #7C3AED25',
+        background: 'linear-gradient(135deg, #8B6DB808, #8B6DB818)',
+        border: '1px solid #8B6DB825',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
@@ -141,7 +141,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
           {isAdmin && (
             <button onClick={() => setInviteMode(true)} style={{
               padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: '#7C3AED', color: 'white', border: 'none', cursor: 'pointer',
+              background: '#8B6DB8', color: 'white', border: 'none', cursor: 'pointer',
             }}>
               + Inviter
             </button>
@@ -203,19 +203,19 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
                       {isMe && (
                         <span style={{
                           fontSize: 9, padding: '1px 6px', borderRadius: 4,
-                          background: '#16A34A20', color: '#16A34A', fontWeight: 600,
+                          background: '#5DAB8B20', color: '#5DAB8B', fontWeight: 600,
                         }}>MOI</span>
                       )}
                       {m.is_admin && (
                         <span style={{
                           fontSize: 9, padding: '1px 6px', borderRadius: 4,
-                          background: '#6366F120', color: '#6366F1', fontWeight: 600,
+                          background: '#5B8DB820', color: '#5B8DB8', fontWeight: 600,
                         }}>ADMIN</span>
                       )}
                       {m.status === 'invited' && (
                         <span style={{
                           fontSize: 9, padding: '1px 6px', borderRadius: 4,
-                          background: '#6366F120', color: '#6366F1', fontWeight: 600,
+                          background: '#5B8DB820', color: '#5B8DB8', fontWeight: 600,
                         }}>INVITÉ</span>
                       )}
                     </div>
@@ -261,7 +261,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
           </div>
           <button onClick={handleInvite} disabled={!inviteEmail.trim()} style={{
             width: '100%', padding: 14, borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: inviteEmail.trim() ? '#7C3AED' : '#CBD5E1',
+            background: inviteEmail.trim() ? '#8B6DB8' : '#CBD5E1',
             color: 'white', border: 'none', cursor: inviteEmail.trim() ? 'pointer' : 'not-allowed',
           }}>
             Envoyer l'invitation
@@ -371,7 +371,7 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
           </div>
           <button onClick={onToggleAdmin} style={{
             width: 44, height: 26, borderRadius: 13, cursor: 'pointer', border: 'none',
-            background: member.is_admin ? '#16A34A' : '#CBD5E1',
+            background: member.is_admin ? '#5DAB8B' : '#CBD5E1',
             position: 'relative', transition: 'background 0.2s',
           }}>
             <div style={{
@@ -432,13 +432,13 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleSave} style={{
             flex: 1, padding: 14, borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: '#7C3AED', color: 'white', border: 'none', cursor: 'pointer',
+            background: '#8B6DB8', color: 'white', border: 'none', cursor: 'pointer',
           }}>
             Sauvegarder
           </button>
           <button onClick={onDisable} style={{
             padding: '14px 16px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: 'rgba(200,164,106,0.08)', color: '#DC2626', border: '1px solid #DC262630',
+            background: 'rgba(200,164,106,0.08)', color: '#D4648A', border: '1px solid #D4648A30',
             cursor: 'pointer',
           }}>
             Désactiver

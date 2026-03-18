@@ -489,11 +489,11 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               width: 36, height: 36, borderRadius: 8,
-              background: '#6366F1',
+              background: '#5B8DB8',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}><Box size={20} color="#fff" /></div>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Stage Stock</div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>BackStage</div>
               <div style={{ fontSize: 11, color: '#94A3B8' }}>Mon espace</div>
             </div>
           </div>
@@ -501,15 +501,15 @@ export default function App() {
             {offline && (
               <span style={{
                 padding: '4px 8px', borderRadius: 6, background: 'rgba(245,158,11,0.12)',
-                border: '1px solid rgba(245,158,11,0.2)', color: '#D97706', fontSize: 11, fontWeight: 500,
+                border: '1px solid rgba(245,158,11,0.2)', color: '#E8935A', fontSize: 11, fontWeight: 500,
                 display: 'flex', alignItems: 'center', gap: 4,
               }}><WifiOff size={12} /> Hors ligne</span>
             )}
             <button onClick={handleLogout} style={{
-              width: 36, height: 36, borderRadius: 8, background: 'rgba(239,68,68,0.1)',
+              width: 36, height: 36, borderRadius: 8, background: 'rgba(212,100,138,0.1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-              border: '1px solid rgba(239,68,68,0.15)',
-            }}><LogOut size={16} color="#DC2626" /></button>
+              border: '1px solid rgba(212,100,138,0.15)',
+            }}><LogOut size={16} color="#D4648A" /></button>
           </div>
         </header>
 
@@ -602,8 +602,8 @@ export default function App() {
   if (error && data.products.length === 0) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center', background: '#FFFFFF' }}>
-        <AlertTriangle size={32} color="#DC2626" style={{ marginBottom: 16 }} />
-        <div style={{ color: '#DC2626', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>Erreur de connexion</div>
+        <AlertTriangle size={32} color="#D4648A" style={{ marginBottom: 16 }} />
+        <div style={{ color: '#D4648A', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>Erreur de connexion</div>
         <div style={{ color: '#94A3B8', fontSize: 13, marginBottom: 20 }}>{error}</div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-primary" style={{ maxWidth: 200 }} onClick={loadAll}>Réessayer</button>
@@ -649,7 +649,7 @@ export default function App() {
           {offline && (
             <span style={{
               padding: '4px 8px', borderRadius: 6, background: 'rgba(245,158,11,0.12)',
-              border: '1px solid rgba(245,158,11,0.2)', color: '#D97706', fontSize: 11, fontWeight: 500,
+              border: '1px solid rgba(245,158,11,0.2)', color: '#E8935A', fontSize: 11, fontWeight: 500,
               display: 'flex', alignItems: 'center', gap: 4,
             }}><WifiOff size={12} /> Hors ligne</span>
           )}
@@ -662,8 +662,8 @@ export default function App() {
           )}
           {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('alertes') && (
             <button onClick={() => handleTabChange('alertes')} style={{
-              padding: '4px 10px', borderRadius: 6, background: 'rgba(239,68,68,0.12)',
-              border: '1px solid rgba(239,68,68,0.15)', color: '#DC2626', fontSize: 11, fontWeight: 500,
+              padding: '4px 10px', borderRadius: 6, background: 'rgba(212,100,138,0.12)',
+              border: '1px solid rgba(212,100,138,0.15)', color: '#D4648A', fontSize: 11, fontWeight: 500,
               animation: 'pulse 2s infinite', display: 'flex', alignItems: 'center', gap: 4,
             }}>
               <AlertTriangle size={12} /> {alerts.filter(a => a.level === 'rupture').length}
@@ -672,8 +672,8 @@ export default function App() {
           {roleConf && (
             <span style={{
               padding: '4px 8px', borderRadius: 6,
-              background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)',
-              color: '#A5B4FC', fontSize: 11, fontWeight: 500,
+              background: 'rgba(91,141,184,0.12)', border: '1px solid rgba(91,141,184,0.2)',
+              color: '#8BB8D8', fontSize: 11, fontWeight: 500,
               display: 'flex', alignItems: 'center', gap: 4,
             }}>
               {roleConf.icon && React.createElement(roleConf.icon, { size: 12 })}
@@ -696,9 +696,9 @@ export default function App() {
               <button key={t.id} onClick={() => handleTabChange(t.id)} style={{
                 padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,
                 cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-                background: isActive ? 'rgba(99,102,241,0.12)' : 'transparent',
-                color: isActive ? '#A5B4FC' : '#94A3B8',
-                border: `1px solid ${isActive ? 'rgba(99,102,241,0.2)' : '#E2E8F0'}`,
+                background: isActive ? 'rgba(91,141,184,0.12)' : 'transparent',
+                color: isActive ? '#8BB8D8' : '#94A3B8',
+                border: `1px solid ${isActive ? 'rgba(91,141,184,0.2)' : '#E2E8F0'}`,
               }}>
                 {t.label}
               </button>
@@ -1047,9 +1047,9 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
           <button key={s.id} onClick={() => setSubTab(s.id)} style={{
             flex: 1, padding: '6px', borderRadius: 6, fontSize: 12, fontWeight: 500,
             cursor: 'pointer', textAlign: 'center',
-            background: subTab === s.id ? 'rgba(99,102,241,0.12)' : 'transparent',
-            color: subTab === s.id ? '#A5B4FC' : '#94A3B8',
-            border: `1px solid ${subTab === s.id ? 'rgba(99,102,241,0.2)' : '#E2E8F0'}`,
+            background: subTab === s.id ? 'rgba(91,141,184,0.12)' : 'transparent',
+            color: subTab === s.id ? '#8BB8D8' : '#94A3B8',
+            border: `1px solid ${subTab === s.id ? 'rgba(91,141,184,0.2)' : '#E2E8F0'}`,
           }}>{s.label}</button>
         ))}
       </div>
@@ -1096,7 +1096,7 @@ class LiveErrorBoundary extends React.Component {
           flexDirection: 'column', gap: 16, padding: 32, textAlign: 'center',
           fontFamily: "'Inter', sans-serif",
         }}>
-          <AlertTriangle size={40} color="#DC2626" />
+          <AlertTriangle size={40} color="#D4648A" />
           <div style={{ fontSize: 18, fontWeight: 600, color: '#1E293B' }}>
             Erreur technique
           </div>
@@ -1122,11 +1122,11 @@ function SplashScreen({ text }) {
     }}>
       <div style={{
         width: 48, height: 48, borderRadius: 12,
-        background: '#6366F1',
+        background: '#5B8DB8',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}><Box size={28} color="#fff" /></div>
       <div className="loader" />
-      <div style={{ color: '#1E293B', fontWeight: 600, fontSize: 18 }}>Stage Stock</div>
+      <div style={{ color: '#1E293B', fontWeight: 600, fontSize: 18 }}>BackStage</div>
       <div style={{ color: '#94A3B8', fontSize: 13 }}>{text}</div>
     </div>
   )

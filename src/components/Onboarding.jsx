@@ -6,9 +6,9 @@ import { Rocket, FolderPlus, UserCheck, ArrowRight, ArrowLeft, Loader2, Sparkles
 const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
 
 const STEPS = [
-  { id: 'welcome', icon: Rocket, color: '#6366F1', title: 'Bienvenue sur Stage Stock' },
-  { id: 'project', icon: FolderPlus, color: '#2563EB', title: 'Ton premier projet' },
-  { id: 'role', icon: UserCheck, color: '#16A34A', title: 'Ton rôle' },
+  { id: 'welcome', icon: Rocket, color: '#5B8DB8', title: 'Bienvenue sur BackStage' },
+  { id: 'project', icon: FolderPlus, color: '#5B8DB8', title: 'Ton premier projet' },
+  { id: 'role', icon: UserCheck, color: '#5DAB8B', title: 'Ton rôle' },
 ]
 
 export default function Onboarding({ user, onComplete, onToast }) {
@@ -99,7 +99,7 @@ export default function Onboarding({ user, onComplete, onToast }) {
         onComplete(createdMembership)
       }
     } catch (e) {
-      onToast?.('Erreur: ' + e.message, '#DC2626')
+      onToast?.('Erreur: ' + e.message, '#D4648A')
     } finally {
       setSaving(false)
     }

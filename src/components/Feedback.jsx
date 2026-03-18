@@ -3,9 +3,9 @@ import { db, safe } from '../lib/supabase'
 import { MessageSquare, Send, X, ThumbsUp, ThumbsDown, Meh, Loader2, CheckCircle } from 'lucide-react'
 
 const MOODS = [
-  { id: 'bad', icon: ThumbsDown, color: '#DC2626', label: 'Difficile' },
-  { id: 'ok', icon: Meh, color: '#D97706', label: 'Moyen' },
-  { id: 'good', icon: ThumbsUp, color: '#16A34A', label: 'Facile' },
+  { id: 'bad', icon: ThumbsDown, color: '#D4648A', label: 'Difficile' },
+  { id: 'ok', icon: Meh, color: '#E8935A', label: 'Moyen' },
+  { id: 'good', icon: ThumbsUp, color: '#5DAB8B', label: 'Facile' },
 ]
 
 // Lightweight feedback widget — appears as a floating button
@@ -53,9 +53,9 @@ export default function Feedback({ user, orgId, context }) {
         style={{
           position: 'fixed', bottom: 80, right: 16, zIndex: 90,
           width: 44, height: 44, borderRadius: 22,
-          background: '#6366F1', color: 'white',
+          background: '#5B8DB8', color: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 16px rgba(99,102,241,0.3)',
+          boxShadow: '0 4px 16px rgba(91,141,184,0.3)',
           border: 'none', cursor: 'pointer',
           transition: 'transform 0.2s',
         }}
@@ -77,7 +77,7 @@ export default function Feedback({ user, orgId, context }) {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
-          {sent ? <><CheckCircle size={14} color="#16A34A" style={{ verticalAlign: 'middle', marginRight: 4 }} />Merci !</> : 'Ton avis compte'}
+          {sent ? <><CheckCircle size={14} color="#5DAB8B" style={{ verticalAlign: 'middle', marginRight: 4 }} />Merci !</> : 'Ton avis compte'}
         </span>
         <button onClick={() => setOpen(false)} style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: 4,
@@ -87,8 +87,8 @@ export default function Feedback({ user, orgId, context }) {
       </div>
 
       {sent ? (
-        <p style={{ fontSize: 13, color: '#16A34A', textAlign: 'center', padding: '8px 0' }}>
-          Feedback enregistré. Ça nous aide à améliorer Stage Stock !
+        <p style={{ fontSize: 13, color: '#5DAB8B', textAlign: 'center', padding: '8px 0' }}>
+          Feedback enregistré. Ça nous aide à améliorer BackStage !
         </p>
       ) : (
         <>
@@ -129,7 +129,7 @@ export default function Feedback({ user, orgId, context }) {
               resize: 'none', fontFamily: 'Inter, sans-serif',
               outline: 'none',
             }}
-            onFocus={e => e.target.style.borderColor = '#6366F1'}
+            onFocus={e => e.target.style.borderColor = '#5B8DB8'}
             onBlur={e => e.target.style.borderColor = '#E2E8F0'}
           />
 
@@ -139,7 +139,7 @@ export default function Feedback({ user, orgId, context }) {
             disabled={(!mood && !message.trim()) || sending}
             style={{
               width: '100%', padding: '10px', borderRadius: 8, marginTop: 8,
-              background: (mood || message.trim()) ? '#6366F1' : '#CBD5E1',
+              background: (mood || message.trim()) ? '#5B8DB8' : '#CBD5E1',
               color: 'white', fontSize: 13, fontWeight: 600, border: 'none',
               cursor: (mood || message.trim()) ? 'pointer' : 'not-allowed',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,

@@ -121,16 +121,16 @@ export default function Forecast({ products, stock, events, locations }) {
       {/* ─── Header card ─── */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #6366F108, #DC262618)',
-        border: '1px solid #6366F125',
+        background: 'linear-gradient(135deg, #5B8DB808, #D4648A18)',
+        border: '1px solid #5B8DB825',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 8,
-            background: 'linear-gradient(135deg, #6366F1, #DC2626)',
+            background: 'linear-gradient(135deg, #5B8DB8, #D4648A)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 24, color: 'white',
-            boxShadow: '0 4px 16px #6366F130',
+            boxShadow: '0 4px 16px #5B8DB830',
           }}></div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Prévisions Merch</div>
@@ -142,19 +142,19 @@ export default function Forecast({ products, stock, events, locations }) {
 
         {/* KPI row */}
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Stock actuel" value={totalMerchStock} color="#2563EB" />
-          <KpiBox label="Ventes proj." value={totalProjectedSales} color="#6366F1" />
-          <KpiBox label="CA proj." value={`${totalProjectedCA}€`} color="#16A34A" />
-          <KpiBox label="Solde" value={totalMerchStock - totalProjectedSales} color={totalMerchStock - totalProjectedSales < 0 ? '#DC2626' : '#16A34A'} />
+          <KpiBox label="Stock actuel" value={totalMerchStock} color="#5B8DB8" />
+          <KpiBox label="Ventes proj." value={totalProjectedSales} color="#5B8DB8" />
+          <KpiBox label="CA proj." value={`${totalProjectedCA}€`} color="#5DAB8B" />
+          <KpiBox label="Solde" value={totalMerchStock - totalProjectedSales} color={totalMerchStock - totalProjectedSales < 0 ? '#D4648A' : '#5DAB8B'} />
         </div>
       </div>
 
       {/* ─── Scenario selector ─── */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
-          { id: 'low', label: 'Pessimiste', color: '#2563EB' },
-          { id: 'mid', label: 'Réaliste', color: '#6366F1' },
-          { id: 'high', label: 'Optimiste', color: '#16A34A' },
+          { id: 'low', label: 'Pessimiste', color: '#5B8DB8' },
+          { id: 'mid', label: 'Réaliste', color: '#5B8DB8' },
+          { id: 'high', label: 'Optimiste', color: '#5DAB8B' },
         ].map(s => (
           <button key={s.id} onClick={() => setScenario(s.id)} style={{
             flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700,
@@ -170,12 +170,12 @@ export default function Forecast({ products, stock, events, locations }) {
       {firstRupture && (
         <div className="card" style={{
           marginBottom: 12, padding: '12px 14px',
-          background: '#DC262610', borderLeft: '4px solid #DC2626',
+          background: '#D4648A10', borderLeft: '4px solid #D4648A',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 22 }}></span>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#DC2626' }}>Rupture projetée</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#D4648A' }}>Rupture projetée</div>
               <div style={{ fontSize: 12, color: '#1E293B' }}>
                 {firstRupture.name || firstRupture.lieu} — {parseDate(firstRupture.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
               </div>
@@ -190,12 +190,12 @@ export default function Forecast({ products, stock, events, locations }) {
       {firstReappro && !firstRupture && (
         <div className="card" style={{
           marginBottom: 12, padding: '12px 14px',
-          background: '#6366F110', borderLeft: '4px solid #6366F1',
+          background: '#5B8DB810', borderLeft: '4px solid #5B8DB8',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 22 }}></span>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#6366F1' }}>Réappro recommandé</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#5B8DB8' }}>Réappro recommandé</div>
               <div style={{ fontSize: 12, color: '#1E293B' }}>
                 Avant {firstReappro.name || firstReappro.lieu} — {parseDate(firstReappro.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
               </div>
@@ -221,8 +221,8 @@ export default function Forecast({ products, stock, events, locations }) {
             position: 'absolute', left: 0, top: 0, bottom: 0,
             width: `${totalMerchStock > 0 ? Math.min(100, Math.round((totalProjectedSales / totalMerchStock) * 100)) : 0}%`,
             background: totalProjectedSales > totalMerchStock
-              ? 'linear-gradient(90deg, #6366F1, #DC2626)'
-              : 'linear-gradient(90deg, #6366F1, #6366F1)',
+              ? 'linear-gradient(90deg, #5B8DB8, #D4648A)'
+              : 'linear-gradient(90deg, #5B8DB8, #5B8DB8)',
             borderRadius: 12,
             transition: 'width 0.4s',
           }} />
@@ -272,7 +272,7 @@ export default function Forecast({ products, stock, events, locations }) {
                   onClick={() => setShowDetail(isExpanded ? null : ev.id)}
                   style={{
                     padding: '12px 14px', cursor: 'pointer',
-                    borderLeft: `4px solid ${ev.rupture ? '#DC2626' : ev.reappro ? '#6366F1' : '#16A34A'}`,
+                    borderLeft: `4px solid ${ev.rupture ? '#D4648A' : ev.reappro ? '#5B8DB8' : '#5DAB8B'}`,
                     opacity: ev.rupture ? 1 : 1,
                   }}
                 >
@@ -280,10 +280,10 @@ export default function Forecast({ products, stock, events, locations }) {
                     {/* Date circle */}
                     <div style={{
                       width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                      background: ev.rupture ? '#DC262615' : ev.reappro ? '#6366F115' : '#16A34A15',
+                      background: ev.rupture ? '#D4648A15' : ev.reappro ? '#5B8DB815' : '#5DAB8B15',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 10, fontWeight: 600, textAlign: 'center', lineHeight: 1.2,
-                      color: ev.rupture ? '#DC2626' : ev.reappro ? '#6366F1' : '#16A34A',
+                      color: ev.rupture ? '#D4648A' : ev.reappro ? '#5B8DB8' : '#5DAB8B',
                     }}>
                       {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                     </div>
@@ -306,7 +306,7 @@ export default function Forecast({ products, stock, events, locations }) {
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{
                         fontSize: 16, fontWeight: 600,
-                        color: ev.rupture ? '#DC2626' : '#6366F1',
+                        color: ev.rupture ? '#D4648A' : '#5B8DB8',
                       }}>
                         −{ev.projectedSales}
                       </div>
@@ -324,7 +324,7 @@ export default function Forecast({ products, stock, events, locations }) {
                       </span>
                       <span style={{
                         fontSize: 10, fontWeight: 700,
-                        color: ev.rupture ? '#DC2626' : ev.reappro ? '#6366F1' : '#16A34A',
+                        color: ev.rupture ? '#D4648A' : ev.reappro ? '#5B8DB8' : '#5DAB8B',
                       }}>
                         {ev.pctRemaining}%
                       </span>
@@ -333,7 +333,7 @@ export default function Forecast({ products, stock, events, locations }) {
                       <div style={{
                         width: `${ev.pctRemaining}%`,
                         height: '100%', borderRadius: 3, transition: 'width 0.3s',
-                        background: ev.rupture ? '#DC2626' : ev.reappro ? '#6366F1' : '#16A34A',
+                        background: ev.rupture ? '#D4648A' : ev.reappro ? '#5B8DB8' : '#5DAB8B',
                       }} />
                     </div>
                   </div>
@@ -343,9 +343,9 @@ export default function Forecast({ products, stock, events, locations }) {
                     <Badge color="#94A3B8">
                       Taux {Math.round(ev.convRate * 100)}% × {ev.territoryMult}
                     </Badge>
-                    {ev.rupture && <Badge color="#DC2626">RUPTURE</Badge>}
-                    {ev.reappro && !ev.rupture && <Badge color="#6366F1">RÉAPPRO</Badge>}
-                    {ev.transport_inter_iles && <Badge color="#2563EB">Inter-îles</Badge>}
+                    {ev.rupture && <Badge color="#D4648A">RUPTURE</Badge>}
+                    {ev.reappro && !ev.rupture && <Badge color="#5B8DB8">RÉAPPRO</Badge>}
+                    {ev.transport_inter_iles && <Badge color="#5B8DB8">Inter-îles</Badge>}
                   </div>
                 </div>
 
@@ -377,7 +377,7 @@ export default function Forecast({ products, stock, events, locations }) {
                         </div>
                         <div style={{
                           fontSize: 13, fontWeight: 600,
-                          color: p.remaining < 0 ? '#DC2626' : p.remaining === 0 ? '#6366F1' : '#16A34A',
+                          color: p.remaining < 0 ? '#D4648A' : p.remaining === 0 ? '#5B8DB8' : '#5DAB8B',
                         }}>
                           {p.remaining < 0 ? `−${Math.abs(p.remaining)}` : p.remaining}
                         </div>
@@ -421,7 +421,7 @@ export default function Forecast({ products, stock, events, locations }) {
                 </div>
                 <div style={{
                   fontSize: 16, fontWeight: 600,
-                  color: p.totalQty === 0 ? '#DC2626' : p.totalQty <= (p.min_stock || 5) ? '#6366F1' : '#16A34A',
+                  color: p.totalQty === 0 ? '#D4648A' : p.totalQty <= (p.min_stock || 5) ? '#5B8DB8' : '#5DAB8B',
                 }}>{p.totalQty}</div>
               </div>
             ))}

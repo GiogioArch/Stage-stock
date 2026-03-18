@@ -4,10 +4,10 @@ export function CGU({ onClose }) {
   return (
     <LegalPage title="Conditions Générales d'Utilisation" onClose={onClose}>
       <h3>1. Objet</h3>
-      <p>Les présentes CGU régissent l'utilisation de Stage Stock, application de gestion de stock (WMS) destinée aux artistes et professionnels du spectacle, éditée par EK SHOP.</p>
+      <p>Les présentes CGU régissent l'utilisation de BackStage, application de gestion de stock (WMS) destinée aux artistes et professionnels du spectacle, éditée par EK SHOP.</p>
 
       <h3>2. Accès au service</h3>
-      <p>L'accès à Stage Stock nécessite la création d'un compte utilisateur avec une adresse email valide et un mot de passe. L'utilisateur est responsable de la confidentialité de ses identifiants.</p>
+      <p>L'accès à BackStage nécessite la création d'un compte utilisateur avec une adresse email valide et un mot de passe. L'utilisateur est responsable de la confidentialité de ses identifiants.</p>
 
       <h3>3. Utilisation du service</h3>
       <p>L'utilisateur s'engage à utiliser le service conformément à sa destination : gestion de stock, d'événements et d'équipe dans le cadre d'activités artistiques et de spectacle.</p>
@@ -18,10 +18,10 @@ export function CGU({ onClose }) {
       <p>L'utilisateur peut demander l'export ou la suppression de ses données à tout moment.</p>
 
       <h3>5. Responsabilité</h3>
-      <p>Stage Stock est fourni "en l'état". EK SHOP ne garantit pas l'absence d'interruptions ou d'erreurs. L'utilisateur est responsable de la vérification de ses données de stock et de la sauvegarde de ses informations critiques.</p>
+      <p>BackStage est fourni "en l'état". EK SHOP ne garantit pas l'absence d'interruptions ou d'erreurs. L'utilisateur est responsable de la vérification de ses données de stock et de la sauvegarde de ses informations critiques.</p>
 
       <h3>6. Tarification</h3>
-      <p>L'accès de base à Stage Stock est gratuit. Des fonctionnalités premium pourront être proposées sous forme d'abonnement mensuel. Tout changement de tarification sera communiqué avec un préavis de 30 jours.</p>
+      <p>L'accès de base à BackStage est gratuit. Des fonctionnalités premium pourront être proposées sous forme d'abonnement mensuel. Tout changement de tarification sera communiqué avec un préavis de 30 jours.</p>
 
       <h3>7. Résiliation</h3>
       <p>L'utilisateur peut supprimer son compte à tout moment. EK SHOP se réserve le droit de suspendre un compte en cas de violation des présentes CGU.</p>
@@ -41,7 +41,7 @@ export function Privacy({ onClose }) {
   return (
     <LegalPage title="Politique de Confidentialité" onClose={onClose}>
       <h3>1. Responsable du traitement</h3>
-      <p>EK SHOP, éditeur de Stage Stock, est responsable du traitement des données personnelles collectées via l'application.</p>
+      <p>EK SHOP, éditeur de BackStage, est responsable du traitement des données personnelles collectées via l'application.</p>
 
       <h3>2. Données collectées</h3>
       <p>Nous collectons les données suivantes :</p>
@@ -54,7 +54,7 @@ export function Privacy({ onClose }) {
       <h3>3. Finalité du traitement</h3>
       <p>Les données sont utilisées exclusivement pour :</p>
       <ul>
-        <li>Fournir et améliorer le service Stage Stock</li>
+        <li>Fournir et améliorer le service BackStage</li>
         <li>Gérer l'authentification et la sécurité des comptes</li>
         <li>Communiquer des informations relatives au service</li>
       </ul>
@@ -80,7 +80,7 @@ export function Privacy({ onClose }) {
       <p>Pour exercer ces droits, contactez-nous par email.</p>
 
       <h3>8. Cookies</h3>
-      <p>Stage Stock utilise uniquement le stockage local (localStorage) pour maintenir la session utilisateur et les préférences de modules. Aucun cookie tiers ou de tracking n'est utilisé.</p>
+      <p>BackStage utilise uniquement le stockage local (localStorage) pour maintenir la session utilisateur et les préférences de modules. Aucun cookie tiers ou de tracking n'est utilisé.</p>
 
       <p style={{ marginTop: 24, fontSize: 11, color: '#94A3B8' }}>Dernière mise à jour : mars 2026</p>
     </LegalPage>
@@ -114,7 +114,7 @@ function LegalPage({ title, onClose, children }) {
         {children}
       </div>
       <style>{`
-        .legal-page h3 { font-size: 14px; font-weight: 800; color: #6366F1; margin: 20px 0 8px; }
+        .legal-page h3 { font-size: 14px; font-weight: 800; color: #5B8DB8; margin: 20px 0 8px; }
         .legal-page p { margin: 0 0 10px; }
         .legal-page ul { margin: 0 0 10px; padding-left: 20px; }
         .legal-page li { margin-bottom: 4px; }

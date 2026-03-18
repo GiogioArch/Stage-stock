@@ -15,10 +15,10 @@ const C = {
 
 // ─── Quick suggestions ───
 const SUGGESTIONS = [
+  "C'est quand mon prochain concert ?",
+  'Combien de stock j\'ai ?',
+  'J\'ai des alertes ?',
   'Comment ajouter un produit ?',
-  'Comment préparer un concert ?',
-  "C'est quoi la packing list ?",
-  'Comment gérer mon équipe ?',
 ]
 
 // ─── Avatar ───
@@ -35,25 +35,54 @@ function Avatar({ size = 32 }) {
   )
 }
 
-// ─── Réponses intelligentes intégrées (pas de serveur requis) ───
-function getResponse(message) {
+// ─── Réponses intelligentes avec accès aux données réelles ───
+function getResponse(message, ctx = {}) {
   const msg = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const { events, data, userRole, orgName } = ctx
+
+  // Helpers pour données contextuelles
+  const now = new Date().toISOString().split('T')[0]
+  const upcoming = events?.filter(e => e.date >= now) || []
+  const nextEv = upcoming[0]
+  const totalStock = data?.stock?.reduce((s, st) => s + (st.quantity || 0), 0) || 0
+  const nbProducts = data?.products?.length || 0
+  const nbLocations = data?.locations?.length || 0
+  const alerts = data?.alerts || []
+  const ruptures = alerts.filter(a => a.level === 'rupture')
 
   // Salutations
   if (msg.match(/\b(bonjour|salut|hello|hey|coucou|yo)\b/))
-    return "Salut ! Je suis **Mélodie**, ton assistante Stage Stock. Comment je peux t'aider ?"
+    return `Salut ! Je suis **Mélodie**, ton assistante BackStage. Comment je peux t'aider ?`
 
-  // Stock
-  if (msg.match(/\b(stock|quantite|combien|inventaire|comptage)\b/))
-    return "Pour voir ton stock, utilise le bouton **Stock** sur le tableau de bord. Tu y trouveras :\n- Les quantités par lieu de stockage\n- L'état du stock par catégorie\n- Les mouvements récents\n\nTu peux aussi lancer un mouvement (entrée, sortie, transfert) depuis les **Actions rapides**."
+  // Prochaine date / prochain concert
+  if (msg.match(/\b(prochain|prochaine|next|date|quand)\b/) && msg.match(/\b(concert|date|evenement|spectacle|show)\b/)) {
+    if (!nextEv) return "Tu n'as aucun événement à venir pour le moment. Ajoute-en un dans l'onglet **Tournée** !"
+    const d = Math.ceil((new Date(nextEv.date) - new Date()) / 86400000)
+    return `Ton prochain événement est **${nextEv.name || nextEv.lieu}** le **${new Date(nextEv.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}** (dans ${d} jour${d > 1 ? 's' : ''}).\n\n- Lieu : ${nextEv.ville || '?'}\n- Format : ${nextEv.format || '?'}\n- Capacité : ${nextEv.capacite || '?'} pers.\n\nClique sur la carte du prochain événement sur le tableau de bord pour voir la fiche complète.`
+  }
+
+  // Stock contextuel
+  if (msg.match(/\b(stock|quantite|combien|inventaire|comptage)\b/)) {
+    let resp = `Tu as actuellement **${totalStock} unités** en stock, réparties sur **${nbLocations} dépôt${nbLocations > 1 ? 's' : ''}** avec **${nbProducts} référence${nbProducts > 1 ? 's' : ''}**.`
+    if (ruptures.length > 0) resp += `\n\n**Attention** : ${ruptures.length} rupture${ruptures.length > 1 ? 's' : ''} détectée${ruptures.length > 1 ? 's' : ''} !`
+    if (alerts.length > ruptures.length) resp += `\n${alerts.length - ruptures.length} alerte${alerts.length - ruptures.length > 1 ? 's' : ''} stock bas.`
+    return resp
+  }
 
   // Produit / Article
   if (msg.match(/\b(produit|article|ajouter|creer|nouveau|reference|sku)\b/))
     return "Pour ajouter un produit :\n1. Va dans l'onglet **Articles**\n2. Clique sur le bouton **+** en bas\n3. Remplis le nom, la catégorie, le SKU\n4. Enregistre\n\nTu peux aussi importer en masse via un fichier CSV."
 
-  // Concert / Événement
-  if (msg.match(/\b(concert|evenement|date|tournee|spectacle|festival)\b/))
-    return "Consulte le bouton **Tournée** sur le tableau de bord. Chaque fiche concert contient :\n- Les infos logistiques (lieu, capacité, format)\n- La packing list automatique\n- Les checklists par rôle\n- Le prévisionnel de ventes"
+  // Concert / Événement (info contextuelle)
+  if (msg.match(/\b(concert|evenement|tournee|spectacle|festival)\b/)) {
+    let resp = `Tu as **${upcoming.length} événement${upcoming.length > 1 ? 's' : ''} à venir** et **${(events?.length || 0) - upcoming.length} passé${(events?.length || 0) - upcoming.length > 1 ? 's' : ''}**.`
+    if (nextEv) {
+      const d = Math.ceil((new Date(nextEv.date) - new Date()) / 86400000)
+      resp += `\n\nProchain : **${nextEv.name || nextEv.lieu}** dans ${d} jour${d > 1 ? 's' : ''}.`
+    }
+    resp += `\n\nChaque fiche concert contient :\n- Les infos logistiques\n- La packing list automatique\n- Les checklists par rôle\n- Le prévisionnel de ventes`
+    return resp
+  }
 
   // Packing
   if (msg.match(/\b(packing|pack|preparer|preparation|valise)\b/))
@@ -67,9 +96,16 @@ function getResponse(message) {
   if (msg.match(/\b(merch|tshirt|vente|merchandising|boutique|textile)\b/))
     return "Le merchandising se gère dans **Articles** (famille Merchandising). Pour les prévisions de vente, utilise l'onglet **Forecast** qui calcule par format de concert et par territoire."
 
-  // Alertes
-  if (msg.match(/\b(alerte|notif|rappel|rupture|seuil)\b/))
-    return "Le bandeau d'alertes sur le tableau de bord t'informe des **ruptures** et des **stocks bas**. Clique dessus pour voir le détail. Tu peux aussi accéder à l'onglet **Alertes** pour la liste complète."
+  // Alertes contextuelles
+  if (msg.match(/\b(alerte|notif|rappel|rupture|seuil)\b/)) {
+    if (alerts.length === 0) return "Tout va bien ! Aucune alerte en cours. Ton stock est dans les clous."
+    let resp = `Tu as **${alerts.length} alerte${alerts.length > 1 ? 's' : ''}** en cours :`
+    if (ruptures.length > 0) resp += `\n- **${ruptures.length} rupture${ruptures.length > 1 ? 's' : ''}** : ${ruptures.slice(0, 3).map(r => r.name).join(', ')}${ruptures.length > 3 ? '...' : ''}`
+    const low = alerts.filter(a => a.level !== 'rupture')
+    if (low.length > 0) resp += `\n- **${low.length} stock${low.length > 1 ? 's' : ''} bas** : ${low.slice(0, 3).map(r => r.name).join(', ')}${low.length > 3 ? '...' : ''}`
+    resp += `\n\nClique sur le bandeau d'alertes du tableau de bord pour le détail.`
+    return resp
+  }
 
   // Finance
   if (msg.match(/\b(finance|argent|budget|cout|prix|amortissement|comptable|depense)\b/))
@@ -96,7 +132,7 @@ function getResponse(message) {
     return "De rien ! N'hésite pas si tu as d'autres questions. Je suis là pour ça ! 🎶"
 
   // Fallback
-  return "Je suis là pour t'aider avec **Stage Stock** ! Tu peux me poser des questions sur le stock, les concerts, l'équipe, le merch, les alertes, la finance... Qu'est-ce que tu veux savoir ?"
+  return "Je suis là pour t'aider avec **BackStage** ! Tu peux me poser des questions sur le stock, les concerts, l'équipe, le merch, les alertes, la finance... Qu'est-ce que tu veux savoir ?"
 }
 
 export default function MelodieChat({ user, userRole, orgName, events, data }) {
@@ -121,7 +157,7 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
       const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
       setMessages([{
         role: 'assistant',
-        content: `Salut${name ? ` ${name}` : ''} ! Je suis **Mélodie**, ton assistante Stage Stock.\n\nJe peux t'aider avec :\n- Le stock et les mouvements\n- La préparation des concerts\n- La gestion d'équipe\n- Le merchandising et les prévisions\n\nPose-moi ta question !`,
+        content: `Salut${name ? ` ${name}` : ''} ! Je suis **Mélodie**, ton assistante BackStage.\n\nJe connais ton projet et tes données. Demande-moi par exemple :\n- C'est quand mon prochain concert ?\n- Combien j'ai de stock ?\n- J'ai des alertes ?\n\nPose-moi ta question !`,
       }])
     }
   }, [open])
@@ -137,9 +173,9 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
     setInput('')
     setLoading(true)
 
-    // Simulate slight delay for natural feel
+    // Réponse contextuelle avec accès aux données
     setTimeout(() => {
-      const response = getResponse(text)
+      const response = getResponse(text, { events, data, userRole, orgName })
       setMessages([...newMessages, { role: 'assistant', content: response }])
       setLoading(false)
     }, 400 + Math.random() * 400)
@@ -193,7 +229,7 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
         <Avatar size={36} />
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>Mélodie</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Assistante Stage Stock</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Assistante BackStage</div>
         </div>
         <button onClick={() => setOpen(false)} style={{
           width: 32, height: 32, borderRadius: 8,

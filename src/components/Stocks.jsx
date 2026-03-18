@@ -30,14 +30,14 @@ const PALETTE = {
   textPrimary: '#1E293B',
   textSecondary: '#64748B',
   textTertiary: '#94A3B8',
-  accent: '#6366F1',
+  accent: '#5B8DB8',
   bgSurface: '#F8FAFC',
   bgHover: '#F1F5F9',
   border: '#E2E8F0',
-  danger: '#DC2626',
+  danger: '#D4648A',
 }
 
-const LOCATION_COLORS = ['#6366F1', '#DC2626', '#2563EB', '#16A34A', '#D97706', '#8B5DAB']
+const LOCATION_COLORS = ['#5B8DB8', '#D4648A', '#5B8DB8', '#5DAB8B', '#E8935A', '#8B5DAB']
 
 function LocationIcon({ emoji, size = 20, color }) {
   const IconComponent = ICON_MAP[emoji] || MapPin
@@ -173,7 +173,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
                           </div>
                           <div style={{ fontSize: 10, color: cat.color }}>{cat.name}</div>
                         </div>
-                        <span style={{ fontSize: 16, fontWeight: 600, color: item.quantity <= (item.product.min_stock || 5) ? '#D97706' : PALETTE.textPrimary }}>
+                        <span style={{ fontSize: 16, fontWeight: 600, color: item.quantity <= (item.product.min_stock || 5) ? '#E8935A' : PALETTE.textPrimary }}>
                           {item.quantity}
                         </span>
                       </div>
@@ -252,7 +252,7 @@ function AddLocationModal({ onClose, onSave }) {
   const [name, setName] = useState('')
   const [type, setType] = useState('fixe')
   const [icon, setIcon] = useState('MapPin')
-  const [color, setColor] = useState('#6366F1')
+  const [color, setColor] = useState('#5B8DB8')
 
   return (
     <Modal title="Nouveau lieu" onClose={onClose}>

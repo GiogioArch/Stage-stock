@@ -12,7 +12,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Stage Stock crash:', error, errorInfo)
+    console.error('BackStage crash:', error, errorInfo)
     // Future: send to Sentry or monitoring service
   }
 
@@ -24,8 +24,8 @@ export default class ErrorBoundary extends React.Component {
           flexDirection: 'column', padding: 32, textAlign: 'center',
           background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 30%, #F8FAFC 70%, #F8FAFC 100%)',
         }}>
-          <div style={{ fontSize: 56, marginBottom: 16 }}>{createElement(AlertTriangle, { size: 56, color: '#DC2626' })}</div>
-          <div style={{ fontSize: 18, fontWeight: 600, color: '#DC2626', marginBottom: 8 }}>
+          <div style={{ fontSize: 56, marginBottom: 16 }}>{createElement(AlertTriangle, { size: 56, color: '#D4648A' })}</div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#D4648A', marginBottom: 8 }}>
             Oups, une erreur est survenue
           </div>
           <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 6, lineHeight: 1.5, maxWidth: 320 }}>
@@ -41,7 +41,7 @@ export default class ErrorBoundary extends React.Component {
             onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload() }}
             style={{
               padding: '12px 32px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-              background: 'linear-gradient(135deg, #6366F1, #DC2626)',
+              background: 'linear-gradient(135deg, #5B8DB8, #D4648A)',
               color: 'white', cursor: 'pointer', border: 'none',
               boxShadow: '0 4px 16px rgba(232,115,90,0.25)',
             }}

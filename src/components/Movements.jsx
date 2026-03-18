@@ -62,9 +62,9 @@ export default function Movements({ movements, products, locations, onToast }) {
           Historique ({filtered.length} mouvement{filtered.length > 1 ? 's' : ''})
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <StatPill Icon={ArrowDownToLine} value={totalIn} label="Entrées" color="#16A34A" />
-          <StatPill Icon={ArrowUpFromLine} value={totalOut} label="Sorties" color="#DC2626" />
-          <StatPill Icon={RefreshCw} value={totalTransfer} label="Transferts" color="#2563EB" />
+          <StatPill Icon={ArrowDownToLine} value={totalIn} label="Entrées" color="#5DAB8B" />
+          <StatPill Icon={ArrowUpFromLine} value={totalOut} label="Sorties" color="#D4648A" />
+          <StatPill Icon={RefreshCw} value={totalTransfer} label="Transferts" color="#5B8DB8" />
         </div>
       </div>
 
@@ -81,8 +81,8 @@ export default function Movements({ movements, products, locations, onToast }) {
         </div>
         <button onClick={() => setShowFilters(!showFilters)} style={{
           width: 40, height: 40, borderRadius: 6,
-          background: showFilters ? 'rgba(99,102,241,0.12)' : '#F8FAFC',
-          border: `1px solid ${showFilters ? 'rgba(99,102,241,0.2)' : '#E2E8F0'}`,
+          background: showFilters ? 'rgba(91,141,184,0.12)' : '#F8FAFC',
+          border: `1px solid ${showFilters ? 'rgba(91,141,184,0.2)' : '#E2E8F0'}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}>
           {showFilters ? <X size={16} color="#A5B4FC" /> : <Filter size={16} color="#94A3B8" />}
@@ -107,7 +107,7 @@ export default function Movements({ movements, products, locations, onToast }) {
           </div>
           {(dateFrom || dateTo || typeFilter !== 'all' || search) && (
             <button onClick={() => { setDateFrom(''); setDateTo(''); setTypeFilter('all'); setSearch('') }}
-              style={{ fontSize: 12, color: '#DC2626', fontWeight: 500, padding: '4px 0' }}>
+              style={{ fontSize: 12, color: '#D4648A', fontWeight: 500, padding: '4px 0' }}>
               Réinitialiser les filtres
             </button>
           )}
@@ -118,9 +118,9 @@ export default function Movements({ movements, products, locations, onToast }) {
       <div style={{ display: 'flex', gap: 4, marginBottom: 16, overflowX: 'auto' }}>
         {[
           { id: 'all', label: 'Tous', color: '#1E293B' },
-          { id: 'in', label: 'Entrées', color: '#16A34A', Icon: ArrowDownToLine },
-          { id: 'out', label: 'Sorties', color: '#DC2626', Icon: ArrowUpFromLine },
-          { id: 'transfer', label: 'Transferts', color: '#2563EB', Icon: RefreshCw },
+          { id: 'in', label: 'Entrées', color: '#5DAB8B', Icon: ArrowDownToLine },
+          { id: 'out', label: 'Sorties', color: '#D4648A', Icon: ArrowUpFromLine },
+          { id: 'transfer', label: 'Transferts', color: '#5B8DB8', Icon: RefreshCw },
         ].map(f => (
           <button key={f.id} onClick={() => setTypeFilter(f.id)} style={{
             padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,

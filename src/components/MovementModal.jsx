@@ -66,7 +66,7 @@ export default function MovementModal({ type, products, locations, stock, presel
       setShowConfirm(false)
       onDone()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
       setLoading(false)
     }
@@ -96,7 +96,7 @@ export default function MovementModal({ type, products, locations, stock, presel
                 {locations.map(l => <option key={l.id} value={l.id}>{l.icon} {l.name}</option>)}
               </select>
               {productId && fromLoc && (
-                <div style={{ fontSize: 12, color: availableStock === 0 ? '#DC2626' : '#94A3B8', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: availableStock === 0 ? '#D4648A' : '#94A3B8', marginTop: 4 }}>
                   Stock disponible: <strong>{availableStock}</strong>
                 </div>
               )}
@@ -125,10 +125,10 @@ export default function MovementModal({ type, products, locations, stock, presel
               value={quantity}
               onChange={e => setQuantity(intOnly(e.target.value))}
               placeholder="0"
-              style={isOverStock ? { borderColor: '#DC2626', color: '#DC2626' } : {}}
+              style={isOverStock ? { borderColor: '#D4648A', color: '#D4648A' } : {}}
             />
             {isOverStock && (
-              <div style={{ fontSize: 12, color: '#DC2626', fontWeight: 700, marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: '#D4648A', fontWeight: 700, marginTop: 4 }}>
                 ! Stock insuffisant (max: {availableStock})
               </div>
             )}

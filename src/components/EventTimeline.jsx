@@ -13,14 +13,14 @@ const HOURS = Array.from({ length: 49 }, (_, i) => i - 24) // -24 to +24
 
 const CATEGORIES = [
   { id: 'logistique', label: 'Logistique', color: '#5B8DB8', icon: Truck },
-  { id: 'son', label: 'Son', color: '#2563EB', icon: Zap },
+  { id: 'son', label: 'Son', color: '#5B8DB8', icon: Zap },
   { id: 'lumiere', label: 'Lumière', color: '#E8935A', icon: Zap },
   { id: 'scene', label: 'Scène', color: '#9B7DC4', icon: ClipboardList },
   { id: 'merch', label: 'Merch', color: '#D4648A', icon: ClipboardList },
   { id: 'artiste', label: 'Artiste', color: '#E8735A', icon: Users },
-  { id: 'securite', label: 'Sécurité', color: '#DC2626', icon: AlertTriangle },
+  { id: 'securite', label: 'Sécurité', color: '#D4648A', icon: AlertTriangle },
   { id: 'transport', label: 'Transport', color: '#5DAB8B', icon: Truck },
-  { id: 'communication', label: 'Communication', color: '#6366F1', icon: MessageSquare },
+  { id: 'communication', label: 'Communication', color: '#5B8DB8', icon: MessageSquare },
   { id: 'autre', label: 'Autre', color: '#94A3B8', icon: ClipboardList },
 ]
 
@@ -28,7 +28,7 @@ const PRIORITIES = [
   { id: 'low', label: 'Basse', color: '#94A3B8' },
   { id: 'medium', label: 'Moyenne', color: '#5B8DB8' },
   { id: 'high', label: 'Haute', color: '#E8935A' },
-  { id: 'critical', label: 'Critique', color: '#DC2626' },
+  { id: 'critical', label: 'Critique', color: '#D4648A' },
 ]
 
 const FLOW_TYPES = [
@@ -159,15 +159,15 @@ export default function EventTimeline({
 
       <div className="card" style={{
         padding: '18px 16px', marginBottom: 16,
-        background: 'linear-gradient(135deg, #6366F108, #6366F118)',
-        border: '1.5px solid #6366F125',
+        background: 'linear-gradient(135deg, #5B8DB808, #5B8DB818)',
+        border: '1.5px solid #5B8DB825',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,
-            background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+            background: 'linear-gradient(135deg, #5B8DB8, #4A7DA8)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', boxShadow: '0 4px 16px #6366F130',
+            color: 'white', boxShadow: '0 4px 16px #5B8DB830',
           }}>{createElement(Clock, { size: 24 })}</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>Mode Événement</div>
@@ -175,7 +175,7 @@ export default function EventTimeline({
           </div>
           {event.date && (
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#6366F1' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#5B8DB8' }}>
                 {new Date(event.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
               {event.lieu && <div style={{ fontSize: 10, color: '#9A8B94' }}>{event.lieu}</div>}
@@ -187,7 +187,7 @@ export default function EventTimeline({
         <div style={{ marginBottom: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
             <span style={{ fontSize: 10, fontWeight: 700, color: '#9A8B94' }}>Progression</span>
-            <span style={{ fontSize: 10, fontWeight: 800, color: progressPct === 100 ? '#5DAB8B' : '#6366F1' }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: progressPct === 100 ? '#5DAB8B' : '#5B8DB8' }}>
               {progressPct}% ({doneTasks}/{totalTasks})
             </span>
           </div>
@@ -195,22 +195,22 @@ export default function EventTimeline({
             <div style={{
               height: '100%', borderRadius: 3, transition: 'width 0.3s',
               width: `${progressPct}%`,
-              background: progressPct === 100 ? '#5DAB8B' : 'linear-gradient(90deg, #6366F1, #818CF8)',
+              background: progressPct === 100 ? '#5DAB8B' : 'linear-gradient(90deg, #5B8DB8, #818CF8)',
             }} />
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 8 }}>
-          <StatBox label="Total" value={totalTasks} color="#6366F1" />
+          <StatBox label="Total" value={totalTasks} color="#5B8DB8" />
           <StatBox label="Fait" value={doneTasks} color="#5DAB8B" />
-          <StatBox label="Critique" value={criticalTasks} color="#DC2626" />
+          <StatBox label="Critique" value={criticalTasks} color="#D4648A" />
         </div>
       </div>
 
       {/* ─── View mode + Filters ─── */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
         {[
-          { id: 'timeline', label: 'Timeline', color: '#6366F1' },
+          { id: 'timeline', label: 'Timeline', color: '#5B8DB8' },
           { id: 'role', label: 'Par rôle', color: '#9B7DC4' },
           { id: 'flow', label: 'Flux', color: '#5DAB8B' },
         ].map(v => (
@@ -228,9 +228,9 @@ export default function EventTimeline({
       <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         <button onClick={() => setFilterRole(null)} style={{
           padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700,
-          background: !filterRole ? '#6366F115' : 'white',
-          color: !filterRole ? '#6366F1' : '#9A8B94',
-          border: `1px solid ${!filterRole ? '#6366F140' : '#E8DED8'}`,
+          background: !filterRole ? '#5B8DB815' : 'white',
+          color: !filterRole ? '#5B8DB8' : '#9A8B94',
+          border: `1px solid ${!filterRole ? '#5B8DB840' : '#E8DED8'}`,
           cursor: 'pointer', whiteSpace: 'nowrap',
         }}>Tous</button>
         {ROLE_ORDER.filter(code => tasks.some(t => t.assigned_role === code)).map(code => {
@@ -272,8 +272,8 @@ export default function EventTimeline({
                 <div style={{
                   position: 'absolute', left: 14, top: 14, width: 14, height: 14,
                   borderRadius: 7, zIndex: 1,
-                  background: isShowtime ? '#E8735A' : isCurrent ? '#6366F1' : hourTasks.length > 0 ? '#5DAB8B' : '#E8DED8',
-                  border: `2px solid ${isShowtime ? '#E8735A30' : isCurrent ? '#6366F130' : 'white'}`,
+                  background: isShowtime ? '#E8735A' : isCurrent ? '#5B8DB8' : hourTasks.length > 0 ? '#5DAB8B' : '#E8DED8',
+                  border: `2px solid ${isShowtime ? '#E8735A30' : isCurrent ? '#5B8DB830' : 'white'}`,
                 }} />
 
                 <div style={{ marginLeft: 44 }}>
@@ -281,7 +281,7 @@ export default function EventTimeline({
                   <div style={{
                     fontSize: isShowtime ? 13 : 11,
                     fontWeight: isShowtime ? 900 : 700,
-                    color: isShowtime ? '#E8735A' : isCurrent ? '#6366F1' : '#3D3042',
+                    color: isShowtime ? '#E8735A' : isCurrent ? '#5B8DB8' : '#3D3042',
                     marginBottom: 6,
                     display: 'flex', alignItems: 'center', gap: 8,
                   }}>
@@ -292,7 +292,7 @@ export default function EventTimeline({
                     {isCurrent && (
                       <span style={{
                         fontSize: 9, padding: '1px 6px', borderRadius: 6,
-                        background: '#6366F115', color: '#6366F1', fontWeight: 800,
+                        background: '#5B8DB815', color: '#5B8DB8', fontWeight: 800,
                       }}>MAINTENANT</span>
                     )}
                   </div>
@@ -310,7 +310,7 @@ export default function EventTimeline({
                       ))}
                       {!isExpanded && hourTasks.length > 3 && (
                         <button onClick={() => setExpandedHour(hour)} style={{
-                          padding: '6px', fontSize: 11, color: '#6366F1', fontWeight: 700,
+                          padding: '6px', fontSize: 11, color: '#5B8DB8', fontWeight: 700,
                           background: 'none', border: 'none', cursor: 'pointer',
                         }}>
                           + {hourTasks.length - 3} autres tâches
@@ -428,10 +428,10 @@ export default function EventTimeline({
       <button onClick={() => setShowAddTask(true)} style={{
         position: 'fixed', bottom: 90, right: 16, zIndex: 80,
         width: 52, height: 52, borderRadius: 16,
-        background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+        background: 'linear-gradient(135deg, #5B8DB8, #4A7DA8)',
         color: 'white', border: 'none', cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 6px 24px rgba(99,102,241,0.4)',
+        boxShadow: '0 6px 24px rgba(91,141,184,0.4)',
       }}>
         {createElement(Plus, { size: 24 })}
       </button>
@@ -488,7 +488,7 @@ function TaskCard({ task, onToggle, compact, showHour }) {
               </span>
             )}
             {task.priority === 'critical' && (
-              <span style={{ fontSize: 9, color: '#DC2626', fontWeight: 800 }}>CRITIQUE</span>
+              <span style={{ fontSize: 9, color: '#D4648A', fontWeight: 800 }}>CRITIQUE</span>
             )}
             {task.priority === 'high' && (
               <span style={{ fontSize: 9, color: '#E8935A', fontWeight: 800 }}>PRIORITÉ</span>
@@ -582,7 +582,7 @@ function AddTaskModal({ event, roles, userProfiles, orgId, user, onClose, onDone
                 style={{ flex: 1 }} />
               <span style={{
                 fontSize: 13, fontWeight: 800, minWidth: 50, textAlign: 'center',
-                color: hourOffset == 0 ? '#E8735A' : '#6366F1',
+                color: hourOffset == 0 ? '#E8735A' : '#5B8DB8',
               }}>
                 {hourOffset == 0 ? 'SHOW' : `H${hourOffset > 0 ? '+' : ''}${hourOffset}`}
               </span>

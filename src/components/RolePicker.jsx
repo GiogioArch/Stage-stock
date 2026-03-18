@@ -8,7 +8,7 @@ import {
 
 // Design tokens
 const colors = {
-  accent: '#6366F1',
+  accent: '#5B8DB8',
   textPrimary: '#1E293B',
   textSecondary: '#64748B',
   textTertiary: '#94A3B8',
@@ -19,18 +19,18 @@ const colors = {
 
 // Role display config — shared with PackingList
 export const ROLE_CONF = {
-  TM:   { label: 'Tour Manager',        icon: Target,        color: '#6366F1' },
-  PM:   { label: 'Chef de Production',   icon: Clapperboard,  color: '#8B5CF6' },
-  SE:   { label: 'Ingé Son',             icon: Volume2,       color: '#2563EB' },
-  LD:   { label: 'Régisseur Lumière',    icon: Lightbulb,     color: '#D97706' },
-  BL:   { label: 'Backline',             icon: Guitar,        color: '#DC2626' },
-  SM:   { label: 'Régisseur Scène',      icon: Drama,         color: '#10B981' },
+  TM:   { label: 'Tour Manager',        icon: Target,        color: '#5B8DB8' },
+  PM:   { label: 'Chef de Production',   icon: Clapperboard,  color: '#8B6DB8' },
+  SE:   { label: 'Ingé Son',             icon: Volume2,       color: '#5B8DB8' },
+  LD:   { label: 'Régisseur Lumière',    icon: Lightbulb,     color: '#E8935A' },
+  BL:   { label: 'Backline',             icon: Guitar,        color: '#D4648A' },
+  SM:   { label: 'Régisseur Scène',      icon: Drama,         color: '#5DAB8B' },
   TD:   { label: 'Directeur Technique',  icon: Settings,      color: '#14B8A6' },
-  MM:   { label: 'Merch Manager',        icon: Shirt,         color: '#EC4899' },
-  LOG:  { label: 'Logistique',           icon: Truck,         color: '#2563EB' },
-  SAFE: { label: 'Sécurité',             icon: Shield,        color: '#DC2626' },
-  AA:   { label: 'Assistant Artiste',    icon: Mic,           color: '#8B5CF6' },
-  PA:   { label: 'Assistant Production', icon: ClipboardList, color: '#10B981' },
+  MM:   { label: 'Merch Manager',        icon: Shirt,         color: '#D4648A' },
+  LOG:  { label: 'Logistique',           icon: Truck,         color: '#5B8DB8' },
+  SAFE: { label: 'Sécurité',             icon: Shield,        color: '#D4648A' },
+  AA:   { label: 'Assistant Artiste',    icon: Mic,           color: '#8B6DB8' },
+  PA:   { label: 'Assistant Production', icon: ClipboardList, color: '#5DAB8B' },
 }
 
 const DEFAULT_CONF = { icon: ClipboardList, color: colors.textTertiary }
@@ -121,7 +121,7 @@ function getRoleLevel(code) {
 }
 
 const LEVEL_LABELS = ['Direction', 'Chefs Techniques', 'Opérateurs']
-const LEVEL_COLORS = ['#6366F1', '#14B8A6', '#E8935A']
+const LEVEL_COLORS = ['#5B8DB8', '#14B8A6', '#E8935A']
 
 export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToast }) {
   const [selected, setSelected] = useState(null)
@@ -150,7 +150,7 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
           await db.insert('user_profiles', { user_id: userId, role_id: selected.id, org_id: orgId })
         }
       } catch (e2) {
-        onToast('Erreur: ' + e2.message, '#DC2626')
+        onToast('Erreur: ' + e2.message, '#D4648A')
         setSaving(false)
         return
       }
@@ -185,7 +185,7 @@ export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToa
 
   // Grouper par niveau
   const grouped = [
-    { level: 0, label: 'Direction', color: '#6366F1', icon: Crown, roles: sortedRoles.filter(r => getRoleLevel(r.code) === 0) },
+    { level: 0, label: 'Direction', color: '#5B8DB8', icon: Crown, roles: sortedRoles.filter(r => getRoleLevel(r.code) === 0) },
     { level: 1, label: 'Chefs Techniques', color: '#14B8A6', icon: Settings, roles: sortedRoles.filter(r => getRoleLevel(r.code) === 1) },
     { level: 2, label: 'Opérateurs', color: '#E8935A', icon: Users, roles: sortedRoles.filter(r => getRoleLevel(r.code) === 2) },
   ].filter(g => g.roles.length > 0)

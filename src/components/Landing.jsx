@@ -26,12 +26,12 @@ export default function Landing({ onGetStarted }) {
       <div style={{ textAlign: 'center', padding: '60px 24px 40px' }}>
         <div style={{
           width: 56, height: 56, borderRadius: 8,
-          background: '#6366F1',
+          background: '#5B8DB8',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: 20,
         }}><Box size={32} color="#fff" /></div>
         <h1 style={{ fontSize: 28, fontWeight: 600, color: '#1E293B', margin: '0 0 8px' }}>
-          Stage Stock
+          BackStage
         </h1>
         <p style={{ fontSize: 15, color: '#64748B', fontWeight: 500, margin: '0 0 8px', lineHeight: 1.4 }}>
           Le WMS des artistes et pros du spectacle
@@ -41,7 +41,7 @@ export default function Landing({ onGetStarted }) {
         </p>
         <button onClick={onGetStarted} style={{
           padding: '12px 32px', borderRadius: 8, fontSize: 15, fontWeight: 600,
-          background: '#6366F1',
+          background: '#5B8DB8',
           color: 'white', border: 'none', cursor: 'pointer',
           display: 'inline-flex', alignItems: 'center', gap: 8,
         }}>
@@ -60,7 +60,7 @@ export default function Landing({ onGetStarted }) {
               padding: '16px 14px', borderRadius: 12, background: '#F8FAFC',
               border: '1px solid #E2E8F0',
             }}>
-              <div style={{ marginBottom: 8 }}><f.Icon size={22} color="#6366F1" /></div>
+              <div style={{ marginBottom: 8 }}><f.Icon size={22} color="#5B8DB8" /></div>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 4 }}>{f.title}</div>
               <div style={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.4 }}>{f.desc}</div>
             </div>
@@ -79,9 +79,9 @@ export default function Landing({ onGetStarted }) {
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <div style={{
                   width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-                  background: 'rgba(99,102,241,0.12)',
+                  background: 'rgba(91,141,184,0.12)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 16, fontWeight: 600, color: '#6366F1',
+                  fontSize: 16, fontWeight: 600, color: '#5B8DB8',
                 }}>{s.num}</div>
                 <div style={{ fontSize: 14, fontWeight: 500, color: '#1E293B' }}>{s.text}</div>
               </div>
@@ -102,36 +102,36 @@ export default function Landing({ onGetStarted }) {
           {/* Free */}
           <div style={{ padding: '16px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <Zap size={20} color="#6366F1" />
+              <Zap size={20} color="#5B8DB8" />
               <span style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>Starter</span>
-              <span style={{ marginLeft: 'auto', fontSize: 18, fontWeight: 700, color: '#6366F1' }}>Gratuit</span>
+              <span style={{ marginLeft: 'auto', fontSize: 18, fontWeight: 700, color: '#5B8DB8' }}>Gratuit</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {['1 projet', '2 membres', '50 produits', 'Packing list auto'].map(f => (
                 <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748B' }}>
-                  <Check size={14} color="#16A34A" /> {f}
+                  <Check size={14} color="#5DAB8B" /> {f}
                 </div>
               ))}
             </div>
           </div>
           {/* Team */}
-          <div style={{ padding: '16px', borderRadius: 12, border: '2px solid #6366F1', background: '#FAFAFF', position: 'relative' }}>
+          <div style={{ padding: '16px', borderRadius: 12, border: '2px solid #5B8DB8', background: '#FAFAFF', position: 'relative' }}>
             <div style={{
               position: 'absolute', top: -10, right: 16, padding: '2px 10px', borderRadius: 6,
-              background: '#6366F1', color: 'white', fontSize: 10, fontWeight: 700,
+              background: '#5B8DB8', color: 'white', fontSize: 10, fontWeight: 700,
             }}>POPULAIRE</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <Star size={20} color="#6366F1" />
+              <Star size={20} color="#5B8DB8" />
               <span style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>Team</span>
               <span style={{ marginLeft: 'auto' }}>
-                <span style={{ fontSize: 22, fontWeight: 700, color: '#6366F1' }}>49€</span>
+                <span style={{ fontSize: 22, fontWeight: 700, color: '#5B8DB8' }}>49€</span>
                 <span style={{ fontSize: 12, color: '#94A3B8' }}>/mois</span>
               </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {['Projets illimités', '10 membres', 'Produits illimités', 'Export PDF', 'Scanner code-barres', 'Forecast merch'].map(f => (
                 <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748B' }}>
-                  <Check size={14} color="#16A34A" /> {f}
+                  <Check size={14} color="#5DAB8B" /> {f}
                 </div>
               ))}
             </div>
@@ -139,7 +139,7 @@ export default function Landing({ onGetStarted }) {
           {/* Pro */}
           <div style={{ padding: '16px', borderRadius: 12, border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <Crown size={20} color="#D97706" />
+              <Crown size={20} color="#E8935A" />
               <span style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>Pro</span>
               <span style={{ marginLeft: 'auto' }}>
                 <span style={{ fontSize: 22, fontWeight: 700, color: '#1E293B' }}>99€</span>
@@ -149,7 +149,7 @@ export default function Landing({ onGetStarted }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {['Tout de Team', 'Membres illimités', 'Finance & amortissement', 'API & intégrations', 'Support prioritaire'].map(f => (
                 <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748B' }}>
-                  <Check size={14} color="#16A34A" /> {f}
+                  <Check size={14} color="#5DAB8B" /> {f}
                 </div>
               ))}
             </div>
@@ -161,7 +161,7 @@ export default function Landing({ onGetStarted }) {
       <div id="temoignages" style={{ padding: '40px 20px', background: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
         <div style={{ maxWidth: 500, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 18, fontWeight: 600, color: '#1E293B', marginBottom: 24 }}>
-            Ils gèrent leur tournée avec Stage Stock
+            Ils gèrent leur tournée avec BackStage
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
@@ -176,7 +176,7 @@ export default function Landing({ onGetStarted }) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
-                    width: 36, height: 36, borderRadius: 10, background: '#6366F1',
+                    width: 36, height: 36, borderRadius: 10, background: '#5B8DB8',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'white', fontSize: 13, fontWeight: 600,
                   }}>{t.initials}</div>
@@ -195,7 +195,7 @@ export default function Landing({ onGetStarted }) {
         </p>
         <button onClick={onGetStarted} style={{
           padding: '12px 32px', borderRadius: 8, fontSize: 15, fontWeight: 600,
-          background: '#6366F1',
+          background: '#5B8DB8',
           color: 'white', border: 'none', cursor: 'pointer',
           display: 'inline-flex', alignItems: 'center', gap: 8,
         }}>
@@ -217,7 +217,7 @@ export default function Landing({ onGetStarted }) {
           <a href="#privacy" onClick={e => { e.preventDefault(); window.dispatchEvent(new CustomEvent('show-legal', { detail: 'privacy' })) }}
             style={{ color: '#94A3B8', textDecoration: 'none' }}>Confidentialité</a>
         </div>
-        Stage Stock — WMS pour artistes et professionnels du spectacle
+        BackStage — Gestion de tournée pour les professionnels du spectacle
       </div>
     </div>
   )

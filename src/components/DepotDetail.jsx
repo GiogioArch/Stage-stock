@@ -84,20 +84,20 @@ export default function DepotDetail({
           padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
           background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer',
         }}>← Retour</button>
-        <div style={{ fontSize: 15, fontWeight: 600, color: location.color || '#2563EB' }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: location.color || '#5B8DB8' }}>
           {location.icon || ''} {location.name}
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
           {onEdit && (
             <button onClick={() => onEdit(location)} style={{
               padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              background: '#EEF4FA', border: '1px solid #2563EB30', color: '#2563EB', cursor: 'pointer',
+              background: '#EEF4FA', border: '1px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
             }}>{createElement(Pencil, { size: 14 })}</button>
           )}
           {onDelete && (
             <button onClick={() => onDelete(location)} style={{
               padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              background: '#FDF0F4', border: '1px solid #7C3AED30', color: '#7C3AED', cursor: 'pointer',
+              background: '#FDF0F4', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
             }}></button>
           )}
         </div>
@@ -106,18 +106,18 @@ export default function DepotDetail({
       {/* KPI Banner */}
       <div className="card" style={{
         margin: '16px 16px 0', padding: '18px 16px',
-        background: `linear-gradient(135deg, ${(location.color || '#2563EB')}08, ${(location.color || '#2563EB')}18)`,
-        border: `1px solid ${(location.color || '#2563EB')}25`,
+        background: `linear-gradient(135deg, ${(location.color || '#5B8DB8')}08, ${(location.color || '#5B8DB8')}18)`,
+        border: `1px solid ${(location.color || '#5B8DB8')}25`,
       }}>
         {location.description && (
           <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 12 }}>{location.description}</div>
         )}
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Références" value={nbProducts} color={location.color || '#2563EB'} />
-          <KpiBox label="Unités" value={totalQty} color="#16A34A" />
-          <KpiBox label="Valeur" value={`${Math.round(totalValue)}€`} color="#D97706" />
+          <KpiBox label="Références" value={nbProducts} color={location.color || '#5B8DB8'} />
+          <KpiBox label="Unités" value={totalQty} color="#5DAB8B" />
+          <KpiBox label="Valeur" value={`${Math.round(totalValue)}€`} color="#E8935A" />
           {alerts.length > 0 && (
-            <KpiBox label="Alertes" value={alerts.length} color="#7C3AED" />
+            <KpiBox label="Alertes" value={alerts.length} color="#8B6DB8" />
           )}
         </div>
       </div>
@@ -128,16 +128,16 @@ export default function DepotDetail({
           <button key={s.id} onClick={() => setSection(s.id)} style={{
             flex: 1, padding: '7px 6px', borderRadius: 10, fontSize: 10, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center', position: 'relative',
-            background: section === s.id ? `${(location.color || '#2563EB')}15` : 'white',
-            color: section === s.id ? (location.color || '#2563EB') : '#94A3B8',
-            border: `1px solid ${section === s.id ? (location.color || '#2563EB') + '40' : '#E2E8F0'}`,
+            background: section === s.id ? `${(location.color || '#5B8DB8')}15` : 'white',
+            color: section === s.id ? (location.color || '#5B8DB8') : '#94A3B8',
+            border: `1px solid ${section === s.id ? (location.color || '#5B8DB8') + '40' : '#E2E8F0'}`,
           }}>
             {s.icon} {s.label}
             {s.count > 0 && (
               <span style={{
                 position: 'absolute', top: -4, right: -2,
                 width: 16, height: 16, borderRadius: '50%',
-                background: '#7C3AED', color: 'white', fontSize: 9, fontWeight: 600,
+                background: '#8B6DB8', color: 'white', fontSize: 9, fontWeight: 600,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>{s.count}</span>
             )}
@@ -156,15 +156,15 @@ export default function DepotDetail({
               <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                 <button onClick={() => onMovement('in', location.id)} style={{
                   flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#16A34A15', border: '1px solid #16A34A30', color: '#16A34A', cursor: 'pointer',
+                  background: '#5DAB8B15', border: '1px solid #5DAB8B30', color: '#5DAB8B', cursor: 'pointer',
                 }}>+ Entrée</button>
                 <button onClick={() => onMovement('out', location.id)} style={{
                   flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#7C3AED15', border: '1px solid #7C3AED30', color: '#7C3AED', cursor: 'pointer',
+                  background: '#8B6DB815', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
                 }}>- Sortie</button>
                 <button onClick={() => onMovement('transfer', location.id)} style={{
                   flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#2563EB15', border: '1px solid #2563EB30', color: '#2563EB', cursor: 'pointer',
+                  background: '#5B8DB815', border: '1px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
                 }}>↔ Transfert</button>
               </div>
             )}
@@ -206,14 +206,14 @@ export default function DepotDetail({
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
                             <div style={{
                               fontSize: 16, fontWeight: 600,
-                              color: isLow ? '#7C3AED' : (location.color || '#2563EB'),
+                              color: isLow ? '#8B6DB8' : (location.color || '#5B8DB8'),
                             }}>{p.qty}</div>
                             {p.sale_price > 0 && (
                               <div style={{ fontSize: 9, color: '#94A3B8' }}>{Math.round(p.qty * p.sale_price)}€</div>
                             )}
                           </div>
                           {isLow && (
-                            <span style={{ fontSize: 10, color: '#7C3AED', fontWeight: 600 }}></span>
+                            <span style={{ fontSize: 10, color: '#8B6DB8', fontWeight: 600 }}></span>
                           )}
                         </div>
                       )
@@ -267,7 +267,7 @@ export default function DepotDetail({
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{
                           fontSize: 14, fontWeight: 600,
-                          color: isIncoming ? '#16A34A' : '#7C3AED',
+                          color: isIncoming ? '#5DAB8B' : '#8B6DB8',
                         }}>
                           {isIncoming ? '+' : '-'}{m.quantity}
                         </div>
@@ -290,7 +290,7 @@ export default function DepotDetail({
         {section === 'value' && (
           <div>
             <div className="card" style={{ padding: 16, textAlign: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 32, fontWeight: 600, color: '#D97706' }}>{Math.round(totalValue)}€</div>
+              <div style={{ fontSize: 32, fontWeight: 600, color: '#E8935A' }}>{Math.round(totalValue)}€</div>
               <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Valeur totale du stock (prix de vente)</div>
             </div>
 
@@ -305,12 +305,12 @@ export default function DepotDetail({
                     <div key={fam.name} style={{ marginBottom: 10 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                         <span style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>{fam.name}</span>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: '#D97706' }}>{Math.round(fam.value)}€</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: '#E8935A' }}>{Math.round(fam.value)}€</span>
                       </div>
                       <div style={{ height: 6, borderRadius: 3, background: '#E2E8F0', overflow: 'hidden' }}>
                         <div style={{
                           width: `${pct}%`, height: '100%', borderRadius: 3,
-                          background: location.color || '#2563EB', transition: 'width 0.3s',
+                          background: location.color || '#5B8DB8', transition: 'width 0.3s',
                         }} />
                       </div>
                       <div style={{ fontSize: 9, color: '#94A3B8', marginTop: 2 }}>
@@ -339,8 +339,8 @@ export default function DepotDetail({
                     }}>
                       <span style={{
                         width: 22, height: 22, borderRadius: 6,
-                        background: '#D9770615', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 11, fontWeight: 600, color: '#D97706',
+                        background: '#E8935A15', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 11, fontWeight: 600, color: '#E8935A',
                       }}>{i + 1}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
@@ -349,7 +349,7 @@ export default function DepotDetail({
                         }}>{p.name}</div>
                         <div style={{ fontSize: 10, color: '#94A3B8' }}>{p.qty} × {p.sale_price}€</div>
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#D97706' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#E8935A' }}>
                         {Math.round(p.qty * p.sale_price)}€
                       </div>
                     </div>
@@ -366,7 +366,7 @@ export default function DepotDetail({
             {alerts.length === 0 ? (
               <div className="card" style={{ padding: 32, textAlign: 'center' }}>
                 <div style={{ fontSize: 40, marginBottom: 8 }}></div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#16A34A' }}>Tout va bien</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#5DAB8B' }}>Tout va bien</div>
                 <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
                   Aucune alerte pour ce dépôt
                 </div>
@@ -379,7 +379,7 @@ export default function DepotDetail({
                   return (
                     <div key={p.id} className="card" style={{
                       padding: '14px 16px',
-                      borderLeft: `4px solid ${isRupture ? '#7C3AED' : '#D97706'}`,
+                      borderLeft: `4px solid ${isRupture ? '#8B6DB8' : '#E8935A'}`,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span style={{ fontSize: 18 }}>{p.image || ''}</span>
@@ -389,7 +389,7 @@ export default function DepotDetail({
                             Seuil : {minStock} · Stock : {p.qty}
                           </div>
                         </div>
-                        <Badge color={isRupture ? '#7C3AED' : '#D97706'}>
+                        <Badge color={isRupture ? '#8B6DB8' : '#E8935A'}>
                           {isRupture ? 'Rupture' : 'Stock bas'}
                         </Badge>
                       </div>

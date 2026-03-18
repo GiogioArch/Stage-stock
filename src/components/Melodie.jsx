@@ -206,7 +206,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
         }}>
           {createElement(Package, { size: 36, color: 'white' })}
         </div>
-        <FadeText size={32} color={C.text} delay={800}>Stage Stock</FadeText>
+        <FadeText size={32} color={C.text} delay={800}>BackStage</FadeText>
       </div>
     )
   }
@@ -230,7 +230,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
           {createElement(Package, { size: 26, color: 'white' })}
         </div>
         <div style={{ opacity: 0, animation: 'fadeSlideUp 0.6s ease 0.2s forwards', textAlign: 'center' }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: C.text }}>Stage Stock</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: C.text }}>BackStage</div>
         </div>
         <div style={{
           width: '100%', maxWidth: 320, marginTop: 32,

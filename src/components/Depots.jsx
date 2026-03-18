@@ -49,7 +49,7 @@ export default function Depots({ locations, stock, products, movements, families
       setDeletingLocation(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
       setDeleting(false)
     }
@@ -73,7 +73,7 @@ export default function Depots({ locations, stock, products, movements, families
         <div
           onClick={e => e.stopPropagation()}
           style={{
-            width: '100%', maxWidth: 420, maxHeight: '78vh',
+            width: '100%', maxWidth: 520, maxHeight: '85vh',
             background: 'white', borderRadius: 20,
             boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
             overflowY: 'auto', WebkitOverflowScrolling: 'touch',
@@ -106,15 +106,15 @@ export default function Depots({ locations, stock, products, movements, families
       {/* Header */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #2563EB08, #2563EB18)',
-        border: '1px solid #2563EB25',
+        background: 'linear-gradient(135deg, #5B8DB808, #5B8DB818)',
+        border: '1px solid #5B8DB825',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 8,
-            background: 'linear-gradient(135deg, #2563EB, #4A7CA7)',
+            background: 'linear-gradient(135deg, #5B8DB8, #4A7CA7)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #2563EB30',
+            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #5B8DB830',
           }}></div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Dépôts de stockage</div>
@@ -124,9 +124,9 @@ export default function Depots({ locations, stock, products, movements, families
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Lieux" value={locations.length} color="#2563EB" />
-          <KpiBox label="Actifs" value={activeLocations} color="#16A34A" />
-          <KpiBox label="Stock total" value={totalStock} color="#6366F1" />
+          <KpiBox label="Lieux" value={locations.length} color="#5B8DB8" />
+          <KpiBox label="Actifs" value={activeLocations} color="#5DAB8B" />
+          <KpiBox label="Stock total" value={totalStock} color="#5B8DB8" />
         </div>
       </div>
 
@@ -145,9 +145,9 @@ export default function Depots({ locations, stock, products, movements, families
       {deletingLocation && (
         <div className="card" style={{
           padding: 20, marginBottom: 14,
-          border: '2px solid #DC262630', background: 'rgba(200,164,106,0.08)',
+          border: '2px solid #D4648A30', background: 'rgba(200,164,106,0.08)',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#DC2626', marginBottom: 8, textAlign: 'center' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#D4648A', marginBottom: 8, textAlign: 'center' }}>
             Supprimer ce dépôt ?
           </div>
           <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 6, lineHeight: 1.5 }}>
@@ -178,7 +178,7 @@ export default function Depots({ locations, stock, products, movements, families
             }}>Annuler</button>
             <button onClick={handleDelete} disabled={deleting} style={{
               flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 600,
-              background: '#DC2626', color: 'white', cursor: 'pointer', border: 'none',
+              background: '#D4648A', color: 'white', cursor: 'pointer', border: 'none',
               opacity: deleting ? 0.6 : 1,
             }}>{deleting ? 'Suppression...' : 'Supprimer'}</button>
           </div>
@@ -189,7 +189,7 @@ export default function Depots({ locations, stock, products, movements, families
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <button onClick={() => setShowAdd(!showAdd)} style={{
           padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-          background: showAdd ? '#F1F5F9' : '#2563EB', color: showAdd ? '#94A3B8' : 'white',
+          background: showAdd ? '#F1F5F9' : '#5B8DB8', color: showAdd ? '#94A3B8' : 'white',
           cursor: 'pointer', border: 'none',
         }}>
           {showAdd ? 'Annuler' : '+ Ajouter un dépôt'}
@@ -225,10 +225,10 @@ export default function Depots({ locations, stock, products, movements, families
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{
                       width: 46, height: 46, borderRadius: 8,
-                      background: (loc.color || '#2563EB') + '15',
+                      background: (loc.color || '#5B8DB8') + '15',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 22,
-                    }}>{createElement(DEPOT_ICON_MAP[loc.icon] || MapPin, { size: 22, color: loc.color || '#2563EB' })}</div>
+                    }}>{createElement(DEPOT_ICON_MAP[loc.icon] || MapPin, { size: 22, color: loc.color || '#5B8DB8' })}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>{loc.name}</div>
                       <div style={{ fontSize: 11, color: '#94A3B8' }}>
@@ -239,12 +239,12 @@ export default function Depots({ locations, stock, products, movements, families
                       <div style={{ marginTop: 6, height: 4, borderRadius: 2, background: '#F1F5F9', overflow: 'hidden' }}>
                         <div style={{
                           width: `${fillPct}%`, height: '100%', borderRadius: 2,
-                          background: loc.color || '#2563EB', transition: 'width 0.3s',
+                          background: loc.color || '#5B8DB8', transition: 'width 0.3s',
                         }} />
                       </div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 20, fontWeight: 600, color: loc.color || '#2563EB' }}>{loc.totalQty}</div>
+                      <div style={{ fontSize: 20, fontWeight: 600, color: loc.color || '#5B8DB8' }}>{loc.totalQty}</div>
                       <div style={{ fontSize: 9, color: '#CBD5E1', fontWeight: 600 }}>{fillPct}% du stock</div>
                     </div>
                     <span style={{ fontSize: 12, color: '#CBD5E1' }}>›</span>
@@ -265,12 +265,12 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
   const isEdit = !!location
   const [name, setName] = useState(location?.name || '')
   const [icon, setIcon] = useState(location?.icon || 'Warehouse')
-  const [color, setColor] = useState(location?.color || '#2563EB')
+  const [color, setColor] = useState(location?.color || '#5B8DB8')
   const [description, setDescription] = useState(location?.description || '')
   const [saving, setSaving] = useState(false)
 
   const ICONS = ['Warehouse', 'Store', 'Building', 'Box', 'Truck', 'MapPin', 'Home', 'Package']
-  const COLORS = ['#2563EB', '#6366F1', '#16A34A', '#DC2626', '#6366F1', '#7C3AED', '#8BAB5D']
+  const COLORS = ['#5B8DB8', '#5B8DB8', '#5DAB8B', '#D4648A', '#5B8DB8', '#8B6DB8', '#8BAB5D']
 
   const handleSave = async () => {
     if (!name.trim()) return
@@ -291,14 +291,14 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
       }
       onDone()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="card" style={{ padding: 16, marginBottom: 14, border: `2px solid ${isEdit ? '#2563EB30' : '#CBD5E1'}` }}>
+    <div className="card" style={{ padding: 16, marginBottom: 14, border: `2px solid ${isEdit ? '#5B8DB830' : '#CBD5E1'}` }}>
       <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 12 }}>
         {isEdit ? 'Modifier le dépôt' : 'Nouveau dépôt'}
       </div>
@@ -313,8 +313,8 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
             {ICONS.map(i => (
               <button key={i} onClick={() => setIcon(i)} style={{
                 width: 32, height: 32, borderRadius: 8,
-                border: icon === i ? '2px solid #2563EB' : '1px solid #CBD5E1',
-                background: icon === i ? '#2563EB12' : 'white', cursor: 'pointer',
+                border: icon === i ? '2px solid #5B8DB8' : '1px solid #CBD5E1',
+                background: icon === i ? '#5B8DB812' : 'white', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>{createElement(DEPOT_ICON_MAP[i] || MapPin, { size: 16 })}</button>
             ))}

@@ -84,7 +84,7 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
 
   const handleImport = async () => {
     if (!mapping.name) {
-      onToast('Mappe au moins le champ "Nom"', '#DC2626')
+      onToast('Mappe au moins le champ "Nom"', '#D4648A')
       return
     }
     setImporting(true)
@@ -158,7 +158,7 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
           />
           <button onClick={() => fileRef.current?.click()} style={{
             padding: '14px 32px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: 'linear-gradient(135deg, #2563EB, #16A34A)',
+            background: 'linear-gradient(135deg, #5B8DB8, #5DAB8B)',
             color: 'white', cursor: 'pointer', border: 'none',
             boxShadow: '0 4px 16px rgba(91,141,184,0.25)',
           }}>Choisir un fichier CSV</button>
@@ -176,9 +176,9 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>{result.errors === 0 ? '' : ''}</div>
           <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B', marginBottom: 8 }}>Import terminé</div>
-          <div style={{ fontSize: 14, color: '#16A34A', fontWeight: 700 }}>{result.success} produit{result.success > 1 ? 's' : ''} importé{result.success > 1 ? 's' : ''}</div>
+          <div style={{ fontSize: 14, color: '#5DAB8B', fontWeight: 700 }}>{result.success} produit{result.success > 1 ? 's' : ''} importé{result.success > 1 ? 's' : ''}</div>
           {result.errors > 0 && (
-            <div style={{ fontSize: 13, color: '#DC2626', fontWeight: 600, marginTop: 4 }}>{result.errors} erreur{result.errors > 1 ? 's' : ''}</div>
+            <div style={{ fontSize: 13, color: '#D4648A', fontWeight: 600, marginTop: 4 }}>{result.errors} erreur{result.errors > 1 ? 's' : ''}</div>
           )}
           <button onClick={onClose} className="btn-primary" style={{ marginTop: 20, maxWidth: 200 }}>Fermer</button>
         </div>

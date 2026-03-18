@@ -35,7 +35,7 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
         await enrichWithOrgs(memberships)
       }
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#DC2626')
+      onToast('Erreur: ' + e.message, '#D4648A')
       setProjects([])
     } finally {
       setLoading(false)
@@ -88,12 +88,12 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <div style={{
           width: 64, height: 64, borderRadius: 20,
-          background: '#6366F1',
+          background: '#5B8DB8',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 32, boxShadow: '0 6px 24px rgba(232,115,90,0.25)',
           marginBottom: 14,
         }}></div>
-        <div style={{ fontSize: 20, fontWeight: 600, color: '#6366F1', marginBottom: 4 }}>
+        <div style={{ fontSize: 20, fontWeight: 600, color: '#5B8DB8', marginBottom: 4 }}>
           STAGE STOCK
         </div>
         <div style={{ fontSize: 14, color: '#94A3B8', fontWeight: 600 }}>
@@ -118,7 +118,7 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 8,
-                background: 'rgba(99,102,241,0.08)',
+                background: 'rgba(91,141,184,0.08)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 24,
               }}>
@@ -132,7 +132,7 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
                   {p.is_admin ? 'Admin' : 'Membre'}
                   {p.role_id && ' — '}
                   {p.status === 'invited' && (
-                    <span style={{ color: '#6366F1', fontWeight: 700 }}>Invitation en attente</span>
+                    <span style={{ color: '#5B8DB8', fontWeight: 700 }}>Invitation en attente</span>
                   )}
                 </div>
               </div>
@@ -147,7 +147,7 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
         <div style={{ textAlign: 'center', marginTop: 24 }}>
           <button onClick={() => setShowCreate(true)} style={{
             padding: '12px 24px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-            background: 'linear-gradient(135deg, #6366F1, #DC2626)',
+            background: 'linear-gradient(135deg, #5B8DB8, #D4648A)',
             color: 'white', cursor: 'pointer', border: 'none',
             boxShadow: '0 4px 16px rgba(232,115,90,0.2)',
           }}>
@@ -208,14 +208,14 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
     } catch (e) {
       const msg = e.message || 'Erreur inconnue'
       setError(msg)
-      onToast('Erreur: ' + msg, '#DC2626')
+      onToast('Erreur: ' + msg, '#D4648A')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '24px auto 0', padding: '20px', background: '#F1F5F9', borderRadius: 12, border: '2px solid #6366F130', boxShadow: '0 4px 20px rgba(232,115,90,0.1)' }}>
+    <div style={{ maxWidth: 400, margin: '24px auto 0', padding: '20px', background: '#F1F5F9', borderRadius: 12, border: '2px solid #5B8DB830', boxShadow: '0 4px 20px rgba(232,115,90,0.1)' }}>
       <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B', marginBottom: 16, textAlign: 'center' }}>
         Nouveau projet
       </div>
@@ -242,8 +242,8 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
       {error && (
         <div style={{
           padding: '10px 14px', borderRadius: 12, marginBottom: 12,
-          background: '#FFF0F0', border: '1px solid #DC262640',
-          fontSize: 12, color: '#DC2626', fontWeight: 600, lineHeight: 1.4,
+          background: '#FFF0F0', border: '1px solid #D4648A40',
+          fontSize: 12, color: '#D4648A', fontWeight: 600, lineHeight: 1.4,
         }}>
           {error}
         </div>
@@ -255,7 +255,7 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
         }}>Annuler</button>
         <button onClick={handleCreate} disabled={!name.trim() || saving} style={{
           flex: 2, padding: '12px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          background: !name.trim() || saving ? '#CBD5E1' : 'linear-gradient(135deg, #6366F1, #DC2626)',
+          background: !name.trim() || saving ? '#CBD5E1' : 'linear-gradient(135deg, #5B8DB8, #D4648A)',
           color: 'white', cursor: !name.trim() || saving ? 'default' : 'pointer', border: 'none',
         }}>{saving ? 'Création...' : 'Créer le projet'}</button>
       </div>

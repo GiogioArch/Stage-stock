@@ -48,10 +48,10 @@ export default function Transport({
 
   const NEED_CATS = { equipment: ' Matériel', merch: ' Merch', people: ' Personnes', other: ' Autre' }
   const STATUS_CONF = {
-    pending: { label: 'En attente', color: '#D97706' },
-    booked: { label: 'Réservé', color: '#2563EB' },
-    in_transit: { label: 'En transit', color: '#7C3AED' },
-    delivered: { label: 'Livré', color: '#16A34A' },
+    pending: { label: 'En attente', color: '#E8935A' },
+    booked: { label: 'Réservé', color: '#5B8DB8' },
+    in_transit: { label: 'En transit', color: '#8B6DB8' },
+    delivered: { label: 'Livré', color: '#5DAB8B' },
   }
 
   return (
@@ -60,15 +60,15 @@ export default function Transport({
       {/* Header */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #6366F108, #6366F118)',
-        border: '1px solid #6366F125',
+        background: 'linear-gradient(135deg, #5B8DB808, #5B8DB818)',
+        border: '1px solid #5B8DB825',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 8,
-            background: 'linear-gradient(135deg, #6366F1, #D4624A)',
+            background: 'linear-gradient(135deg, #5B8DB8, #D4624A)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #6366F130',
+            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #5B8DB830',
           }}></div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Transport</div>
@@ -78,9 +78,9 @@ export default function Transport({
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="En attente" value={pendingNeeds} color="#D97706" />
-          <KpiBox label="Réservés" value={bookedNeeds} color="#2563EB" />
-          <KpiBox label="Coût total" value={`${Math.round(totalCost)}€`} color="#6366F1" />
+          <KpiBox label="En attente" value={pendingNeeds} color="#E8935A" />
+          <KpiBox label="Réservés" value={bookedNeeds} color="#5B8DB8" />
+          <KpiBox label="Coût total" value={`${Math.round(totalCost)}€`} color="#5B8DB8" />
         </div>
       </div>
 
@@ -90,9 +90,9 @@ export default function Transport({
           <button key={s.id} onClick={() => setSection(s.id)} style={{
             flex: 1, padding: '7px 6px', borderRadius: 10, fontSize: 10, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
-            background: section === s.id ? '#6366F115' : 'white',
-            color: section === s.id ? '#6366F1' : '#94A3B8',
-            border: `1px solid ${section === s.id ? '#6366F140' : '#E2E8F0'}`,
+            background: section === s.id ? '#5B8DB815' : 'white',
+            color: section === s.id ? '#5B8DB8' : '#94A3B8',
+            border: `1px solid ${section === s.id ? '#5B8DB840' : '#E2E8F0'}`,
           }}>{s.icon ? createElement(s.icon, { size: 12 }) : null} {s.label}</button>
         ))}
       </div>
@@ -133,14 +133,14 @@ export default function Transport({
                   <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
                     <div style={{
                       width: 36, height: 36, borderRadius: 10,
-                      background: p.type === 'ferry' ? '#2563EB15' : '#6366F115',
+                      background: p.type === 'ferry' ? '#5B8DB815' : '#5B8DB815',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
-                    }}>{createElement(p.type === 'ferry' ? Ship : Truck, { size: 16, color: p.type === 'ferry' ? '#2563EB' : '#6366F1' })}</div>
+                    }}>{createElement(p.type === 'ferry' ? Ship : Truck, { size: 16, color: p.type === 'ferry' ? '#5B8DB8' : '#5B8DB8' })}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>{p.name}</div>
                       <div style={{ fontSize: 10, color: '#94A3B8' }}>{p.contact_name || p.type}</div>
                     </div>
-                    <Badge color={p.active ? '#16A34A' : '#94A3B8'}>
+                    <Badge color={p.active ? '#5DAB8B' : '#94A3B8'}>
                       {p.active ? 'Actif' : 'Inactif'}
                     </Badge>
                   </div>
@@ -155,7 +155,7 @@ export default function Transport({
               Coûts transport
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 600, color: '#6366F1' }}>{Math.round(totalCost)}€</div>
+              <div style={{ fontSize: 28, fontWeight: 600, color: '#5B8DB8' }}>{Math.round(totalCost)}€</div>
               <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>Total dépenses transport</div>
             </div>
             {(transportCosts || []).length > 0 && (
@@ -182,7 +182,7 @@ export default function Transport({
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddNeed(!showAddNeed)} style={{
               padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddNeed ? '#E2E8F0' : '#6366F1', color: showAddNeed ? '#94A3B8' : 'white',
+              background: showAddNeed ? '#E2E8F0' : '#5B8DB8', color: showAddNeed ? '#94A3B8' : 'white',
               cursor: 'pointer', border: 'none',
             }}>
               {showAddNeed ? 'Annuler' : '+ Besoin transport'}
@@ -213,7 +213,7 @@ export default function Transport({
                     <button onClick={() => setExpandedEvent(isExpanded ? null : ev.id)}
                       className="card" style={{
                         width: '100%', padding: '14px 16px', cursor: 'pointer', textAlign: 'left',
-                        borderLeft: `4px solid ${needs.length === 0 ? '#E2E8F0' : allDone ? '#16A34A' : '#D97706'}`,
+                        borderLeft: `4px solid ${needs.length === 0 ? '#E2E8F0' : allDone ? '#5DAB8B' : '#E8935A'}`,
                       }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ flex: 1 }}>
@@ -225,7 +225,7 @@ export default function Transport({
                         <div style={{ textAlign: 'right' }}>
                           {needs.length > 0 ? (
                             <>
-                              <div style={{ fontSize: 14, fontWeight: 600, color: allDone ? '#16A34A' : '#D97706' }}>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: allDone ? '#5DAB8B' : '#E8935A' }}>
                                 {needs.filter(n => n.status === 'delivered').length}/{needs.length}
                               </div>
                               <div style={{ fontSize: 9, color: '#94A3B8' }}>transports</div>
@@ -291,7 +291,7 @@ export default function Transport({
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddProvider(!showAddProvider)} style={{
               padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddProvider ? '#E2E8F0' : '#6366F1', color: showAddProvider ? '#94A3B8' : 'white',
+              background: showAddProvider ? '#E2E8F0' : '#5B8DB8', color: showAddProvider ? '#94A3B8' : 'white',
               cursor: 'pointer', border: 'none',
             }}>
               {showAddProvider ? 'Annuler' : '+ Ajouter prestataire'}
@@ -322,9 +322,9 @@ export default function Transport({
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{
                         width: 44, height: 44, borderRadius: 12,
-                        background: p.type === 'ferry' ? '#2563EB15' : '#6366F115',
+                        background: p.type === 'ferry' ? '#5B8DB815' : '#5B8DB815',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-                      }}>{createElement(p.type === 'ferry' ? Ship : p.type === 'car' ? Car : Truck, { size: 22, color: p.type === 'ferry' ? '#2563EB' : '#6366F1' })}</div>
+                      }}>{createElement(p.type === 'ferry' ? Ship : p.type === 'car' ? Car : Truck, { size: 22, color: p.type === 'ferry' ? '#5B8DB8' : '#5B8DB8' })}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>{p.name}</div>
                         <div style={{ fontSize: 11, color: '#94A3B8' }}>
@@ -335,12 +335,12 @@ export default function Transport({
                         )}
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#6366F1' }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#5B8DB8' }}>
                           {bookings.length}
                         </div>
                         <div style={{ fontSize: 9, color: '#94A3B8' }}>résa.</div>
                         {provCost > 0 && (
-                          <div style={{ fontSize: 10, fontWeight: 700, color: '#D97706', marginTop: 2 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#E8935A', marginTop: 2 }}>
                             {Math.round(provCost)}€
                           </div>
                         )}
@@ -370,7 +370,7 @@ export default function Transport({
               {(transportRoutes || []).map(r => (
                 <div key={r.id} className="card" style={{ padding: '14px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {createElement(MapIcon, { size: 20, color: '#6366F1' })}
+                    {createElement(MapIcon, { size: 20, color: '#5B8DB8' })}
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 600 }}>{r.name || `${r.origin} → ${r.destination}`}</div>
                       <div style={{ fontSize: 11, color: '#94A3B8' }}>
@@ -380,7 +380,7 @@ export default function Transport({
                       </div>
                     </div>
                     {r.default_cost > 0 && (
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#D97706' }}>{r.default_cost}€</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#E8935A' }}>{r.default_cost}€</div>
                     )}
                   </div>
                 </div>
@@ -398,10 +398,10 @@ export default function Transport({
 function NeedStatusButton({ need, onReload, onToast }) {
   const statusFlow = ['pending', 'booked', 'in_transit', 'delivered']
   const STATUS_CONF = {
-    pending: { label: 'En attente', color: '#D97706' },
-    booked: { label: 'Réservé', color: '#2563EB' },
-    in_transit: { label: 'En transit', color: '#7C3AED' },
-    delivered: { label: 'Livré', color: '#16A34A' },
+    pending: { label: 'En attente', color: '#E8935A' },
+    booked: { label: 'Réservé', color: '#5B8DB8' },
+    in_transit: { label: 'En transit', color: '#8B6DB8' },
+    delivered: { label: 'Livré', color: '#5DAB8B' },
   }
   const st = STATUS_CONF[need.status] || STATUS_CONF.pending
 
@@ -414,7 +414,7 @@ function NeedStatusButton({ need, onReload, onToast }) {
       onToast(`Transport → ${STATUS_CONF[next].label}`)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#7C3AED')
+      onToast('Erreur: ' + e.message, '#8B6DB8')
     }
   }
 
@@ -459,7 +459,7 @@ function AddProviderForm({ onDone, onToast }) {
       onToast('Prestataire ajouté')
       onDone()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#7C3AED')
+      onToast('Erreur: ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -474,9 +474,9 @@ function AddProviderForm({ onDone, onToast }) {
         {TYPES.map(t => (
           <button key={t.id} onClick={() => setType(t.id)} style={{
             padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-            background: type === t.id ? '#6366F115' : 'white',
-            color: type === t.id ? '#6366F1' : '#94A3B8',
-            border: `1px solid ${type === t.id ? '#6366F140' : '#E2E8F0'}`,
+            background: type === t.id ? '#5B8DB815' : 'white',
+            color: type === t.id ? '#5B8DB8' : '#94A3B8',
+            border: `1px solid ${type === t.id ? '#5B8DB840' : '#E2E8F0'}`,
             cursor: 'pointer',
           }}>{createElement(t.icon, { size: 12 })} {t.label}</button>
         ))}
@@ -525,7 +525,7 @@ function AddNeedForm({ events, onDone, onToast }) {
       onToast('Besoin transport ajouté')
       onDone()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#7C3AED')
+      onToast('Erreur: ' + e.message, '#8B6DB8')
     } finally {
       setSaving(false)
     }
@@ -545,9 +545,9 @@ function AddNeedForm({ events, onDone, onToast }) {
         {CATS.map(c => (
           <button key={c.id} onClick={() => setCategory(c.id)} style={{
             padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-            background: category === c.id ? '#6366F115' : 'white',
-            color: category === c.id ? '#6366F1' : '#94A3B8',
-            border: `1px solid ${category === c.id ? '#6366F140' : '#E2E8F0'}`,
+            background: category === c.id ? '#5B8DB815' : 'white',
+            color: category === c.id ? '#5B8DB8' : '#94A3B8',
+            border: `1px solid ${category === c.id ? '#5B8DB840' : '#E2E8F0'}`,
             cursor: 'pointer',
           }}>{c.label}</button>
         ))}
