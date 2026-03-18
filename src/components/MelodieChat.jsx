@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, createElement } from 'react'
-import { MessageCircle, X, Send, Loader2, Music, Sparkles, HelpCircle } from 'lucide-react'
+import { MessageCircle, X, Send, Loader2, Music } from 'lucide-react'
 
 // ─── Design tokens ───
 const C = {
@@ -16,9 +16,9 @@ const C = {
 // ─── Quick suggestions by context ───
 const SUGGESTIONS = [
   'Comment ajouter un produit ?',
-  'Comment preparer un concert ?',
+  'Comment préparer un concert ?',
   "C'est quoi la packing list ?",
-  'Comment gerer mon equipe ?',
+  'Comment gérer mon équipe ?',
 ]
 
 // ─── Melodie avatar ───
@@ -64,7 +64,7 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
       const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
       setMessages([{
         role: 'assistant',
-        content: `Salut${name ? ` ${name}` : ''} ! Je suis **Melodie**, ton assistante Stage Stock.\n\nJe peux t'aider avec :\n- Le stock et les mouvements\n- La preparation des concerts\n- La gestion d'equipe\n- Le merchandising et les previsions\n\nPose-moi ta question !`,
+        content: `Salut${name ? ` ${name}` : ''} ! Je suis **Melodie**, ton assistante Stage Stock.\n\nJe peux t'aider avec :\n- Le stock et les mouvements\n- La préparation des concerts\n- La gestion d'équipe\n- Le merchandising et les prévisions\n\nPose-moi ta question !`,
       }])
     }
   }, [open])
@@ -114,12 +114,12 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
       const data = await res.json()
       setMessages([...newMessages, {
         role: 'assistant',
-        content: data.response || "Desole, je n'ai pas pu repondre.",
+        content: data.response || "Désolé, je n'ai pas pu répondre.",
       }])
     } catch (e) {
       setMessages([...newMessages, {
         role: 'assistant',
-        content: "Probleme de connexion. Verifie ta connexion internet et reessaie.",
+        content: "Problème de connexion. Vérifie ta connexion internet et réessaie.",
       }])
     } finally {
       setLoading(false)

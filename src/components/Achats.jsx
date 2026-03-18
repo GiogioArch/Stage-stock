@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Badge, fmtDate } from './UI'
+import { ShoppingCart, Users } from 'lucide-react'
 
 const STATUS_CONF = {
   draft:     { label: 'Brouillon', color: '#94A3B8' },
@@ -39,8 +40,8 @@ export default function Achats({
   const pendingOrders = (purchaseOrders || []).filter(o => !['received', 'cancelled'].includes(o.status))
 
   const SECTIONS = [
-    { id: 'orders', label: 'Commandes', icon: '' },
-    { id: 'suppliers', label: 'Fournisseurs', icon: '' },
+    { id: 'orders', label: 'Commandes', icon: ShoppingCart },
+    { id: 'suppliers', label: 'Fournisseurs', icon: Users },
   ]
 
   // ─── Order detail view ───
@@ -172,7 +173,7 @@ export default function Achats({
             background: section === s.id ? '#7C3AED15' : 'white',
             color: section === s.id ? '#7C3AED' : '#94A3B8',
             border: `1px solid ${section === s.id ? '#7C3AED40' : '#E2E8F0'}`,
-          }}>{s.icon} {s.label}</button>
+          }}>{createElement(s.icon, { size: 14 })} {s.label}</button>
         ))}
       </div>
 

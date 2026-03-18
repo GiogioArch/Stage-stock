@@ -2,7 +2,7 @@ import React, { useState, useEffect, createElement, useCallback } from 'react'
 import { auth, db } from '../lib/supabase'
 import { ROLE_CONF, getInheritedModules } from './RolePicker'
 import {
-  Loader2, Eye, EyeOff, Check, Package,
+  Loader2, Eye, EyeOff, Check, Package, Mail,
 } from 'lucide-react'
 
 // ─── Design tokens ───
@@ -133,26 +133,15 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
   // ─── Auth handlers ───
   const handleSignup = async () => {
     if (!email || !password) return setAuthError('Email et mot de passe requis')
-    if (password.length < 6) return setAuthError('6 caracteres minimum')
+    if (password.length < 6) return setAuthError('6 caractères minimum')
     setAuthLoading(true)
     setAuthError('')
     try {
       const data = await auth.signUp(email, password)
       if (data.error) { setAuthError(data.error_description || data.error); return }
-      if (data.access_token) {
-        setUser(data.user)
-      } else if (data.id) {
-        const login = await auth.signIn(email, password)
-        if (login.access_token) setUser(login.user)
-        else { setAuthError('Compte cree ! Verifie ton email puis connecte-toi.'); return }
-      }
-      const u = data.user || data
-      if (displayName.trim()) {
-        try { await db.upsert('user_details', { user_id: u.id, first_name: displayName.trim() }) }
-        catch { try { await db.insert('user_details', { user_id: u.id, first_name: displayName.trim() }) } catch {} }
-      }
-      setStep('inscrit')
-    } catch (e) { setAuthError(e.message || 'Erreur reseau') }
+      // Toujours demander la verification email — ne PAS auto-login
+      setStep('verify_email')
+    } catch (e) { setAuthError(e.message || 'Erreur réseau') }
     finally { setAuthLoading(false) }
   }
 
@@ -162,9 +151,18 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
     setAuthError('')
     try {
       const data = await auth.signIn(email, password)
-      if (data.error) setAuthError(data.error_description || data.error)
-      else if (data.access_token) { setUser(data.user); onAuth(data.user) }
-    } catch (e) { setAuthError(e.message || 'Erreur reseau') }
+      if (data.error) { setAuthError(data.error_description || data.error); return }
+      if (data.access_token) {
+        const u = data.user
+        setUser(u)
+        // Sauvegarder le prenom si renseigne pendant l'onboarding
+        if (displayName.trim()) {
+          try { await db.upsert('user_details', { user_id: u.id, first_name: displayName.trim() }) }
+          catch { try { await db.insert('user_details', { user_id: u.id, first_name: displayName.trim() }) } catch {} }
+        }
+        onAuth(u)
+      }
+    } catch (e) { setAuthError(e.message || 'Erreur réseau') }
     finally { setAuthLoading(false) }
   }
 
@@ -226,7 +224,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
     )
   }
 
-  // 0b. Choice — Premiere connexion / Se connecter
+  // 0b. Choice — Première connexion / Se connecter
   if (step === 'choice') {
     return (
       <div style={{
@@ -260,7 +258,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
             background: C.accent, color: 'white', fontSize: 16, fontWeight: 600,
             border: 'none', cursor: 'pointer', transition: 'all 0.15s',
           }}>
-            Premiere connexion
+            Première connexion
           </button>
           <button onClick={() => setStep('login')} style={{
             width: '100%', padding: '16px', borderRadius: 14,
@@ -308,7 +306,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
       <Screen step={step} onSkip={handleSkip}>
         <FadeText size={22}>Comment tu t'appelles ?</FadeText>
         <div style={{ width: '100%', maxWidth: 300, marginTop: 16, opacity: 0, animation: 'fadeSlideUp 0.6s ease 0.6s forwards' }}>
-          <input className="input" placeholder="Ton prenom ou pseudo" value={displayName}
+          <input className="input" placeholder="Ton prénom ou pseudo" value={displayName}
             onChange={e => setDisplayName(e.target.value)} autoFocus
             onKeyDown={e => e.key === 'Enter' && displayName.trim() && setStep('enchante')}
             style={{ fontSize: 18, padding: '14px 16px', borderRadius: 14, textAlign: 'center' }} />
@@ -328,7 +326,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
   if (step === 'enchante') {
     return (
       <Screen step={step} onSkip={handleSkip}>
-        <FadeText size={28}>Enchante, {displayName} !</FadeText>
+        <FadeText size={28}>Enchanté, {displayName} !</FadeText>
       </Screen>
     )
   }
@@ -339,7 +337,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
       <Screen step={step} onSkip={handleSkip}>
         <FadeText size={22}>Bienvenue dans</FadeText>
         <FadeText size={28} color={C.accent} delay={300}>Stage Stock</FadeText>
-        <FadeText sub delay={700}>La webapp dediee aux professionnels du spectacle vivant</FadeText>
+        <FadeText sub delay={700}>La webapp dédiée aux professionnels du spectacle vivant</FadeText>
       </Screen>
     )
   }
@@ -409,7 +407,42 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
     )
   }
 
-  // 9b. Login form
+  // 9b. Vérification email
+  if (step === 'verify_email') {
+    return (
+      <Screen step={step} onSkip={handleSkip}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 28,
+          background: `${C.accent}12`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          opacity: 0, animation: 'fadeSlideUp 0.6s ease forwards',
+        }}>
+          {createElement(Mail, { size: 28, color: C.accent })}
+        </div>
+        <FadeText size={20} delay={200}>Vérifie ton email</FadeText>
+        <FadeText sub delay={500}>
+          Un lien de confirmation a été envoyé à {email}. Clique dessus pour activer ton compte.
+        </FadeText>
+        <div style={{
+          width: '100%', maxWidth: 320, marginTop: 24,
+          opacity: 0, animation: 'fadeSlideUp 0.6s ease 0.8s forwards',
+          display: 'flex', flexDirection: 'column', gap: 10,
+        }}>
+          <button onClick={() => { setAuthError(''); setStep('login') }} style={{
+            width: '100%', padding: '16px', borderRadius: 14,
+            background: C.accent, color: 'white', fontSize: 16, fontWeight: 600,
+            border: 'none', cursor: 'pointer',
+          }}>
+            J'ai confirmé, me connecter
+          </button>
+          <div style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', marginTop: 4 }}>
+            Vérifie aussi tes spams si tu ne trouves pas l'email
+          </div>
+        </div>
+      </Screen>
+    )
+  }
+
+  // 9c. Login form
   if (step === 'login') {
     return (
       <Screen step={step} onSkip={handleSkip}>
@@ -454,7 +487,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
             marginTop: 10, fontSize: 13, color: C.accent, background: 'none',
             border: 'none', cursor: 'pointer', width: '100%', textAlign: 'center',
           }}>
-            Premiere connexion ?
+            Première connexion ?
           </button>
         </div>
       </Screen>
@@ -488,11 +521,11 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
     )
   }
 
-  // 12. Selectionne ton metier (intro)
+  // 12. Sélectionne ton métier (intro)
   if (step === 'select_roles_intro') {
     return (
       <Screen step={step} onSkip={handleSkip}>
-        <FadeText size={17}>Selectionne ton metier</FadeText>
+        <FadeText size={17}>Sélectionne ton métier</FadeText>
         <FadeText size={15} color={C.textSoft} delay={300}>Tu peux en choisir plusieurs si tu es polyvalent</FadeText>
       </Screen>
     )
@@ -502,7 +535,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
   if (step === 'select_roles') {
     return (
       <Screen step={step} onSkip={handleSkip} top>
-        <FadeText size={18}>Quel est ton metier ?</FadeText>
+        <FadeText size={18}>Quel est ton métier ?</FadeText>
         <div style={{
           display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
           width: '100%', maxWidth: 360, marginTop: 8,
@@ -565,12 +598,12 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
     )
   }
 
-  // 15. Derniere etape (intro)
+  // 15. Dernière étape (intro)
   if (step === 'project_intro') {
     return (
       <Screen step={step} onSkip={handleSkip}>
-        <FadeText size={18}>Derniere etape</FadeText>
-        <FadeText size={16} color={C.textSoft} delay={400}>Donne un nom a ton premier projet</FadeText>
+        <FadeText size={18}>Dernière étape</FadeText>
+        <FadeText size={16} color={C.textSoft} delay={400}>Donne un nom à ton premier projet</FadeText>
       </Screen>
     )
   }
@@ -580,7 +613,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
     return (
       <Screen step={step} onSkip={handleSkip}>
         <FadeText size={18}>Ton projet</FadeText>
-        <FadeText sub delay={200}>Une tournee, un festival, une compagnie...</FadeText>
+        <FadeText sub delay={200}>Une tournée, un festival, une compagnie...</FadeText>
         <div style={{
           width: '100%', maxWidth: 320, marginTop: 12,
           opacity: 0, animation: 'fadeSlideUp 0.6s ease 0.5s forwards',
@@ -596,7 +629,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
               border: 'none', cursor: 'pointer', opacity: saving ? 0.6 : 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             }}>
-              {saving ? createElement(Loader2, { size: 16, className: 'spin' }) : 'Creer'}
+              {saving ? createElement(Loader2, { size: 16, className: 'spin' }) : 'Créer'}
             </button>
           )}
           <button onClick={() => {
@@ -616,7 +649,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
     return (
       <Screen step={step} onSkip={handleSkip}>
         <FadeText size={26}>C'est parti, {displayName} !</FadeText>
-        <FadeText sub delay={400}>Je serai toujours la si tu as besoin</FadeText>
+        <FadeText sub delay={400}>Je serai toujours là si tu as besoin</FadeText>
       </Screen>
     )
   }

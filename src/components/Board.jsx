@@ -183,7 +183,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                 {roleConf.label}
               </div>
               <div style={{ fontSize: 12, color: COLOR.textSecondary, fontWeight: 600 }}>
-                {isAdmin ? 'Vue complete — tous les stocks' : `${totalProducts} produit${totalProducts > 1 ? 's' : ''} sous ta responsabilite`}
+                {isAdmin ? 'Vue complète — tous les stocks' : `${totalProducts} produit${totalProducts > 1 ? 's' : ''} sous ta responsabilité`}
               </div>
             </div>
           </div>
@@ -214,7 +214,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                 Mon packing — {nextEvent.name || nextEvent.lieu}
               </div>
               <div style={{ fontSize: 11, color: COLOR.textSecondary }}>
-                {packingDone}/{packingTotal} items prets
+                {packingDone}/{packingTotal} items prêts
               </div>
             </div>
             <div style={{
@@ -281,7 +281,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
       {/* ─── Quick Actions ─── */}
       <div className="section-title">Actions rapides</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
-        <QuickBtn icon={ArrowDownToLine} label="Entree" color={COLOR.success} onClick={() => onQuickAction('in')} />
+        <QuickBtn icon={ArrowDownToLine} label="Entrée" color={COLOR.success} onClick={() => onQuickAction('in')} />
         <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={COLOR.danger} onClick={() => onQuickAction('out')} />
         <QuickBtn icon={RefreshCw} label="Transfert" color={COLOR.info} onClick={() => onQuickAction('transfer')} />
       </div>
@@ -303,7 +303,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: COLOR.textPrimary, letterSpacing: 0.5 }}>EK LIVE</div>
-          <div style={{ fontSize: 11, color: COLOR.textTertiary }}>Ouvrir l'app fan — vote setlist & reactions</div>
+          <div style={{ fontSize: 11, color: COLOR.textTertiary }}>Ouvrir l'app fan — vote setlist & réactions</div>
         </div>
         <ExternalLink size={14} style={{ color: COLOR.textTertiary }} />
       </a>
@@ -341,7 +341,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
               </div>
             ))}
             {alerts.length > 5 && (
-              <button onClick={() => onNavigate('stocks')} style={{
+              <button onClick={() => onNavigate('alertes')} style={{
                 fontSize: 13, fontWeight: 700, color: COLOR.accent, padding: 8, textAlign: 'center',
                 background: 'none', border: 'none', cursor: 'pointer',
               }}>
@@ -354,7 +354,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
       )}
 
       {/* ─── Stock by Category ─── */}
-      <div className="section-title">Stock par categorie</div>
+      <div className="section-title">Stock par catégorie</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {stockByCategory.filter(c => c.count > 0).map(cat => (
           <div key={cat.id} className="card" style={{
@@ -391,7 +391,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                       background: COLOR.success,
                       height: `${Math.max(2, (d.in / maxMoveVal) * 80)}px`,
                       transition: 'height 0.3s',
-                    }} title={`Entrees: ${d.in}`} />
+                    }} title={`Entrées: ${d.in}`} />
                     <div style={{
                       flex: 1, borderRadius: '4px 4px 0 0',
                       background: COLOR.danger,
@@ -405,7 +405,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 10 }}>
               <span style={{ fontSize: 10, color: COLOR.success, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: COLOR.success, display: 'inline-block' }} /> Entrees
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: COLOR.success, display: 'inline-block' }} /> Entrées
               </span>
               <span style={{ fontSize: 10, color: COLOR.danger, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: 2, background: COLOR.danger, display: 'inline-block' }} /> Sorties
@@ -418,7 +418,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
       {/* ─── Stock Distribution Chart ─── */}
       {totalStock > 0 && (
         <>
-          <div className="section-title">Repartition du stock</div>
+          <div className="section-title">Répartition du stock</div>
           <div className="card" style={{ padding: '14px 16px', marginBottom: 20, background: COLOR.bgSurface, borderRadius: 12, border: `1px solid ${COLOR.border}` }}>
             {/* Horizontal stacked bar */}
             <div style={{ display: 'flex', height: 24, borderRadius: 8, overflow: 'hidden', marginBottom: 12 }}>
@@ -475,7 +475,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
       {recentMoves.length === 0 ? (
         <div className="empty-state" style={{ padding: 24 }}>
           <ClipboardList size={32} style={{ color: COLOR.textTertiary, marginBottom: 8 }} />
-          <div className="empty-text">Aucun mouvement enregistre</div>
+          <div className="empty-text">Aucun mouvement enregistré</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
@@ -519,7 +519,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
       {/* ─── Upcoming events ─── */}
       {upcomingEvents.length > 1 && (
         <>
-          <div className="section-title">Evenements a venir</div>
+          <div className="section-title">Événements à venir</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {upcomingEvents.slice(1, 6).map(ev => {
               const d = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
@@ -550,7 +550,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
         </>
       )}
 
-      {/* ─── Tournee shortcut ─── */}
+      {/* ─── Tournée shortcut ─── */}
       {events.length > 0 && (
         <button onClick={() => onNavigate('tournee')} style={{
           width: '100%', marginTop: 16, padding: '14px', borderRadius: 12,
@@ -559,7 +559,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
         }}>
           <Tent size={16} style={{ verticalAlign: 'middle', color: COLOR.accent }} />
           <span style={{ fontSize: 13, fontWeight: 600, color: COLOR.accent, marginLeft: 8 }}>
-            Voir toute la tournee ({events.length} dates)
+            Voir toute la tournée ({events.length} dates)
           </span>
         </button>
       )}

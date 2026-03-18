@@ -3,7 +3,6 @@ import { auth, db, safe } from './lib/supabase'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
 
 // ─── Critical components (loaded immediately) ───
-import Auth from './components/Auth'
 import MelodieChat from './components/MelodieChat'
 import Board from './components/Board'
 import Landing from './components/Landing'
@@ -33,7 +32,6 @@ const Settings = lazy(() => import('./modules/Settings'))
 const ProfilePage = lazy(() => import('./components/ProfilePage'))
 const PersonalDashboard = lazy(() => import('./components/PersonalDashboard'))
 const MyProjects = lazy(() => import('./components/MyProjects'))
-const Onboarding = lazy(() => import('./components/Onboarding'))
 const Feedback = lazy(() => import('./components/Feedback'))
 const CGU = lazy(() => import('./components/Legal').then(m => ({ default: m.CGU })))
 const Privacy = lazy(() => import('./components/Legal').then(m => ({ default: m.Privacy })))
@@ -67,7 +65,6 @@ export default function App() {
   // ─── Auth state ───
   const [user, setUser] = useState(undefined)
   const [toast, setToast] = useState(null)
-  const [showAuth, setShowAuth] = useState(false)
   const [legalPage, setLegalPage] = useState(null) // 'cgu' | 'privacy' | null
 
   // ─── Layer navigation: 'personal' (couche 2) | 'project' (couche 3) ───

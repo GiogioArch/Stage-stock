@@ -1,19 +1,20 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, Badge, fmtDate } from './UI'
+import { Speaker, Lightbulb, Guitar, Palette, ShoppingBag, Truck, Package, HelpCircle } from 'lucide-react'
 
 const CAT_CONFIG = {
-  son:          { icon: '', color: '#2563EB', label: 'Son' },
-  lumiere:      { icon: '', color: '#6366F1', label: 'Lumière' },
-  instruments:  { icon: '', color: '#DC2626', label: 'Instruments' },
-  decor:        { icon: '', color: '#7C3AED', label: 'Décor' },
-  merch:        { icon: '', color: '#6366F1', label: 'Merch' },
-  logistique:   { icon: '', color: '#16A34A', label: 'Logistique' },
-  consommables: { icon: '', color: '#8BAB5D', label: 'Consommables' },
+  son:          { icon: Speaker,     color: '#2563EB', label: 'Son' },
+  lumiere:      { icon: Lightbulb,   color: '#6366F1', label: 'Lumière' },
+  instruments:  { icon: Guitar,      color: '#DC2626', label: 'Instruments' },
+  decor:        { icon: Palette,     color: '#7C3AED', label: 'Décor' },
+  merch:        { icon: ShoppingBag, color: '#6366F1', label: 'Merch' },
+  logistique:   { icon: Truck,       color: '#16A34A', label: 'Logistique' },
+  consommables: { icon: Package,     color: '#8BAB5D', label: 'Consommables' },
 }
 
 function getCatConf(cat) {
-  return CAT_CONFIG[cat] || { icon: '', color: '#94A3B8', label: cat || 'Autre' }
+  return CAT_CONFIG[cat] || { icon: HelpCircle, color: '#94A3B8', label: cat || 'Autre' }
 }
 
 export default function Checklists({ checklists, events, orgId, onReload, onToast }) {
@@ -127,7 +128,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
             const conf = getCatConf(cat)
             return (
               <CatPill key={cat} active={filterCat === cat} color={conf.color} onClick={() => setFilterCat(cat)}>
-                {conf.icon} {conf.label}
+                {createElement(conf.icon, { size: 12 })} {conf.label}
               </CatPill>
             )
           })}
@@ -188,7 +189,7 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
           return (
             <div key={cat} style={{ marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, padding: '0 4px' }}>
-                <span style={{ fontSize: 16 }}>{conf.icon}</span>
+                <span style={{ fontSize: 16, display: 'flex', alignItems: 'center' }}>{createElement(conf.icon, { size: 16, color: conf.color })}</span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: conf.color, textTransform: 'uppercase', letterSpacing: 1 }}>
                   {conf.label}
                 </span>
@@ -307,7 +308,7 @@ function AddItemModal({ events, categories, defaultEventId, onClose, onSave }) {
           <label className="label">Catégorie</label>
           <select className="input" value={category} onChange={e => setCategory(e.target.value)}>
             {allCats.map(([id, conf]) => (
-              <option key={id} value={id}>{typeof conf.icon === 'string' ? conf.icon : ''} {conf.label}</option>
+              <option key={id} value={id}>{conf.label}</option>
             ))}
           </select>
         </div>

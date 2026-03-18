@@ -349,7 +349,7 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
         </div>
 
         <div>
-          <label className="label">Categorie</label>
+          <label className="label">Catégorie</label>
           <select className="input" value={category} onChange={e => setCategory(e.target.value)}>
             {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
@@ -374,10 +374,10 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div>
-            <label className="label">Unite</label>
+            <label className="label">Unité</label>
             <select className="input" value={unit} onChange={e => setUnit(e.target.value)}>
-              <option value="pièce">Piece</option>
-              <option value="mètre">Metre</option>
+              <option value="pièce">Pièce</option>
+              <option value="mètre">Mètre</option>
               <option value="rouleau">Rouleau</option>
               <option value="lot">Lot</option>
             </select>
@@ -399,14 +399,14 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
           <input className="input" value={image} onChange={e => setImage(e.target.value)} placeholder="URL d'image" />
         </div>
 
-        {/* Comptabilite */}
+        {/* Comptabilité */}
         <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: 14, marginTop: 4 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: colors.textTertiary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
-            Comptabilite
+            Comptabilité
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div>
-              <label className="label">Cout HT (EUR)</label>
+              <label className="label">Coût HT (EUR)</label>
               <input className="input" type="number" min="0" step="0.01" value={costHt}
                 onChange={e => setCostHt(e.target.value)} placeholder="0.00" />
             </div>
@@ -417,18 +417,18 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
             </div>
           </div>
           <div style={{ marginTop: 10 }}>
-            <label className="label">Duree amortissement (mois)</label>
+            <label className="label">Durée amortissement (mois)</label>
             <input className="input" type="number" min="0" step="1" value={usefulLife}
               onChange={e => setUsefulLife(intOnly(e.target.value))} placeholder="Ex: 36 (3 ans)" />
           </div>
           {costHt && parseFloat(costHt) > 0 && parseFloat(costHt) < 500 && (
             <div style={{ fontSize: 11, color: colors.warning, marginTop: 6, fontWeight: 600 }}>
-              Sous le seuil de 500 EUR HT - comptabilise en charge
+              Sous le seuil de 500 EUR HT - comptabilisé en charge
             </div>
           )}
           {costHt && parseFloat(costHt) >= 500 && !usefulLife && (
             <div style={{ fontSize: 11, color: colors.accent, marginTop: 6, fontWeight: 600 }}>
-              Immobilisation - renseigner la duree d'amortissement
+              Immobilisation - renseigner la durée d'amortissement
             </div>
           )}
         </div>

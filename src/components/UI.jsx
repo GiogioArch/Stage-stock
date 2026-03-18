@@ -54,7 +54,7 @@ export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = '
 // ─── Toast ───
 export function Toast({ message, color = '#16A34A', onDone }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 2500)
+    const t = setTimeout(() => onDone?.(), 2500)
     return () => clearTimeout(t)
   }, [onDone])
 
@@ -68,7 +68,7 @@ export function Toast({ message, color = '#16A34A', onDone }) {
 // ─── Category helpers ───
 export const CATEGORIES = [
   { id: 'merch', name: 'Merchandising', icon: Shirt, color: '#DC2626', bg: 'rgba(99,102,241,0.08)' },
-  { id: 'materiel', name: 'Materiel', icon: Guitar, color: '#2563EB', bg: 'rgba(91,141,184,0.08)' },
+  { id: 'materiel', name: 'Matériel', icon: Guitar, color: '#2563EB', bg: 'rgba(91,141,184,0.08)' },
   { id: 'consommables', name: 'Consommables', icon: Battery, color: '#16A34A', bg: 'rgba(47,182,93,0.08)' },
 ]
 
@@ -95,7 +95,7 @@ export function fmtDate(iso) {
 // ─── Movement config ───
 export function getMoveConf(type) {
   const conf = {
-    in: { icon: ArrowDownToLine, color: '#16A34A', label: 'Entree', bg: 'rgba(47,182,93,0.08)' },
+    in: { icon: ArrowDownToLine, color: '#16A34A', label: 'Entrée', bg: 'rgba(47,182,93,0.08)' },
     out: { icon: ArrowUpFromLine, color: '#DC2626', label: 'Sortie', bg: 'rgba(99,102,241,0.08)' },
     transfer: { icon: RefreshCw, color: '#2563EB', label: 'Transfert', bg: 'rgba(91,141,184,0.08)' },
   }

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
-import { TrendingDown } from 'lucide-react'
+import { TrendingDown, BarChart3, DollarSign, Receipt, Scale, Clock } from 'lucide-react'
 import { Badge, parseDate } from './UI'
 
 export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, orgName, onReload, onToast }) {
@@ -75,11 +75,11 @@ export default function Finance({ products, stock, events, locations, depreciati
   }
 
   const SECTIONS = [
-    { id: 'overview', label: 'Vue globale', icon: '' },
-    { id: 'revenue', label: 'Revenus', icon: '' },
-    { id: 'expenses', label: 'Dépenses', icon: '' },
-    { id: 'bilan', label: 'Bilan', icon: '' },
-    { id: 'depreciation', label: 'Amortis.', icon: '' },
+    { id: 'overview', label: 'Vue globale', icon: BarChart3 },
+    { id: 'revenue', label: 'Revenus', icon: DollarSign },
+    { id: 'expenses', label: 'Dépenses', icon: Receipt },
+    { id: 'bilan', label: 'Bilan', icon: Scale },
+    { id: 'depreciation', label: 'Amortis.', icon: Clock },
   ]
 
   return (
@@ -121,7 +121,7 @@ export default function Finance({ products, stock, events, locations, depreciati
             background: section === s.id ? '#6366F115' : 'white',
             color: section === s.id ? '#6366F1' : '#94A3B8',
             border: `1px solid ${section === s.id ? '#6366F140' : '#CBD5E1'}`,
-          }}>{s.icon} {s.label}</button>
+          }}>{createElement(s.icon, { size: 14 })} {s.label}</button>
         ))}
       </div>
 
