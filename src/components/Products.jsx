@@ -87,7 +87,7 @@ export default function Products({ products, families, subfamilies, stock, locat
         <div
           onClick={e => e.stopPropagation()}
           style={{
-            width: '100%', maxWidth: 520, maxHeight: '85vh',
+            width: '100%', maxWidth: 560, maxHeight: '85vh',
             background: 'white', borderRadius: 20,
             boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
             overflowY: 'auto', WebkitOverflowScrolling: 'touch',
@@ -443,19 +443,20 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
 }
 
 function FilterPill({ active, color, small, onClick, children }) {
-  const activeColor = color || colors.accent
+  const c = color || colors.accent
   return (
     <button onClick={onClick} style={{
-      padding: small ? '5px 12px' : '7px 14px',
+      padding: small ? '5px 12px' : '8px 16px',
       borderRadius: 20,
-      fontSize: small ? 11 : 12,
-      fontWeight: 700,
+      fontSize: small ? 11 : 13,
+      fontWeight: active ? 700 : 500,
       whiteSpace: 'nowrap',
-      border: `1px solid ${active ? activeColor : colors.border}`,
-      background: active ? `${activeColor}15` : colors.bgSurface,
-      color: active ? activeColor : colors.textSecondary,
+      border: 'none',
+      background: active ? c : '#F1F5F9',
+      color: active ? '#FFFFFF' : '#64748B',
       cursor: 'pointer',
-      transition: 'all 0.15s',
+      transition: 'all 0.2s ease',
+      boxShadow: active ? `0 2px 8px ${c}40` : 'none',
     }}>{children}</button>
   )
 }

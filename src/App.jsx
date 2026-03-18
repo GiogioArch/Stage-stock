@@ -686,7 +686,7 @@ export default function App() {
       {/* ─── Sub-tab bar (when group has multiple tabs) ─── */}
       {currentGroup && currentGroup.groupTabs.length > 1 && (
         <div style={{
-          display: 'flex', gap: 4, padding: '8px 16px 12px',
+          display: 'flex', gap: 6, padding: '8px 16px 12px',
           overflowX: 'auto', WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
         }}>
@@ -694,11 +694,13 @@ export default function App() {
             const isActive = tab === t.id
             return (
               <button key={t.id} onClick={() => handleTabChange(t.id)} style={{
-                padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,
+                padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: isActive ? 700 : 500,
                 cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-                background: isActive ? 'rgba(91,141,184,0.12)' : 'transparent',
-                color: isActive ? '#8BB8D8' : '#94A3B8',
-                border: `1px solid ${isActive ? 'rgba(91,141,184,0.2)' : '#E2E8F0'}`,
+                background: isActive ? '#5B8DB8' : '#F1F5F9',
+                color: isActive ? '#FFFFFF' : '#64748B',
+                border: 'none',
+                boxShadow: isActive ? '0 2px 8px rgba(91,141,184,0.3)' : 'none',
+                transition: 'all 0.2s ease',
               }}>
                 {t.label}
               </button>
@@ -1039,17 +1041,19 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
   return (
     <div>
       {/* Sub-tab switcher */}
-      <div style={{ display: 'flex', gap: 4, padding: '0 16px 12px' }}>
+      <div style={{ display: 'flex', gap: 6, padding: '0 16px 12px' }}>
         {[
           { id: 'stock', label: 'Niveaux de stock' },
           { id: 'mouvements', label: 'Mouvements' },
         ].map(s => (
           <button key={s.id} onClick={() => setSubTab(s.id)} style={{
-            flex: 1, padding: '6px', borderRadius: 6, fontSize: 12, fontWeight: 500,
+            flex: 1, padding: '8px', borderRadius: 20, fontSize: 13, fontWeight: subTab === s.id ? 700 : 500,
             cursor: 'pointer', textAlign: 'center',
-            background: subTab === s.id ? 'rgba(91,141,184,0.12)' : 'transparent',
-            color: subTab === s.id ? '#8BB8D8' : '#94A3B8',
-            border: `1px solid ${subTab === s.id ? 'rgba(91,141,184,0.2)' : '#E2E8F0'}`,
+            background: subTab === s.id ? '#5B8DB8' : '#F1F5F9',
+            color: subTab === s.id ? '#FFFFFF' : '#64748B',
+            border: 'none',
+            boxShadow: subTab === s.id ? '0 2px 8px rgba(91,141,184,0.3)' : 'none',
+            transition: 'all 0.2s ease',
           }}>{s.label}</button>
         ))}
       </div>

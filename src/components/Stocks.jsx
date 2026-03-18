@@ -310,13 +310,16 @@ function AddLocationModal({ onClose, onSave }) {
 }
 
 function FilterPill({ active, color, onClick, children }) {
+  const c = color || PALETTE.accent
   return (
     <button onClick={onClick} style={{
-      padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
-      border: `1px solid ${active ? (color || PALETTE.accent) : PALETTE.border}`,
-      background: active ? `${color || PALETTE.accent}12` : 'transparent',
-      color: active ? (color || PALETTE.accent) : PALETTE.textSecondary, cursor: 'pointer',
-      display: 'flex', alignItems: 'center',
+      padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: active ? 700 : 500,
+      whiteSpace: 'nowrap', border: 'none',
+      background: active ? c : '#F1F5F9',
+      color: active ? '#FFFFFF' : '#64748B',
+      cursor: 'pointer', display: 'flex', alignItems: 'center',
+      transition: 'all 0.2s ease',
+      boxShadow: active ? `0 2px 8px ${c}40` : 'none',
     }}>{children}</button>
   )
 }

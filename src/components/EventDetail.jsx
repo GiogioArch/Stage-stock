@@ -97,20 +97,20 @@ export default function EventDetail({
       {/* ─── Top bar ─── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
-        background: 'rgba(17,17,19,0.95)', backdropFilter: 'blur(12px)',
+        background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
         padding: '12px 16px', borderBottom: '1px solid #E2E8F0',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <button onClick={onClose} style={{
-          width: 36, height: 36, borderRadius: 8, background: '#E2E8F0',
+          width: 36, height: 36, borderRadius: 8, background: 'rgba(91,141,184,0.1)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', border: 'none', color: '#1E293B',
+          cursor: 'pointer', border: 'none', color: '#5B8DB8',
         }}><ChevronLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {event.name || event.lieu}
           </div>
-          <div style={{ fontSize: 10, color: '#94A3B8' }}>
+          <div style={{ fontSize: 10, color: '#64748B' }}>
             {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
         </div>

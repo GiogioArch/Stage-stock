@@ -88,7 +88,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         <div
           onClick={e => e.stopPropagation()}
           style={{
-            width: '100%', maxWidth: 520, maxHeight: '85vh',
+            width: '100%', maxWidth: 560, maxHeight: '85vh',
             background: 'white', borderRadius: 20,
             boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
             overflowY: 'auto', WebkitOverflowScrolling: 'touch',
