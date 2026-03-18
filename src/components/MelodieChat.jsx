@@ -3,8 +3,8 @@ import { MessageCircle, X, Send, Loader2, Music } from 'lucide-react'
 
 // ─── Design tokens ───
 const C = {
-  melodie: '#8B5CF6',
-  accent: '#6366F1',
+  melodie: '#8B6DB8',
+  accent: '#5B8DB8',
   text: '#1E293B',
   textSoft: '#64748B',
   textMuted: '#94A3B8',
@@ -13,7 +13,7 @@ const C = {
   border: '#E2E8F0',
 }
 
-// ─── Quick suggestions by context ───
+// ─── Quick suggestions ───
 const SUGGESTIONS = [
   'Comment ajouter un produit ?',
   'Comment préparer un concert ?',
@@ -21,7 +21,7 @@ const SUGGESTIONS = [
   'Comment gérer mon équipe ?',
 ]
 
-// ─── Melodie avatar ───
+// ─── Avatar ───
 function Avatar({ size = 32 }) {
   return (
     <div style={{
@@ -35,6 +35,70 @@ function Avatar({ size = 32 }) {
   )
 }
 
+// ─── Réponses intelligentes intégrées (pas de serveur requis) ───
+function getResponse(message) {
+  const msg = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+  // Salutations
+  if (msg.match(/\b(bonjour|salut|hello|hey|coucou|yo)\b/))
+    return "Salut ! Je suis **Mélodie**, ton assistante Stage Stock. Comment je peux t'aider ?"
+
+  // Stock
+  if (msg.match(/\b(stock|quantite|combien|inventaire|comptage)\b/))
+    return "Pour voir ton stock, utilise le bouton **Stock** sur le tableau de bord. Tu y trouveras :\n- Les quantités par lieu de stockage\n- L'état du stock par catégorie\n- Les mouvements récents\n\nTu peux aussi lancer un mouvement (entrée, sortie, transfert) depuis les **Actions rapides**."
+
+  // Produit / Article
+  if (msg.match(/\b(produit|article|ajouter|creer|nouveau|reference|sku)\b/))
+    return "Pour ajouter un produit :\n1. Va dans l'onglet **Articles**\n2. Clique sur le bouton **+** en bas\n3. Remplis le nom, la catégorie, le SKU\n4. Enregistre\n\nTu peux aussi importer en masse via un fichier CSV."
+
+  // Concert / Événement
+  if (msg.match(/\b(concert|evenement|date|tournee|spectacle|festival)\b/))
+    return "Consulte le bouton **Tournée** sur le tableau de bord. Chaque fiche concert contient :\n- Les infos logistiques (lieu, capacité, format)\n- La packing list automatique\n- Les checklists par rôle\n- Le prévisionnel de ventes"
+
+  // Packing
+  if (msg.match(/\b(packing|pack|preparer|preparation|valise)\b/))
+    return "La **packing list** se génère automatiquement pour chaque concert :\n1. Va dans **Tournée** > clique sur un événement\n2. Onglet **Pack**\n3. Coche les items au fur et à mesure\n\nElle est basée sur les besoins de ton rôle."
+
+  // Équipe
+  if (msg.match(/\b(equipe|membre|role|collegue|planning)\b/))
+    return "L'onglet **Équipe** te montre tous les membres du projet avec leurs rôles et missions. Les 12 rôles du spectacle sont pris en charge : Tour Manager, Chef de prod, Ingé son, etc."
+
+  // Merch / Vente
+  if (msg.match(/\b(merch|tshirt|vente|merchandising|boutique|textile)\b/))
+    return "Le merchandising se gère dans **Articles** (famille Merchandising). Pour les prévisions de vente, utilise l'onglet **Forecast** qui calcule par format de concert et par territoire."
+
+  // Alertes
+  if (msg.match(/\b(alerte|notif|rappel|rupture|seuil)\b/))
+    return "Le bandeau d'alertes sur le tableau de bord t'informe des **ruptures** et des **stocks bas**. Clique dessus pour voir le détail. Tu peux aussi accéder à l'onglet **Alertes** pour la liste complète."
+
+  // Finance
+  if (msg.match(/\b(finance|argent|budget|cout|prix|amortissement|comptable|depense)\b/))
+    return "Le module **Finance** te donne :\n- La valeur totale de ton stock\n- Les amortissements des immobilisations (> 500€ HT)\n- Le suivi revenus/dépenses par événement\n\nRappel : les durées d'amortissement doivent être validées par un expert-comptable."
+
+  // Scanner
+  if (msg.match(/\b(scanner|scan|code.?barre|barcode|camera)\b/))
+    return "Le **Scanner** te permet de scanner un code-barres avec la caméra de ton téléphone. Le produit est reconnu automatiquement et tu peux faire un mouvement de stock en un clic."
+
+  // Achats
+  if (msg.match(/\b(achat|commande|fournisseur|commander|acheter)\b/))
+    return "Le module **Achats** gère tes commandes fournisseurs :\n- Créer une commande avec les lignes produits\n- Suivre le statut (brouillon → envoyé → confirmé → reçu)\n- Gérer ta liste de fournisseurs"
+
+  // Dépôt / Lieu
+  if (msg.match(/\b(depot|lieu|entrepot|vehicule|stockage|local)\b/))
+    return "Les **dépôts** sont les lieux de stockage de tes produits. Tu peux en créer de 4 types :\n- **Fixe** : entrepôt, local\n- **Mobile** : véhicule, flight case\n- **Éphémère** : backstage d'un concert\n- **Temporaire** : stockage ponctuel"
+
+  // Aide générale
+  if (msg.match(/\b(aide|help|comment|quoi|fonctionn)\b/))
+    return "Je peux t'aider sur :\n- **Stock** : quantités, mouvements, inventaire\n- **Concerts** : tournée, packing, checklists\n- **Articles** : catalogue, ajout, import\n- **Équipe** : rôles, membres, planning\n- **Finance** : valeur stock, amortissements\n- **Achats** : commandes, fournisseurs\n\nPose-moi ta question !"
+
+  // Remerciements
+  if (msg.match(/\b(merci|thanks|top|genial|super|parfait)\b/))
+    return "De rien ! N'hésite pas si tu as d'autres questions. Je suis là pour ça ! 🎶"
+
+  // Fallback
+  return "Je suis là pour t'aider avec **Stage Stock** ! Tu peux me poser des questions sur le stock, les concerts, l'équipe, le merch, les alertes, la finance... Qu'est-ce que tu veux savoir ?"
+}
+
 export default function MelodieChat({ user, userRole, orgName, events, data }) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([])
@@ -44,52 +108,25 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
   const scrollRef = useRef(null)
   const inputRef = useRef(null)
 
-  // Auto-scroll on new messages
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages, loading])
 
-  // Focus input when chat opens
   useEffect(() => {
-    if (open && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 200)
-    }
+    if (open && inputRef.current) setTimeout(() => inputRef.current?.focus(), 200)
   }, [open])
 
-  // Welcome message on first open
   useEffect(() => {
     if (open && messages.length === 0) {
       const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''
       setMessages([{
         role: 'assistant',
-        content: `Salut${name ? ` ${name}` : ''} ! Je suis **Melodie**, ton assistante Stage Stock.\n\nJe peux t'aider avec :\n- Le stock et les mouvements\n- La préparation des concerts\n- La gestion d'équipe\n- Le merchandising et les prévisions\n\nPose-moi ta question !`,
+        content: `Salut${name ? ` ${name}` : ''} ! Je suis **Mélodie**, ton assistante Stage Stock.\n\nJe peux t'aider avec :\n- Le stock et les mouvements\n- La préparation des concerts\n- La gestion d'équipe\n- Le merchandising et les prévisions\n\nPose-moi ta question !`,
       }])
     }
   }, [open])
 
-  // Build user context for the API
-  const buildContext = () => {
-    const ctx = {}
-    const name = user?.user_metadata?.full_name || user?.email?.split('@')[0]
-    if (name) ctx.name = name
-    if (userRole) ctx.role = userRole
-    if (orgName) ctx.project = orgName
-    if (events?.length) {
-      const next = events.find(e => e.date >= new Date().toISOString().split('T')[0])
-      if (next) ctx.nextEvent = `${next.name || next.lieu} le ${next.date}`
-    }
-    // Add some stats if available
-    const stats = []
-    if (data?.products?.length) stats.push(`${data.products.length} articles`)
-    if (data?.locations?.length) stats.push(`${data.locations.length} depots`)
-    if (events?.length) stats.push(`${events.length} evenements`)
-    if (stats.length) ctx.stats = stats.join(', ')
-    return ctx
-  }
-
-  const sendMessage = async () => {
+  const sendMessage = () => {
     const text = input.trim()
     if (!text || loading) return
 
@@ -100,30 +137,12 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
     setInput('')
     setLoading(true)
 
-    try {
-      // Call the Pages Function API
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-          userContext: buildContext(),
-        }),
-      })
-
-      const data = await res.json()
-      setMessages([...newMessages, {
-        role: 'assistant',
-        content: data.response || "Désolé, je n'ai pas pu répondre.",
-      }])
-    } catch (e) {
-      setMessages([...newMessages, {
-        role: 'assistant',
-        content: "Problème de connexion. Vérifie ta connexion internet et réessaie.",
-      }])
-    } finally {
+    // Simulate slight delay for natural feel
+    setTimeout(() => {
+      const response = getResponse(text)
+      setMessages([...newMessages, { role: 'assistant', content: response }])
       setLoading(false)
-    }
+    }, 400 + Math.random() * 400)
   }
 
   // ─── Floating button ───
@@ -142,12 +161,11 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
         }}
       >
         {createElement(MessageCircle, { size: 24, color: 'white' })}
-        {/* Notification dot */}
         {pulse && (
           <span style={{
             position: 'absolute', top: 2, right: 2,
             width: 12, height: 12, borderRadius: 6,
-            background: '#10B981', border: '2px solid white',
+            background: '#5DAB8B', border: '2px solid white',
           }} />
         )}
       </button>
@@ -174,7 +192,7 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
       }}>
         <Avatar size={36} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>Melodie</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>Mélodie</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Assistante Stage Stock</div>
         </div>
         <button onClick={() => setOpen(false)} style={{
@@ -211,7 +229,6 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
           </div>
         ))}
 
-        {/* Typing indicator */}
         {loading && (
           <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'flex-end' }}>
             <Avatar size={26} />
@@ -228,7 +245,6 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
           </div>
         )}
 
-        {/* Quick suggestions (only on welcome) */}
         {messages.length <= 1 && !loading && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
             {SUGGESTIONS.map((s, i) => (
@@ -280,10 +296,9 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
   )
 }
 
-// ─── Simple markdown-ish formatting ───
+// ─── Simple markdown formatting ───
 function formatMessage(text) {
   if (!text) return null
-  // Bold **text**
   const parts = text.split(/(\*\*[^*]+\*\*)/g)
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {

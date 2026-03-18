@@ -463,7 +463,7 @@ export default function App() {
         <Suspense fallback={<SplashScreen text="Chargement..." />}>
         <Melodie
           existingUser={user}
-          startStep="en_savoir_plus"
+          startStep="select_roles"
           roles={data.roles}
           onAuth={(u) => setUser(u)}
           onComplete={(membership) => {
