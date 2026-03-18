@@ -326,7 +326,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
   if (step === 'enchante') {
     return (
       <Screen step={step} onSkip={handleSkip}>
-        <FadeText size={28}>Enchanté, {displayName} !</FadeText>
+        <FadeText size={28}>Enchantée, {displayName} !</FadeText>
       </Screen>
     )
   }
@@ -446,7 +446,7 @@ export default function Melodie({ onAuth, onComplete, roles, onToast, existingUs
   if (step === 'login') {
     return (
       <Screen step={step} onSkip={handleSkip}>
-        <FadeText size={20}>Content de te revoir</FadeText>
+        <FadeText size={20}>Contente de te revoir</FadeText>
         <div style={{
           width: '100%', maxWidth: 320, marginTop: 8,
           opacity: 0, animation: 'fadeSlideUp 0.6s ease 0.4s forwards',

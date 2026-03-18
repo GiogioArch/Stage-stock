@@ -1,598 +1,400 @@
-import React, { useState, useMemo } from 'react'
-import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge, parseDate } from './UI'
+import React, { useState, createElement } from 'react'
+import { parseDate, Badge } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
 import {
+  Package,
+  Calendar,
+  ClipboardCheck,
+  ScanLine,
+  Coins,
+  ShoppingCart,
+  AlertOctagon,
+  AlertTriangle,
+  ChevronRight,
   ArrowDownToLine,
   ArrowUpFromLine,
   RefreshCw,
-  AlertTriangle,
-  MapPin,
-  ClipboardList,
-  Tent,
-  Package,
-  ChevronRight,
-  CircleDot,
-  ExternalLink,
-  Calendar,
-  AlertOctagon,
 } from 'lucide-react'
 
-// ─── Design tokens ───
-const COLOR = {
-  textPrimary: '#1E293B',
-  textSecondary: '#64748B',
-  textTertiary: '#94A3B8',
-  accent: '#6366F1',
-  accentSubtle: 'rgba(99,102,241,0.12)',
-  bgSurface: '#F8FAFC',
-  bgHover: '#F1F5F9',
-  border: '#E2E8F0',
-  success: '#16A34A',
-  danger: '#DC2626',
-  warning: '#D97706',
-  info: '#2563EB',
+// ─── Palette pastel harmonisée ───
+const MOD = {
+  stock:   { icon: Package,        label: 'Stock',    color: '#5B8DB8', bg: '#E8F0FE', tab: 'stock' },
+  tournee: { icon: Calendar,       label: 'Tournée',  color: '#E8735A', bg: '#FDE8E4', tab: 'tournee' },
+  packing: { icon: ClipboardCheck, label: 'Packing',  color: '#5DAB8B', bg: '#E4F5EF', tab: 'packing' },
+  scanner: { icon: ScanLine,       label: 'Scanner',  color: '#8B6DB8', bg: '#F0E8FE', tab: 'scanner' },
+  finance: { icon: Coins,          label: 'Finance',  color: '#E8935A', bg: '#FEF0E4', tab: 'finance' },
+  achats:  { icon: ShoppingCart,    label: 'Achats',   color: '#D4648A', bg: '#FDE4EE', tab: 'achats' },
 }
 
-export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, onQuickAction, onNavigate, onReload, onToast }) {
+const C = {
+  text: '#1E293B',
+  textSoft: '#64748B',
+  textMuted: '#94A3B8',
+  bg: '#F8FAFC',
+  border: '#E2E8F0',
+  white: '#FFFFFF',
+  danger: '#D4648A',
+  warning: '#E8935A',
+  success: '#5DAB8B',
+  accent: '#5B8DB8',
+}
+
+export default function Board({
+  products, locations, stock, movements, alerts, events,
+  families, subfamilies, checklists, roles, eventPacking,
+  userProfiles, userRole, onQuickAction, onNavigate, onReload, onToast,
+}) {
   const [selectedEvent, setSelectedEvent] = useState(null)
 
-  // ─── Role config ───
-  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: ClipboardList, color: COLOR.accent, label: userRole.name }) : null
-  const isAdmin = !userRole || ['TM', 'PM', 'LOG', 'PA'].includes(userRole?.code)
-
-  // ─── KPI calculations ───
-  const totalProducts = products.length
+  // ─── Data calculations ───
+  const roleConf = userRole ? (ROLE_CONF[userRole.code] || { label: userRole.name }) : null
   const totalStock = stock.reduce((sum, s) => sum + (s.quantity || 0), 0)
-  const totalAlerts = alerts.length
   const criticalAlerts = alerts.filter(a => a.level === 'rupture')
+  const lowAlerts = alerts.filter(a => a.level !== 'rupture')
 
-  // Stock by category
-  const stockByCategory = CATEGORIES.map(cat => {
-    const catProducts = products.filter(p => p.category === cat.id)
-    const catProductIds = new Set(catProducts.map(p => p.id))
-    const qty = stock.filter(s => catProductIds.has(s.product_id)).reduce((sum, s) => sum + (s.quantity || 0), 0)
-    return { ...cat, qty, count: catProducts.length }
-  })
-
-  // Stock by location
-  const stockByLocation = locations.map(loc => {
-    const qty = stock.filter(s => s.location_id === loc.id).reduce((sum, s) => sum + (s.quantity || 0), 0)
-    const nbProducts = new Set(stock.filter(s => s.location_id === loc.id && s.quantity > 0).map(s => s.product_id)).size
-    return { ...loc, qty, nbProducts }
-  })
-
-  // Last 5 movements
-  const recentMoves = movements.slice(0, 5)
-
-  // Upcoming events
   const now = new Date().toISOString().split('T')[0]
   const upcomingEvents = events.filter(e => e.date >= now)
   const nextEvent = upcomingEvents[0]
+  const daysToNext = nextEvent
+    ? Math.ceil((new Date(nextEvent.date) - new Date()) / 86400000)
+    : null
 
-  // ─── Role-specific packing stats ───
-  const myPackingItems = userRole
-    ? eventPacking.filter(ep => ep.role_code === userRole.code)
+  // Packing progress for next event
+  const myPacking = userRole && nextEvent
+    ? eventPacking.filter(ep => ep.role_code === userRole.code && ep.event_id === nextEvent.id)
     : []
-  const nextEventPacking = nextEvent
-    ? myPackingItems.filter(ep => ep.event_id === nextEvent.id)
-    : []
-  const packingDone = nextEventPacking.filter(ep => ep.packed).length
-  const packingTotal = nextEventPacking.length
+  const packingDone = myPacking.filter(ep => ep.packed).length
+  const packingTotal = myPacking.length
   const packingPct = packingTotal > 0 ? Math.round((packingDone / packingTotal) * 100) : 0
 
-  // ─── Low stock items for my role ───
-  const myLowStock = alerts.slice(0, 5)
-
-  // ─── Movement trends (last 7 days) ───
-  const moveTrend = useMemo(() => {
-    const days = []
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      const key = d.toISOString().split('T')[0]
-      const label = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0, 3)
-      const dayMoves = movements.filter(m => m.created_at?.startsWith(key))
-      days.push({
-        key, label,
-        in: dayMoves.filter(m => m.type === 'in').reduce((s, m) => s + (m.quantity || 0), 0),
-        out: dayMoves.filter(m => m.type === 'out').reduce((s, m) => s + (m.quantity || 0), 0),
-      })
-    }
-    return days
-  }, [movements])
-
-  const maxMoveVal = Math.max(1, ...moveTrend.map(d => Math.max(d.in, d.out)))
-
-  // Product name helper
-  const pName = (id) => products.find(p => p.id === id)?.name || '?'
-  const lName = (id) => locations.find(l => l.id === id)?.name || '?'
+  // Module badges
+  const badges = {
+    stock: totalStock > 0 ? `${totalStock} u.` : null,
+    tournee: daysToNext !== null ? `J-${daysToNext}` : null,
+    packing: packingTotal > 0 ? `${packingPct}%` : null,
+    scanner: null,
+    finance: null,
+    achats: null,
+  }
 
   return (
     <>
-    {/* ─── Event Detail (floating window) ─── */}
-    {selectedEvent && (
-      <div
-        onClick={() => setSelectedEvent(null)}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 200,
-          background: 'rgba(15,23,42,0.4)',
-          backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 16,
-          animation: 'fadeIn 0.15s ease',
-        }}
-      >
+      {/* ─── Event Detail floating ─── */}
+      {selectedEvent && (
         <div
-          onClick={e => e.stopPropagation()}
+          onClick={() => setSelectedEvent(null)}
           style={{
-            width: '100%', maxWidth: 420, maxHeight: '78vh',
-            background: 'white', borderRadius: 20,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
-            overflowY: 'auto', WebkitOverflowScrolling: 'touch',
-            animation: 'scaleIn 0.2s ease',
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(15,23,42,0.4)',
+            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 16, animation: 'fadeIn 0.15s ease',
           }}
         >
-          <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setSelectedEvent(null)} style={{ width: 30, height: 30, borderRadius: 15, background: '#F1F5F9', border: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-          </div>
-          <EventDetail
-            embedded
-            event={selectedEvent}
-            events={events}
-            products={products}
-            stock={stock}
-            locations={locations}
-            families={families}
-            subfamilies={subfamilies}
-            checklists={checklists}
-            roles={roles}
-            eventPacking={eventPacking}
-            userProfiles={userProfiles || []}
-            userRole={userRole}
-            onClose={() => setSelectedEvent(null)}
-            onReload={onReload}
-            onToast={onToast}
-            onNavigateEvent={(ev) => setSelectedEvent(ev)}
-          />
-        </div>
-      </div>
-    )}
-
-    <div style={{ padding: '0 16px 24px' }}>
-
-      {/* ─── Role Welcome Card ─── */}
-      {roleConf && (
-        <div className="card" style={{
-          marginBottom: 16, padding: '18px 16px',
-          background: COLOR.bgSurface,
-          border: `1px solid ${COLOR.border}`,
-          borderRadius: 12,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: 12,
-              background: COLOR.accentSubtle,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: COLOR.accent,
-            }}>
-              {roleConf.icon && React.createElement(roleConf.icon, { size: 24 })}
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 420, maxHeight: '78vh',
+              background: 'white', borderRadius: 20,
+              boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
+              overflowY: 'auto', WebkitOverflowScrolling: 'touch',
+              animation: 'scaleIn 0.2s ease',
+            }}
+          >
+            <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setSelectedEvent(null)} style={{ width: 30, height: 30, borderRadius: 15, background: '#F1F5F9', border: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: COLOR.textPrimary }}>
-                {roleConf.label}
-              </div>
-              <div style={{ fontSize: 12, color: COLOR.textSecondary, fontWeight: 600 }}>
-                {isAdmin ? 'Vue complète — tous les stocks' : `${totalProducts} produit${totalProducts > 1 ? 's' : ''} sous ta responsabilité`}
-              </div>
-            </div>
-          </div>
-
-          {/* Role KPI row */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <MiniKpi label="Stock" value={totalStock} color={COLOR.accent} />
-            <MiniKpi label="Alertes" value={totalAlerts} color={totalAlerts > 0 ? COLOR.warning : COLOR.success} />
-            <MiniKpi label="Ruptures" value={criticalAlerts.length} color={criticalAlerts.length > 0 ? COLOR.danger : COLOR.success} />
-            {packingTotal > 0 && (
-              <MiniKpi label="Packing" value={`${packingPct}%`} color={packingPct === 100 ? COLOR.success : COLOR.info} />
-            )}
+            <EventDetail
+              embedded
+              event={selectedEvent}
+              events={events}
+              products={products}
+              stock={stock}
+              locations={locations}
+              families={families}
+              subfamilies={subfamilies}
+              checklists={checklists}
+              roles={roles}
+              eventPacking={eventPacking}
+              userProfiles={userProfiles || []}
+              userRole={userRole}
+              onClose={() => setSelectedEvent(null)}
+              onReload={onReload}
+              onToast={onToast}
+              onNavigateEvent={(ev) => setSelectedEvent(ev)}
+            />
           </div>
         </div>
       )}
 
-      {/* ─── My Packing Progress (if next event has items for my role) ─── */}
-      {packingTotal > 0 && nextEvent && (
-        <div className="card" style={{
-          marginBottom: 16, padding: '14px 16px',
-          borderLeft: `3px solid ${COLOR.accent}`,
-          background: COLOR.bgSurface,
-          borderRadius: 12,
+      <div style={{ padding: '0 16px 24px' }}>
+
+        {/* ═══ 1. EN-TÊTE : Bonjour + Prochain événement ═══ */}
+        <div style={{
+          padding: '20px 18px', borderRadius: 16, marginBottom: 16,
+          background: `linear-gradient(135deg, ${C.accent}12, ${C.accent}06)`,
+          border: `1px solid ${C.accent}20`,
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: COLOR.textPrimary }}>
-                Mon packing — {nextEvent.name || nextEvent.lieu}
+          <div style={{ fontSize: 22, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+            Bonjour{roleConf ? ` !` : ' !'}
+          </div>
+          {roleConf && (
+            <div style={{ fontSize: 13, color: C.textSoft, marginBottom: 12 }}>
+              {roleConf.label}
+            </div>
+          )}
+
+          {nextEvent ? (
+            <div
+              onClick={() => setSelectedEvent(nextEvent)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '12px 14px', borderRadius: 12,
+                background: C.white, cursor: 'pointer',
+                border: `1px solid ${C.border}`,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              }}
+            >
+              <div style={{
+                width: 48, height: 48, borderRadius: 12,
+                background: MOD.tournee.bg, color: MOD.tournee.color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, fontWeight: 700, fontSize: 13, lineHeight: 1.1, textAlign: 'center',
+              }}>
+                {parseDate(nextEvent.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
-              <div style={{ fontSize: 11, color: COLOR.textSecondary }}>
-                {packingDone}/{packingTotal} items prêts
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {nextEvent.name || nextEvent.lieu}
+                </div>
+                <div style={{ fontSize: 11, color: C.textSoft }}>
+                  {nextEvent.ville} — {nextEvent.format}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{
+                  fontSize: 18, fontWeight: 700,
+                  color: daysToNext <= 7 ? C.warning : C.accent,
+                }}>
+                  J-{daysToNext}
+                </div>
+                <div style={{ fontSize: 10, color: C.textMuted }}>
+                  Voir {createElement(ChevronRight, { size: 10, style: { verticalAlign: 'middle' } })}
+                </div>
               </div>
             </div>
-            <div style={{
-              fontSize: 20, fontWeight: 600,
-              color: packingPct === 100 ? COLOR.success : packingPct >= 50 ? COLOR.warning : COLOR.danger,
-            }}>{packingPct}%</div>
-          </div>
-          <div style={{
-            height: 6, borderRadius: 3, background: COLOR.bgHover,
-            overflow: 'hidden',
-          }}>
-            <div style={{
-              width: `${packingPct}%`, height: '100%', borderRadius: 3,
-              background: packingPct === 100 ? COLOR.success : COLOR.accent,
-              transition: 'width 0.3s',
-            }} />
-          </div>
-          {/* Show first unpacked items */}
-          {nextEventPacking.filter(ep => !ep.packed).slice(0, 3).map((ep, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
-              fontSize: 12, color: COLOR.textSecondary,
-            }}>
-              <CircleDot size={12} style={{ color: COLOR.danger, flexShrink: 0 }} />
-              <span>{pName(ep.product_id)}</span>
-              <span style={{ marginLeft: 'auto', fontWeight: 700 }}>{ep.quantity_needed}</span>
-            </div>
-          ))}
-          {nextEventPacking.filter(ep => !ep.packed).length > 3 && (
-            <div style={{ fontSize: 11, color: COLOR.textTertiary, marginTop: 6, textAlign: 'center' }}>
-              +{nextEventPacking.filter(ep => !ep.packed).length - 3} autres items...
+          ) : (
+            <div style={{ fontSize: 13, color: C.textMuted }}>
+              Aucun événement à venir
             </div>
           )}
         </div>
-      )}
 
-      {/* ─── Next Event ─── */}
-      {nextEvent && (
-        <div className="card" style={{
-          marginBottom: 16, borderLeft: `3px solid ${COLOR.warning}`,
-          cursor: 'pointer', background: COLOR.bgSurface, borderRadius: 12,
-        }}
-          onClick={() => setSelectedEvent(nextEvent)}>
-          <div className="section-title">Prochain concert</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: COLOR.textPrimary }}>{nextEvent.name || nextEvent.lieu}</div>
-              <div style={{ fontSize: 12, color: COLOR.textSecondary, marginTop: 2 }}>
-                {nextEvent.ville} — {nextEvent.format} — {nextEvent.capacite} pers.
+        {/* ═══ 2. BANDEAU ALERTES (seulement si problèmes) ═══ */}
+        {(criticalAlerts.length > 0 || lowAlerts.length > 0) && (
+          <div
+            onClick={() => onNavigate('alertes')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '12px 16px', borderRadius: 12, marginBottom: 16,
+              background: criticalAlerts.length > 0 ? 'rgba(212,100,138,0.08)' : 'rgba(232,147,90,0.08)',
+              border: `1px solid ${criticalAlerts.length > 0 ? 'rgba(212,100,138,0.2)' : 'rgba(232,147,90,0.2)'}`,
+              cursor: 'pointer',
+            }}
+          >
+            {createElement(criticalAlerts.length > 0 ? AlertOctagon : AlertTriangle, {
+              size: 20,
+              style: { color: criticalAlerts.length > 0 ? C.danger : C.warning, flexShrink: 0 },
+            })}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+                {criticalAlerts.length > 0
+                  ? `${criticalAlerts.length} rupture${criticalAlerts.length > 1 ? 's' : ''}`
+                  : `${lowAlerts.length} alerte${lowAlerts.length > 1 ? 's' : ''} stock`
+                }
+                {criticalAlerts.length > 0 && lowAlerts.length > 0 && (
+                  <span style={{ fontWeight: 400, color: C.textSoft }}>
+                    {' '}+ {lowAlerts.length} alerte{lowAlerts.length > 1 ? 's' : ''}
+                  </span>
+                )}
               </div>
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: COLOR.warning }}>
-                {parseDate(nextEvent.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-              </div>
-              <div style={{ fontSize: 10, color: COLOR.textTertiary, marginTop: 2, display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>
-                Voir fiche <ChevronRight size={10} />
-              </div>
-            </div>
+            {createElement(ChevronRight, { size: 16, style: { color: C.textMuted } })}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ─── Quick Actions ─── */}
-      <div className="section-title">Actions rapides</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
-        <QuickBtn icon={ArrowDownToLine} label="Entrée" color={COLOR.success} onClick={() => onQuickAction('in')} />
-        <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={COLOR.danger} onClick={() => onQuickAction('out')} />
-        <QuickBtn icon={RefreshCw} label="Transfert" color={COLOR.info} onClick={() => onQuickAction('transfer')} />
-      </div>
-
-      {/* ─── EK LIVE link ─── */}
-      <a href="/live" target="_blank" rel="noopener noreferrer" style={{
-        display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none',
-        padding: '14px 16px', borderRadius: 12, marginBottom: 20, cursor: 'pointer',
-        background: COLOR.bgSurface,
-        border: `1px solid ${COLOR.border}`,
-      }}>
+        {/* ═══ 3. GRILLE MODULES 2×3 ═══ */}
         <div style={{
-          width: 40, height: 40, borderRadius: 8,
-          background: COLOR.accentSubtle,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0, color: COLOR.accent,
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 12,
+          marginBottom: 20,
         }}>
-          <Tent size={20} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: COLOR.textPrimary, letterSpacing: 0.5 }}>EK LIVE</div>
-          <div style={{ fontSize: 11, color: COLOR.textTertiary }}>Ouvrir l'app fan — vote setlist & réactions</div>
-        </div>
-        <ExternalLink size={14} style={{ color: COLOR.textTertiary }} />
-      </a>
+          {Object.entries(MOD).map(([key, mod]) => (
+            <button
+              key={key}
+              onClick={() => onNavigate(mod.tab)}
+              style={{
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                padding: '22px 12px 18px',
+                borderRadius: 16,
+                background: mod.bg,
+                border: `1.5px solid ${mod.color}18`,
+                cursor: 'pointer',
+                position: 'relative',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              }}
+              onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.97)' }}
+              onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
+              onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+            >
+              {/* Badge */}
+              {badges[key] && (
+                <div style={{
+                  position: 'absolute', top: 8, right: 10,
+                  fontSize: 10, fontWeight: 700,
+                  color: mod.color, background: C.white,
+                  padding: '2px 7px', borderRadius: 10,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                }}>
+                  {badges[key]}
+                </div>
+              )}
 
-      {/* ─── Alerts (priority display) ─── */}
-      {alerts.length > 0 && (
-        <>
-          <div className="section-title">
-            {isAdmin ? 'Alertes stock' : 'Mes alertes'}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-            {myLowStock.map((a, i) => (
-              <div key={i} className="card" style={{
-                padding: '10px 14px',
-                borderLeft: `3px solid ${a.level === 'rupture' ? COLOR.danger : COLOR.warning}`,
-                background: COLOR.bgSurface,
-                borderRadius: 12,
+              <div style={{
+                width: 52, height: 52, borderRadius: 14,
+                background: C.white,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: 10,
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: COLOR.textPrimary }}>{a.name}</div>
-                    <div style={{ fontSize: 11, color: COLOR.textSecondary }}>
-                      Stock: {a.currentStock} / Seuil: {a.minStock}
-                    </div>
-                  </div>
-                  <Badge color={a.level === 'rupture' ? COLOR.danger : COLOR.warning}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      {a.level === 'rupture'
-                        ? <><AlertOctagon size={12} /> Rupture</>
-                        : <><AlertTriangle size={12} /> Alerte</>
-                      }
-                    </span>
-                  </Badge>
+                {createElement(mod.icon, { size: 26, style: { color: mod.color } })}
+              </div>
+              <div style={{
+                fontSize: 14, fontWeight: 700, color: mod.color,
+                letterSpacing: 0.2,
+              }}>
+                {mod.label}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* ═══ 4. ACTIONS RAPIDES (petit format) ═══ */}
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.textSoft, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          Actions rapides
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+          <QuickBtn icon={ArrowDownToLine} label="Entrée" color={C.success} onClick={() => onQuickAction('in')} />
+          <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={C.danger} onClick={() => onQuickAction('out')} />
+          <QuickBtn icon={RefreshCw} label="Transfert" color={C.accent} onClick={() => onQuickAction('transfer')} />
+        </div>
+
+        {/* ═══ 5. PACKING PROGRESS (si applicable) ═══ */}
+        {packingTotal > 0 && nextEvent && (
+          <div style={{
+            padding: '14px 16px', borderRadius: 12, marginBottom: 16,
+            background: C.white, border: `1px solid ${C.border}`,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+                  Mon packing — {nextEvent.name || nextEvent.lieu}
+                </div>
+                <div style={{ fontSize: 11, color: C.textSoft }}>
+                  {packingDone}/{packingTotal} items prêts
                 </div>
               </div>
-            ))}
-            {alerts.length > 5 && (
-              <button onClick={() => onNavigate('alertes')} style={{
-                fontSize: 13, fontWeight: 700, color: COLOR.accent, padding: 8, textAlign: 'center',
-                background: 'none', border: 'none', cursor: 'pointer',
-              }}>
-                Voir les {alerts.length} alertes
-                <ChevronRight size={14} style={{ verticalAlign: 'middle', marginLeft: 2 }} />
+              <div style={{
+                fontSize: 20, fontWeight: 700,
+                color: packingPct === 100 ? C.success : packingPct >= 50 ? C.warning : C.danger,
+              }}>{packingPct}%</div>
+            </div>
+            <div style={{ height: 6, borderRadius: 3, background: '#F1F5F9', overflow: 'hidden' }}>
+              <div style={{
+                width: `${packingPct}%`, height: '100%', borderRadius: 3,
+                background: packingPct === 100 ? C.success : MOD.packing.color,
+                transition: 'width 0.3s',
+              }} />
+            </div>
+          </div>
+        )}
+
+        {/* ═══ 6. PROCHAINS ÉVÉNEMENTS (compact) ═══ */}
+        {upcomingEvents.length > 1 && (
+          <>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.textSoft, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              Prochains événements
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
+              {upcomingEvents.slice(1, 4).map(ev => {
+                const d = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
+                return (
+                  <div
+                    key={ev.id}
+                    onClick={() => setSelectedEvent(ev)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                      borderRadius: 10, background: C.white, border: `1px solid ${C.border}`,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 8,
+                      background: MOD.tournee.bg, color: MOD.tournee.color,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 10, fontWeight: 700, lineHeight: 1.1, textAlign: 'center', flexShrink: 0,
+                    }}>
+                      {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {ev.name || ev.lieu}
+                      </div>
+                      <div style={{ fontSize: 11, color: C.textSoft }}>{ev.ville}</div>
+                    </div>
+                    <Badge color={d <= 7 ? C.warning : C.accent}>J-{d}</Badge>
+                  </div>
+                )
+              })}
+            </div>
+            {upcomingEvents.length > 4 && (
+              <button
+                onClick={() => onNavigate('tournee')}
+                style={{
+                  width: '100%', padding: 10, borderRadius: 10,
+                  background: 'none', border: `1px dashed ${C.border}`,
+                  fontSize: 12, fontWeight: 600, color: C.accent,
+                  cursor: 'pointer', textAlign: 'center',
+                }}
+              >
+                Voir les {upcomingEvents.length} dates
+                {createElement(ChevronRight, { size: 12, style: { verticalAlign: 'middle', marginLeft: 4 } })}
               </button>
             )}
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {/* ─── Stock by Category ─── */}
-      <div className="section-title">Stock par catégorie</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-        {stockByCategory.filter(c => c.count > 0).map(cat => (
-          <div key={cat.id} className="card" style={{
-            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-            background: COLOR.bgSurface, borderRadius: 12, border: `1px solid ${COLOR.border}`,
-          }}>
-            <div style={{
-              width: 42, height: 42, borderRadius: 8, background: cat.bg,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: cat.color,
-            }}>
-              {cat.icon && React.createElement(cat.icon, { size: 20 })}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: COLOR.textPrimary }}>{cat.name}</div>
-              <div style={{ fontSize: 11, color: COLOR.textSecondary }}>{cat.count} produit{cat.count > 1 ? 's' : ''}</div>
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 600, color: cat.color }}>{cat.qty}</div>
-          </div>
-        ))}
       </div>
-
-      {/* ─── Movement Trends (7 days) ─── */}
-      {movements.length > 0 && (
-        <>
-          <div className="section-title">Mouvements — 7 derniers jours</div>
-          <div className="card" style={{ padding: '14px 16px', marginBottom: 20, background: COLOR.bgSurface, borderRadius: 12, border: `1px solid ${COLOR.border}` }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 100 }}>
-              {moveTrend.map((d, i) => (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                  <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 80, width: '100%' }}>
-                    <div style={{
-                      flex: 1, borderRadius: '4px 4px 0 0',
-                      background: COLOR.success,
-                      height: `${Math.max(2, (d.in / maxMoveVal) * 80)}px`,
-                      transition: 'height 0.3s',
-                    }} title={`Entrées: ${d.in}`} />
-                    <div style={{
-                      flex: 1, borderRadius: '4px 4px 0 0',
-                      background: COLOR.danger,
-                      height: `${Math.max(2, (d.out / maxMoveVal) * 80)}px`,
-                      transition: 'height 0.3s',
-                    }} title={`Sorties: ${d.out}`} />
-                  </div>
-                  <div style={{ fontSize: 8, color: COLOR.textTertiary, fontWeight: 700 }}>{d.label}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 10 }}>
-              <span style={{ fontSize: 10, color: COLOR.success, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: COLOR.success, display: 'inline-block' }} /> Entrées
-              </span>
-              <span style={{ fontSize: 10, color: COLOR.danger, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: COLOR.danger, display: 'inline-block' }} /> Sorties
-              </span>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* ─── Stock Distribution Chart ─── */}
-      {totalStock > 0 && (
-        <>
-          <div className="section-title">Répartition du stock</div>
-          <div className="card" style={{ padding: '14px 16px', marginBottom: 20, background: COLOR.bgSurface, borderRadius: 12, border: `1px solid ${COLOR.border}` }}>
-            {/* Horizontal stacked bar */}
-            <div style={{ display: 'flex', height: 24, borderRadius: 8, overflow: 'hidden', marginBottom: 12 }}>
-              {stockByCategory.filter(c => c.qty > 0).map(cat => (
-                <div key={cat.id} style={{
-                  width: `${(cat.qty / totalStock) * 100}%`,
-                  background: cat.color,
-                  transition: 'width 0.3s',
-                  minWidth: 2,
-                }} title={`${cat.name}: ${cat.qty}`} />
-              ))}
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-              {stockByCategory.filter(c => c.qty > 0).map(cat => (
-                <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 3, background: cat.color, display: 'inline-block' }} />
-                  <span style={{ fontSize: 11, color: COLOR.textPrimary, fontWeight: 600 }}>
-                    {cat.name} <span style={{ color: COLOR.textSecondary }}>({cat.qty})</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* ─── Stock by Location ─── */}
-      <div className="section-title">Stock par lieu</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-        {stockByLocation.filter(l => l.qty > 0).map(loc => (
-          <div key={loc.id} className="card" style={{
-            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-            background: COLOR.bgSurface, borderRadius: 12, border: `1px solid ${COLOR.border}`,
-          }}>
-            <div style={{
-              width: 42, height: 42, borderRadius: 8,
-              background: COLOR.accentSubtle,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: COLOR.accent,
-            }}>
-              <MapPin size={20} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: COLOR.textPrimary }}>{loc.name}</div>
-              <div style={{ fontSize: 11, color: COLOR.textSecondary }}>{loc.nbProducts} ref. en stock</div>
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 600, color: COLOR.textPrimary }}>{loc.qty}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ─── Recent Movements ─── */}
-      <div className="section-title">Derniers mouvements</div>
-      {recentMoves.length === 0 ? (
-        <div className="empty-state" style={{ padding: 24 }}>
-          <ClipboardList size={32} style={{ color: COLOR.textTertiary, marginBottom: 8 }} />
-          <div className="empty-text">Aucun mouvement enregistré</div>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-          {recentMoves.map(m => {
-            const conf = getMoveConf(m.type)
-            return (
-              <div key={m.id} className="card" style={{
-                display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
-                background: COLOR.bgSurface, borderRadius: 12, border: `1px solid ${COLOR.border}`,
-              }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: 8, background: conf.bg,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: conf.color,
-                }}>
-                  {conf.icon && React.createElement(conf.icon, { size: 16 })}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: COLOR.textPrimary }}>
-                    {pName(m.product_id)}
-                  </div>
-                  <div style={{ fontSize: 11, color: COLOR.textSecondary }}>
-                    {m.type === 'transfer'
-                      ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
-                      : lName(m.type === 'in' ? m.to_loc : m.from_loc)
-                    }
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: conf.color }}>
-                    {m.type === 'out' ? '-' : '+'}{m.quantity}
-                  </div>
-                  <div style={{ fontSize: 10, color: COLOR.textTertiary }}>{fmtDate(m.created_at)}</div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* ─── Upcoming events ─── */}
-      {upcomingEvents.length > 1 && (
-        <>
-          <div className="section-title">Événements à venir</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {upcomingEvents.slice(1, 6).map(ev => {
-              const d = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
-              return (
-                <div key={ev.id} className="card" style={{
-                  display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', cursor: 'pointer',
-                  background: COLOR.bgSurface, borderRadius: 12, border: `1px solid ${COLOR.border}`,
-                }}
-                  onClick={() => setSelectedEvent(ev)}>
-                  <div style={{
-                    width: 42, height: 42, borderRadius: 8, background: COLOR.accentSubtle,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 600, color: COLOR.accent, lineHeight: 1.1, textAlign: 'center',
-                  }}>
-                    {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: COLOR.textPrimary }}>
-                      {ev.name || ev.lieu}
-                    </div>
-                    <div style={{ fontSize: 11, color: COLOR.textSecondary }}>{ev.ville} · {ev.format}</div>
-                  </div>
-                  <Badge color={d <= 7 ? COLOR.warning : COLOR.info}>J-{d}</Badge>
-                </div>
-              )
-            })}
-          </div>
-        </>
-      )}
-
-      {/* ─── Tournée shortcut ─── */}
-      {events.length > 0 && (
-        <button onClick={() => onNavigate('tournee')} style={{
-          width: '100%', marginTop: 16, padding: '14px', borderRadius: 12,
-          background: COLOR.bgSurface,
-          border: `1px solid ${COLOR.border}`, cursor: 'pointer', textAlign: 'center',
-        }}>
-          <Tent size={16} style={{ verticalAlign: 'middle', color: COLOR.accent }} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: COLOR.accent, marginLeft: 8 }}>
-            Voir toute la tournée ({events.length} dates)
-          </span>
-        </button>
-      )}
-
-    </div>
     </>
   )
 }
 
-// ─── Sub-components ───
-function MiniKpi({ label, value, color }) {
-  return (
-    <div style={{
-      flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: COLOR.bgHover, borderRadius: 8,
-      border: `1px solid ${COLOR.border}`,
-    }}>
-      <div style={{ fontSize: 18, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: COLOR.textSecondary, fontWeight: 700, marginTop: 2 }}>{label}</div>
-    </div>
-  )
-}
-
+// ─── Quick action button (compact) ───
 function QuickBtn({ icon, label, color, onClick }) {
   return (
     <button onClick={onClick} style={{
-      background: COLOR.bgSurface, border: `1px solid ${COLOR.border}`, borderRadius: 12,
-      padding: '16px 8px', textAlign: 'center', color, fontWeight: 600, fontSize: 13,
-      cursor: 'pointer', transition: 'transform 0.1s',
+      flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+      padding: '10px 8px', borderRadius: 10,
+      background: C.white, border: `1px solid ${C.border}`,
+      fontSize: 12, fontWeight: 600, color,
+      cursor: 'pointer',
     }}>
-      <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'center' }}>
-        {React.createElement(icon, { size: 28 })}
-      </div>
+      {createElement(icon, { size: 16 })}
       {label}
     </button>
   )

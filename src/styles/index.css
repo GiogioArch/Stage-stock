@@ -16,21 +16,35 @@
   --text-tertiary: #94A3B8;
   --text-disabled: #CBD5E1;
 
-  /* ─── Accent (Indigo) ─── */
-  --accent: #6366F1;
-  --accent-hover: #4F46E5;
-  --accent-subtle: rgba(99,102,241,0.08);
-  --accent-text: #4F46E5;
+  /* ─── Accent (Bleu Stage Stock) ─── */
+  --accent: #5B8DB8;
+  --accent-hover: #4A7DA8;
+  --accent-subtle: rgba(91,141,184,0.10);
+  --accent-text: #4A7DA8;
 
   /* ─── Semantic ─── */
-  --success: #16A34A;
-  --success-subtle: rgba(22,163,74,0.08);
-  --danger: #DC2626;
-  --danger-subtle: rgba(220,38,38,0.08);
-  --warning: #D97706;
-  --warning-subtle: rgba(217,119,6,0.08);
-  --info: #2563EB;
-  --info-subtle: rgba(37,99,235,0.08);
+  --success: #5DAB8B;
+  --success-subtle: rgba(93,171,139,0.10);
+  --danger: #D4648A;
+  --danger-subtle: rgba(212,100,138,0.10);
+  --warning: #E8935A;
+  --warning-subtle: rgba(232,147,90,0.10);
+  --info: #5B8DB8;
+  --info-subtle: rgba(91,141,184,0.10);
+
+  /* ─── Module colors (Board grid) ─── */
+  --mod-stock: #5B8DB8;
+  --mod-stock-bg: #E8F0FE;
+  --mod-tournee: #E8735A;
+  --mod-tournee-bg: #FDE8E4;
+  --mod-packing: #5DAB8B;
+  --mod-packing-bg: #E4F5EF;
+  --mod-scanner: #8B6DB8;
+  --mod-scanner-bg: #F0E8FE;
+  --mod-finance: #E8935A;
+  --mod-finance-bg: #FEF0E4;
+  --mod-achats: #D4648A;
+  --mod-achats-bg: #FDE4EE;
 
   /* ─── Borders ─── */
   --border: #E2E8F0;
@@ -71,12 +85,12 @@
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 
   /* ─── Category colors ─── */
-  --merch-color: #7C3AED;
-  --merch-bg: rgba(124,58,237,0.06);
-  --mat-color: #2563EB;
-  --mat-bg: rgba(37,99,235,0.06);
-  --conso-color: #16A34A;
-  --conso-bg: rgba(22,163,74,0.06);
+  --merch-color: #8B6DB8;
+  --merch-bg: rgba(139,109,184,0.08);
+  --mat-color: #5B8DB8;
+  --mat-bg: rgba(91,141,184,0.08);
+  --conso-color: #5DAB8B;
+  --conso-bg: rgba(93,171,139,0.08);
 }
 
 /* ─── Reset & Base ─── */
