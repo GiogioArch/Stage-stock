@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BackStage — Comparaison Styles</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: #F1F5F9; color: #1E293B; }
+h1 { text-align: center; padding: 20px 16px 8px; font-size: 20px; }
+p.sub { text-align: center; font-size: 13px; color: #64748B; margin-bottom: 20px; }
+.style-section { padding: 16px; margin-bottom: 32px; }
+.style-title { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: center; }
+.mock { border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin-bottom: 16px; }
+
+/* ═══ STYLE A : Vif & Saturé ═══ */
+.a .style-title { color: #E8735A; }
+.a .mock { background: #FFF; }
+.a .header { background: #FFF; padding: 14px 16px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; gap: 10px; }
+.a .header .icon { width: 36px; height: 36px; border-radius: 8px; background: #E8735A; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+.a .header .title { font-size: 16px; font-weight: 700; }
+.a .header .badge { background: #E8735A; color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; margin-left: auto; }
+.a .kpis { display: flex; gap: 8px; padding: 12px 16px; }
+.a .kpi { flex: 1; text-align: center; padding: 12px 8px; background: #FDE8E4; border-radius: 10px; }
+.a .kpi .num { font-size: 22px; font-weight: 800; color: #E8735A; }
+.a .kpi .lab { font-size: 10px; color: #64748B; font-weight: 600; }
+.a .filters { display: flex; gap: 6px; padding: 8px 16px; }
+.a .pill { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; }
+.a .pill.on { background: #E8735A; color: white; box-shadow: 0 2px 8px rgba(232,115,90,0.4); }
+.a .pill.off { background: #F1F5F9; color: #64748B; }
+.a .cards { padding: 8px 16px 16px; }
+.a .card { background: white; border-radius: 12px; padding: 14px 16px; border-left: 4px solid #E8735A; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.a .card .date { width: 44px; height: 44px; border-radius: 10px; background: #FDE8E4; color: #E8735A; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; line-height: 1; }
+.a .card .date small { font-size: 9px; font-weight: 600; }
+.a .card .info { flex: 1; }
+.a .card .info .name { font-size: 14px; font-weight: 700; }
+.a .card .info .loc { font-size: 11px; color: #64748B; }
+.a .card .tags { display: flex; gap: 4px; margin-top: 4px; }
+.a .card .tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
+.a .card .tag.format { background: #FDE8E4; color: #E8735A; }
+.a .card .tag.cap { background: #F0E8FE; color: #8B6DB8; }
+.a .card .tag.days { background: #FEF0E4; color: #E8935A; }
+
+/* ═══ STYLE B : Chaleureux Pastel ═══ */
+.b .style-title { color: #8B6DB8; }
+.b .mock { background: #FDF8F5; }
+.b .header { background: linear-gradient(135deg, #FDE8E410, #FDE8E430); padding: 20px 16px; }
+.b .header .title { font-size: 14px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 1px; }
+.b .header h2 { font-size: 24px; font-weight: 800; color: #1E293B; margin-top: 4px; }
+.b .header .sub { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+.b .kpis { display: flex; gap: 10px; padding: 0 16px 12px; }
+.b .kpi { flex: 1; text-align: center; padding: 16px 8px; background: white; border-radius: 14px; border: 1px solid #F1E8E4; }
+.b .kpi .num { font-size: 24px; font-weight: 800; color: #E8735A; }
+.b .kpi .lab { font-size: 10px; color: #94A3B8; font-weight: 600; margin-top: 2px; }
+.b .filters { display: flex; gap: 8px; padding: 8px 16px; }
+.b .pill { padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 600; border: 1.5px solid transparent; cursor: pointer; }
+.b .pill.on { background: white; color: #E8735A; border-color: #E8735A; }
+.b .pill.off { background: transparent; color: #94A3B8; border-color: #E2E8F0; }
+.b .cards { padding: 8px 16px 16px; }
+.b .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 10px; border: 1px solid #F1E8E4; }
+.b .card .top { display: flex; align-items: center; gap: 12px; }
+.b .card .date { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #FDE8E4, #FEF0E4); color: #E8735A; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; line-height: 1; }
+.b .card .date small { font-size: 9px; font-weight: 600; }
+.b .card .info { flex: 1; }
+.b .card .info .name { font-size: 15px; font-weight: 700; }
+.b .card .info .loc { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+.b .card .tags { display: flex; gap: 6px; margin-top: 8px; }
+.b .card .tag { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 10px; }
+.b .card .tag.format { background: #FDE8E4; color: #E8735A; }
+.b .card .tag.cap { background: #E4F5EF; color: #5DAB8B; }
+.b .card .tag.days { background: #FEF0E4; color: #E8935A; }
+
+/* ═══ STYLE C : Bold & Moderne ═══ */
+.c .style-title { color: #1E293B; }
+.c .mock { background: #FFF; }
+.c .header { background: linear-gradient(135deg, #E8735A, #D4648A); padding: 24px 16px 20px; color: white; border-radius: 16px 16px 0 0; }
+.c .header .over { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.8; }
+.c .header h2 { font-size: 22px; font-weight: 800; margin-top: 4px; }
+.c .header .stats { display: flex; gap: 16px; margin-top: 12px; }
+.c .header .stat { font-size: 13px; font-weight: 600; opacity: 0.9; }
+.c .header .stat strong { font-size: 20px; font-weight: 800; display: block; }
+.c .filters { display: flex; gap: 6px; padding: 14px 16px; }
+.c .pill { padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; }
+.c .pill.on { background: #1E293B; color: white; }
+.c .pill.off { background: #F1F5F9; color: #64748B; }
+.c .cards { padding: 8px 16px 16px; }
+.c .card { background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; border-left: 4px solid #E8735A; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 12px; }
+.c .card .date { width: 48px; height: 48px; border-radius: 10px; background: #E8735A; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; line-height: 1; }
+.c .card .date small { font-size: 9px; font-weight: 700; opacity: 0.9; }
+.c .card .info { flex: 1; }
+.c .card .info .name { font-size: 14px; font-weight: 700; }
+.c .card .info .loc { font-size: 11px; color: #64748B; }
+.c .card .tags { display: flex; gap: 4px; margin-top: 4px; }
+.c .card .tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+.c .card .tag.format { background: #E8735A; color: white; }
+.c .card .tag.cap { background: #8B6DB8; color: white; }
+.c .card .tag.days { background: #E8935A; color: white; }
+.c .card .progress { display: flex; gap: 12px; margin-top: 8px; font-size: 10px; color: #94A3B8; }
+.c .card .progress .bar { flex: 1; height: 4px; background: #F1F5F9; border-radius: 2px; overflow: hidden; }
+.c .card .progress .bar .fill { height: 100%; border-radius: 2px; }
+</style>
+</head>
+<body>
+<h1>BackStage — Quel style ?</h1>
+<p class="sub">Compare les 3 directions pour la page Tournée</p>
+
+<!-- STYLE A -->
+<div class="style-section a">
+<div class="style-title">A — Vif & Saturé</div>
+<div class="mock">
+  <div class="header">
+    <div class="icon">🎪</div>
+    <div class="title">Tournée</div>
+    <div class="badge">J-1</div>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="num">23</div><div class="lab">A venir</div></div>
+    <div class="kpi"><div class="num">0</div><div class="lab">Passées</div></div>
+    <div class="kpi"><div class="num">23</div><div class="lab">Total</div></div>
+  </div>
+  <div class="filters">
+    <div class="pill on">A venir (23)</div>
+    <div class="pill off">Passées (0)</div>
+    <div class="pill off">Toutes</div>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="date">20<small>MARS</small></div>
+      <div class="info">
+        <div class="name">Arobase — Lancement</div>
+        <div class="loc">Fort-de-France (Martinique)</div>
+        <div class="tags">
+          <span class="tag format">Concert live</span>
+          <span class="tag cap">120 pers.</span>
+          <span class="tag days">J-1</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="date">21<small>MARS</small></div>
+      <div class="info">
+        <div class="name">Arobase 2 — Suite</div>
+        <div class="loc">Fort-de-France (Martinique)</div>
+        <div class="tags">
+          <span class="tag format">Concert live</span>
+          <span class="tag cap">120 pers.</span>
+          <span class="tag days">J-2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- STYLE B -->
+<div class="style-section b">
+<div class="style-title">B — Chaleureux Pastel</div>
+<div class="mock">
+  <div class="header">
+    <div class="title">Tournée</div>
+    <h2>EK SHOP</h2>
+    <div class="sub">23 dates programmées · Prochain dans 1 jour</div>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="num">23</div><div class="lab">A venir</div></div>
+    <div class="kpi"><div class="num">0</div><div class="lab">Passées</div></div>
+    <div class="kpi"><div class="num">J-1</div><div class="lab">Prochain</div></div>
+  </div>
+  <div class="filters">
+    <div class="pill on">A venir (23)</div>
+    <div class="pill off">Passées (0)</div>
+    <div class="pill off">Toutes</div>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="top">
+        <div class="date">20<small>MARS</small></div>
+        <div class="info">
+          <div class="name">Arobase — Lancement</div>
+          <div class="loc">Fort-de-France · Martinique</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag format">Concert live</span>
+        <span class="tag cap">120 pers.</span>
+        <span class="tag days">J-1</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="top">
+        <div class="date">21<small>MARS</small></div>
+        <div class="info">
+          <div class="name">Arobase 2 — Suite</div>
+          <div class="loc">Fort-de-France · Martinique</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag format">Concert live</span>
+        <span class="tag cap">120 pers.</span>
+        <span class="tag days">J-2</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- STYLE C -->
+<div class="style-section c">
+<div class="style-title">C — Bold & Moderne</div>
+<div class="mock">
+  <div class="header">
+    <div class="over">Tournée</div>
+    <h2>EK SHOP — 23 dates</h2>
+    <div class="stats">
+      <div class="stat"><strong>23</strong>A venir</div>
+      <div class="stat"><strong>0</strong>Passées</div>
+      <div class="stat"><strong>J-1</strong>Prochain</div>
+    </div>
+  </div>
+  <div class="filters">
+    <div class="pill on">A venir (23)</div>
+    <div class="pill off">Passées (0)</div>
+    <div class="pill off">Toutes</div>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <div class="date">20<small>MARS</small></div>
+      <div class="info">
+        <div class="name">Arobase — Lancement</div>
+        <div class="loc">Fort-de-France (Martinique)</div>
+        <div class="tags">
+          <span class="tag format">Concert live</span>
+          <span class="tag cap">120 pers.</span>
+          <span class="tag days">J-1</span>
+        </div>
+        <div class="progress">
+          <span>Check 0/23</span>
+          <div class="bar"><div class="fill" style="width:0%;background:#5DAB8B"></div></div>
+          <span>Pack 0/164</span>
+          <div class="bar"><div class="fill" style="width:0%;background:#E8735A"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="date">21<small>MARS</small></div>
+      <div class="info">
+        <div class="name">Arobase 2 — Suite</div>
+        <div class="loc">Fort-de-France (Martinique)</div>
+        <div class="tags">
+          <span class="tag format">Concert live</span>
+          <span class="tag cap">120 pers.</span>
+          <span class="tag days">J-2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</body>
+</html>
