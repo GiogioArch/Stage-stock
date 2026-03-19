@@ -3,9 +3,8 @@ import { db } from '../lib/supabase'
 import { Badge } from './UI'
 import { useToast, useProject } from '../shared/hooks'
 
-export default function Inventaire({ products, stock, locations, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function Inventaire({ products, stock, locations }) {
+  const onToast = useToast()
   const { orgId, reload } = useProject()
   const [selectedLocation, setSelectedLocation] = useState(null)
   const [counts, setCounts] = useState({}) // { productId: counted_qty }

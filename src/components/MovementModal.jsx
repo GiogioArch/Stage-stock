@@ -3,9 +3,8 @@ import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, getMoveConf, intOnly } from './UI'
 import { useToast, useProject } from '../shared/hooks'
 
-export default function MovementModal({ type, products, locations, stock, preselectedLocation, onClose, onDone, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function MovementModal({ type, products, locations, stock, preselectedLocation, onClose, onDone }) {
+  const onToast = useToast()
   const { orgId } = useProject()
   const conf = getMoveConf(type)
   const [productId, setProductId] = useState('')

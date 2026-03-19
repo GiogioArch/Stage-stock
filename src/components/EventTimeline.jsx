@@ -42,10 +42,9 @@ const ROLE_ORDER = ['TM', 'PM', 'SE', 'LD', 'BL', 'SM', 'TD', 'MM', 'LOG', 'SAFE
 
 export default function EventTimeline({
   event, events, eventTasks, roles, userProfiles,
-  onToast: _legacyToast, onBack,
+  onBack,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const { orgId, reload } = useProject()
   const { user } = useAuth()
   const [viewMode, setViewMode] = useState('timeline') // timeline | role | flow
@@ -449,7 +448,6 @@ export default function EventTimeline({
           userProfiles={userProfiles}
           onClose={() => setShowAddTask(false)}
           onDone={() => { setShowAddTask(false); reload?.() }}
-          onToast={onToast}
         />
       )}
     </div>
@@ -513,9 +511,8 @@ function TaskCard({ task, onToggle, compact, showHour }) {
 }
 
 // ─── Add Task Modal ───
-function AddTaskModal({ event, roles, userProfiles, onClose, onDone, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function AddTaskModal({ event, roles, userProfiles, onClose, onDone }) {
+  const onToast = useToast()
   const { orgId } = useProject()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')

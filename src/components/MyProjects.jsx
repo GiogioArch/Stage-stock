@@ -2,13 +2,12 @@ import React, { useState, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Pencil } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
-import { useToast } from '../shared/hooks'
+import { useToast, useAuth } from '../shared/hooks'
 
 const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
 
-export default function MyProjects({ userId, allProjects, onOpenProject, onProjectsChanged, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function MyProjects({ allProjects, onOpenProject, onProjectsChanged }) {
+  const onToast = useToast()
   const [showCreate, setShowCreate] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
@@ -50,7 +49,6 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
           project={editingProject}
           onSaved={() => { setEditingProject(null); onProjectsChanged() }}
           onCancel={() => setEditingProject(null)}
-          onToast={onToast}
         />
       )}
 
@@ -123,10 +121,8 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
         </div>
       ) : (
         <CreateProjectForm
-          userId={userId}
           onCreated={() => { setShowCreate(false); onProjectsChanged() }}
           onCancel={() => setShowCreate(false)}
-          onToast={onToast}
         />
       )}
     </div>
@@ -220,9 +216,8 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
   )
 }
 
-function EditProjectForm({ project, onSaved, onCancel, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function EditProjectForm({ project, onSaved, onCancel }) {
+  const onToast = useToast()
   const [name, setName] = useState(project.org?.name || '')
   const [slug, setSlug] = useState(project.org?.slug || '')
   const [saving, setSaving] = useState(false)
@@ -271,9 +266,9 @@ function EditProjectForm({ project, onSaved, onCancel, onToast: _legacyToast }) 
   )
 }
 
-function CreateProjectForm({ userId, onCreated, onCancel, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function CreateProjectForm({ onCreated, onCancel }) {
+  const onToast = useToast()
+  const { user } = useAuth()
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [saving, setSaving] = useState(false)
@@ -293,7 +288,7 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast: _legacyToast 
       })
       const org = orgs[0]
       await db.insert('project_members', {
-        user_id: userId,
+        user_id: user?.id,
         org_id: org.id,
         module_access: ALL_MODULES,
         is_admin: true,

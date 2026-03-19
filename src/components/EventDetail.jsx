@@ -61,10 +61,9 @@ const SECTIONS = [
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
   checklists, roles, eventPacking, userProfiles, userRole, orgId,
-  onClose, onReload, onToast: _legacyToast, onNavigateEvent, onEdit, onDelete, embedded,
+  onClose, onReload, onNavigateEvent, onEdit, onDelete, embedded,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const [section, setSection] = useState('resume')
 
   const daysUntil = Math.ceil((new Date(event.date) - new Date()) / 86400000)
@@ -212,7 +211,6 @@ export default function EventDetail({
             daysUntil={daysUntil}
             onSectionChange={setSection}
             onReload={onReload}
-            onToast={onToast}
           />
         )}
         {section === 'equipe' && (
@@ -232,7 +230,6 @@ export default function EventDetail({
             checkTotal={checkTotal}
             orgId={orgId}
             onReload={onReload}
-            onToast={onToast}
           />
         )}
         {section === 'packing' && (
@@ -262,9 +259,8 @@ export default function EventDetail({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // RÉSUMÉ
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload }) {
+  const onToast = useToast()
 
   // Stock by category
   const catStats = CATEGORIES.map(cat => {
@@ -327,7 +323,7 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
       )}
 
       {/* Résultats réels — Saisie post-concert */}
-      <ResultsSection event={event} onReload={onReload} onToast={onToast} />
+      <ResultsSection event={event} onReload={onReload} />
 
       {/* Progression checklist & packing */}
       <div style={{ display: 'flex', gap: SPACE.md, marginBottom: SPACE.md }}>
@@ -502,9 +498,8 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // CHECKLIST
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId, onReload, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId, onReload }) {
+  const onToast = useToast()
   const [addItem, setAddItem] = useState('')
   const [addCat, setAddCat] = useState('logistique')
 
@@ -798,9 +793,8 @@ function KpiCell({ label, value, color }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Résultats réels post-concert
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ResultsSection({ event, onReload, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function ResultsSection({ event, onReload }) {
+  const onToast = useToast()
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({

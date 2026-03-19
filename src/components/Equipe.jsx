@@ -178,10 +178,8 @@ function getHierarchyInfo(code) {
 export default function Equipe({
   roles, userProfiles, eventPacking, events,
   eventTasks, checklists, userAvailability,
-  onToast: _legacyToast,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const { orgId, reload, userRole } = useProject()
   const { user } = useAuth()
   const [view, setView] = useState('organigramme')

@@ -6,10 +6,9 @@ import { useToast } from '../shared/hooks'
 
 export default function PersonalDashboard({
   user, userDetails, allProjects,
-  onOpenProject, onNavigate, onToast: _legacyToast,
+  onOpenProject, onNavigate,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const [allEvents, setAllEvents] = useState([])
   const [loadingEvents, setLoadingEvents] = useState(true)
 

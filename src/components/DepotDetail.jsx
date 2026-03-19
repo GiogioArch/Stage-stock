@@ -16,10 +16,9 @@ function hexToRgbLocal(hex) {
 
 export default function DepotDetail({
   location, stock, products, movements, families, subfamilies,
-  onClose, onMovement, onToast: _legacyToast, onEdit, onDelete, onReload, embedded,
+  onClose, onMovement, onEdit, onDelete, onReload, embedded,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const [section, setSection] = useState('inventory')
 
   // ─── Stock in this location ───

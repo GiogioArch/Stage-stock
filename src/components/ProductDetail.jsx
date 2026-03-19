@@ -36,9 +36,8 @@ const SECTIONS = [
   { id: 'compta', label: 'Compta', icon: '' },
 ]
 
-export default function ProductDetail({ product, stock, locations, movements, events, eventPacking, products, userRole, onClose, onEdit, onDelete, onToast: _legacyToast, embedded }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function ProductDetail({ product, stock, locations, movements, events, eventPacking, products, userRole, onClose, onEdit, onDelete, embedded }) {
+  const onToast = useToast()
   const [section, setSection] = useState('resume')
 
   const cat = getCat(product.category)

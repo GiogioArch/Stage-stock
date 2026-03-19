@@ -6,9 +6,8 @@ import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../
 import { GradientHeader, SubTabs } from '../design'
 import { useToast, useProject } from '../shared/hooks'
 
-export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function Finance({ products, stock, events, locations, depreciation, expenses, sales }) {
+  const onToast = useToast()
   const { orgId, selectedOrg, reload } = useProject()
   const [section, setSection] = useState('overview')
   const [showAddExpense, setShowAddExpense] = useState(false)
@@ -263,7 +262,7 @@ export default function Finance({ products, stock, events, locations, depreciati
           </div>
 
           {showAddExpense && (
-            <AddExpenseForm events={events} onDone={() => { setShowAddExpense(false); reload() }} onToast={onToast} cats={EXPENSE_CATS} />
+            <AddExpenseForm events={events} onDone={() => { setShowAddExpense(false); reload() }} cats={EXPENSE_CATS} />
           )}
 
           {/* Summary by category */}
@@ -452,9 +451,8 @@ export default function Finance({ products, stock, events, locations, depreciati
   )
 }
 
-function AddExpenseForm({ events, onDone, onToast: _legacyToast, cats }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function AddExpenseForm({ events, onDone, cats }) {
+  const onToast = useToast()
   const { orgId } = useProject()
   const [category, setCategory] = useState('other')
   const [description, setDescription] = useState('')

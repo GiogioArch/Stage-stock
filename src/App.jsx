@@ -260,7 +260,6 @@ export default function App() {
             if (membership) enterProject(membership)
             loadPersonalData()
           }}
-          onToast={(msg, color) => showToast(msg, color)}
         />
         </Suspense>
       </>
@@ -289,7 +288,6 @@ export default function App() {
             if (membership) enterProject(membership)
             loadPersonalData()
           }}
-          onToast={(msg, color) => showToast(msg, color)}
         />
         </Suspense>
       </>
@@ -340,16 +338,13 @@ export default function App() {
             allProjects={allProjects}
             onOpenProject={enterProject}
             onNavigate={setPersonalTab}
-            onToast={showToast}
           />
         )}
         {personalTab === 'projects' && (
           <MyProjects
-            userId={user.id}
             allProjects={allProjects}
             onOpenProject={enterProject}
             onProjectsChanged={loadPersonalData}
-            onToast={showToast}
           />
         )}
         {personalTab === 'calendar' && (
@@ -383,7 +378,6 @@ export default function App() {
             userIncome={userIncome}
             allEvents={personalEvents.length > 0 ? personalEvents : data.events}
             onClose={() => setPersonalTab('home')}
-            onToast={showToast}
             onReload={loadPersonalData}
             onLogout={handleLogout}
             onSwitchProject={() => setPersonalTab('projects')}
@@ -434,10 +428,7 @@ export default function App() {
     return (
       <RolePicker
         roles={data.roles}
-        userId={user.id}
-        orgId={selectedOrg?.id}
         onRoleSelected={(role) => project.setUserRole(role)}
-        onToast={showToast}
       />
     )
   }
@@ -542,7 +533,6 @@ export default function App() {
         filteredMovements={filteredMovements}
         alerts={alerts}
         onNavigate={handleTabChange}
-        onToast={showToast}
         onQuickAction={(type) => setMoveModal({ type })}
         onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
         onModulesChanged={handleModulesChanged}
@@ -650,7 +640,6 @@ export default function App() {
           stock={filteredStock}
           onMovement={(type) => { setShowScanner(false); setMoveModal({ type }) }}
           onClose={() => setShowScanner(false)}
-          onToast={showToast}
         />
         </Suspense>
       )}
@@ -666,7 +655,6 @@ export default function App() {
           preselectedLocation={moveModal.preselectedLocation}
           onClose={() => setMoveModal(null)}
           onDone={() => { setMoveModal(null); loadAll() }}
-          onToast={showToast}
         />
         </Suspense>
       )}
@@ -693,7 +681,7 @@ export default function App() {
 function TabContent({
   tab, activeModuleIds, data,
   filteredProducts, filteredStock, filteredMovements, alerts,
-  onNavigate, onToast, onQuickAction, onMovement, onModulesChanged,
+  onNavigate, onQuickAction, onMovement, onModulesChanged,
   onOpenScanner,
 }) {
   switch (tab) {
@@ -714,7 +702,6 @@ function TabContent({
           userProfiles={data.user_profiles}
           onQuickAction={onQuickAction}
           onNavigate={onNavigate}
-          onToast={onToast}
           onOpenScanner={onOpenScanner}
         />
       )
@@ -731,7 +718,6 @@ function TabContent({
           roles={data.roles}
           eventPacking={data.event_packing}
           userProfiles={data.user_profiles}
-          onToast={onToast}
         />
       )
     case 'articles':
@@ -745,7 +731,6 @@ function TabContent({
           movements={filteredMovements}
           events={data.events}
           eventPacking={data.event_packing}
-          onToast={onToast}
         />
       )
     case 'stock_hub':
@@ -759,7 +744,6 @@ function TabContent({
           subfamilies={data.subfamilies}
           alerts={alerts}
           events={data.events}
-          onToast={onToast}
           onMovement={onMovement}
         />
       )
@@ -772,7 +756,6 @@ function TabContent({
           movements={filteredMovements}
           families={data.families}
           subfamilies={data.subfamilies}
-          onToast={onToast}
           onMovement={onMovement}
         />
       )
@@ -783,7 +766,6 @@ function TabContent({
           locations={data.locations}
           stock={filteredStock}
           movements={filteredMovements}
-          onToast={onToast}
           onMovement={onMovement}
         />
       )
@@ -797,7 +779,6 @@ function TabContent({
           eventTasks={data.event_tasks}
           checklists={data.checklists}
           userAvailability={data.user_availability}
-          onToast={onToast}
         />
       )
     case 'finance':
@@ -810,7 +791,6 @@ function TabContent({
           depreciation={data.product_depreciation}
           expenses={data.expenses}
           sales={data.sales}
-          onToast={onToast}
         />
       )
     case 'alertes':
@@ -831,7 +811,6 @@ function TabContent({
           eventTasks={data.event_tasks}
           roles={data.roles}
           userProfiles={data.user_profiles}
-          onToast={onToast}
         />
       )
     case 'forecast':
@@ -851,7 +830,6 @@ function TabContent({
           purchaseOrderLines={data.purchase_order_lines}
           products={filteredProducts}
           locations={data.locations}
-          onToast={onToast}
         />
       )
     case 'inventaire':
@@ -860,7 +838,6 @@ function TabContent({
           products={filteredProducts}
           stock={filteredStock}
           locations={data.locations}
-          onToast={onToast}
         />
       )
     case 'ventes':
@@ -871,7 +848,6 @@ function TabContent({
           locations={data.locations}
           events={data.events}
           onClose={() => onNavigate('board')}
-          onToast={onToast}
         />
       )
     case 'transport':
@@ -885,7 +861,6 @@ function TabContent({
           transportBookings={data.transport_bookings}
           transportManifests={data.transport_manifests}
           transportCosts={data.transport_costs}
-          onToast={onToast}
         />
       )
     case 'settings':
@@ -893,7 +868,6 @@ function TabContent({
         <Settings
           activeModuleIds={activeModuleIds}
           onModulesChanged={onModulesChanged}
-          onToast={onToast}
           roles={data.roles}
           userProfiles={data.project_members}
         />
@@ -904,7 +878,7 @@ function TabContent({
 }
 
 // ─── Stock Module (combines Stock view + Movements with sub-tabs) ───
-function StockModule({ products, locations, stock, movements, onToast, onMovement }) {
+function StockModule({ products, locations, stock, movements, onMovement }) {
   const [subTab, setSubTab] = useState('stock') // stock | mouvements
 
   return (
@@ -932,7 +906,6 @@ function StockModule({ products, locations, stock, movements, onToast, onMovemen
           products={products}
           locations={locations}
           stock={stock}
-          onToast={onToast}
           onMovement={onMovement}
         />
       )}
@@ -941,7 +914,6 @@ function StockModule({ products, locations, stock, movements, onToast, onMovemen
           movements={movements}
           products={products}
           locations={locations}
-          onToast={onToast}
         />
       )}
     </div>

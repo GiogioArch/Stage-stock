@@ -38,9 +38,8 @@ function LocationIcon({ emoji, size = 20, color }) {
   return <IconComponent size={size} color={color || BASE.textSoft} />
 }
 
-export default function Stocks({ products, locations, stock, onToast: _legacyToast, onMovement }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function Stocks({ products, locations, stock, onMovement }) {
+  const onToast = useToast()
   const { orgId, reload } = useProject()
   const [expanded, setExpanded] = useState({})
   const [filterCat, setFilterCat] = useState('all')

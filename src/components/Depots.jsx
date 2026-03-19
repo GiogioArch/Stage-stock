@@ -9,9 +9,8 @@ const DEPOT_ICON_MAP = {
   Warehouse, Store, Building, Box, Truck, MapPin, Home, Package,
 }
 
-export default function Depots({ locations, stock, products, movements, families, subfamilies, onToast: _legacyToast, onMovement }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function Depots({ locations, stock, products, movements, families, subfamilies, onMovement }) {
+  const onToast = useToast()
   const { orgId, reload } = useProject()
   const [showAdd, setShowAdd] = useState(false)
   const [selectedDepot, setSelectedDepot] = useState(null)
@@ -135,10 +134,8 @@ export default function Depots({ locations, stock, products, movements, families
       {editingLocation && (
         <LocationForm
           location={editingLocation}
-          orgId={orgId}
           onDone={() => { setEditingLocation(null); reload() }}
           onCancel={() => setEditingLocation(null)}
-          onToast={onToast}
         />
       )}
 
@@ -199,10 +196,8 @@ export default function Depots({ locations, stock, products, movements, families
 
       {showAdd && (
         <LocationForm
-          orgId={orgId}
           onDone={() => { setShowAdd(false); reload() }}
           onCancel={() => setShowAdd(false)}
-          onToast={onToast}
         />
       )}
 
@@ -262,9 +257,9 @@ export default function Depots({ locations, stock, products, movements, families
 }
 
 // ─── Shared form for Create + Edit ───
-function LocationForm({ location, orgId, onDone, onCancel, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function LocationForm({ location, onDone, onCancel }) {
+  const onToast = useToast()
+  const { orgId } = useProject()
   const isEdit = !!location
   const [name, setName] = useState(location?.name || '')
   const [icon, setIcon] = useState(location?.icon || 'Warehouse')

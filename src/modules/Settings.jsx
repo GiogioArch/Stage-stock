@@ -11,9 +11,8 @@ const MOD_ICONS = {
   'clipboard-check': ClipboardCheck, truck: Truck, settings: SettingsGear,
 }
 
-export default function Settings({ activeModuleIds: rawIds, onModulesChanged, onToast: _legacyToast, onClose, roles, userProfiles }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function Settings({ activeModuleIds: rawIds, onModulesChanged, onClose, roles, userProfiles }) {
+  const onToast = useToast()
   const { membership, reload } = useProject()
   const activeModuleIds = Array.isArray(rawIds) ? rawIds : DEFAULT_ACTIVE
   const [subTab, setSubTab] = useState('access') // access | modules
@@ -72,7 +71,6 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
           roles={roles || []}
           userProfiles={userProfiles || []}
           reload={reload}
-          onToast={onToast}
         />
       )}
 

@@ -13,9 +13,8 @@ const MOD_ICONS = {
   'clipboard-check': ClipboardCheck, truck: Truck, settings: SettingsGear,
 }
 
-export default function AccessManager({ membership, roles, userProfiles, onReload, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function AccessManager({ membership, roles, userProfiles, onReload }) {
+  const onToast = useToast()
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingMember, setEditingMember] = useState(null)

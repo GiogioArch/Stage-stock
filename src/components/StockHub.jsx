@@ -18,11 +18,10 @@ const MODULE_COLOR = '#5B8DB8'
 export default function StockHub({
   locations, stock, products, movements, families, subfamilies,
   alerts, events,
-  onToast: _legacyToast, onMovement,
+  onMovement,
 }) {
   const { orgId, reload, userRole } = useProject()
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const [activeTab, setActiveTab] = useState('par_lieu')
 
   return (

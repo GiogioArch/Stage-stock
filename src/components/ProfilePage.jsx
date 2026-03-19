@@ -46,10 +46,9 @@ export default function ProfilePage({
   user, userRole, userDetails: initialDetails,
   membership, selectedOrg, allProjects, roles,
   userGear, userAvailability, userIncome, allEvents,
-  onClose, onToast: _legacyToast, onReload, onLogout, onSwitchProject, onOpenProject,
+  onClose, onReload, onLogout, onSwitchProject, onOpenProject,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const [tab, setTab] = useState('identity')
   const [editing, setEditing] = useState(!initialDetails)
   const [details, setDetails] = useState(initialDetails || { account_type: 'physical' })
@@ -200,13 +199,13 @@ export default function ProfilePage({
           />
         )}
         {tab === 'gear' && (
-          <GearTab user={user} gear={userGear || []} onToast={onToast} onReload={onReload} />
+          <GearTab user={user} gear={userGear || []} onReload={onReload} />
         )}
         {tab === 'calendar' && (
-          <CalendarTab user={user} events={allEvents || []} availability={userAvailability || []} onToast={onToast} onReload={onReload} />
+          <CalendarTab user={user} events={allEvents || []} availability={userAvailability || []} onReload={onReload} />
         )}
         {tab === 'finances' && (
-          <FinancesTab user={user} income={userIncome || []} events={allEvents || []} onToast={onToast} onReload={onReload} />
+          <FinancesTab user={user} income={userIncome || []} events={allEvents || []} onReload={onReload} />
         )}
       </div>
 
@@ -550,9 +549,8 @@ const CONDITION_CONF = {
   hs:        { label: 'HS', color: '#94A3B8' },
 }
 
-function GearTab({ user, gear, onToast: _legacyToast, onReload }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function GearTab({ user, gear, onReload }) {
+  const onToast = useToast()
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ name: '', category: 'instrument', brand: '', model: '', serial_number: '', purchase_value: '', current_condition: 'bon', notes: '' })
   const [saving, setSaving] = useState(false)
@@ -730,9 +728,8 @@ const AVAIL_CONF = {
   unknown:     { label: 'Non renseigné', color: '#94A3B8', icon: '' },
 }
 
-function CalendarTab({ user, events, availability, onToast: _legacyToast, onReload }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function CalendarTab({ user, events, availability, onReload }) {
+  const onToast = useToast()
   const today = new Date().toISOString().split('T')[0]
 
   const availMap = useMemo(() => {
@@ -897,9 +894,8 @@ const INCOME_STATUS = {
   cancelled: { label: 'Annulé', color: '#8B6DB8' },
 }
 
-function FinancesTab({ user, income, events, onToast: _legacyToast, onReload }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function FinancesTab({ user, income, events, onReload }) {
+  const onToast = useToast()
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ type: 'cachet', description: '', amount: '', date: new Date().toISOString().split('T')[0], event_id: '', notes: '' })
   const [saving, setSaving] = useState(false)

@@ -7,10 +7,8 @@ import { useToast, useProject } from '../shared/hooks'
 export default function Transport({
   events, transportProviders, vehicles, transportRoutes,
   transportNeeds, transportBookings, transportManifests, transportCosts,
-  onToast: _legacyToast,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const { reload } = useProject()
   const [section, setSection] = useState('overview')
   const [showAddProvider, setShowAddProvider] = useState(false)
@@ -197,7 +195,6 @@ export default function Transport({
             <AddNeedForm
               events={upcomingEvents}
               onDone={() => { setShowAddNeed(false); reload() }}
-              onToast={onToast}
             />
           )}
 
@@ -274,7 +271,7 @@ export default function Transport({
                                     {n.weight_kg ? ` · ${n.weight_kg}kg` : ''}
                                   </div>
                                 </div>
-                                <NeedStatusButton need={n} onReload={reload} onToast={onToast} />
+                                <NeedStatusButton need={n} onReload={reload} />
                               </div>
                             )
                           })
@@ -303,7 +300,7 @@ export default function Transport({
           </div>
 
           {showAddProvider && (
-            <AddProviderForm onDone={() => { setShowAddProvider(false); reload() }} onToast={onToast} />
+            <AddProviderForm onDone={() => { setShowAddProvider(false); reload() }} />
           )}
 
           {(transportProviders || []).length === 0 ? (
@@ -399,9 +396,8 @@ export default function Transport({
 
 // ─── Sub-components ───
 
-function NeedStatusButton({ need, onReload, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function NeedStatusButton({ need, onReload }) {
+  const onToast = useToast()
   const statusFlow = ['pending', 'booked', 'in_transit', 'delivered']
   const STATUS_CONF = {
     pending: { label: 'En attente', color: '#E8935A' },
@@ -435,9 +431,8 @@ function NeedStatusButton({ need, onReload, onToast: _legacyToast }) {
   )
 }
 
-function AddProviderForm({ onDone, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function AddProviderForm({ onDone }) {
+  const onToast = useToast()
   const [name, setName] = useState('')
   const [type, setType] = useState('ferry')
   const [contactName, setContactName] = useState('')
@@ -502,9 +497,8 @@ function AddProviderForm({ onDone, onToast: _legacyToast }) {
   )
 }
 
-function AddNeedForm({ events, onDone, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function AddNeedForm({ events, onDone }) {
+  const onToast = useToast()
   const [eventId, setEventId] = useState(events[0]?.id || '')
   const [category, setCategory] = useState('equipment')
   const [description, setDescription] = useState('')

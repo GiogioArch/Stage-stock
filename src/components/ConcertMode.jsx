@@ -14,10 +14,9 @@ const VARIANT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
 export default function ConcertMode({
   products, stock, locations, events,
-  onClose, onToast: _legacyToast,
+  onClose,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const { orgId, reload } = useProject()
   const { user } = useAuth()
   const [selectedEvent, setSelectedEvent] = useState(null)

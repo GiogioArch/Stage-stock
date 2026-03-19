@@ -36,11 +36,10 @@ const BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance', 'achats
 export default function Board({
   products, locations, stock, movements, alerts, events,
   families, subfamilies, checklists, roles, eventPacking,
-  userProfiles, onQuickAction, onNavigate, onToast: _legacyToast,
+  userProfiles, onQuickAction, onNavigate,
   onOpenScanner,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const { userRole, reload } = useProject()
   const [selectedEvent, setSelectedEvent] = useState(null)
 

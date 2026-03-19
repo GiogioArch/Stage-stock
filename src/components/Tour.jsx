@@ -22,10 +22,9 @@ function getFormatConf(format) {
   return FORMAT_CONF[format.toLowerCase().trim()] || { Icon: Music, color: MODULES.tournee.color }
 }
 
-export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, onToast: _legacyToast }) {
+export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles }) {
   const { orgId, selectedOrg, reload, userRole } = useProject()
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const [filter, setFilter] = useState('upcoming') // upcoming | past | all
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [search, setSearch] = useState('')
@@ -324,10 +323,8 @@ export default function Tour({ events, products, stock, locations, families, sub
       {eventModal && (
         <EventFormModal
           event={eventModal.type === 'edit' ? eventModal.event : null}
-          orgId={orgId}
           onClose={() => setEventModal(null)}
           onSave={() => { setEventModal(null); reload() }}
-          onToast={onToast}
         />
       )}
 
@@ -394,9 +391,9 @@ function ProgressMini({ label, done, total, color }) {
 const FORMATS = ['concert live', 'sound system', 'impro', 'festival', 'showcase']
 const TERRITOIRES = ['martinique', 'guadeloupe', 'guyane', 'reunion']
 
-function EventFormModal({ event, orgId, onClose, onSave, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function EventFormModal({ event, onClose, onSave }) {
+  const onToast = useToast()
+  const { orgId } = useProject()
   const [name, setName] = useState(event?.name || '')
   const [date, setDate] = useState(event?.date || '')
   const [lieu, setLieu] = useState(event?.lieu || '')

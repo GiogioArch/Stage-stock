@@ -19,10 +19,9 @@ const STATUS_CONF = {
 
 export default function Achats({
   suppliers, purchaseOrders, purchaseOrderLines, products,
-  locations, onToast: _legacyToast,
+  locations,
 }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const { orgId, reload } = useProject()
   const { user } = useAuth()
   const [section, setSection] = useState('orders')
@@ -185,7 +184,6 @@ export default function Achats({
               suppliers={activeSuppliers}
               products={products}
               onDone={() => { setShowAddOrder(false); reload() }}
-              onToast={onToast}
             />
           )}
 
@@ -242,7 +240,7 @@ export default function Achats({
           </div>
 
           {showAddSupplier && (
-            <AddSupplierForm onDone={() => { setShowAddSupplier(false); reload() }} onToast={onToast} />
+            <AddSupplierForm onDone={() => { setShowAddSupplier(false); reload() }} />
           )}
 
           {(suppliers || []).length === 0 ? (
@@ -285,9 +283,8 @@ export default function Achats({
   )
 }
 
-function AddSupplierForm({ onDone, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function AddSupplierForm({ onDone }) {
+  const onToast = useToast()
   const { orgId } = useProject()
   const [name, setName] = useState('')
   const [contactName, setContactName] = useState('')
@@ -334,9 +331,8 @@ function AddSupplierForm({ onDone, onToast: _legacyToast }) {
   )
 }
 
-function AddOrderForm({ suppliers, products, onDone, onToast: _legacyToast }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+function AddOrderForm({ suppliers, products, onDone }) {
+  const onToast = useToast()
   const { orgId } = useProject()
   const { user } = useAuth()
   const [supplierId, setSupplierId] = useState(suppliers[0]?.id || '')

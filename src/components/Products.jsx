@@ -10,10 +10,9 @@ import { GradientHeader, FilterPills } from '../design'
 
 const theme = getModuleTheme('articles')
 
-export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, onToast: _legacyToast }) {
+export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking }) {
   const { orgId, reload, userRole } = useProject()
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+  const onToast = useToast()
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [filterSubfam, setFilterSubfam] = useState('all')
@@ -288,10 +287,8 @@ export default function Products({ products, families, subfamilies, stock, locat
         <CSVImport
           families={families}
           subfamilies={subfamilies}
-          orgId={orgId}
           onDone={() => { setModal(null); reload() }}
           onClose={() => setModal(null)}
-          onToast={onToast}
         />
       )}
 

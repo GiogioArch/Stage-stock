@@ -80,9 +80,8 @@ function Screen({ children, top, step, onSkip }) {
 // ═══════════════════════════════════════════════
 // MAIN — Onboarding cinématique (parcours court)
 // ═══════════════════════════════════════════════
-export default function Melodie({ onAuth, onComplete, roles, onToast: _legacyToast, existingUser, startStep }) {
-  const toast = useToast()
-  const onToast = _legacyToast || toast
+export default function Melodie({ onAuth, onComplete, roles, existingUser, startStep }) {
+  const onToast = useToast()
   const [step, setStep] = useState(startStep || 'splash')
   const [user, setUser] = useState(existingUser || null)
 
