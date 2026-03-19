@@ -2,15 +2,16 @@ import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Building, Map as MapIcon, Ship, Truck, Car } from 'lucide-react'
 import { Badge, parseDate } from './UI'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject } from '../shared/hooks'
 
 export default function Transport({
   events, transportProviders, vehicles, transportRoutes,
   transportNeeds, transportBookings, transportManifests, transportCosts,
-  onReload, onToast: _legacyToast,
+  onToast: _legacyToast,
 }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { reload } = useProject()
   const [section, setSection] = useState('overview')
   const [showAddProvider, setShowAddProvider] = useState(false)
   const [showAddNeed, setShowAddNeed] = useState(false)
@@ -195,7 +196,7 @@ export default function Transport({
           {showAddNeed && (
             <AddNeedForm
               events={upcomingEvents}
-              onDone={() => { setShowAddNeed(false); onReload() }}
+              onDone={() => { setShowAddNeed(false); reload() }}
               onToast={onToast}
             />
           )}
@@ -273,7 +274,7 @@ export default function Transport({
                                     {n.weight_kg ? ` · ${n.weight_kg}kg` : ''}
                                   </div>
                                 </div>
-                                <NeedStatusButton need={n} onReload={onReload} onToast={onToast} />
+                                <NeedStatusButton need={n} onReload={reload} onToast={onToast} />
                               </div>
                             )
                           })
@@ -302,7 +303,7 @@ export default function Transport({
           </div>
 
           {showAddProvider && (
-            <AddProviderForm onDone={() => { setShowAddProvider(false); onReload() }} onToast={onToast} />
+            <AddProviderForm onDone={() => { setShowAddProvider(false); reload() }} onToast={onToast} />
           )}
 
           {(transportProviders || []).length === 0 ? (

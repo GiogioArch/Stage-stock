@@ -1,5 +1,5 @@
 import React, { useState, useMemo, createElement } from 'react'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject } from '../shared/hooks'
 import { db } from '../lib/supabase'
 import { Warehouse, Store, Building, Box, Truck, MapPin, Home, Package } from 'lucide-react'
 import { Badge } from './UI'
@@ -9,9 +9,10 @@ const DEPOT_ICON_MAP = {
   Warehouse, Store, Building, Box, Truck, MapPin, Home, Package,
 }
 
-export default function Depots({ locations, stock, products, movements, families, subfamilies, orgId, onReload, onToast: _legacyToast, onMovement }) {
+export default function Depots({ locations, stock, products, movements, families, subfamilies, onToast: _legacyToast, onMovement }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId, reload } = useProject()
   const [showAdd, setShowAdd] = useState(false)
   const [selectedDepot, setSelectedDepot] = useState(null)
   const [editingLocation, setEditingLocation] = useState(null)
@@ -47,7 +48,7 @@ export default function Depots({ locations, stock, products, movements, families
       if (data && !data.success) throw new Error(data.error)
       onToast('Dépôt supprimé')
       setDeletingLocation(null)
-      onReload()
+      reload()
     } catch (e) {
       onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
@@ -96,7 +97,7 @@ export default function Depots({ locations, stock, products, movements, families
             onToast={onToast}
             onEdit={(loc) => { setSelectedDepot(null); setEditingLocation(loc) }}
             onDelete={(loc) => { setSelectedDepot(null); setDeletingLocation(loc) }}
-            onReload={onReload}
+            onReload={reload}
           />
         </div>
       </div>
@@ -135,7 +136,7 @@ export default function Depots({ locations, stock, products, movements, families
         <LocationForm
           location={editingLocation}
           orgId={orgId}
-          onDone={() => { setEditingLocation(null); onReload() }}
+          onDone={() => { setEditingLocation(null); reload() }}
           onCancel={() => setEditingLocation(null)}
           onToast={onToast}
         />
@@ -199,7 +200,7 @@ export default function Depots({ locations, stock, products, movements, families
       {showAdd && (
         <LocationForm
           orgId={orgId}
-          onDone={() => { setShowAdd(false); onReload() }}
+          onDone={() => { setShowAdd(false); reload() }}
           onCancel={() => setShowAdd(false)}
           onToast={onToast}
         />

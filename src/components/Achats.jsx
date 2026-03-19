@@ -4,7 +4,7 @@ import { Badge, fmtDate } from './UI'
 import { ShoppingCart, Users } from 'lucide-react'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject, useAuth } from '../shared/hooks'
 
 const theme = getModuleTheme('achats')
 
@@ -19,10 +19,12 @@ const STATUS_CONF = {
 
 export default function Achats({
   suppliers, purchaseOrders, purchaseOrderLines, products,
-  locations, orgId, userId, onReload, onToast: _legacyToast,
+  locations, onToast: _legacyToast,
 }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId, reload } = useProject()
+  const { user } = useAuth()
   const [section, setSection] = useState('orders')
   const [showAddSupplier, setShowAddSupplier] = useState(false)
   const [showAddOrder, setShowAddOrder] = useState(false)
@@ -68,7 +70,7 @@ export default function Achats({
         if (next === 'received') updates.received_date = new Date().toISOString().split('T')[0]
         await db.update('purchase_orders', `id=eq.${order.id}`, updates)
         onToast(`Commande → ${STATUS_CONF[next].label}`)
-        onReload()
+        reload()
         setSelectedOrder(null)
       } catch (e) {
         onToast('Erreur : ' + e.message, SEMANTIC.danger)
@@ -182,9 +184,7 @@ export default function Achats({
             <AddOrderForm
               suppliers={activeSuppliers}
               products={products}
-              orgId={orgId}
-              userId={userId}
-              onDone={() => { setShowAddOrder(false); onReload() }}
+              onDone={() => { setShowAddOrder(false); reload() }}
               onToast={onToast}
             />
           )}
@@ -242,7 +242,7 @@ export default function Achats({
           </div>
 
           {showAddSupplier && (
-            <AddSupplierForm orgId={orgId} onDone={() => { setShowAddSupplier(false); onReload() }} onToast={onToast} />
+            <AddSupplierForm onDone={() => { setShowAddSupplier(false); reload() }} onToast={onToast} />
           )}
 
           {(suppliers || []).length === 0 ? (
@@ -285,9 +285,10 @@ export default function Achats({
   )
 }
 
-function AddSupplierForm({ orgId, onDone, onToast: _legacyToast }) {
+function AddSupplierForm({ onDone, onToast: _legacyToast }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId } = useProject()
   const [name, setName] = useState('')
   const [contactName, setContactName] = useState('')
   const [contactPhone, setContactPhone] = useState('')
@@ -333,9 +334,11 @@ function AddSupplierForm({ orgId, onDone, onToast: _legacyToast }) {
   )
 }
 
-function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast: _legacyToast }) {
+function AddOrderForm({ suppliers, products, onDone, onToast: _legacyToast }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId } = useProject()
+  const { user } = useAuth()
   const [supplierId, setSupplierId] = useState(suppliers[0]?.id || '')
   const [expectedDate, setExpectedDate] = useState('')
   const [tvaRate, setTvaRate] = useState('8.5')
@@ -372,7 +375,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast: _le
         tva_rate: rate,
         expected_date: expectedDate || null,
         notes: notes.trim() || null,
-        created_by: userId,
+        created_by: user?.id,
       })
       const orderId = result?.[0]?.id
       if (orderId) {

@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Badge } from './UI'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject } from '../shared/hooks'
 
-export default function Inventaire({ products, stock, locations, orgId, onReload, onToast: _legacyToast }) {
+export default function Inventaire({ products, stock, locations, onToast: _legacyToast }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId, reload } = useProject()
   const [selectedLocation, setSelectedLocation] = useState(null)
   const [counts, setCounts] = useState({}) // { productId: counted_qty }
   const [saving, setSaving] = useState(false)
@@ -73,7 +74,7 @@ export default function Inventaire({ products, stock, locations, orgId, onReload
       setResults({ diffs, total: locationProducts.length })
       setCompleted(true)
       onToast(`Inventaire terminé — ${diffs.length} correction${diffs.length > 1 ? 's' : ''}`)
-      if (onReload) onReload()
+      if (reload) reload()
     } catch (e) {
       onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {

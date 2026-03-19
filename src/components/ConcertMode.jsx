@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { CreditCard, Smartphone, Receipt } from 'lucide-react'
 import { parseDate } from './UI'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject, useAuth } from '../shared/hooks'
 
 const PAYMENT_METHODS = [
   { id: 'cash', label: 'Espèces', icon: null },
@@ -13,11 +13,13 @@ const PAYMENT_METHODS = [
 const VARIANT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
 export default function ConcertMode({
-  products, stock, locations, events, orgId, userId,
-  onClose, onReload, onToast: _legacyToast,
+  products, stock, locations, events,
+  onClose, onToast: _legacyToast,
 }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId, reload } = useProject()
+  const { user } = useAuth()
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [cart, setCart] = useState([])
   const [payMethod, setPayMethod] = useState('cash')
@@ -128,7 +130,7 @@ export default function ConcertMode({
         p_payment_method: payMethod,
         p_total_amount: cartTotal,
         p_items_count: cartCount,
-        p_sold_by: userId,
+        p_sold_by: user?.id,
         p_items: itemsPayload,
       })
 
@@ -144,7 +146,7 @@ export default function ConcertMode({
       clearCart()
       setShowPayment(false)
       onToast(`Vente ${saleNum} — ${cartTotal}€`)
-      if (onReload) onReload()
+      if (reload) reload()
     } catch (e) {
       onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
@@ -177,7 +179,7 @@ export default function ConcertMode({
         total_mobile: sessionMobile,
         nb_transactions: sessionCount,
         nb_items_sold: sessionItems,
-        closed_by: userId,
+        closed_by: user?.id,
       })
       onToast('Caisse clôturée')
       setShowReport(true)

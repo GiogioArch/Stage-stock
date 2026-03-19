@@ -4,7 +4,7 @@ import { ROLE_CONF } from './RolePicker'
 import { db, safe } from '../lib/supabase'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject, useAuth } from '../shared/hooks'
 import {
   ChevronDown, ChevronRight, ChevronLeft, User, Mail, Phone, Calendar,
   CheckCircle2, Circle, Clock, MapPin, AlertTriangle, Star,
@@ -176,12 +176,14 @@ function getHierarchyInfo(code) {
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════
 export default function Equipe({
-  roles, userProfiles, eventPacking, events, userRole,
-  eventTasks, checklists, userAvailability, user,
-  orgId, onReload, onToast: _legacyToast,
+  roles, userProfiles, eventPacking, events,
+  eventTasks, checklists, userAvailability,
+  onToast: _legacyToast,
 }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId, reload, userRole } = useProject()
+  const { user } = useAuth()
   const [view, setView] = useState('organigramme')
   const [expandedRole, setExpandedRole] = useState(null)
   const [expandedLevel, setExpandedLevel] = useState('direction')
@@ -277,7 +279,7 @@ export default function Equipe({
         updated_at: new Date().toISOString(),
       })
       onToast?.(newStatus === 'done' ? 'Tâche terminée ✓' : 'Tâche rouverte')
-      onReload?.()
+      reload?.()
     } catch (e) {
       onToast?.('Erreur: ' + e.message, SEMANTIC.danger)
     }

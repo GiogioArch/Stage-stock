@@ -43,7 +43,7 @@ const TABS = [
 
 
 export default function ProfilePage({
-  user, userProfile, userRole, userDetails: initialDetails,
+  user, userRole, userDetails: initialDetails,
   membership, selectedOrg, allProjects, roles,
   userGear, userAvailability, userIncome, allEvents,
   onClose, onToast: _legacyToast, onReload, onLogout, onSwitchProject, onOpenProject,

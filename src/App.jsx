@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from 'react'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
-import { useToast, useAuth, usePersonalData, useProjectData } from './shared/hooks'
+import { useToast, useAuth, usePersonalData, useProjectData, ProjectProvider } from './shared/hooks'
 
 // ─── Critical components (loaded immediately) ───
 import Landing from './components/Landing'
@@ -372,7 +372,6 @@ export default function App() {
         {personalTab === 'profile' && (
           <ProfilePage
             user={user}
-            userProfile={userProfile}
             userRole={userRole}
             userDetails={userDetails}
             membership={membership}
@@ -445,7 +444,13 @@ export default function App() {
 
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#94A3B8', label: userRole.name }) : null
 
+  const projectCtx = useMemo(() => ({
+    orgId: selectedOrg?.id, selectedOrg, reload: loadAll,
+    userRole, isAdmin, membership,
+  }), [selectedOrg, loadAll, userRole, isAdmin, membership])
+
   return (
+    <ProjectProvider value={projectCtx}>
     <div style={{ minHeight: '100dvh', background: '#FFFFFF', paddingBottom: 72 }}>
       {/* ─── Header (Couche 3) ─── */}
       <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0' }}>
@@ -536,15 +541,7 @@ export default function App() {
         filteredStock={filteredStock}
         filteredMovements={filteredMovements}
         alerts={alerts}
-        user={user}
-        userRole={userRole}
-        userProfile={userProfile}
-        isAdmin={isAdmin}
-        membership={membership}
-        orgId={selectedOrg?.id}
-        selectedOrg={selectedOrg}
         onNavigate={handleTabChange}
-        onReload={loadAll}
         onToast={showToast}
         onQuickAction={(type) => setMoveModal({ type })}
         onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
@@ -667,7 +664,6 @@ export default function App() {
           locations={data.locations}
           stock={filteredStock}
           preselectedLocation={moveModal.preselectedLocation}
-          orgId={selectedOrg?.id}
           onClose={() => setMoveModal(null)}
           onDone={() => { setMoveModal(null); loadAll() }}
           onToast={showToast}
@@ -687,8 +683,9 @@ export default function App() {
       </Suspense>
 
       {/* ─── Feedback widget (terrain) ─── */}
-      <Suspense fallback={null}><Feedback user={user} orgId={selectedOrg?.id} context={tab} /></Suspense>
+      <Suspense fallback={null}><Feedback context={tab} /></Suspense>
     </div>
+    </ProjectProvider>
   )
 }
 
@@ -696,8 +693,7 @@ export default function App() {
 function TabContent({
   tab, activeModuleIds, data,
   filteredProducts, filteredStock, filteredMovements, alerts,
-  user, userRole, userProfile, isAdmin, membership, orgId, selectedOrg,
-  onNavigate, onReload, onToast, onQuickAction, onMovement, onModulesChanged,
+  onNavigate, onToast, onQuickAction, onMovement, onModulesChanged,
   onOpenScanner,
 }) {
   switch (tab) {
@@ -716,10 +712,8 @@ function TabContent({
           roles={data.roles}
           eventPacking={data.event_packing}
           userProfiles={data.user_profiles}
-          userRole={userRole}
           onQuickAction={onQuickAction}
           onNavigate={onNavigate}
-          onReload={onReload}
           onToast={onToast}
           onOpenScanner={onOpenScanner}
         />
@@ -737,10 +731,6 @@ function TabContent({
           roles={data.roles}
           eventPacking={data.event_packing}
           userProfiles={data.user_profiles}
-          userRole={userRole}
-          orgId={orgId}
-          orgName={selectedOrg?.name}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -755,9 +745,6 @@ function TabContent({
           movements={filteredMovements}
           events={data.events}
           eventPacking={data.event_packing}
-          userRole={userRole}
-          orgId={orgId}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -772,9 +759,6 @@ function TabContent({
           subfamilies={data.subfamilies}
           alerts={alerts}
           events={data.events}
-          userRole={userRole}
-          orgId={orgId}
-          onReload={onReload}
           onToast={onToast}
           onMovement={onMovement}
         />
@@ -788,8 +772,6 @@ function TabContent({
           movements={filteredMovements}
           families={data.families}
           subfamilies={data.subfamilies}
-          orgId={orgId}
-          onReload={onReload}
           onToast={onToast}
           onMovement={onMovement}
         />
@@ -801,8 +783,6 @@ function TabContent({
           locations={data.locations}
           stock={filteredStock}
           movements={filteredMovements}
-          orgId={orgId}
-          onReload={onReload}
           onToast={onToast}
           onMovement={onMovement}
         />
@@ -817,10 +797,6 @@ function TabContent({
           eventTasks={data.event_tasks}
           checklists={data.checklists}
           userAvailability={data.user_availability}
-          userRole={userRole}
-          user={user}
-          orgId={orgId}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -834,9 +810,6 @@ function TabContent({
           depreciation={data.product_depreciation}
           expenses={data.expenses}
           sales={data.sales}
-          orgId={orgId}
-          orgName={selectedOrg?.name}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -848,7 +821,6 @@ function TabContent({
           products={filteredProducts}
           stock={filteredStock}
           locations={data.locations}
-          userRole={userRole}
         />
       )
     case 'timeline':
@@ -859,9 +831,6 @@ function TabContent({
           eventTasks={data.event_tasks}
           roles={data.roles}
           userProfiles={data.user_profiles}
-          orgId={orgId}
-          user={user}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -882,9 +851,6 @@ function TabContent({
           purchaseOrderLines={data.purchase_order_lines}
           products={filteredProducts}
           locations={data.locations}
-          orgId={orgId}
-          userId={user?.id}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -894,8 +860,6 @@ function TabContent({
           products={filteredProducts}
           stock={filteredStock}
           locations={data.locations}
-          orgId={orgId}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -906,10 +870,7 @@ function TabContent({
           stock={filteredStock}
           locations={data.locations}
           events={data.events}
-          orgId={orgId}
-          userId={user?.id}
           onClose={() => onNavigate('board')}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -924,7 +885,6 @@ function TabContent({
           transportBookings={data.transport_bookings}
           transportManifests={data.transport_manifests}
           transportCosts={data.transport_costs}
-          onReload={onReload}
           onToast={onToast}
         />
       )
@@ -934,10 +894,8 @@ function TabContent({
           activeModuleIds={activeModuleIds}
           onModulesChanged={onModulesChanged}
           onToast={onToast}
-          membership={membership}
           roles={data.roles}
           userProfiles={data.project_members}
-          onReload={onReload}
         />
       )
     default:
@@ -946,7 +904,7 @@ function TabContent({
 }
 
 // ─── Stock Module (combines Stock view + Movements with sub-tabs) ───
-function StockModule({ products, locations, stock, movements, orgId, onReload, onToast, onMovement }) {
+function StockModule({ products, locations, stock, movements, onToast, onMovement }) {
   const [subTab, setSubTab] = useState('stock') // stock | mouvements
 
   return (
@@ -974,8 +932,6 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
           products={products}
           locations={locations}
           stock={stock}
-          orgId={orgId}
-          onReload={onReload}
           onToast={onToast}
           onMovement={onMovement}
         />

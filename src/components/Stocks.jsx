@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject } from '../shared/hooks'
 import { MapPin, Factory, Truck, Tent, Plane, Package, Home, ArrowDownToLine, ArrowUpFromLine, Trash2, ChevronDown, ChevronRight, Plus } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge } from './UI'
@@ -38,9 +38,10 @@ function LocationIcon({ emoji, size = 20, color }) {
   return <IconComponent size={size} color={color || BASE.textSoft} />
 }
 
-export default function Stocks({ products, locations, stock, orgId, onReload, onToast: _legacyToast, onMovement }) {
+export default function Stocks({ products, locations, stock, onToast: _legacyToast, onMovement }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId, reload } = useProject()
   const [expanded, setExpanded] = useState({})
   const [filterCat, setFilterCat] = useState('all')
   const [modal, setModal] = useState(null)
@@ -75,7 +76,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
       onToast('Lieu supprimé')
       setConfirm(null)
       setModal(null)
-      onReload()
+      reload()
     } catch (e) {
       onToast('Erreur: ' + e.message, SEMANTIC.danger)
     }
@@ -213,7 +214,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
               await db.insert('locations', { ...data, org_id: orgId })
               onToast('Lieu ajouté')
               setModal(null)
-              onReload()
+              reload()
             } catch (e) {
               onToast('Erreur: ' + e.message, SEMANTIC.danger)
             }

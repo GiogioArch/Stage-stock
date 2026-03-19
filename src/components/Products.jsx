@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject } from '../shared/hooks'
 import { Search, FileDown, Package, Plus, ChevronRight, Edit, Trash2, Filter } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
@@ -10,7 +10,8 @@ import { GradientHeader, FilterPills } from '../design'
 
 const theme = getModuleTheme('articles')
 
-export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast: _legacyToast }) {
+export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, onToast: _legacyToast }) {
+  const { orgId, reload, userRole } = useProject()
   const toast = useToast()
   const onToast = _legacyToast || toast
   const [search, setSearch] = useState('')
@@ -51,7 +52,7 @@ export default function Products({ products, families, subfamilies, stock, locat
       onToast('Produit supprimé')
       setConfirm(null)
       setModal(null)
-      onReload()
+      reload()
     } catch (e) {
       onToast('Erreur: ' + e.message, SEMANTIC.danger)
     }
@@ -274,7 +275,7 @@ export default function Products({ products, families, subfamilies, stock, locat
                 onToast('Produit ajouté')
               }
               setModal(null)
-              onReload()
+              reload()
             } catch (e) {
               onToast('Erreur: ' + e.message, SEMANTIC.danger)
             }
@@ -288,7 +289,7 @@ export default function Products({ products, families, subfamilies, stock, locat
           families={families}
           subfamilies={subfamilies}
           orgId={orgId}
-          onDone={() => { setModal(null); onReload() }}
+          onDone={() => { setModal(null); reload() }}
           onClose={() => setModal(null)}
           onToast={onToast}
         />

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, createElement, useCallback } from 'react'
 import { ROLE_CONF } from './RolePicker'
 import { db } from '../lib/supabase'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject, useAuth } from '../shared/hooks'
 import {
   Clock, ChevronDown, ChevronRight, Plus, Check, Circle,
   CheckCircle2, AlertTriangle, Truck, MessageSquare, Zap,
@@ -42,10 +42,12 @@ const ROLE_ORDER = ['TM', 'PM', 'SE', 'LD', 'BL', 'SM', 'TD', 'MM', 'LOG', 'SAFE
 
 export default function EventTimeline({
   event, events, eventTasks, roles, userProfiles,
-  orgId, user, onReload, onToast: _legacyToast, onBack,
+  onToast: _legacyToast, onBack,
 }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId, reload } = useProject()
+  const { user } = useAuth()
   const [viewMode, setViewMode] = useState('timeline') // timeline | role | flow
   const [showAddTask, setShowAddTask] = useState(false)
   const [expandedHour, setExpandedHour] = useState(null)
@@ -114,7 +116,7 @@ export default function EventTimeline({
         updated_at: new Date().toISOString(),
       })
       onToast?.(newStatus === 'done' ? 'Tâche terminée ✓' : 'Tâche rouverte')
-      onReload?.()
+      reload?.()
     } catch (e) {
       onToast?.('Erreur: ' + e.message, '#D4648A')
     }
@@ -445,10 +447,8 @@ export default function EventTimeline({
           event={event}
           roles={roles}
           userProfiles={userProfiles}
-          orgId={orgId}
-          user={user}
           onClose={() => setShowAddTask(false)}
-          onDone={() => { setShowAddTask(false); onReload?.() }}
+          onDone={() => { setShowAddTask(false); reload?.() }}
           onToast={onToast}
         />
       )}
@@ -513,9 +513,10 @@ function TaskCard({ task, onToggle, compact, showHour }) {
 }
 
 // ─── Add Task Modal ───
-function AddTaskModal({ event, roles, userProfiles, orgId, user, onClose, onDone, onToast: _legacyToast }) {
+function AddTaskModal({ event, roles, userProfiles, onClose, onDone, onToast: _legacyToast }) {
   const toast = useToast()
   const onToast = _legacyToast || toast
+  const { orgId } = useProject()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('autre')

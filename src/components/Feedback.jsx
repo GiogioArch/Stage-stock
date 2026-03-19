@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { db, safe } from '../lib/supabase'
+import { useProject, useAuth } from '../shared/hooks'
 import { MessageSquare, Send, X, ThumbsUp, ThumbsDown, Meh, Loader2, CheckCircle } from 'lucide-react'
 
 const MOODS = [
@@ -10,7 +11,9 @@ const MOODS = [
 
 // Lightweight feedback widget — appears as a floating button
 // Stores feedback in Supabase table 'feedback' (will be created if needed)
-export default function Feedback({ user, orgId, context }) {
+export default function Feedback({ context }) {
+  const { orgId } = useProject()
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [mood, setMood] = useState(null)
   const [message, setMessage] = useState('')

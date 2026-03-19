@@ -5,7 +5,7 @@ import EventDetail from './EventDetail'
 import { Mic, Volume2, Drama, Music, Search, Calendar, Plus, ChevronRight } from 'lucide-react'
 import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 import { MODULES, SEMANTIC, BASE, SPACE, TYPO, RADIUS, SHADOW, getModuleTheme } from '../lib/theme'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject } from '../shared/hooks'
 
 const FORMAT_CONF = {
   'concert live': { Icon: Mic, color: MODULES.tournee.color },
@@ -22,7 +22,8 @@ function getFormatConf(format) {
   return FORMAT_CONF[format.toLowerCase().trim()] || { Icon: Music, color: MODULES.tournee.color }
 }
 
-export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, orgName, onReload, onToast: _legacyToast }) {
+export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, onToast: _legacyToast }) {
+  const { orgId, selectedOrg, reload, userRole } = useProject()
   const toast = useToast()
   const onToast = _legacyToast || toast
   const [filter, setFilter] = useState('upcoming') // upcoming | past | all
@@ -97,7 +98,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         userRole={userRole}
         orgId={orgId}
         onClose={() => setSelectedEvent(null)}
-        onReload={onReload}
+        onReload={reload}
         onToast={onToast}
         onNavigateEvent={(ev) => setSelectedEvent(ev)}
         onEdit={(ev) => { setSelectedEvent(null); setEventModal({ type: 'edit', event: ev }) }}
@@ -109,7 +110,7 @@ export default function Tour({ events, products, stock, locations, families, sub
       {/* ═══ HEADER GRADIENT BOLD ═══ */}
       <GradientHeader
         module="tournee"
-        title={`${orgName || 'Ma tournée'} — ${totalEvents} date${totalEvents > 1 ? 's' : ''}`}
+        title={`${selectedOrg?.name || 'Ma tournée'} — ${totalEvents} date${totalEvents > 1 ? 's' : ''}`}
         stats={[
           { value: upcomingCount, label: 'A venir' },
           { value: pastCount, label: 'Passées' },
@@ -325,7 +326,7 @@ export default function Tour({ events, products, stock, locations, families, sub
           event={eventModal.type === 'edit' ? eventModal.event : null}
           orgId={orgId}
           onClose={() => setEventModal(null)}
-          onSave={() => { setEventModal(null); onReload() }}
+          onSave={() => { setEventModal(null); reload() }}
           onToast={onToast}
         />
       )}
@@ -345,7 +346,7 @@ export default function Tour({ events, products, stock, locations, families, sub
               onToast('Événement supprimé')
               setConfirmDelete(null)
               setSelectedEvent(null)
-              onReload()
+              reload()
             } catch (e) {
               onToast('Erreur: ' + e.message, SEMANTIC.danger)
             }
