@@ -6,7 +6,7 @@ import { ROLE_CONF } from './RolePicker'
 import PackingList from './PackingList'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { SubTabs } from '../design'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject } from '../shared/hooks'
 
 const theme = getModuleTheme('tournee')
 
@@ -60,10 +60,11 @@ const SECTIONS = [
 
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
-  checklists, roles, eventPacking, userProfiles, userRole, orgId,
-  onClose, onReload, onNavigateEvent, onEdit, onDelete, embedded,
+  checklists, roles, eventPacking, userProfiles,
+  onClose, onNavigateEvent, onEdit, onDelete, embedded,
 }) {
   const onToast = useToast()
+  const { orgId, reload: onReload, userRole } = useProject()
   const [section, setSection] = useState('resume')
 
   const daysUntil = Math.ceil((new Date(event.date) - new Date()) / 86400000)

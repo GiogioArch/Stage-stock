@@ -92,10 +92,7 @@ export default function Board({
             roles={roles}
             eventPacking={eventPacking}
             userProfiles={userProfiles || []}
-            userRole={userRole}
             onClose={() => setSelectedEvent(null)}
-            reload={reload}
-            onToast={onToast}
             onNavigateEvent={(ev) => setSelectedEvent(ev)}
           />
         )}

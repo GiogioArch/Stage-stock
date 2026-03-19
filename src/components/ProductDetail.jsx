@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { Badge, getCat, fmtDate, getMoveConf, parseDate } from './UI'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { SubTabs } from '../design'
-import { useToast } from '../shared/hooks'
+import { useToast, useProject } from '../shared/hooks'
 
 const theme = getModuleTheme('articles')
 
@@ -36,8 +36,9 @@ const SECTIONS = [
   { id: 'compta', label: 'Compta', icon: '' },
 ]
 
-export default function ProductDetail({ product, stock, locations, movements, events, eventPacking, products, userRole, onClose, onEdit, onDelete, embedded }) {
+export default function ProductDetail({ product, stock, locations, movements, events, eventPacking, products, onClose, onEdit, onDelete, embedded }) {
   const onToast = useToast()
+  const { userRole } = useProject()
   const [section, setSection] = useState('resume')
 
   const cat = getCat(product.category)

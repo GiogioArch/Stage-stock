@@ -93,10 +93,8 @@ export default function Depots({ locations, stock, products, movements, families
             subfamilies={subfamilies}
             onClose={() => setSelectedDepot(null)}
             onMovement={onMovement}
-            onToast={onToast}
             onEdit={(loc) => { setSelectedDepot(null); setEditingLocation(loc) }}
             onDelete={(loc) => { setSelectedDepot(null); setDeletingLocation(loc) }}
-            onReload={reload}
           />
         </div>
       </div>

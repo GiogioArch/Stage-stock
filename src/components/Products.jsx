@@ -105,7 +105,6 @@ export default function Products({ products, families, subfamilies, stock, locat
             movements={movements || []}
             events={events || []}
             eventPacking={eventPacking || []}
-            userRole={userRole}
             onClose={() => setModal(null)}
             onEdit={() => setModal({ type: 'edit', product: modal.product })}
             onDelete={() => setConfirm({

@@ -94,11 +94,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         roles={roles}
         eventPacking={eventPacking}
         userProfiles={userProfiles}
-        userRole={userRole}
-        orgId={orgId}
         onClose={() => setSelectedEvent(null)}
-        onReload={reload}
-        onToast={onToast}
         onNavigateEvent={(ev) => setSelectedEvent(ev)}
         onEdit={(ev) => { setSelectedEvent(null); setEventModal({ type: 'edit', event: ev }) }}
         onDelete={(ev) => setConfirmDelete(ev)}
