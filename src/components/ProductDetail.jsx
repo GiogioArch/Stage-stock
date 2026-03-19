@@ -1,5 +1,16 @@
 import React, { useState, useMemo } from 'react'
 import { Badge, getCat, fmtDate, getMoveConf, parseDate } from './UI'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { SubTabs } from '../design'
+
+const theme = getModuleTheme('articles')
+
+function hexToRgbLocal(hex) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `${r},${g},${b}`
+}
 
 // ─── Forecast helpers (same logic as Forecast.jsx) ───
 const CONV_RATES = {
@@ -111,47 +122,47 @@ export default function ProductDetail({ product, stock, locations, movements, ev
   return (
     <div style={{
       ...(!embedded ? { position: 'fixed', inset: 0, zIndex: 100 } : {}),
-      background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 30%, #F8FAFC 70%, #F8FAFC 100%)',
+      background: `linear-gradient(180deg, ${BASE.bg} 0%, ${BASE.bgSurface} 30%, ${BASE.bgSurface} 70%, ${BASE.bgSurface} 100%)`,
       overflowY: embedded ? undefined : 'auto',
       animation: embedded ? undefined : 'fadeIn 0.2s ease-out',
     }}>
       {/* ─── Top bar ─── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
-        background: 'rgba(255,248,240,0.95)', backdropFilter: 'blur(16px)',
-        padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid #F1F5F9',
+        background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)',
+        padding: `${SPACE.md}px ${SPACE.lg}px`, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        borderBottom: `1px solid ${BASE.bgHover}`,
       }}>
         <button onClick={onClose} style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          fontSize: 14, fontWeight: 700, color: '#8B6DB8',
+          display: 'flex', alignItems: 'center', gap: SPACE.xs + 2,
+          ...TYPO.bodyBold, color: theme.color,
         }}>
           ← Retour
         </button>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: SPACE.sm }}>
           <button onClick={onEdit} style={{
-            padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            background: 'rgba(139,109,184,0.08)', color: '#8B6DB8', border: '1px solid #8B6DB830',
+            padding: `${SPACE.xs + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.md, ...TYPO.caption,
+            background: theme.tint08, color: theme.color, border: `1px solid ${theme.tint25}`,
           }}>Modifier</button>
           <button onClick={onDelete} style={{
-            padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            background: 'rgba(200,164,106,0.08)', color: '#D4648A', border: '1px solid #D4648A30',
+            padding: `${SPACE.xs + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.md, ...TYPO.caption,
+            background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)`, color: SEMANTIC.danger, border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.18)`,
           }}>Supprimer</button>
         </div>
       </div>
 
-      <div style={{ padding: `16px 16px ${embedded ? '24px' : '100px'}` }}>
+      <div style={{ padding: `${SPACE.lg}px ${SPACE.lg}px ${embedded ? SPACE.xxl + 'px' : '100px'}` }}>
 
         {/* ─── Header card with photo ─── */}
         <div className="card" style={{
-          marginBottom: 16, padding: '20px 16px',
+          marginBottom: SPACE.lg, padding: `${SPACE.xl}px ${SPACE.lg}px`,
           background: `linear-gradient(135deg, ${cat.color}06, ${cat.color}14)`,
           border: `1px solid ${cat.color}20`,
         }}>
-          <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', gap: SPACE.lg, alignItems: 'flex-start' }}>
             {/* Photo placeholder */}
             <div style={{
-              width: 80, height: 80, borderRadius: 12, flexShrink: 0,
+              width: 80, height: 80, borderRadius: RADIUS.lg, flexShrink: 0,
               background: product.photo_url ? 'none' : cat.bg,
               border: `2px dashed ${cat.color}40`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -165,16 +176,16 @@ export default function ProductDetail({ product, stock, locations, movements, ev
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 18, fontWeight: 600, color: '#1E293B', marginBottom: 4, lineHeight: 1.2 }}>
+              <div style={{ ...TYPO.h2, color: BASE.text, marginBottom: SPACE.xs, lineHeight: 1.2 }}>
                 {product.name}
               </div>
-              <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600, marginBottom: 8 }}>
+              <div style={{ ...TYPO.caption, color: BASE.textMuted, marginBottom: SPACE.sm }}>
                 SKU: {product.sku}
               </div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: SPACE.xs + 2, flexWrap: 'wrap' }}>
                 <Badge color={cat.color}>{cat.icon && React.createElement(cat.icon, { size: 12 })} {cat.name}</Badge>
-                {product.variants && <Badge color="#94A3B8">{product.variants}</Badge>}
-                {product.unit && product.unit !== 'pièce' && <Badge color="#8B6DB8">{product.unit}</Badge>}
+                {product.variants && <Badge color={BASE.textMuted}>{product.variants}</Badge>}
+                {product.unit && product.unit !== 'pièce' && <Badge color={theme.color}>{product.unit}</Badge>}
               </div>
             </div>
           </div>
@@ -182,9 +193,9 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           {/* Description */}
           {product.description && (
             <div style={{
-              marginTop: 14, padding: '10px 12px', borderRadius: 10,
-              background: '#F1F5F9', border: '1px solid #F1F5F9',
-              fontSize: 13, color: '#1E293B', lineHeight: 1.6,
+              marginTop: SPACE.lg, padding: `${SPACE.md}px ${SPACE.md}px`, borderRadius: RADIUS.md,
+              background: BASE.bgHover, border: `1px solid ${BASE.bgHover}`,
+              ...TYPO.body, color: BASE.text,
             }}>
               {product.description}
             </div>
@@ -192,47 +203,35 @@ export default function ProductDetail({ product, stock, locations, movements, ev
         </div>
 
         {/* ─── KPI row ─── */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.lg }}>
           <KpiCard
             label="Stock total"
             value={totalQty}
-            color={totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#8B6DB8' : '#5DAB8B'}
+            color={totalQty === 0 ? SEMANTIC.danger : totalQty <= (product.min_stock || 5) ? SEMANTIC.warning : SEMANTIC.success}
             sub={`seuil: ${product.min_stock || 5}`}
           />
           <KpiCard
             label="Entrées"
             value={moveStats.totalIn}
-            color="#5DAB8B"
+            color={SEMANTIC.success}
             sub={`${moveStats.ins} mvts`}
           />
           <KpiCard
             label="Sorties"
             value={moveStats.totalOut}
-            color="#D4648A"
+            color={SEMANTIC.danger}
             sub={`${moveStats.outs} mvts`}
           />
           <KpiCard
             label="Concerts"
             value={linkedEvents.length}
-            color="#8B6DB8"
+            color={SEMANTIC.melodie}
             sub={`liés`}
           />
         </div>
 
         {/* ─── Section tabs ─── */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
-          {SECTIONS.map(s => (
-            <button key={s.id} onClick={() => setSection(s.id)} style={{
-              padding: '7px 14px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-              whiteSpace: 'nowrap', cursor: 'pointer',
-              border: `1px solid ${section === s.id ? cat.color : '#CBD5E1'}`,
-              background: section === s.id ? `${cat.color}12` : 'white',
-              color: section === s.id ? cat.color : '#94A3B8',
-            }}>
-              {s.icon} {s.label}
-            </button>
-          ))}
-        </div>
+        <SubTabs tabs={SECTIONS} active={section} onChange={setSection} />
 
         {/* ═══════════ RÉSUMÉ ═══════════ */}
         {section === 'resume' && (
@@ -272,27 +271,27 @@ export default function ProductDetail({ product, stock, locations, movements, ev
             {caPerConcert.length > 0 && (
               <>
                 <SectionLabel>CA par concert</SectionLabel>
-                <div className="card" style={{ marginBottom: 14, padding: '14px 16px' }}>
+                <div className="card" style={{ marginBottom: SPACE.lg, padding: `${SPACE.lg}px` }}>
                   {caPerConcert.map((c, i) => (
                     <div key={i} style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '8px 0', borderBottom: i < caPerConcert.length - 1 ? '1px solid #F1F5F9' : 'none',
+                      padding: `${SPACE.sm}px 0`, borderBottom: i < caPerConcert.length - 1 ? `1px solid ${BASE.bgHover}` : 'none',
                     }}>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 700 }}>{c.event.name || c.event.lieu}</div>
-                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                        <div style={{ ...TYPO.bodyBold }}>{c.event.name || c.event.lieu}</div>
+                        <div style={{ ...TYPO.micro, color: BASE.textMuted }}>
                           {parseDate(c.event.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {c.qty} vendus
                         </div>
                       </div>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#5DAB8B' }}>{c.ca}€</div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: SEMANTIC.success }}>{c.ca}€</div>
                     </div>
                   ))}
                   <div style={{
-                    marginTop: 8, paddingTop: 8, borderTop: '2px solid #F1F5F9',
+                    marginTop: SPACE.sm, paddingTop: SPACE.sm, borderTop: `2px solid ${BASE.bgHover}`,
                     display: 'flex', justifyContent: 'space-between',
                   }}>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>Total</span>
-                    <span style={{ fontSize: 18, fontWeight: 600, color: '#5DAB8B' }}>
+                    <span style={{ ...TYPO.bodyBold }}>Total</span>
+                    <span style={{ ...TYPO.h2, color: SEMANTIC.success }}>
                       {caPerConcert.reduce((s, c) => s + c.ca, 0)}€
                     </span>
                   </div>
@@ -307,41 +306,41 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           <div>
             {/* Total */}
             <div className="card" style={{
-              textAlign: 'center', marginBottom: 16, padding: 20,
-              background: totalQty === 0 ? 'rgba(200,164,106,0.08)' : totalQty <= (product.min_stock || 5) ? '#FEF6F0' : 'rgba(47,182,93,0.08)',
+              textAlign: 'center', marginBottom: SPACE.lg, padding: SPACE.xl,
+              background: totalQty === 0 ? `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)` : totalQty <= (product.min_stock || 5) ? `rgba(${hexToRgbLocal(SEMANTIC.warning)}, 0.08)` : `rgba(${hexToRgbLocal(SEMANTIC.success)}, 0.08)`,
             }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
+              <div style={{ ...TYPO.overline, color: BASE.textMuted }}>Stock total</div>
               <div style={{
                 fontSize: 48, fontWeight: 600, lineHeight: 1.1,
-                color: totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#8B6DB8' : '#5DAB8B',
+                color: totalQty === 0 ? SEMANTIC.danger : totalQty <= (product.min_stock || 5) ? SEMANTIC.warning : SEMANTIC.success,
               }}>{totalQty}</div>
-              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
+              <div style={{ ...TYPO.caption, color: BASE.textMuted, marginTop: SPACE.xs }}>
                 Seuil min : {product.min_stock || 5} · Unité : {product.unit || 'pièce'}
               </div>
-              {totalQty === 0 && <Badge color="#D4648A">RUPTURE DE STOCK</Badge>}
-              {totalQty > 0 && totalQty <= (product.min_stock || 5) && <Badge color="#8B6DB8">STOCK BAS</Badge>}
+              {totalQty === 0 && <Badge color={SEMANTIC.danger}>RUPTURE DE STOCK</Badge>}
+              {totalQty > 0 && totalQty <= (product.min_stock || 5) && <Badge color={SEMANTIC.warning}>STOCK BAS</Badge>}
             </div>
 
             {/* By location with bar chart */}
             <SectionLabel>Répartition par dépôt</SectionLabel>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.sm }}>
               {locations.map(loc => {
                 const s = productStock.find(st => st.location_id === loc.id)
                 const qty = s?.quantity || 0
                 const pct = maxLocQty > 0 ? (qty / maxLocQty) * 100 : 0
                 return (
-                  <div key={loc.id} className="card" style={{ padding: '12px 14px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div key={loc.id} className="card" style={{ padding: `${SPACE.md}px ${SPACE.lg}px` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.xs + 2 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm }}>
                         <span style={{ fontSize: 18 }}>{loc.icon || ''}</span>
-                        <span style={{ fontSize: 13, fontWeight: 700 }}>{loc.name}</span>
+                        <span style={{ ...TYPO.bodyBold }}>{loc.name}</span>
                       </div>
                       <span style={{
                         fontSize: 18, fontWeight: 600,
-                        color: qty > 0 ? '#1E293B' : '#CBD5E1',
+                        color: qty > 0 ? BASE.text : BASE.textDisabled,
                       }}>{qty}</span>
                     </div>
-                    <div style={{ height: 6, borderRadius: 3, background: '#F1F5F9', overflow: 'hidden' }}>
+                    <div style={{ height: 6, borderRadius: 3, background: BASE.bgHover, overflow: 'hidden' }}>
                       <div style={{
                         width: `${pct}%`, height: '100%', borderRadius: 3,
                         background: qty > 0 ? cat.color : 'transparent',
@@ -359,10 +358,10 @@ export default function ProductDetail({ product, stock, locations, movements, ev
         {section === 'mouvements' && (
           <div>
             {/* Stats */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              <StatPill icon="" label="Entrées" value={moveStats.totalIn} count={moveStats.ins} color="#5DAB8B" />
-              <StatPill icon="" label="Sorties" value={moveStats.totalOut} count={moveStats.outs} color="#D4648A" />
-              <StatPill icon="" label="Transferts" value={moveStats.transfers} count={moveStats.transfers} color="#8B6DB8" />
+            <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.lg }}>
+              <StatPill icon="" label="Entrées" value={moveStats.totalIn} count={moveStats.ins} color={SEMANTIC.success} />
+              <StatPill icon="" label="Sorties" value={moveStats.totalOut} count={moveStats.outs} color={SEMANTIC.danger} />
+              <StatPill icon="" label="Transferts" value={moveStats.transfers} count={moveStats.transfers} color={SEMANTIC.info} />
             </div>
 
             {/* List */}
@@ -372,33 +371,33 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                 <div className="empty-text">Aucun mouvement enregistré</div>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.xs + 2 }}>
                 {productMoves.map(m => {
                   const conf = getMoveConf(m.type)
                   return (
-                    <div key={m.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
+                    <div key={m.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: SPACE.md, padding: `${SPACE.md}px ${SPACE.lg}px` }}>
                       <div style={{
-                        width: 36, height: 36, borderRadius: 10, background: conf.bg,
+                        width: 36, height: 36, borderRadius: RADIUS.md, background: conf.bg,
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0,
                       }}>{conf.icon && React.createElement(conf.icon, { size: 16, color: conf.color })}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: conf.color }}>
+                        <div style={{ ...TYPO.bodyBold, color: conf.color }}>
                           {conf.label}
-                          <span style={{ fontWeight: 400, color: '#94A3B8', marginLeft: 6, fontSize: 11 }}>
+                          <span style={{ fontWeight: 400, color: BASE.textMuted, marginLeft: SPACE.xs + 2, fontSize: 11 }}>
                             {m.type === 'transfer'
                               ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
                               : lName(m.type === 'in' ? m.to_loc : m.from_loc)
                             }
                           </span>
                         </div>
-                        <div style={{ fontSize: 10, color: '#CBD5E1', marginTop: 2 }}>
+                        <div style={{ ...TYPO.label, color: BASE.textDisabled, marginTop: 2, textTransform: 'none' }}>
                           {fmtDate(m.created_at)}
                           {m.note && ` · ${m.note}`}
                         </div>
                       </div>
                       <div style={{
                         fontSize: 16, fontWeight: 600,
-                        color: m.type === 'out' ? '#D4648A' : m.type === 'in' ? '#5DAB8B' : '#8B6DB8',
+                        color: m.type === 'out' ? SEMANTIC.danger : m.type === 'in' ? SEMANTIC.success : SEMANTIC.info,
                       }}>
                         {m.type === 'out' ? '−' : m.type === 'in' ? '+' : '↔'}{m.quantity}
                       </div>
@@ -424,49 +423,49 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                 {linkedEvents.filter(e => !e.isPast).length > 0 && (
                   <>
                     <SectionLabel>Concerts à venir</SectionLabel>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.sm, marginBottom: SPACE.lg }}>
                       {linkedEvents.filter(e => !e.isPast).map(ev => (
                         <div key={ev.id} className="card" style={{
-                          padding: '12px 14px',
-                          borderLeft: `4px solid ${ev.daysUntil <= 7 ? '#8B6DB8' : '#8B6DB8'}`,
+                          padding: `${SPACE.md}px ${SPACE.lg}px`,
+                          borderLeft: `4px solid ${theme.color}`,
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
-                              <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
+                              <div style={{ ...TYPO.bodyBold, color: BASE.text }}>
                                 {ev.name || ev.lieu}
                               </div>
-                              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                              <div style={{ ...TYPO.micro, color: BASE.textMuted, marginTop: 2 }}>
                                 {parseDate(ev.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long' })}
                                 {' · '}{ev.ville} · {ev.format}
                               </div>
                             </div>
-                            <Badge color={ev.daysUntil <= 3 ? '#D4648A' : ev.daysUntil <= 7 ? '#8B6DB8' : '#8B6DB8'}>
+                            <Badge color={ev.daysUntil <= 3 ? SEMANTIC.danger : theme.color}>
                               J-{ev.daysUntil}
                             </Badge>
                           </div>
 
                           {/* Needs */}
-                          <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                          <div style={{ display: 'flex', gap: SPACE.md, marginTop: SPACE.md }}>
                             {ev.packing && (
-                              <MiniInfo label="Besoin packing" value={ev.packing.quantity_needed} color="#8B6DB8" />
+                              <MiniInfo label="Besoin packing" value={ev.packing.quantity_needed} color={theme.color} />
                             )}
                             {ev.projectedSales > 0 && (
-                              <MiniInfo label="Ventes proj." value={`~${ev.projectedSales}`} color="#8B6DB8" />
+                              <MiniInfo label="Ventes proj." value={`~${ev.projectedSales}`} color={theme.color} />
                             )}
                             {ev.capacite && (
-                              <MiniInfo label="Capacité" value={ev.capacite} color="#8B6DB8" />
+                              <MiniInfo label="Capacité" value={ev.capacite} color={theme.color} />
                             )}
                           </div>
 
                           {/* Sufficiency check */}
                           {ev.packing && (
-                            <div style={{ marginTop: 8 }}>
+                            <div style={{ marginTop: SPACE.sm }}>
                               {totalQty >= ev.packing.quantity_needed ? (
-                                <div style={{ fontSize: 11, color: '#5DAB8B', fontWeight: 700 }}>
+                                <div style={{ ...TYPO.micro, color: SEMANTIC.success }}>
                                   Stock suffisant ({totalQty} dispo / {ev.packing.quantity_needed} requis)
                                 </div>
                               ) : (
-                                <div style={{ fontSize: 11, color: '#D4648A', fontWeight: 700 }}>
+                                <div style={{ ...TYPO.micro, color: SEMANTIC.danger }}>
                                   Stock insuffisant ! Manque {ev.packing.quantity_needed - totalQty} unité(s)
                                 </div>
                               )}
@@ -482,22 +481,22 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                 {linkedEvents.filter(e => e.isPast).length > 0 && (
                   <>
                     <SectionLabel>Concerts passés</SectionLabel>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.xs + 2 }}>
                       {linkedEvents.filter(e => e.isPast).map(ev => {
                         const concertCA = caPerConcert.find(c => c.event.id === ev.id)
                         return (
-                          <div key={ev.id} className="card" style={{ padding: '10px 14px', opacity: 0.8 }}>
+                          <div key={ev.id} className="card" style={{ padding: `${SPACE.md}px ${SPACE.lg}px`, opacity: 0.8 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div>
-                                <div style={{ fontSize: 13, fontWeight: 700 }}>{ev.name || ev.lieu}</div>
-                                <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                                <div style={{ ...TYPO.bodyBold }}>{ev.name || ev.lieu}</div>
+                                <div style={{ ...TYPO.micro, color: BASE.textMuted }}>
                                   {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · {ev.ville}
                                 </div>
                               </div>
                               {concertCA && (
                                 <div style={{ textAlign: 'right' }}>
-                                  <div style={{ fontSize: 14, fontWeight: 600, color: '#5DAB8B' }}>{concertCA.ca}€</div>
-                                  <div style={{ fontSize: 10, color: '#94A3B8' }}>{concertCA.qty} vendus</div>
+                                  <div style={{ ...TYPO.bodyBold, color: SEMANTIC.success }}>{concertCA.ca}€</div>
+                                  <div style={{ ...TYPO.label, color: BASE.textMuted, textTransform: 'none' }}>{concertCA.qty} vendus</div>
                                 </div>
                               )}
                             </div>
@@ -530,12 +529,12 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                     <InfoRow label="Date d'achat" value={parseDate(product.purchase_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} />
                   )}
                   <div style={{
-                    marginTop: 8, padding: '8px 12px', borderRadius: 8,
-                    background: product.cost_ht >= 500 ? 'rgba(139,109,184,0.08)' : '#FEF6F0',
+                    marginTop: SPACE.sm, padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.sm,
+                    background: product.cost_ht >= 500 ? theme.tint08 : `rgba(${hexToRgbLocal(SEMANTIC.warning)}, 0.08)`,
                   }}>
                     <span style={{
-                      fontSize: 12, fontWeight: 600,
-                      color: product.cost_ht >= 500 ? '#8B6DB8' : '#8B6DB8',
+                      ...TYPO.caption,
+                      color: product.cost_ht >= 500 ? theme.color : SEMANTIC.warning,
                     }}>
                       {product.cost_ht >= 500 ? 'Immobilisation' : 'Charge'} — {product.cost_ht >= 500 ? 'amortissement linéaire' : 'sous le seuil de 500€ HT'}
                     </span>
@@ -566,22 +565,22 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       <InfoRow label="Fin amortissement" value={endDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })} />
 
                       <div style={{ margin: '12px 0 8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <span style={{ fontSize: 11, color: '#94A3B8' }}>Amorti : {pct}%</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: nbv > 0 ? '#8B6DB8' : '#5DAB8B' }}>VNC : {nbv.toFixed(2)}€</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: SPACE.xs }}>
+                          <span style={{ ...TYPO.micro, color: BASE.textMuted }}>Amorti : {pct}%</span>
+                          <span style={{ ...TYPO.micro, fontWeight: 700, color: nbv > 0 ? theme.color : SEMANTIC.success }}>VNC : {nbv.toFixed(2)}€</span>
                         </div>
-                        <div style={{ height: 10, borderRadius: 5, background: '#F1F5F9', overflow: 'hidden' }}>
+                        <div style={{ height: 10, borderRadius: 5, background: BASE.bgHover, overflow: 'hidden' }}>
                           <div style={{
                             width: `${pct}%`, height: '100%', borderRadius: 5,
-                            background: 'linear-gradient(90deg, #8B6DB8, #5DAB8B)',
+                            background: `linear-gradient(90deg, ${theme.color}, ${SEMANTIC.success})`,
                             transition: 'width 0.3s',
                           }} />
                         </div>
                       </div>
 
                       <div style={{
-                        marginTop: 10, padding: '8px 10px', borderRadius: 8,
-                        background: '#FEF6F0', fontSize: 10, color: '#8B6DB8', lineHeight: 1.5, fontWeight: 600,
+                        marginTop: SPACE.md, padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.sm,
+                        background: `rgba(${hexToRgbLocal(SEMANTIC.warning)}, 0.08)`, ...TYPO.label, color: theme.color, lineHeight: 1.5, textTransform: 'none',
                       }}>
                         Amortissement linéaire, prorata temporis base 360j. Durées à valider par expert-comptable.
                       </div>
@@ -608,9 +607,9 @@ export default function ProductDetail({ product, stock, locations, movements, ev
 function SectionLabel({ children }) {
   return (
     <div style={{
-      fontSize: 12, fontWeight: 600, color: '#94A3B8',
+      ...TYPO.caption, color: BASE.textMuted,
       textTransform: 'uppercase', letterSpacing: 1.5,
-      marginBottom: 10, marginTop: 4, padding: '0 2px',
+      marginBottom: SPACE.md, marginTop: SPACE.xs, padding: `0 2px`,
     }}>{children}</div>
   )
 }
@@ -619,10 +618,10 @@ function InfoRow({ label, value }) {
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '7px 0', borderBottom: '1px solid #F1F5F920',
+      padding: `${SPACE.sm - 1}px 0`, borderBottom: `1px solid ${BASE.bgHover}20`,
     }}>
-      <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', textAlign: 'right', maxWidth: '60%' }}>{value}</span>
+      <span style={{ ...TYPO.caption, color: BASE.textMuted }}>{label}</span>
+      <span style={{ ...TYPO.bodyBold, color: BASE.text, textAlign: 'right', maxWidth: '60%' }}>{value}</span>
     </div>
   )
 }
@@ -630,12 +629,12 @@ function InfoRow({ label, value }) {
 function OpRow({ icon, label, value }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      padding: '8px 0', borderBottom: '1px solid #F1F5F920',
+      display: 'flex', alignItems: 'center', gap: SPACE.md,
+      padding: `${SPACE.sm}px 0`, borderBottom: `1px solid ${BASE.bgHover}20`,
     }}>
       <span style={{ fontSize: 16 }}>{icon}</span>
-      <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', minWidth: 60 }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', flex: 1 }}>{value}</span>
+      <span style={{ ...TYPO.caption, color: BASE.textMuted, minWidth: 60 }}>{label}</span>
+      <span style={{ ...TYPO.bodyBold, color: BASE.text, flex: 1 }}>{value}</span>
     </div>
   )
 }
@@ -643,23 +642,23 @@ function OpRow({ icon, label, value }) {
 function KpiCard({ label, value, color, sub }) {
   return (
     <div style={{
-      flex: 1, textAlign: 'center', padding: '10px 4px',
-      background: '#F1F5F9', borderRadius: 8, border: '1px solid #F1F5F9',
-      boxShadow: '0 2px 8px rgba(180,150,130,0.06)',
+      flex: 1, textAlign: 'center', padding: `${SPACE.md}px ${SPACE.xs}px`,
+      background: BASE.bgHover, borderRadius: RADIUS.sm, border: `1px solid ${BASE.bgHover}`,
+      boxShadow: SHADOW.sm,
     }}>
       <div style={{ fontSize: 20, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 700, marginTop: 3 }}>{label}</div>
-      {sub && <div style={{ fontSize: 8, color: '#CBD5E1', marginTop: 1 }}>{sub}</div>}
+      <div style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 700, marginTop: 3 }}>{label}</div>
+      {sub && <div style={{ fontSize: 8, color: BASE.textDisabled, marginTop: 1 }}>{sub}</div>}
     </div>
   )
 }
 
 function StatPill({ icon, label, value, count, color }) {
   return (
-    <div className="card" style={{ flex: 1, textAlign: 'center', padding: '10px 6px' }}>
+    <div className="card" style={{ flex: 1, textAlign: 'center', padding: `${SPACE.md}px ${SPACE.xs + 2}px` }}>
       <div style={{ fontSize: 18, marginBottom: 2 }}>{icon}</div>
       <div style={{ fontSize: 18, fontWeight: 600, color }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 700 }}>{label}</div>
+      <div style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 700 }}>{label}</div>
     </div>
   )
 }
@@ -667,11 +666,11 @@ function StatPill({ icon, label, value, count, color }) {
 function MiniInfo({ label, value, color }) {
   return (
     <div style={{
-      flex: 1, textAlign: 'center', padding: '6px 4px',
-      background: `${color}08`, borderRadius: 8, border: `1px solid ${color}15`,
+      flex: 1, textAlign: 'center', padding: `${SPACE.xs + 2}px ${SPACE.xs}px`,
+      background: `${color}08`, borderRadius: RADIUS.sm, border: `1px solid ${color}15`,
     }}>
-      <div style={{ fontSize: 14, fontWeight: 600, color }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>{label}</div>
+      <div style={{ ...TYPO.bodyBold, color }}>{value}</div>
+      <div style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 600 }}>{label}</div>
     </div>
   )
 }

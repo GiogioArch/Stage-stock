@@ -1,6 +1,17 @@
 import React, { useState, useMemo, createElement } from 'react'
 import { Pencil, PackageOpen } from 'lucide-react'
 import { getMoveConf, fmtDate, Badge } from './UI'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { SubTabs } from '../design'
+
+const theme = getModuleTheme('stock')
+
+function hexToRgbLocal(hex) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `${r},${g},${b}`
+}
 
 export default function DepotDetail({
   location, stock, products, movements, families, subfamilies,
@@ -73,31 +84,31 @@ export default function DepotDetail({
   return (
     <div style={{
       ...(!embedded ? { position: 'fixed', inset: 0, zIndex: 1000 } : {}),
-      background: 'linear-gradient(180deg, #FFF8F0 0%, #F8FAFC 30%, #F8FAFC 70%, #F8FAFC 100%)',
+      background: `linear-gradient(180deg, ${BASE.bg} 0%, ${BASE.bgSurface} 30%, ${BASE.bgSurface} 70%, ${BASE.bgSurface} 100%)`,
       overflow: embedded ? undefined : 'auto',
     }}>
       {/* Header */}
       <header style={{
-        padding: '16px 18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: `${SPACE.lg}px ${SPACE.lg + 2}px 0`, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <button onClick={onClose} style={{
-          padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
-          background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer',
+          padding: `${SPACE.sm}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, ...TYPO.bodyBold,
+          background: BASE.bgHover, border: `1px solid ${BASE.border}`, color: BASE.textMuted, cursor: 'pointer',
         }}>← Retour</button>
-        <div style={{ fontSize: 15, fontWeight: 600, color: location.color || '#5B8DB8' }}>
+        <div style={{ ...TYPO.h3, color: location.color || theme.color }}>
           {location.icon || ''} {location.name}
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: SPACE.xs + 2 }}>
           {onEdit && (
             <button onClick={() => onEdit(location)} style={{
-              padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              background: '#EEF4FA', border: '1px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+              padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.md, ...TYPO.caption,
+              background: theme.tint08, border: `1px solid ${theme.tint25}`, color: theme.color, cursor: 'pointer',
             }}>{createElement(Pencil, { size: 14 })}</button>
           )}
           {onDelete && (
             <button onClick={() => onDelete(location)} style={{
-              padding: '8px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-              background: '#FDF0F4', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
+              padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.md, ...TYPO.caption,
+              background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)`, border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.18)`, color: SEMANTIC.danger, cursor: 'pointer',
             }}></button>
           )}
         </div>
@@ -105,115 +116,95 @@ export default function DepotDetail({
 
       {/* KPI Banner */}
       <div className="card" style={{
-        margin: '16px 16px 0', padding: '18px 16px',
-        background: `linear-gradient(135deg, ${(location.color || '#5B8DB8')}08, ${(location.color || '#5B8DB8')}18)`,
-        border: `1px solid ${(location.color || '#5B8DB8')}25`,
+        margin: `${SPACE.lg}px ${SPACE.lg}px 0`, padding: `${SPACE.lg + 2}px ${SPACE.lg}px`,
+        background: `linear-gradient(135deg, ${(location.color || theme.color)}08, ${(location.color || theme.color)}18)`,
+        border: `1px solid ${(location.color || theme.color)}25`,
       }}>
         {location.description && (
-          <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 12 }}>{location.description}</div>
+          <div style={{ ...TYPO.caption, color: BASE.textMuted, marginBottom: SPACE.md }}>{location.description}</div>
         )}
-        <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Références" value={nbProducts} color={location.color || '#5B8DB8'} />
-          <KpiBox label="Unités" value={totalQty} color="#5DAB8B" />
-          <KpiBox label="Valeur" value={`${Math.round(totalValue)}€`} color="#E8935A" />
+        <div style={{ display: 'flex', gap: SPACE.sm }}>
+          <KpiBox label="Références" value={nbProducts} color={location.color || theme.color} />
+          <KpiBox label="Unités" value={totalQty} color={SEMANTIC.success} />
+          <KpiBox label="Valeur" value={`${Math.round(totalValue)}€`} color={SEMANTIC.warning} />
           {alerts.length > 0 && (
-            <KpiBox label="Alertes" value={alerts.length} color="#8B6DB8" />
+            <KpiBox label="Alertes" value={alerts.length} color={SEMANTIC.danger} />
           )}
         </div>
       </div>
 
       {/* Section tabs */}
-      <div style={{ display: 'flex', gap: 4, padding: '16px 16px 0' }}>
-        {SECTIONS.map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)} style={{
-            flex: 1, padding: '7px 6px', borderRadius: 10, fontSize: 10, fontWeight: 700,
-            cursor: 'pointer', textAlign: 'center', position: 'relative',
-            background: section === s.id ? `${(location.color || '#5B8DB8')}15` : 'white',
-            color: section === s.id ? (location.color || '#5B8DB8') : '#94A3B8',
-            border: `1px solid ${section === s.id ? (location.color || '#5B8DB8') + '40' : '#E2E8F0'}`,
-          }}>
-            {s.icon} {s.label}
-            {s.count > 0 && (
-              <span style={{
-                position: 'absolute', top: -4, right: -2,
-                width: 16, height: 16, borderRadius: '50%',
-                background: '#8B6DB8', color: 'white', fontSize: 9, fontWeight: 600,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>{s.count}</span>
-            )}
-          </button>
-        ))}
-      </div>
+      <SubTabs tabs={SECTIONS} active={section} onChange={setSection} />
 
       {/* Content */}
-      <div style={{ padding: `12px 16px ${embedded ? '24px' : '100px'}` }}>
+      <div style={{ padding: `${SPACE.md}px ${SPACE.lg}px ${embedded ? SPACE.xxl + 'px' : '100px'}` }}>
 
         {/* ─── Inventory ─── */}
         {section === 'inventory' && (
           <div>
             {/* Quick action */}
             {onMovement && (
-              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.md }}>
                 <button onClick={() => onMovement('in', location.id)} style={{
-                  flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#5DAB8B15', border: '1px solid #5DAB8B30', color: '#5DAB8B', cursor: 'pointer',
+                  flex: 1, padding: `${SPACE.md}px ${SPACE.sm}px`, borderRadius: RADIUS.lg, ...TYPO.caption,
+                  background: `rgba(${hexToRgbLocal(SEMANTIC.success)}, 0.08)`, border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.success)}, 0.18)`, color: SEMANTIC.success, cursor: 'pointer',
                 }}>+ Entrée</button>
                 <button onClick={() => onMovement('out', location.id)} style={{
-                  flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#8B6DB815', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
+                  flex: 1, padding: `${SPACE.md}px ${SPACE.sm}px`, borderRadius: RADIUS.lg, ...TYPO.caption,
+                  background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)`, border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.18)`, color: SEMANTIC.danger, cursor: 'pointer',
                 }}>- Sortie</button>
                 <button onClick={() => onMovement('transfer', location.id)} style={{
-                  flex: 1, padding: '10px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                  background: '#5B8DB815', border: '1px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
+                  flex: 1, padding: `${SPACE.md}px ${SPACE.sm}px`, borderRadius: RADIUS.lg, ...TYPO.caption,
+                  background: theme.tint08, border: `1px solid ${theme.tint15}`, color: theme.color, cursor: 'pointer',
                 }}>↔ Transfert</button>
               </div>
             )}
 
             {productDetails.length === 0 ? (
-              <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-                <div style={{ marginBottom: 8 }}>{createElement(PackageOpen, { size: 40, color: '#94A3B8' })}</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Dépôt vide</div>
-                <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Aucun stock dans ce lieu</div>
+              <div className="card" style={{ padding: SPACE.xxxl, textAlign: 'center' }}>
+                <div style={{ marginBottom: SPACE.sm }}>{createElement(PackageOpen, { size: 40, color: BASE.textMuted })}</div>
+                <div style={{ ...TYPO.bodyBold, color: BASE.text }}>Dépôt vide</div>
+                <div style={{ ...TYPO.caption, color: BASE.textMuted, marginTop: SPACE.xs }}>Aucun stock dans ce lieu</div>
               </div>
             ) : (
               byFamily.map(fam => (
-                <div key={fam.name} style={{ marginBottom: 12 }}>
+                <div key={fam.name} style={{ marginBottom: SPACE.md }}>
                   <div style={{
-                    fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase',
-                    letterSpacing: 1, marginBottom: 6, display: 'flex', justifyContent: 'space-between',
+                    ...TYPO.micro, color: BASE.textMuted, textTransform: 'uppercase',
+                    letterSpacing: 1, marginBottom: SPACE.xs + 2, display: 'flex', justifyContent: 'space-between',
                   }}>
                     <span>{fam.name}</span>
                     <span>{fam.qty} unités</span>
                   </div>
-                  <div className="card" style={{ padding: '6px 12px' }}>
+                  <div className="card" style={{ padding: `${SPACE.xs + 2}px ${SPACE.md}px` }}>
                     {fam.items.map((p, i) => {
                       const isLow = p.qty <= (p.min_stock || 5)
                       return (
                         <div key={p.id} style={{
-                          display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
-                          borderBottom: i < fam.items.length - 1 ? '1px solid #E2E8F0' : 'none',
+                          display: 'flex', alignItems: 'center', gap: SPACE.md, padding: `${SPACE.sm}px 0`,
+                          borderBottom: i < fam.items.length - 1 ? `1px solid ${BASE.border}` : 'none',
                         }}>
                           <span style={{ fontSize: 16 }}>{p.image || ''}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{
-                              fontSize: 13, fontWeight: 700, color: '#1E293B',
+                              ...TYPO.bodyBold, color: BASE.text,
                               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                             }}>{p.name}</div>
-                            <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                            <div style={{ ...TYPO.label, color: BASE.textMuted, textTransform: 'none' }}>
                               {p.sku || ''}{p.subfamily ? ` · ${p.subfamily.name}` : ''}
                             </div>
                           </div>
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
                             <div style={{
                               fontSize: 16, fontWeight: 600,
-                              color: isLow ? '#8B6DB8' : (location.color || '#5B8DB8'),
+                              color: isLow ? SEMANTIC.warning : (location.color || theme.color),
                             }}>{p.qty}</div>
                             {p.sale_price > 0 && (
-                              <div style={{ fontSize: 9, color: '#94A3B8' }}>{Math.round(p.qty * p.sale_price)}€</div>
+                              <div style={{ fontSize: 9, color: BASE.textMuted }}>{Math.round(p.qty * p.sale_price)}€</div>
                             )}
                           </div>
                           {isLow && (
-                            <span style={{ fontSize: 10, color: '#8B6DB8', fontWeight: 600 }}></span>
+                            <span style={{ ...TYPO.label, color: SEMANTIC.warning, textTransform: 'none' }}></span>
                           )}
                         </div>
                       )
@@ -229,34 +220,34 @@ export default function DepotDetail({
         {section === 'movements' && (
           <div>
             {locMovements.length === 0 ? (
-              <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-                <div style={{ fontSize: 40, marginBottom: 8 }}></div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun mouvement</div>
-                <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
+              <div className="card" style={{ padding: SPACE.xxxl, textAlign: 'center' }}>
+                <div style={{ fontSize: 40, marginBottom: SPACE.sm }}></div>
+                <div style={{ ...TYPO.bodyBold, color: BASE.text }}>Aucun mouvement</div>
+                <div style={{ ...TYPO.caption, color: BASE.textMuted, marginTop: SPACE.xs }}>
                   Pas encore de mouvements pour ce dépôt
                 </div>
               </div>
             ) : (
-              <div className="card" style={{ padding: '6px 12px' }}>
+              <div className="card" style={{ padding: `${SPACE.xs + 2}px ${SPACE.md}px` }}>
                 {locMovements.map((m, i) => {
                   const conf = getMoveConf(m.type)
                   const isIncoming = m.to_loc === location.id
                   return (
                     <div key={m.id} style={{
-                      display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
-                      borderBottom: i < locMovements.length - 1 ? '1px solid #E2E8F0' : 'none',
+                      display: 'flex', alignItems: 'center', gap: SPACE.md, padding: `${SPACE.sm}px 0`,
+                      borderBottom: i < locMovements.length - 1 ? `1px solid ${BASE.border}` : 'none',
                     }}>
                       <div style={{
-                        width: 32, height: 32, borderRadius: 8,
+                        width: 32, height: 32, borderRadius: RADIUS.sm,
                         background: conf.color + '15',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
                       }}>{conf.icon && React.createElement(conf.icon, { size: 14, color: conf.color })}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
-                          fontSize: 12, fontWeight: 700, color: '#1E293B',
+                          ...TYPO.caption, color: BASE.text,
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}>{pName(m.product_id)}</div>
-                        <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                        <div style={{ ...TYPO.label, color: BASE.textMuted, textTransform: 'none' }}>
                           {m.type === 'transfer'
                             ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
                             : m.type === 'in' ? 'Entrée' : 'Sortie'
@@ -266,12 +257,12 @@ export default function DepotDetail({
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{
-                          fontSize: 14, fontWeight: 600,
-                          color: isIncoming ? '#5DAB8B' : '#8B6DB8',
+                          ...TYPO.bodyBold,
+                          color: isIncoming ? SEMANTIC.success : SEMANTIC.danger,
                         }}>
                           {isIncoming ? '+' : '-'}{m.quantity}
                         </div>
-                        <div style={{ fontSize: 9, color: '#94A3B8' }}>{fmtDate(m.created_at)}</div>
+                        <div style={{ fontSize: 9, color: BASE.textMuted }}>{fmtDate(m.created_at)}</div>
                       </div>
                     </div>
                   )
@@ -279,7 +270,7 @@ export default function DepotDetail({
               </div>
             )}
             {locMovements.length >= 50 && (
-              <div style={{ textAlign: 'center', padding: 8, fontSize: 11, color: '#94A3B8' }}>
+              <div style={{ textAlign: 'center', padding: SPACE.sm, ...TYPO.micro, color: BASE.textMuted }}>
                 50 derniers mouvements affichés
               </div>
             )}
@@ -289,31 +280,31 @@ export default function DepotDetail({
         {/* ─── Value ─── */}
         {section === 'value' && (
           <div>
-            <div className="card" style={{ padding: 16, textAlign: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 32, fontWeight: 600, color: '#E8935A' }}>{Math.round(totalValue)}€</div>
-              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Valeur totale du stock (prix de vente)</div>
+            <div className="card" style={{ padding: SPACE.lg, textAlign: 'center', marginBottom: SPACE.md }}>
+              <div style={{ fontSize: 32, fontWeight: 600, color: SEMANTIC.warning }}>{Math.round(totalValue)}€</div>
+              <div style={{ ...TYPO.caption, color: BASE.textMuted, marginTop: SPACE.xs }}>Valeur totale du stock (prix de vente)</div>
             </div>
 
             {byFamily.length > 0 && (
-              <div className="card" style={{ padding: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+              <div className="card" style={{ padding: SPACE.lg }}>
+                <div style={{ ...TYPO.micro, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACE.md }}>
                   Répartition par famille
                 </div>
                 {byFamily.map(fam => {
                   const pct = totalValue > 0 ? Math.round((fam.value / totalValue) * 100) : 0
                   return (
-                    <div key={fam.name} style={{ marginBottom: 10 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>{fam.name}</span>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: '#E8935A' }}>{Math.round(fam.value)}€</span>
+                    <div key={fam.name} style={{ marginBottom: SPACE.md }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: SPACE.xs }}>
+                        <span style={{ ...TYPO.caption, color: BASE.text }}>{fam.name}</span>
+                        <span style={{ ...TYPO.caption, color: SEMANTIC.warning }}>{Math.round(fam.value)}€</span>
                       </div>
-                      <div style={{ height: 6, borderRadius: 3, background: '#E2E8F0', overflow: 'hidden' }}>
+                      <div style={{ height: 6, borderRadius: 3, background: BASE.border, overflow: 'hidden' }}>
                         <div style={{
                           width: `${pct}%`, height: '100%', borderRadius: 3,
-                          background: location.color || '#5B8DB8', transition: 'width 0.3s',
+                          background: location.color || theme.color, transition: 'width 0.3s',
                         }} />
                       </div>
-                      <div style={{ fontSize: 9, color: '#94A3B8', marginTop: 2 }}>
+                      <div style={{ fontSize: 9, color: BASE.textMuted, marginTop: 2 }}>
                         {fam.qty} unités · {pct}%
                       </div>
                     </div>
@@ -324,8 +315,8 @@ export default function DepotDetail({
 
             {/* Top 5 by value */}
             {productDetails.length > 0 && (
-              <div className="card" style={{ padding: 16, marginTop: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+              <div className="card" style={{ padding: SPACE.lg, marginTop: SPACE.md }}>
+                <div style={{ ...TYPO.micro, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACE.md }}>
                   Top 5 par valeur
                 </div>
                 {productDetails
@@ -334,22 +325,22 @@ export default function DepotDetail({
                   .slice(0, 5)
                   .map((p, i) => (
                     <div key={p.id} style={{
-                      display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0',
-                      borderBottom: i < 4 ? '1px solid #E2E8F0' : 'none',
+                      display: 'flex', alignItems: 'center', gap: SPACE.md, padding: `${SPACE.xs + 2}px 0`,
+                      borderBottom: i < 4 ? `1px solid ${BASE.border}` : 'none',
                     }}>
                       <span style={{
-                        width: 22, height: 22, borderRadius: 6,
-                        background: '#E8935A15', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 11, fontWeight: 600, color: '#E8935A',
+                        width: 22, height: 22, borderRadius: RADIUS.sm - 2,
+                        background: `rgba(${hexToRgbLocal(SEMANTIC.warning)}, 0.08)`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        ...TYPO.micro, color: SEMANTIC.warning,
                       }}>{i + 1}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
-                          fontSize: 12, fontWeight: 700, color: '#1E293B',
+                          ...TYPO.caption, color: BASE.text,
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}>{p.name}</div>
-                        <div style={{ fontSize: 10, color: '#94A3B8' }}>{p.qty} × {p.sale_price}€</div>
+                        <div style={{ ...TYPO.label, color: BASE.textMuted, textTransform: 'none' }}>{p.qty} × {p.sale_price}€</div>
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#E8935A' }}>
+                      <div style={{ ...TYPO.bodyBold, color: SEMANTIC.warning }}>
                         {Math.round(p.qty * p.sale_price)}€
                       </div>
                     </div>
@@ -364,32 +355,32 @@ export default function DepotDetail({
         {section === 'alerts' && (
           <div>
             {alerts.length === 0 ? (
-              <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-                <div style={{ fontSize: 40, marginBottom: 8 }}></div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#5DAB8B' }}>Tout va bien</div>
-                <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
+              <div className="card" style={{ padding: SPACE.xxxl, textAlign: 'center' }}>
+                <div style={{ fontSize: 40, marginBottom: SPACE.sm }}></div>
+                <div style={{ ...TYPO.bodyBold, color: SEMANTIC.success }}>Tout va bien</div>
+                <div style={{ ...TYPO.caption, color: BASE.textMuted, marginTop: SPACE.xs }}>
                   Aucune alerte pour ce dépôt
                 </div>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.sm }}>
                 {alerts.map(p => {
                   const minStock = p.min_stock || 5
                   const isRupture = p.qty <= 0
                   return (
                     <div key={p.id} className="card" style={{
-                      padding: '14px 16px',
-                      borderLeft: `4px solid ${isRupture ? '#8B6DB8' : '#E8935A'}`,
+                      padding: `${SPACE.lg}px`,
+                      borderLeft: `4px solid ${isRupture ? SEMANTIC.danger : SEMANTIC.warning}`,
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.md }}>
                         <span style={{ fontSize: 18 }}>{p.image || ''}</span>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B' }}>{p.name}</div>
-                          <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                          <div style={{ ...TYPO.bodyBold, color: BASE.text }}>{p.name}</div>
+                          <div style={{ ...TYPO.micro, color: BASE.textMuted }}>
                             Seuil : {minStock} · Stock : {p.qty}
                           </div>
                         </div>
-                        <Badge color={isRupture ? '#8B6DB8' : '#E8935A'}>
+                        <Badge color={isRupture ? SEMANTIC.danger : SEMANTIC.warning}>
                           {isRupture ? 'Rupture' : 'Stock bas'}
                         </Badge>
                       </div>
@@ -408,11 +399,11 @@ export default function DepotDetail({
 function KpiBox({ label, value, color }) {
   return (
     <div style={{
-      flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: '#F1F5F9', borderRadius: 10, border: '1px solid #E2E8F0',
+      flex: 1, textAlign: 'center', padding: `${SPACE.sm}px ${SPACE.xs}px`,
+      background: BASE.bgHover, borderRadius: RADIUS.md, border: `1px solid ${BASE.border}`,
     }}>
-      <div style={{ fontSize: 14, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#94A3B8', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ ...TYPO.bodyBold, color, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 8, color: BASE.textMuted, fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

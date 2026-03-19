@@ -8,10 +8,16 @@ Mise a jour : 2026-03-18
   DESIGN / UI
 ================================================================
 - Retirer tous les emojis de l'appli
+- Fiches depots : encore ancienne charte graphique, anciennes couleurs
+- Revoir completement les pages profil (espace utilisateur, board profil, projets, reglages)
+- Reproposer des designs completement differents pour l'espace utilisateur
+- Proposer a l'utilisateur de personnaliser son espace (theme, couleurs, layout)
+- Revoir l'arborescence complete de toute l'appli (espace utilisateur, projets, navigation)
 
 ================================================================
   FEATURES
 ================================================================
+- Controler le fonctionnement de chaque bouton de l'appli
 
 ================================================================
   BUGS

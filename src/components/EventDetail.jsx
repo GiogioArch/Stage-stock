@@ -4,6 +4,18 @@ import { db } from '../lib/supabase'
 import { Badge, CATEGORIES, fmtDate, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import PackingList from './PackingList'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { SubTabs } from '../design'
+
+const theme = getModuleTheme('tournee')
+
+// Hex→rgb helper for inline rgba
+function hexToRgbLocal(hex) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `${r},${g},${b}`
+}
 
 // ─── Forecast helpers ───
 const CONVERSION_RATES = {
@@ -90,85 +102,85 @@ export default function EventDetail({
   return (
     <div style={{
       ...(!embedded ? { position: 'fixed', inset: 0, zIndex: 90 } : {}),
-      background: '#F8FAFC',
+      background: BASE.bgSurface,
       overflowY: embedded ? undefined : 'auto',
-      paddingBottom: embedded ? 24 : 80,
+      paddingBottom: embedded ? SPACE.xxl : 80,
     }}>
       {/* ─── Top bar ─── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
         background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
-        padding: '12px 16px', borderBottom: '1px solid #E2E8F0',
-        display: 'flex', alignItems: 'center', gap: 10,
+        padding: `${SPACE.md}px ${SPACE.lg}px`, borderBottom: `1px solid ${BASE.border}`,
+        display: 'flex', alignItems: 'center', gap: SPACE.md,
       }}>
         <button onClick={onClose} style={{
-          width: 36, height: 36, borderRadius: 8, background: 'rgba(232,115,90,0.1)',
+          width: 36, height: 36, borderRadius: RADIUS.sm, background: theme.tint08,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', border: 'none', color: '#E8735A',
+          cursor: 'pointer', border: 'none', color: theme.color,
         }}><ChevronLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ ...TYPO.bodyBold, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {event.name || event.lieu}
           </div>
-          <div style={{ fontSize: 10, color: '#64748B' }}>
+          <div style={{ ...TYPO.label, color: BASE.textSoft, textTransform: 'none', letterSpacing: 0 }}>
             {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
         </div>
-        <Badge color={isPast ? '#94A3B8' : daysUntil <= 3 ? '#D4648A' : daysUntil <= 7 ? '#E8935A' : '#5DAB8B'}>
+        <Badge color={isPast ? BASE.textMuted : daysUntil <= 3 ? SEMANTIC.danger : daysUntil <= 7 ? SEMANTIC.warning : SEMANTIC.success}>
           {isPast ? 'Terminé' : daysUntil === 0 ? "Aujourd'hui" : `J-${daysUntil}`}
         </Badge>
         {onEdit && (
           <button onClick={() => onEdit(event)} style={{
-            width: 36, height: 36, borderRadius: 8, background: 'rgba(232,115,90,0.08)',
+            width: 36, height: 36, borderRadius: RADIUS.sm, background: theme.tint08,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', border: '1px solid rgba(232,115,90,0.15)', color: '#E8735A',
+            cursor: 'pointer', border: `1px solid ${theme.tint15}`, color: theme.color,
           }}><Pencil size={14} /></button>
         )}
         {onDelete && (
           <button onClick={() => onDelete(event)} style={{
-            width: 36, height: 36, borderRadius: 8, background: 'rgba(212,100,138,0.08)',
+            width: 36, height: 36, borderRadius: RADIUS.sm, background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', border: '1px solid rgba(212,100,138,0.15)', color: '#D4648A',
+            cursor: 'pointer', border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.15)`, color: SEMANTIC.danger,
           }}><Trash2 size={14} /></button>
         )}
       </div>
 
       {/* ─── Event hero ─── */}
-      <div style={{ padding: '20px 16px 12px', textAlign: 'center' }}>
-        <div style={{ fontSize: 22, fontWeight: 600, color: '#1E293B', marginBottom: 4 }}>{event.name || event.lieu}</div>
-        <div style={{ fontSize: 14, color: '#94A3B8', marginBottom: 12 }}>
+      <div style={{ padding: `${SPACE.xl}px ${SPACE.lg}px ${SPACE.md}px`, textAlign: 'center' }}>
+        <div style={{ ...TYPO.h1, color: BASE.text, marginBottom: SPACE.xs }}>{event.name || event.lieu}</div>
+        <div style={{ ...TYPO.body, color: BASE.textMuted, marginBottom: SPACE.md }}>
           {event.lieu} — {event.ville} ({event.territoire})
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <Badge color="#8B6DB8">
+        <div style={{ display: 'flex', justifyContent: 'center', gap: SPACE.sm, flexWrap: 'wrap' }}>
+          <Badge color={SEMANTIC.melodie}>
             {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
           </Badge>
-          {event.format && <Badge color="#E8735A">{event.format}</Badge>}
-          {event.capacite && <Badge color="#8B6DB8">{event.capacite} pers.</Badge>}
-          {event.transport_inter_iles && <Badge color="#E8935A">Inter-îles</Badge>}
-          {event.statut && <Badge color="#5DAB8B">{event.statut}</Badge>}
+          {event.format && <Badge color={theme.color}>{event.format}</Badge>}
+          {event.capacite && <Badge color={SEMANTIC.melodie}>{event.capacite} pers.</Badge>}
+          {event.transport_inter_iles && <Badge color={SEMANTIC.warning}>Inter-îles</Badge>}
+          {event.statut && <Badge color={SEMANTIC.success}>{event.statut}</Badge>}
         </div>
       </div>
 
       {/* ─── Prev / Next nav ─── */}
       {onNavigateEvent && (prevEvent || nextEvent) && (
-        <div style={{ display: 'flex', gap: 8, padding: '0 16px 12px', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: SPACE.sm, padding: `0 ${SPACE.lg}px ${SPACE.md}px`, justifyContent: 'space-between' }}>
           {prevEvent ? (
             <button onClick={() => onNavigateEvent(prevEvent)} style={{
-              flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-              background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B', cursor: 'pointer',
+              flex: 1, padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.sm, ...TYPO.micro,
+              background: BASE.bgSurface, border: `1px solid ${BASE.border}`, color: BASE.textSoft, cursor: 'pointer',
               textAlign: 'left', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-              display: 'flex', alignItems: 'center', gap: 4,
+              display: 'flex', alignItems: 'center', gap: SPACE.xs,
             }}>
               <ChevronLeft size={12} /> {prevEvent.name || prevEvent.lieu}
             </button>
           ) : <div style={{ flex: 1 }} />}
           {nextEvent ? (
             <button onClick={() => onNavigateEvent(nextEvent)} style={{
-              flex: 1, padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-              background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B', cursor: 'pointer',
+              flex: 1, padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.sm, ...TYPO.micro,
+              background: BASE.bgSurface, border: `1px solid ${BASE.border}`, color: BASE.textSoft, cursor: 'pointer',
               textAlign: 'right', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-              display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
+              display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: SPACE.xs,
             }}>
               {nextEvent.name || nextEvent.lieu} <ChevronRight size={12} />
             </button>
@@ -177,23 +189,7 @@ export default function EventDetail({
       )}
 
       {/* ─── Section tabs ─── */}
-      <div style={{ display: 'flex', gap: 4, padding: '0 16px 16px', overflowX: 'auto' }}>
-        {sectionLabels.map(s => {
-          const IconComponent = s.icon
-          return (
-            <button key={s.id} onClick={() => setSection(s.id)} style={{
-              padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-              whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.15s',
-              border: `1px solid ${section === s.id ? '#E8735A' : '#E2E8F0'}`,
-              background: section === s.id ? 'rgba(232,115,90,0.1)' : '#F8FAFC',
-              color: section === s.id ? '#E8735A' : '#64748B',
-              display: 'flex', alignItems: 'center', gap: 5,
-            }}>
-              <IconComponent size={13} /> {s.label}
-            </button>
-          )
-        })}
-      </div>
+      <SubTabs tabs={sectionLabels} active={section} onChange={setSection} />
 
       {/* ─── Content ─── */}
       <div style={{ padding: '0 16px 24px' }}>
@@ -277,13 +273,13 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
   return (
     <div>
       {/* Infos clés */}
-      <div className="card" style={{ padding: '16px', marginBottom: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+      <div className="card" style={{ padding: SPACE.lg, marginBottom: SPACE.md, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+        <div style={{ ...TYPO.caption, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACE.md }}>
           Informations
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.md }}>
           <InfoRow label="Date" value={parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} />
-          <InfoRow label="Compte à rebours" value={daysUntil > 0 ? `J-${daysUntil}` : daysUntil === 0 ? "Aujourd'hui" : 'Terminé'} color={daysUntil <= 3 && daysUntil >= 0 ? '#D4648A' : undefined} />
+          <InfoRow label="Compte à rebours" value={daysUntil > 0 ? `J-${daysUntil}` : daysUntil === 0 ? "Aujourd'hui" : 'Terminé'} color={daysUntil <= 3 && daysUntil >= 0 ? SEMANTIC.danger : undefined} />
           <InfoRow label="Lieu" value={event.lieu || '—'} />
           <InfoRow label="Ville" value={event.ville || '—'} />
           <InfoRow label="Territoire" value={event.territoire || '—'} />
@@ -295,19 +291,19 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
 
       {/* Flags / alertes */}
       {(event.transport_inter_iles || event.reappro_necessaire) && (
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: SPACE.sm, flexWrap: 'wrap', marginBottom: SPACE.md }}>
           {event.transport_inter_iles && (
-            <div className="card" style={{ flex: 1, padding: '10px 14px', borderLeft: '4px solid #E8935A', minWidth: 140, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-              <Ship size={16} style={{ color: '#E8935A', marginBottom: 4 }} />
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#E8935A' }}>Transport inter-îles</div>
-              <div style={{ fontSize: 10, color: '#94A3B8' }}>Logistique maritime requise</div>
+            <div className="card" style={{ flex: 1, padding: `${SPACE.md}px ${SPACE.lg}px`, borderLeft: `4px solid ${SEMANTIC.warning}`, minWidth: 140, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+              <Ship size={16} style={{ color: SEMANTIC.warning, marginBottom: SPACE.xs }} />
+              <div style={{ ...TYPO.caption, color: SEMANTIC.warning }}>Transport inter-îles</div>
+              <div style={{ ...TYPO.label, color: BASE.textMuted, textTransform: 'none' }}>Logistique maritime requise</div>
             </div>
           )}
           {event.reappro_necessaire && (
-            <div className="card" style={{ flex: 1, padding: '10px 14px', borderLeft: '4px solid #D4648A', minWidth: 140, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-              <AlertTriangle size={16} style={{ color: '#D4648A', marginBottom: 4 }} />
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#D4648A' }}>Réappro nécessaire</div>
-              <div style={{ fontSize: 10, color: '#94A3B8' }}>Vérifier les stocks avant</div>
+            <div className="card" style={{ flex: 1, padding: `${SPACE.md}px ${SPACE.lg}px`, borderLeft: `4px solid ${SEMANTIC.danger}`, minWidth: 140, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+              <AlertTriangle size={16} style={{ color: SEMANTIC.danger, marginBottom: SPACE.xs }} />
+              <div style={{ ...TYPO.caption, color: SEMANTIC.danger }}>Réappro nécessaire</div>
+              <div style={{ ...TYPO.label, color: BASE.textMuted, textTransform: 'none' }}>Vérifier les stocks avant</div>
             </div>
           )}
         </div>
@@ -315,12 +311,12 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
 
       {/* Prévisions merch */}
       {(event.ventes_prevues || event.ca_prevu) && (
-        <div className="card" style={{ padding: '14px 16px', marginBottom: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Prévisions merch</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-            {event.ventes_prevues != null && <KpiCell label="Ventes prévues" value={event.ventes_prevues} color="#8B6DB8" />}
-            {event.ca_prevu != null && <KpiCell label="CA prévu" value={`${event.ca_prevu}€`} color="#5DAB8B" />}
-            {event.merch_a_transferer != null && <KpiCell label="À transférer" value={event.merch_a_transferer} color="#E8735A" />}
+        <div className="card" style={{ padding: `${SPACE.lg}px`, marginBottom: SPACE.md, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+          <div style={{ ...TYPO.caption, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACE.md }}>Prévisions merch</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: SPACE.sm }}>
+            {event.ventes_prevues != null && <KpiCell label="Ventes prévues" value={event.ventes_prevues} color={SEMANTIC.melodie} />}
+            {event.ca_prevu != null && <KpiCell label="CA prévu" value={`${event.ca_prevu}€`} color={SEMANTIC.success} />}
+            {event.merch_a_transferer != null && <KpiCell label="À transférer" value={event.merch_a_transferer} color={theme.color} />}
           </div>
         </div>
       )}
@@ -329,53 +325,53 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
       <ResultsSection event={event} onReload={onReload} onToast={onToast} />
 
       {/* Progression checklist & packing */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+      <div style={{ display: 'flex', gap: SPACE.md, marginBottom: SPACE.md }}>
         {checkTotal > 0 && (
-          <button onClick={() => onSectionChange('checklist')} className="card" style={{ flex: 1, padding: '14px', cursor: 'pointer', textAlign: 'left', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 4 }}><CheckSquare size={14} /> Checklist</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: checkDone === checkTotal ? '#5DAB8B' : '#E8735A' }}>{checkDone}/{checkTotal}</span>
+          <button onClick={() => onSectionChange('checklist')} className="card" style={{ flex: 1, padding: SPACE.lg, cursor: 'pointer', textAlign: 'left', background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.xs + 2 }}>
+              <span style={{ ...TYPO.caption, color: BASE.text, display: 'flex', alignItems: 'center', gap: SPACE.xs }}><CheckSquare size={14} /> Checklist</span>
+              <span style={{ ...TYPO.bodyBold, color: checkDone === checkTotal ? SEMANTIC.success : theme.color }}>{checkDone}/{checkTotal}</span>
             </div>
             <ProgressBar done={checkDone} total={checkTotal} />
           </button>
         )}
         {packTotal > 0 && (
-          <button onClick={() => onSectionChange('packing')} className="card" style={{ flex: 1, padding: '14px', cursor: 'pointer', textAlign: 'left', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 4 }}><Package size={14} /> Packing</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: packDone === packTotal ? '#5DAB8B' : '#E8735A' }}>{packDone}/{packTotal}</span>
+          <button onClick={() => onSectionChange('packing')} className="card" style={{ flex: 1, padding: SPACE.lg, cursor: 'pointer', textAlign: 'left', background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.xs + 2 }}>
+              <span style={{ ...TYPO.caption, color: BASE.text, display: 'flex', alignItems: 'center', gap: SPACE.xs }}><Package size={14} /> Packing</span>
+              <span style={{ ...TYPO.bodyBold, color: packDone === packTotal ? SEMANTIC.success : theme.color }}>{packDone}/{packTotal}</span>
             </div>
-            <ProgressBar done={packDone} total={packTotal} color="#E8735A" />
+            <ProgressBar done={packDone} total={packTotal} color={theme.color} />
           </button>
         )}
       </div>
 
       {/* Stock par catégorie */}
-      <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, padding: '0 4px' }}>Stock disponible</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+      <div style={{ ...TYPO.caption, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACE.sm, padding: `0 ${SPACE.xs}px` }}>Stock disponible</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.sm, marginBottom: SPACE.md }}>
         {catStats.map(cat => (
           <div key={cat.id} className="card" style={{
-            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-            background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12,
+            display: 'flex', alignItems: 'center', gap: SPACE.md, padding: `${SPACE.md}px ${SPACE.lg}px`,
+            background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg,
           }}>
             <div style={{
-              width: 42, height: 42, borderRadius: 12, background: 'rgba(232,115,90,0.08)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8735A',
+              width: 42, height: 42, borderRadius: RADIUS.lg, background: theme.tint08,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.color,
             }}><Package size={20} /></div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{cat.name}</div>
-              <div style={{ fontSize: 11, color: '#94A3B8' }}>{cat.count} réf.</div>
+              <div style={{ ...TYPO.bodyBold, color: BASE.text }}>{cat.name}</div>
+              <div style={{ ...TYPO.micro, color: BASE.textMuted }}>{cat.count} réf.</div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#E8735A' }}>{cat.qty}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: theme.color }}>{cat.qty}</div>
           </div>
         ))}
       </div>
 
       {/* Notes */}
       {event.notes && (
-        <div className="card" style={{ padding: '12px 16px', background: 'rgba(232,115,90,0.05)', borderLeft: '4px solid #E8735A', borderRadius: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#E8735A', marginBottom: 6 }}>Notes</div>
-          <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{event.notes}</div>
+        <div className="card" style={{ padding: `${SPACE.md}px ${SPACE.lg}px`, background: theme.tint08, borderLeft: `4px solid ${theme.color}`, borderRadius: RADIUS.lg }}>
+          <div style={{ ...TYPO.caption, color: theme.color, marginBottom: SPACE.xs + 2 }}>Notes</div>
+          <div style={{ ...TYPO.body, color: BASE.textSoft, whiteSpace: 'pre-wrap' }}>{event.notes}</div>
         </div>
       )}
     </div>
@@ -419,42 +415,42 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
   return (
     <div>
       {/* Stats */}
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-        <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
-          <KpiCell label="Rôles" value={totalRoles} color="#E8735A" />
-          <KpiCell label="Assignés" value={assignedCount} color="#5DAB8B" />
-          <KpiCell label="Membres" value={(userProfiles || []).length} color="#8B6DB8" />
+      <div className="card" style={{ padding: `${SPACE.lg}px`, marginBottom: SPACE.lg, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+        <div style={{ display: 'flex', gap: SPACE.sm, textAlign: 'center' }}>
+          <KpiCell label="Rôles" value={totalRoles} color={theme.color} />
+          <KpiCell label="Assignés" value={assignedCount} color={SEMANTIC.success} />
+          <KpiCell label="Membres" value={(userProfiles || []).length} color={SEMANTIC.melodie} />
         </div>
       </div>
 
       {/* Team list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.sm }}>
         {teamData.map(t => (
           <div key={t.code} className="card" style={{
-            padding: '14px 16px',
-            borderLeft: `4px solid ${t.users.length > 0 ? t.conf.color : '#E2E8F0'}`,
+            padding: `${SPACE.lg}px`,
+            borderLeft: `4px solid ${t.users.length > 0 ? t.conf.color : BASE.border}`,
             opacity: t.users.length > 0 || t.hasPacking ? 1 : 0.6,
-            background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12,
+            background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.md }}>
               <div style={{
-                width: 44, height: 44, borderRadius: 12,
+                width: 44, height: 44, borderRadius: RADIUS.lg,
                 background: `${t.conf.color}15`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 22,
               }}>{t.conf.icon && React.createElement(t.conf.icon, { size: 22, color: t.conf.color })}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: t.conf.color }}>{t.conf.label}</div>
-                <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                <div style={{ ...TYPO.bodyBold, color: t.conf.color }}>{t.conf.label}</div>
+                <div style={{ ...TYPO.micro, color: BASE.textMuted }}>
                   {t.role.description || `Code: ${t.code}`}
                 </div>
 
                 {/* Users assigned */}
                 {t.users.length > 0 ? (
-                  <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  <div style={{ marginTop: SPACE.xs + 2, display: 'flex', flexWrap: 'wrap', gap: SPACE.xs }}>
                     {t.users.map((u, i) => (
                       <span key={i} style={{
-                        padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                        padding: `3px ${SPACE.md}px`, borderRadius: RADIUS.sm - 2, ...TYPO.micro,
                         background: `${t.conf.color}12`, color: t.conf.color,
                         border: `1px solid ${t.conf.color}20`,
                       }}>
@@ -463,7 +459,7 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
                     ))}
                   </div>
                 ) : (
-                  <div style={{ marginTop: 4, fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>
+                  <div style={{ marginTop: SPACE.xs, ...TYPO.micro, color: BASE.textMuted, fontStyle: 'italic' }}>
                     Aucun membre assigné
                   </div>
                 )}
@@ -473,12 +469,12 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
               {t.packTotal > 0 && (
                 <div style={{ textAlign: 'center', flexShrink: 0 }}>
                   <div style={{
-                    fontSize: 14, fontWeight: 600,
-                    color: t.packDone === t.packTotal ? '#5DAB8B' : t.packDone > 0 ? '#E8935A' : '#D4648A',
+                    ...TYPO.bodyBold,
+                    color: t.packDone === t.packTotal ? SEMANTIC.success : t.packDone > 0 ? SEMANTIC.warning : SEMANTIC.danger,
                   }}>
                     {t.packTotal > 0 ? Math.round((t.packDone / t.packTotal) * 100) : 0}%
                   </div>
-                  <div style={{ fontSize: 9, color: '#94A3B8' }}>packing</div>
+                  <div style={{ fontSize: 9, color: BASE.textMuted }}>packing</div>
                 </div>
               )}
             </div>
@@ -488,8 +484,8 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
 
       {/* Note */}
       <div style={{
-        marginTop: 16, padding: '10px 14px', borderRadius: 12,
-        background: 'rgba(255,255,255,0.03)', fontSize: 11, color: '#94A3B8', lineHeight: 1.6,
+        marginTop: SPACE.lg, padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg,
+        background: 'rgba(255,255,255,0.03)', ...TYPO.micro, color: BASE.textMuted, lineHeight: 1.6,
       }}>
         L'équipe est constituée des membres ayant choisi leur rôle dans BackStage.
         Chaque rôle a une responsabilité sur certains produits et équipements.
@@ -549,10 +545,10 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
   return (
     <div>
       {/* Progress */}
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 16, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{checkDone}/{checkTotal} complété{checkDone > 1 ? 's' : ''}</span>
-          <span style={{ fontSize: 22, fontWeight: 600, color: checkDone === checkTotal && checkTotal > 0 ? '#5DAB8B' : '#E8735A' }}>
+      <div className="card" style={{ padding: `${SPACE.lg}px`, marginBottom: SPACE.lg, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.sm }}>
+          <span style={{ ...TYPO.bodyBold, color: BASE.text }}>{checkDone}/{checkTotal} complété{checkDone > 1 ? 's' : ''}</span>
+          <span style={{ ...TYPO.h1, color: checkDone === checkTotal && checkTotal > 0 ? SEMANTIC.success : theme.color }}>
             {checkTotal > 0 ? Math.round((checkDone / checkTotal) * 100) : 0}%
           </span>
         </div>
@@ -561,38 +557,38 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
 
       {/* Items grouped by category */}
       {checklistGrouped.map(([cat, items]) => {
-        const conf = CHECK_CATS[cat] || { icon: ClipboardList, color: '#94A3B8', label: cat }
+        const conf = CHECK_CATS[cat] || { icon: ClipboardList, color: BASE.textMuted, label: cat }
         const IconComponent = conf.icon
         return (
-          <div key={cat} style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, padding: '0 4px' }}>
+          <div key={cat} style={{ marginBottom: SPACE.lg }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm, marginBottom: SPACE.xs + 2, padding: `0 ${SPACE.xs}px` }}>
               <IconComponent size={14} style={{ color: conf.color }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: conf.color, textTransform: 'uppercase', letterSpacing: 1 }}>{conf.label}</span>
-              <span style={{ fontSize: 11, color: '#94A3B8' }}>{items.filter(i => i.checked).length}/{items.length}</span>
+              <span style={{ ...TYPO.caption, color: conf.color, textTransform: 'uppercase', letterSpacing: 1 }}>{conf.label}</span>
+              <span style={{ ...TYPO.micro, color: BASE.textMuted }}>{items.filter(i => i.checked).length}/{items.length}</span>
             </div>
             {items.map(item => (
               <div key={item.id} className="card" style={{
-                display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', marginBottom: 6,
+                display: 'flex', alignItems: 'center', gap: SPACE.md, padding: `${SPACE.md}px ${SPACE.lg}px`, marginBottom: SPACE.xs + 2,
                 opacity: item.checked ? 0.6 : 1,
-                background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12,
+                background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg,
               }}>
                 <button onClick={() => toggleCheck(item)} style={{
-                  width: 26, height: 26, borderRadius: 6, flexShrink: 0,
+                  width: 26, height: 26, borderRadius: RADIUS.sm - 2, flexShrink: 0,
                   border: `2px solid ${item.checked ? conf.color : 'rgba(255,255,255,0.15)'}`,
                   background: item.checked ? conf.color : 'transparent',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'white', cursor: 'pointer',
+                  color: BASE.white, cursor: 'pointer',
                 }}>
                   {item.checked ? <Check size={13} /> : ''}
                 </button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
-                    fontSize: 13, fontWeight: 600, color: '#1E293B',
+                    ...TYPO.bodyBold, color: BASE.text,
                     textDecoration: item.checked ? 'line-through' : 'none',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>{item.item}</div>
                   {item.checked_at && (
-                    <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 1 }}>{fmtDate(item.checked_at)}</div>
+                    <div style={{ ...TYPO.label, color: BASE.textMuted, textTransform: 'none', marginTop: 1 }}>{fmtDate(item.checked_at)}</div>
                   )}
                 </div>
               </div>
@@ -602,26 +598,26 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
       })}
 
       {checkTotal === 0 && (
-        <div className="empty-state" style={{ padding: 24 }}>
-          <CheckSquare size={32} style={{ color: '#94A3B8', marginBottom: 8 }} />
-          <div className="empty-text" style={{ color: '#64748B' }}>Aucun item dans la checklist</div>
-          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>Ajoute des items ci-dessous</div>
+        <div className="empty-state" style={{ padding: SPACE.xxl }}>
+          <CheckSquare size={32} style={{ color: BASE.textMuted, marginBottom: SPACE.sm }} />
+          <div className="empty-text" style={{ color: BASE.textSoft }}>Aucun item dans la checklist</div>
+          <div style={{ ...TYPO.micro, color: BASE.textMuted, marginTop: SPACE.xs }}>Ajoute des items ci-dessous</div>
         </div>
       )}
 
       {/* Add item */}
-      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-        <select className="input" value={addCat} onChange={e => setAddCat(e.target.value)} style={{ width: 110, fontSize: 11, padding: '8px 6px', background: '#F8FAFC', color: '#1E293B', border: '1px solid #E2E8F0', borderRadius: 8 }}>
+      <div style={{ display: 'flex', gap: SPACE.sm, marginTop: SPACE.md }}>
+        <select className="input" value={addCat} onChange={e => setAddCat(e.target.value)} style={{ width: 110, ...TYPO.micro, padding: `${SPACE.sm}px ${SPACE.xs + 2}px`, background: BASE.bgSurface, color: BASE.text, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.sm }}>
           {Object.entries(CHECK_CATS).map(([id, conf]) => (
             <option key={id} value={id}>{conf.label}</option>
           ))}
         </select>
         <input className="input" value={addItem} onChange={e => setAddItem(e.target.value)}
-          placeholder="Ajouter un item..." style={{ flex: 1, fontSize: 13, background: '#F8FAFC', color: '#1E293B', border: '1px solid #E2E8F0', borderRadius: 8 }}
+          placeholder="Ajouter un item..." style={{ flex: 1, ...TYPO.body, background: BASE.bgSurface, color: BASE.text, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.sm }}
           onKeyDown={e => e.key === 'Enter' && handleAddItem()} />
         <button onClick={handleAddItem} disabled={!addItem.trim()} style={{
-          padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          background: addItem.trim() ? '#E8735A' : '#E2E8F0', color: 'white', cursor: 'pointer',
+          padding: `${SPACE.sm}px ${SPACE.lg}px`, borderRadius: RADIUS.sm, ...TYPO.bodyBold,
+          background: addItem.trim() ? theme.color : BASE.border, color: BASE.white, cursor: 'pointer',
           border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}><Plus size={16} /></button>
       </div>
@@ -667,43 +663,43 @@ function PrevisionsSection({ event, products, stock }) {
   return (
     <div>
       {/* Scenario selector */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.lg }}>
         {[
-          { id: 'low', label: 'Pessimiste', color: '#E8735A' },
-          { id: 'mid', label: 'Réaliste', color: '#8B6DB8' },
-          { id: 'high', label: 'Optimiste', color: '#5DAB8B' },
+          { id: 'low', label: 'Pessimiste', color: theme.color },
+          { id: 'mid', label: 'Réaliste', color: SEMANTIC.melodie },
+          { id: 'high', label: 'Optimiste', color: SEMANTIC.success },
         ].map(s => (
           <button key={s.id} onClick={() => setScenario(s.id)} style={{
-            flex: 1, padding: '8px 6px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+            flex: 1, padding: `${SPACE.sm}px ${SPACE.xs + 2}px`, borderRadius: RADIUS.sm, ...TYPO.caption,
             cursor: 'pointer', textAlign: 'center',
-            background: scenario === s.id ? `${s.color}15` : '#F8FAFC',
-            color: scenario === s.id ? s.color : '#64748B',
-            border: `1px solid ${scenario === s.id ? s.color + '40' : '#E2E8F0'}`,
+            background: scenario === s.id ? `${s.color}15` : BASE.bgSurface,
+            color: scenario === s.id ? s.color : BASE.textSoft,
+            border: `1px solid ${scenario === s.id ? s.color + '40' : BASE.border}`,
           }}>{s.label}</button>
         ))}
       </div>
 
       {/* KPIs */}
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
-          <KpiCell label="Capacité" value={event.capacite || 0} color="#8B6DB8" />
-          <KpiCell label="Taux" value={`${Math.round(convRate * 100)}%`} color="#E8735A" />
-          <KpiCell label="Ventes proj." value={projectedSales} color="#8B6DB8" />
-          <KpiCell label="Stock après" value={stockAfter < 0 ? `−${Math.abs(stockAfter)}` : stockAfter} color={rupture ? '#D4648A' : '#5DAB8B'} />
+      <div className="card" style={{ padding: `${SPACE.lg}px`, marginBottom: SPACE.lg, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: SPACE.sm, textAlign: 'center' }}>
+          <KpiCell label="Capacité" value={event.capacite || 0} color={SEMANTIC.melodie} />
+          <KpiCell label="Taux" value={`${Math.round(convRate * 100)}%`} color={theme.color} />
+          <KpiCell label="Ventes proj." value={projectedSales} color={SEMANTIC.melodie} />
+          <KpiCell label="Stock après" value={stockAfter < 0 ? `−${Math.abs(stockAfter)}` : stockAfter} color={rupture ? SEMANTIC.danger : SEMANTIC.success} />
         </div>
       </div>
 
       {/* Alert */}
       {rupture && (
         <div className="card" style={{
-          padding: '12px 14px', marginBottom: 14,
-          background: 'rgba(212,100,138,0.05)', borderLeft: '4px solid #D4648A', borderRadius: 12,
+          padding: `${SPACE.md}px ${SPACE.lg}px`, marginBottom: SPACE.lg,
+          background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.05)`, borderLeft: `4px solid ${SEMANTIC.danger}`, borderRadius: RADIUS.lg,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <AlertCircle size={18} style={{ color: '#D4648A', flexShrink: 0 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm }}>
+            <AlertCircle size={18} style={{ color: SEMANTIC.danger, flexShrink: 0 }} />
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#D4648A' }}>Rupture projetée</div>
-              <div style={{ fontSize: 11, color: '#64748B' }}>
+              <div style={{ ...TYPO.bodyBold, color: SEMANTIC.danger }}>Rupture projetée</div>
+              <div style={{ ...TYPO.micro, color: BASE.textSoft }}>
                 Il manquera {Math.abs(stockAfter)} unités de merch pour ce concert
               </div>
             </div>
@@ -712,20 +708,20 @@ function PrevisionsSection({ event, products, stock }) {
       )}
 
       {/* Gauge */}
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+      <div className="card" style={{ padding: `${SPACE.lg}px`, marginBottom: SPACE.lg, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+        <div style={{ ...TYPO.caption, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACE.sm }}>
           Impact sur le stock merch
         </div>
-        <div style={{ height: 20, borderRadius: 8, background: '#E2E8F0', overflow: 'hidden', position: 'relative' }}>
+        <div style={{ height: 20, borderRadius: RADIUS.sm, background: BASE.border, overflow: 'hidden', position: 'relative' }}>
           <div style={{
             position: 'absolute', left: 0, top: 0, bottom: 0,
             width: `${totalMerchStock > 0 ? Math.min(100, Math.round((projectedSales / totalMerchStock) * 100)) : 0}%`,
-            background: rupture ? '#D4648A' : '#E8735A',
-            borderRadius: 8, transition: 'width 0.4s',
+            background: rupture ? SEMANTIC.danger : theme.color,
+            borderRadius: RADIUS.sm, transition: 'width 0.4s',
           }} />
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 10, fontWeight: 600, color: '#1E293B',
+            ...TYPO.label, color: BASE.text,
           }}>
             −{projectedSales} / {totalMerchStock}
           </div>
@@ -734,31 +730,31 @@ function PrevisionsSection({ event, products, stock }) {
 
       {/* Calculation */}
       <div style={{
-        padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)',
-        fontSize: 11, color: '#64748B', lineHeight: 1.6, marginBottom: 14,
+        padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, background: 'rgba(255,255,255,0.03)',
+        ...TYPO.micro, color: BASE.textSoft, lineHeight: 1.6, marginBottom: SPACE.lg,
       }}>
-        {event.capacite} pers. × {Math.round(convRate * 100)}% conversion × {mult} ({event.territoire || 'défaut'}) = <strong style={{ color: '#E8735A' }}>{projectedSales} ventes</strong>
+        {event.capacite} pers. × {Math.round(convRate * 100)}% conversion × {mult} ({event.territoire || 'défaut'}) = <strong style={{ color: theme.color }}>{projectedSales} ventes</strong>
       </div>
 
       {/* Per-product breakdown */}
       {breakdown.length > 0 && (
         <>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+          <div style={{ ...TYPO.caption, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACE.sm }}>
             Détail par produit
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.xs + 2 }}>
             {breakdown.map(p => (
-              <div key={p.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-                <Shirt size={16} style={{ color: '#8B6DB8', flexShrink: 0 }} />
+              <div key={p.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: SPACE.md, padding: `${SPACE.md}px ${SPACE.lg}px`, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+                <Shirt size={16} style={{ color: SEMANTIC.melodie, flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
-                  <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                  <div style={{ ...TYPO.caption, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                  <div style={{ ...TYPO.label, color: BASE.textMuted, textTransform: 'none' }}>
                     Stock: {p.totalQty} → proj. −{p.projectedQty}
                   </div>
                 </div>
                 <div style={{
-                  fontSize: 14, fontWeight: 600,
-                  color: p.remaining < 0 ? '#D4648A' : p.remaining === 0 ? '#E8935A' : '#5DAB8B',
+                  ...TYPO.bodyBold,
+                  color: p.remaining < 0 ? SEMANTIC.danger : p.remaining === 0 ? SEMANTIC.warning : SEMANTIC.success,
                 }}>
                   {p.remaining < 0 ? `−${Math.abs(p.remaining)}` : p.remaining}
                 </div>
@@ -777,8 +773,8 @@ function PrevisionsSection({ event, products, stock }) {
 function InfoRow({ label, value, color }) {
   return (
     <div>
-      <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
-      <div style={{ fontSize: 13, fontWeight: 700, color: color || '#1E293B', marginTop: 1 }}>{value}</div>
+      <div style={{ ...TYPO.label, color: BASE.textMuted }}>{label}</div>
+      <div style={{ ...TYPO.bodyBold, color: color || BASE.text, marginTop: 1 }}>{value}</div>
     </div>
   )
 }
@@ -787,7 +783,7 @@ function KpiCell({ label, value, color }) {
   return (
     <div style={{ textAlign: 'center' }}>
       <div style={{ fontSize: 20, fontWeight: 600, color, lineHeight: 1.1 }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 600, marginTop: 2 }}>{label}</div>
     </div>
   )
 }
@@ -841,38 +837,38 @@ function ResultsSection({ event, onReload, onToast }) {
       ? event.ca_reel - event.ca_prevu : null
 
     return (
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 12, borderLeft: `4px solid ${hasResults ? '#5DAB8B' : '#E8735A'}`, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1 }}>
+      <div className="card" style={{ padding: `${SPACE.lg}px`, marginBottom: SPACE.md, borderLeft: `4px solid ${hasResults ? SEMANTIC.success : theme.color}`, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.md }}>
+          <div style={{ ...TYPO.caption, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1 }}>
             {hasResults ? 'Résultats réels' : 'Saisir les résultats'}
           </div>
           <button onClick={() => setEditing(true)} style={{
-            padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-            background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', color: '#5DAB8B', cursor: 'pointer',
+            padding: `${SPACE.xs}px ${SPACE.md}px`, borderRadius: RADIUS.sm - 2, ...TYPO.micro,
+            background: `rgba(${hexToRgbLocal(SEMANTIC.success)}, 0.1)`, border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.success)}, 0.2)`, color: SEMANTIC.success, cursor: 'pointer',
           }}>{hasResults ? 'Modifier' : 'Saisir'}</button>
         </div>
 
         {hasResults ? (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: ecartVentes != null || ecartCA != null ? 10 : 0 }}>
-              {event.ventes_reelles != null && <KpiCell label="Ventes réelles" value={event.ventes_reelles} color="#5DAB8B" />}
-              {event.ca_reel != null && <KpiCell label="CA réel" value={`${event.ca_reel}€`} color="#5DAB8B" />}
-              {event.ticket_revenue > 0 && <KpiCell label="Billetterie" value={`${event.ticket_revenue}€`} color="#E8735A" />}
-              {event.sponsor_revenue > 0 && <KpiCell label="Sponsors" value={`${event.sponsor_revenue}€`} color="#8B6DB8" />}
-              {event.budget > 0 && <KpiCell label="Budget" value={`${event.budget}€`} color="#8B6DB8" />}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, marginBottom: ecartVentes != null || ecartCA != null ? SPACE.md : 0 }}>
+              {event.ventes_reelles != null && <KpiCell label="Ventes réelles" value={event.ventes_reelles} color={SEMANTIC.success} />}
+              {event.ca_reel != null && <KpiCell label="CA réel" value={`${event.ca_reel}€`} color={SEMANTIC.success} />}
+              {event.ticket_revenue > 0 && <KpiCell label="Billetterie" value={`${event.ticket_revenue}€`} color={theme.color} />}
+              {event.sponsor_revenue > 0 && <KpiCell label="Sponsors" value={`${event.sponsor_revenue}€`} color={SEMANTIC.melodie} />}
+              {event.budget > 0 && <KpiCell label="Budget" value={`${event.budget}€`} color={SEMANTIC.melodie} />}
             </div>
             {/* Comparison prévisionnel vs réel */}
             {(ecartVentes != null || ecartCA != null) && (
-              <div style={{ padding: '8px 0 0', borderTop: '1px solid #E2E8F0' }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>ÉCART PRÉVISION / RÉEL</div>
-                <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ padding: `${SPACE.sm}px 0 0`, borderTop: `1px solid ${BASE.border}` }}>
+                <div style={{ ...TYPO.label, color: BASE.textMuted, marginBottom: SPACE.xs + 2 }}>ÉCART PRÉVISION / RÉEL</div>
+                <div style={{ display: 'flex', gap: SPACE.md }}>
                   {ecartVentes != null && (
-                    <div style={{ fontSize: 12, fontWeight: 600, color: ecartVentes >= 0 ? '#5DAB8B' : '#D4648A' }}>
+                    <div style={{ ...TYPO.caption, color: ecartVentes >= 0 ? SEMANTIC.success : SEMANTIC.danger }}>
                       Ventes : {ecartVentes >= 0 ? '+' : ''}{ecartVentes} ({event.ventes_prevues} prévu)
                     </div>
                   )}
                   {ecartCA != null && (
-                    <div style={{ fontSize: 12, fontWeight: 600, color: ecartCA >= 0 ? '#5DAB8B' : '#D4648A' }}>
+                    <div style={{ ...TYPO.caption, color: ecartCA >= 0 ? SEMANTIC.success : SEMANTIC.danger }}>
                       CA : {ecartCA >= 0 ? '+' : ''}{Math.round(ecartCA)}€ ({event.ca_prevu}€ prévu)
                     </div>
                   )}
@@ -881,7 +877,7 @@ function ResultsSection({ event, onReload, onToast }) {
             )}
           </>
         ) : (
-          <div style={{ fontSize: 12, color: '#64748B', textAlign: 'center', padding: 8 }}>
+          <div style={{ ...TYPO.body, color: BASE.textSoft, textAlign: 'center', padding: SPACE.sm }}>
             Concert terminé — clique "Saisir" pour enregistrer les résultats
           </div>
         )}
@@ -891,21 +887,21 @@ function ResultsSection({ event, onReload, onToast }) {
 
   // Edit mode
   return (
-    <div className="card" style={{ padding: 16, marginBottom: 12, borderLeft: '4px solid #5DAB8B', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color: '#5DAB8B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+    <div className="card" style={{ padding: SPACE.lg, marginBottom: SPACE.md, borderLeft: `4px solid ${SEMANTIC.success}`, background: BASE.bgSurface, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.lg }}>
+      <div style={{ ...TYPO.caption, color: SEMANTIC.success, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACE.md }}>
         Résultats post-concert
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.md, marginBottom: SPACE.md }}>
         <ResultField label="Ventes réelles" value={form.ventes_reelles} onChange={v => set('ventes_reelles', v.replace(/[^0-9]/g, ''))} placeholder="ex: 45" inputMode="numeric" />
         <ResultField label="CA réel (€)" value={form.ca_reel} onChange={v => set('ca_reel', v.replace(/[^0-9.]/g, ''))} placeholder="ex: 1250" inputMode="decimal" />
         <ResultField label="Billetterie (€)" value={form.ticket_revenue} onChange={v => set('ticket_revenue', v.replace(/[^0-9.]/g, ''))} placeholder="0" inputMode="decimal" />
         <ResultField label="Sponsors (€)" value={form.sponsor_revenue} onChange={v => set('sponsor_revenue', v.replace(/[^0-9.]/g, ''))} placeholder="0" inputMode="decimal" />
       </div>
       <ResultField label="Budget total (€)" value={form.budget} onChange={v => set('budget', v.replace(/[^0-9.]/g, ''))} placeholder="Dépenses totales" inputMode="decimal" />
-      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+      <div style={{ display: 'flex', gap: SPACE.sm, marginTop: SPACE.md }}>
         <button onClick={() => setEditing(false)} style={{
-          flex: 1, padding: '10px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-          background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#64748B', cursor: 'pointer',
+          flex: 1, padding: `${SPACE.md}px ${SPACE.sm}px`, borderRadius: RADIUS.sm, ...TYPO.caption,
+          background: BASE.bgSurface, border: `1px solid ${BASE.border}`, color: BASE.textSoft, cursor: 'pointer',
         }}>Annuler</button>
         <button onClick={handleSave} disabled={saving} className="btn-primary" style={{ flex: 2 }}>
           {saving ? 'Enregistrement...' : 'Enregistrer'}
@@ -918,10 +914,10 @@ function ResultsSection({ event, onReload, onToast }) {
 function ResultField({ label, value, onChange, placeholder, inputMode }) {
   return (
     <div>
-      <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 3 }}>{label}</div>
+      <div style={{ ...TYPO.label, color: BASE.textMuted, marginBottom: 3 }}>{label}</div>
       <input className="input" value={value} onChange={e => onChange(e.target.value)}
         placeholder={placeholder} inputMode={inputMode}
-        style={{ fontSize: 14, fontWeight: 700, background: '#F8FAFC', color: '#1E293B', border: '1px solid #E2E8F0', borderRadius: 8 }} />
+        style={{ ...TYPO.bodyBold, background: BASE.bgSurface, color: BASE.text, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.sm }} />
     </div>
   )
 }
@@ -929,11 +925,11 @@ function ResultField({ label, value, onChange, placeholder, inputMode }) {
 function ProgressBar({ done, total, color }) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
   return (
-    <div style={{ height: 6, borderRadius: 3, background: '#E2E8F0', overflow: 'hidden' }}>
+    <div style={{ height: 6, borderRadius: 3, background: BASE.border, overflow: 'hidden' }}>
       <div style={{
         height: '100%', borderRadius: 3, transition: 'width 0.3s',
         width: `${pct}%`,
-        background: pct === 100 ? '#5DAB8B' : (color || '#E8735A'),
+        background: pct === 100 ? SEMANTIC.success : (color || theme.color),
       }} />
     </div>
   )
