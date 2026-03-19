@@ -1,8 +1,11 @@
 import React, { useState, useCallback, useMemo, createElement } from 'react'
 import { db, safe } from '../lib/supabase'
-import { Eye, EyeOff } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
-import { parseDate } from './UI'
+import { parseDate, maskIban, maskSS } from '../shared/utils'
+import {
+  Field, FieldSelect, SensitiveField, SensitiveRow,
+  ReadCard, ReadRow, SaveBar, Divider, EmptyState, SocialRow,
+} from '../shared/ui'
 
 const LEGAL_STATUS_LABELS = {
   intermittent: 'Intermittent du spectacle',
@@ -37,15 +40,6 @@ const TABS = [
   { id: 'finances', label: 'Finances' },
 ]
 
-// ─── Mask helpers ───
-function maskIban(v) {
-  if (!v || v.length < 8) return v || ''
-  return v.slice(0, 4) + ' •••• •••• •••• ' + v.slice(-4)
-}
-function maskSS(v) {
-  if (!v || v.length < 6) return v || ''
-  return v.slice(0, 1) + ' ' + v.slice(1, 3) + ' •• •• ••• ••• ' + v.slice(-2)
-}
 
 export default function ProfilePage({
   user, userProfile, userRole, userDetails: initialDetails,
@@ -676,11 +670,7 @@ function GearTab({ user, gear, onToast, onReload }) {
 
       {/* Gear list */}
       {gear.length === 0 && !showAdd ? (
-        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun matériel</div>
-          <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Ajoute tes instruments et équipements perso</div>
-        </div>
+        <EmptyState icon="" title="Aucun matériel" subtitle="Ajoute tes instruments et équipements perso" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {gear.map(g => {
@@ -856,10 +846,7 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
 
       {/* Upcoming */}
       {upcomingEvents.length === 0 ? (
-        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucune date à venir</div>
-        </div>
+        <EmptyState icon="" title="Aucune date à venir" />
       ) : (
         <>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
@@ -1056,11 +1043,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
 
       {/* Income list */}
       {sortedIncome.length === 0 && !showAdd ? (
-        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun revenu enregistré</div>
-          <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Ajoute tes cachets, factures et remboursements</div>
-        </div>
+        <EmptyState icon="" title="Aucun revenu enregistré" subtitle="Ajoute tes cachets, factures et remboursements" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {sortedIncome.map(item => {
@@ -1109,119 +1092,3 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
   )
 }
 
-// ════════════════════════════════════════
-// Shared sub-components
-// ════════════════════════════════════════
-function Field({ label, value, onChange, type = 'text', placeholder, multiline, inputMode }) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <label className="label">{label}</label>
-      {multiline ? (
-        <textarea className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={3} style={{ resize: 'vertical' }} />
-      ) : (
-        <input className="input" type={type} inputMode={inputMode} value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
-      )}
-    </div>
-  )
-}
-
-function FieldSelect({ label, value, onChange, options }) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <label className="label">{label}</label>
-      <select className="input" value={value || ''} onChange={e => onChange(e.target.value || null)}>
-        <option value="">— Choisir —</option>
-        {Object.entries(options).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-      </select>
-    </div>
-  )
-}
-
-function SensitiveField({ label, value, onChange }) {
-  const [visible, setVisible] = useState(false)
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <label className="label">{label}</label>
-      <div style={{ position: 'relative' }}>
-        <input className="input" type={visible ? 'text' : 'password'} value={value || ''} onChange={e => onChange(e.target.value)}
-          style={{ background: '#FFFDF5', paddingRight: 36 }}
-        />
-        <button onClick={() => setVisible(!visible)} aria-label={visible ? 'Masquer' : 'Afficher'} type="button" style={{
-          position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-          background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: '#94A3B8',
-        }}>{createElement(visible ? EyeOff : Eye, { size: 16 })}</button>
-      </div>
-    </div>
-  )
-}
-
-function ReadCard({ children }) {
-  return <div className="card" style={{ padding: 16 }}>{children}</div>
-}
-
-function ReadRow({ label, value }) {
-  if (!value) return null
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '6px 0', gap: 12 }}>
-      <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600, flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 700, textAlign: 'right', wordBreak: 'break-word' }}>{value}</span>
-    </div>
-  )
-}
-
-function SensitiveRow({ label, value, masked, show, onToggle }) {
-  if (!value) return null
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', background: '#FFFDF5', borderRadius: 8, margin: '2px -4px', paddingLeft: 4, paddingRight: 4 }}>
-      <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>{label}</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 700, fontFamily: 'monospace' }}>
-          {show ? value : masked}
-        </span>
-        <button onClick={onToggle} aria-label={show ? 'Masquer' : 'Afficher'} style={{
-          background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 2,
-        }}>{show ? createElement(EyeOff, { size: 14 }) : createElement(Eye, { size: 14 })}</button>
-      </div>
-    </div>
-  )
-}
-
-function SocialRow({ instagram, facebook, linkedin }) {
-  if (!instagram && !facebook && !linkedin) return null
-  return (
-    <div style={{ display: 'flex', gap: 8, paddingTop: 8 }}>
-      {instagram && <SocialBadge label="Instagram" value={instagram} color="#E1306C" />}
-      {facebook && <SocialBadge label="Facebook" value={facebook} color="#1877F2" />}
-      {linkedin && <SocialBadge label="LinkedIn" value={linkedin} color="#0A66C2" />}
-    </div>
-  )
-}
-
-function SocialBadge({ label, value, color }) {
-  return (
-    <span style={{
-      padding: '3px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700,
-      background: `${color}12`, color, cursor: 'default',
-    }}>{label}: {value}</span>
-  )
-}
-
-function Divider() {
-  return <div style={{ height: 1, background: '#E2E8F0', margin: '12px 0' }} />
-}
-
-function SaveBar({ onSave, onCancel, saving, hasId }) {
-  return (
-    <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-      {hasId && (
-        <button onClick={onCancel} style={{
-          flex: 1, padding: 14, borderRadius: 8, fontSize: 13, fontWeight: 700,
-          background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer',
-        }}>Annuler</button>
-      )}
-      <button className="btn-primary" onClick={onSave} disabled={saving} style={{ flex: 2 }}>
-        {saving ? 'Enregistrement...' : 'Enregistrer'}
-      </button>
-    </div>
-  )
-}
