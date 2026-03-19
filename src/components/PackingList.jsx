@@ -3,8 +3,11 @@ import { db } from '../lib/supabase'
 import { Printer, Download, Share2, RefreshCw } from 'lucide-react'
 import { Badge, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
+import { useToast } from '../shared/hooks'
 
-export default function PackingList({ event, products, stock, locations, roles, eventPacking, onReload, onToast }) {
+export default function PackingList({ event, products, stock, locations, roles, eventPacking, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [generating, setGenerating] = useState(false)
   const [expandedRole, setExpandedRole] = useState(null)
   const [viewMode, setViewMode] = useState('role') // role | status | category

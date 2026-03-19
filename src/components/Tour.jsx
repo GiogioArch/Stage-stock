@@ -5,6 +5,7 @@ import EventDetail from './EventDetail'
 import { Mic, Volume2, Drama, Music, Search, Calendar, Plus, ChevronRight } from 'lucide-react'
 import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 import { MODULES, SEMANTIC, BASE, SPACE, TYPO, RADIUS, SHADOW, getModuleTheme } from '../lib/theme'
+import { useToast } from '../shared/hooks'
 
 const FORMAT_CONF = {
   'concert live': { Icon: Mic, color: MODULES.tournee.color },
@@ -21,7 +22,9 @@ function getFormatConf(format) {
   return FORMAT_CONF[format.toLowerCase().trim()] || { Icon: Music, color: MODULES.tournee.color }
 }
 
-export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, orgName, onReload, onToast }) {
+export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, orgName, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [filter, setFilter] = useState('upcoming') // upcoming | past | all
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [search, setSearch] = useState('')
@@ -390,7 +393,9 @@ function ProgressMini({ label, done, total, color }) {
 const FORMATS = ['concert live', 'sound system', 'impro', 'festival', 'showcase']
 const TERRITOIRES = ['martinique', 'guadeloupe', 'guyane', 'reunion']
 
-function EventFormModal({ event, orgId, onClose, onSave, onToast }) {
+function EventFormModal({ event, orgId, onClose, onSave, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [name, setName] = useState(event?.name || '')
   const [date, setDate] = useState(event?.date || '')
   const [lieu, setLieu] = useState(event?.lieu || '')

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from 'react'
-import { auth, db, safe } from './lib/supabase'
+import { db, safe } from './lib/supabase'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
-import { useToast } from './shared/hooks'
+import { useToast, useAuth } from './shared/hooks'
 
 // ─── Critical components (loaded immediately) ───
 import Landing from './components/Landing'
@@ -75,8 +75,8 @@ const PERSONAL_TABS = [
 ]
 
 export default function App() {
-  // ─── Auth state ───
-  const [user, setUser] = useState(undefined)
+  // ─── Auth (from context) ───
+  const { user, setUser, logout: authLogout } = useAuth()
   const showToast = useToast()
   const [legalPage, setLegalPage] = useState(null) // 'cgu' | 'privacy' | null
 
@@ -154,10 +154,7 @@ export default function App() {
   }, [tab])
 
 
-  // ─── Auth check ───
-  useEffect(() => {
-    auth.getUser().then(u => setUser(u || null))
-  }, [])
+  // Auth check handled by AuthProvider in main.jsx
 
   // ═══════════════════════════════════════════════
   // COUCHE 2 — Personal layer data loading
@@ -410,8 +407,7 @@ export default function App() {
 
   // ─── Logout ───
   const handleLogout = useCallback(() => {
-    auth.signOut()
-    setUser(null)
+    authLogout()
     setUserRole(undefined)
     setUserProfile(null)
     setUserDetails(null)

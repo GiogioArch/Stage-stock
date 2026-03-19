@@ -1,6 +1,7 @@
 import React, { useState, useMemo, createElement, useCallback } from 'react'
 import { ROLE_CONF } from './RolePicker'
 import { db } from '../lib/supabase'
+import { useToast } from '../shared/hooks'
 import {
   Clock, ChevronDown, ChevronRight, Plus, Check, Circle,
   CheckCircle2, AlertTriangle, Truck, MessageSquare, Zap,
@@ -41,8 +42,10 @@ const ROLE_ORDER = ['TM', 'PM', 'SE', 'LD', 'BL', 'SM', 'TD', 'MM', 'LOG', 'SAFE
 
 export default function EventTimeline({
   event, events, eventTasks, roles, userProfiles,
-  orgId, user, onReload, onToast, onBack,
+  orgId, user, onReload, onToast: _legacyToast, onBack,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [viewMode, setViewMode] = useState('timeline') // timeline | role | flow
   const [showAddTask, setShowAddTask] = useState(false)
   const [expandedHour, setExpandedHour] = useState(null)
@@ -510,7 +513,9 @@ function TaskCard({ task, onToggle, compact, showHour }) {
 }
 
 // ─── Add Task Modal ───
-function AddTaskModal({ event, roles, userProfiles, orgId, user, onClose, onDone, onToast }) {
+function AddTaskModal({ event, roles, userProfiles, orgId, user, onClose, onDone, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('autre')

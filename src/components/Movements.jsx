@@ -1,8 +1,11 @@
 import React, { useState, useMemo } from 'react'
+import { useToast } from '../shared/hooks'
 import { getMoveConf, fmtDate, Badge } from './UI'
 import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, Search, X, Filter, ClipboardList } from 'lucide-react'
 
-export default function Movements({ movements, products, locations, onToast }) {
+export default function Movements({ movements, products, locations, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [typeFilter, setTypeFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')

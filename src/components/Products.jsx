@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { useToast } from '../shared/hooks'
 import { Search, FileDown, Package, Plus, ChevronRight, Edit, Trash2, Filter } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
@@ -9,7 +10,9 @@ import { GradientHeader, FilterPills } from '../design'
 
 const theme = getModuleTheme('articles')
 
-export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast }) {
+export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [filterSubfam, setFilterSubfam] = useState('all')

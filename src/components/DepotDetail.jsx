@@ -1,4 +1,5 @@
 import React, { useState, useMemo, createElement } from 'react'
+import { useToast } from '../shared/hooks'
 import { Pencil, PackageOpen } from 'lucide-react'
 import { getMoveConf, fmtDate, Badge } from './UI'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
@@ -15,8 +16,10 @@ function hexToRgbLocal(hex) {
 
 export default function DepotDetail({
   location, stock, products, movements, families, subfamilies,
-  onClose, onMovement, onToast, onEdit, onDelete, onReload, embedded,
+  onClose, onMovement, onToast: _legacyToast, onEdit, onDelete, onReload, embedded,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [section, setSection] = useState('inventory')
 
   // ─── Stock in this location ───

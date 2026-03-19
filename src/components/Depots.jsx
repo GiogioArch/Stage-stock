@@ -1,4 +1,5 @@
 import React, { useState, useMemo, createElement } from 'react'
+import { useToast } from '../shared/hooks'
 import { db } from '../lib/supabase'
 import { Warehouse, Store, Building, Box, Truck, MapPin, Home, Package } from 'lucide-react'
 import { Badge } from './UI'
@@ -8,7 +9,9 @@ const DEPOT_ICON_MAP = {
   Warehouse, Store, Building, Box, Truck, MapPin, Home, Package,
 }
 
-export default function Depots({ locations, stock, products, movements, families, subfamilies, orgId, onReload, onToast, onMovement }) {
+export default function Depots({ locations, stock, products, movements, families, subfamilies, orgId, onReload, onToast: _legacyToast, onMovement }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [showAdd, setShowAdd] = useState(false)
   const [selectedDepot, setSelectedDepot] = useState(null)
   const [editingLocation, setEditingLocation] = useState(null)
@@ -258,7 +261,9 @@ export default function Depots({ locations, stock, products, movements, families
 }
 
 // ─── Shared form for Create + Edit ───
-function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
+function LocationForm({ location, orgId, onDone, onCancel, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const isEdit = !!location
   const [name, setName] = useState(location?.name || '')
   const [icon, setIcon] = useState(location?.icon || 'Warehouse')

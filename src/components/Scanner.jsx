@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback, createElement } from 'react'
+import { useToast } from '../shared/hooks'
 import { Keyboard } from 'lucide-react'
 import { Modal } from './UI'
 
-export default function Scanner({ products, locations, stock, onMovement, onClose, onToast }) {
+export default function Scanner({ products, locations, stock, onMovement, onClose, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const streamRef = useRef(null)

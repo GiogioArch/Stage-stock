@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { LayoutDashboard, FolderOpen, Calendar, Zap, ChevronRight, User } from 'lucide-react'
 import { safe } from '../lib/supabase'
 import { ROLE_CONF } from './RolePicker'
+import { useToast } from '../shared/hooks'
 
 export default function PersonalDashboard({
   user, userDetails, allProjects,
-  onOpenProject, onNavigate, onToast,
+  onOpenProject, onNavigate, onToast: _legacyToast,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [allEvents, setAllEvents] = useState([])
   const [loadingEvents, setLoadingEvents] = useState(true)
 

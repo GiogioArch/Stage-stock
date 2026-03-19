@@ -1,4 +1,5 @@
 import React, { useState, createElement } from 'react'
+import { useToast } from '../shared/hooks'
 import { parseDate, Badge } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
@@ -35,9 +36,11 @@ const BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance', 'achats
 export default function Board({
   products, locations, stock, movements, alerts, events,
   families, subfamilies, checklists, roles, eventPacking,
-  userProfiles, userRole, onQuickAction, onNavigate, onReload, onToast,
+  userProfiles, userRole, onQuickAction, onNavigate, onReload, onToast: _legacyToast,
   onOpenScanner,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [selectedEvent, setSelectedEvent] = useState(null)
 
   // ─── Data calculations ───

@@ -4,8 +4,11 @@ import { TrendingDown, BarChart3, DollarSign, Receipt, Scale, Clock } from 'luci
 import { Badge, parseDate } from './UI'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
+import { useToast } from '../shared/hooks'
 
-export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, orgName, onReload, onToast }) {
+export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, orgName, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [section, setSection] = useState('overview')
   const [showAddExpense, setShowAddExpense] = useState(false)
   const theme = getModuleTheme('finance')
@@ -448,7 +451,9 @@ export default function Finance({ products, stock, events, locations, depreciati
   )
 }
 
-function AddExpenseForm({ events, orgId, onDone, onToast, cats }) {
+function AddExpenseForm({ events, orgId, onDone, onToast: _legacyToast, cats }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [category, setCategory] = useState('other')
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')

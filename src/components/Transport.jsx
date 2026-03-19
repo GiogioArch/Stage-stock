@@ -2,12 +2,15 @@ import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Building, Map as MapIcon, Ship, Truck, Car } from 'lucide-react'
 import { Badge, parseDate } from './UI'
+import { useToast } from '../shared/hooks'
 
 export default function Transport({
   events, transportProviders, vehicles, transportRoutes,
   transportNeeds, transportBookings, transportManifests, transportCosts,
-  onReload, onToast,
+  onReload, onToast: _legacyToast,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [section, setSection] = useState('overview')
   const [showAddProvider, setShowAddProvider] = useState(false)
   const [showAddNeed, setShowAddNeed] = useState(false)
@@ -395,7 +398,9 @@ export default function Transport({
 
 // ─── Sub-components ───
 
-function NeedStatusButton({ need, onReload, onToast }) {
+function NeedStatusButton({ need, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const statusFlow = ['pending', 'booked', 'in_transit', 'delivered']
   const STATUS_CONF = {
     pending: { label: 'En attente', color: '#E8935A' },
@@ -429,7 +434,9 @@ function NeedStatusButton({ need, onReload, onToast }) {
   )
 }
 
-function AddProviderForm({ onDone, onToast }) {
+function AddProviderForm({ onDone, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [name, setName] = useState('')
   const [type, setType] = useState('ferry')
   const [contactName, setContactName] = useState('')

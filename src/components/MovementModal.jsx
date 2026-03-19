@@ -1,8 +1,11 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, getMoveConf, intOnly } from './UI'
+import { useToast } from '../shared/hooks'
 
-export default function MovementModal({ type, products, locations, stock, preselectedLocation, orgId, onClose, onDone, onToast }) {
+export default function MovementModal({ type, products, locations, stock, preselectedLocation, orgId, onClose, onDone, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const conf = getMoveConf(type)
   const [productId, setProductId] = useState('')
   const [fromLoc, setFromLoc] = useState(type === 'out' ? (preselectedLocation || '') : '')

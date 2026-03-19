@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { CreditCard, Smartphone, Receipt } from 'lucide-react'
 import { parseDate } from './UI'
+import { useToast } from '../shared/hooks'
 
 const PAYMENT_METHODS = [
   { id: 'cash', label: 'Espèces', icon: null },
@@ -13,8 +14,10 @@ const VARIANT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
 export default function ConcertMode({
   products, stock, locations, events, orgId, userId,
-  onClose, onReload, onToast,
+  onClose, onReload, onToast: _legacyToast,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [cart, setCart] = useState([])
   const [payMethod, setPayMethod] = useState('cash')

@@ -4,6 +4,7 @@ import { ROLE_CONF, getInheritedModules } from './RolePicker'
 import {
   Loader2, Eye, EyeOff, Check, Package, Mail,
 } from 'lucide-react'
+import { useToast } from '../shared/hooks'
 
 // ─── Design tokens (palette harmonisée) ───
 const C = {
@@ -79,7 +80,9 @@ function Screen({ children, top, step, onSkip }) {
 // ═══════════════════════════════════════════════
 // MAIN — Onboarding cinématique (parcours court)
 // ═══════════════════════════════════════════════
-export default function Melodie({ onAuth, onComplete, roles, onToast, existingUser, startStep }) {
+export default function Melodie({ onAuth, onComplete, roles, onToast: _legacyToast, existingUser, startStep }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [step, setStep] = useState(startStep || 'splash')
   const [user, setUser] = useState(existingUser || null)
 

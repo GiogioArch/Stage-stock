@@ -2,10 +2,13 @@ import React, { useState, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Pencil } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
+import { useToast } from '../shared/hooks'
 
 const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
 
-export default function MyProjects({ userId, allProjects, onOpenProject, onProjectsChanged, onToast }) {
+export default function MyProjects({ userId, allProjects, onOpenProject, onProjectsChanged, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [showCreate, setShowCreate] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
@@ -217,7 +220,9 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
   )
 }
 
-function EditProjectForm({ project, onSaved, onCancel, onToast }) {
+function EditProjectForm({ project, onSaved, onCancel, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [name, setName] = useState(project.org?.name || '')
   const [slug, setSlug] = useState(project.org?.slug || '')
   const [saving, setSaving] = useState(false)
@@ -266,7 +271,9 @@ function EditProjectForm({ project, onSaved, onCancel, onToast }) {
   )
 }
 
-function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
+function CreateProjectForm({ userId, onCreated, onCancel, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [saving, setSaving] = useState(false)

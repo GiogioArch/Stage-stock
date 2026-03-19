@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { useToast } from '../shared/hooks'
 import { MapPin, Factory, Truck, Tent, Plane, Package, Home, ArrowDownToLine, ArrowUpFromLine, Trash2, ChevronDown, ChevronRight, Plus } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge } from './UI'
@@ -37,7 +38,9 @@ function LocationIcon({ emoji, size = 20, color }) {
   return <IconComponent size={size} color={color || BASE.textSoft} />
 }
 
-export default function Stocks({ products, locations, stock, orgId, onReload, onToast, onMovement }) {
+export default function Stocks({ products, locations, stock, orgId, onReload, onToast: _legacyToast, onMovement }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [expanded, setExpanded] = useState({})
   const [filterCat, setFilterCat] = useState('all')
   const [modal, setModal] = useState(null)

@@ -4,6 +4,7 @@ import { Badge, fmtDate } from './UI'
 import { ShoppingCart, Users } from 'lucide-react'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
+import { useToast } from '../shared/hooks'
 
 const theme = getModuleTheme('achats')
 
@@ -18,8 +19,10 @@ const STATUS_CONF = {
 
 export default function Achats({
   suppliers, purchaseOrders, purchaseOrderLines, products,
-  locations, orgId, userId, onReload, onToast,
+  locations, orgId, userId, onReload, onToast: _legacyToast,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [section, setSection] = useState('orders')
   const [showAddSupplier, setShowAddSupplier] = useState(false)
   const [showAddOrder, setShowAddOrder] = useState(false)
@@ -282,7 +285,9 @@ export default function Achats({
   )
 }
 
-function AddSupplierForm({ orgId, onDone, onToast }) {
+function AddSupplierForm({ orgId, onDone, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [name, setName] = useState('')
   const [contactName, setContactName] = useState('')
   const [contactPhone, setContactPhone] = useState('')
@@ -328,7 +333,9 @@ function AddSupplierForm({ orgId, onDone, onToast }) {
   )
 }
 
-function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
+function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [supplierId, setSupplierId] = useState(suppliers[0]?.id || '')
   const [expectedDate, setExpectedDate] = useState('')
   const [tvaRate, setTvaRate] = useState('8.5')

@@ -1,8 +1,11 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Badge } from './UI'
+import { useToast } from '../shared/hooks'
 
-export default function Inventaire({ products, stock, locations, orgId, onReload, onToast }) {
+export default function Inventaire({ products, stock, locations, orgId, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [selectedLocation, setSelectedLocation] = useState(null)
   const [counts, setCounts] = useState({}) // { productId: counted_qty }
   const [saving, setSaving] = useState(false)

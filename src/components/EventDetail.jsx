@@ -6,6 +6,7 @@ import { ROLE_CONF } from './RolePicker'
 import PackingList from './PackingList'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { SubTabs } from '../design'
+import { useToast } from '../shared/hooks'
 
 const theme = getModuleTheme('tournee')
 
@@ -60,8 +61,10 @@ const SECTIONS = [
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
   checklists, roles, eventPacking, userProfiles, userRole, orgId,
-  onClose, onReload, onToast, onNavigateEvent, onEdit, onDelete, embedded,
+  onClose, onReload, onToast: _legacyToast, onNavigateEvent, onEdit, onDelete, embedded,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [section, setSection] = useState('resume')
 
   const daysUntil = Math.ceil((new Date(event.date) - new Date()) / 86400000)
@@ -259,7 +262,9 @@ export default function EventDetail({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // RÉSUMÉ
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload, onToast }) {
+function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
 
   // Stock by category
   const catStats = CATEGORIES.map(cat => {
@@ -497,7 +502,9 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // CHECKLIST
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId, onReload, onToast }) {
+function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [addItem, setAddItem] = useState('')
   const [addCat, setAddCat] = useState('logistique')
 
@@ -791,7 +798,9 @@ function KpiCell({ label, value, color }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Résultats réels post-concert
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ResultsSection({ event, onReload, onToast }) {
+function ResultsSection({ event, onReload, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
