@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, createElement } from 'react'
 import { db, safe } from '../lib/supabase'
 import { ROLE_CONF } from './RolePicker'
+import { useToast } from '../shared/hooks'
 import { parseDate, maskIban, maskSS } from '../shared/utils'
 import {
   Field, FieldSelect, SensitiveField, SensitiveRow,
@@ -45,8 +46,10 @@ export default function ProfilePage({
   user, userProfile, userRole, userDetails: initialDetails,
   membership, selectedOrg, allProjects, roles,
   userGear, userAvailability, userIncome, allEvents,
-  onClose, onToast, onReload, onLogout, onSwitchProject, onOpenProject,
+  onClose, onToast: _legacyToast, onReload, onLogout, onSwitchProject, onOpenProject,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [tab, setTab] = useState('identity')
   const [editing, setEditing] = useState(!initialDetails)
   const [details, setDetails] = useState(initialDetails || { account_type: 'physical' })
@@ -547,7 +550,9 @@ const CONDITION_CONF = {
   hs:        { label: 'HS', color: '#94A3B8' },
 }
 
-function GearTab({ user, gear, onToast, onReload }) {
+function GearTab({ user, gear, onToast: _legacyToast, onReload }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ name: '', category: 'instrument', brand: '', model: '', serial_number: '', purchase_value: '', current_condition: 'bon', notes: '' })
   const [saving, setSaving] = useState(false)
@@ -725,7 +730,9 @@ const AVAIL_CONF = {
   unknown:     { label: 'Non renseigné', color: '#94A3B8', icon: '' },
 }
 
-function CalendarTab({ user, events, availability, onToast, onReload }) {
+function CalendarTab({ user, events, availability, onToast: _legacyToast, onReload }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const today = new Date().toISOString().split('T')[0]
 
   const availMap = useMemo(() => {
@@ -890,7 +897,9 @@ const INCOME_STATUS = {
   cancelled: { label: 'Annulé', color: '#8B6DB8' },
 }
 
-function FinancesTab({ user, income, events, onToast, onReload }) {
+function FinancesTab({ user, income, events, onToast: _legacyToast, onReload }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ type: 'cachet', description: '', amount: '', date: new Date().toISOString().split('T')[0], event_id: '', notes: '' })
   const [saving, setSaving] = useState(false)
