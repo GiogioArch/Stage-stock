@@ -36,6 +36,7 @@ export default function Board({
   products, locations, stock, movements, alerts, events,
   families, subfamilies, checklists, roles, eventPacking,
   userProfiles, userRole, onQuickAction, onNavigate, onReload, onToast,
+  onOpenScanner,
 }) {
   const [selectedEvent, setSelectedEvent] = useState(null)
 
@@ -203,10 +204,26 @@ export default function Board({
           {BOARD_KEYS.map(key => {
             const mod = MODULES[key]
             const Icon = MOD_ICONS[key]
+            const handleClick = () => {
+              if (key === 'packing') {
+                if (nextEvent) {
+                  setSelectedEvent(nextEvent)
+                } else {
+                  onNavigate('tournee')
+                  onToast && onToast('Sélectionne un concert pour accéder au packing', 'info')
+                }
+                return
+              }
+              if (key === 'scanner') {
+                onOpenScanner && onOpenScanner()
+                return
+              }
+              onNavigate(key)
+            }
             return (
               <button
                 key={key}
-                onClick={() => onNavigate(key)}
+                onClick={handleClick}
                 style={{
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center',

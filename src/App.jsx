@@ -15,7 +15,6 @@ import Scanner from './components/Scanner'
 const Melodie = lazy(() => import('./components/Melodie'))
 const Products = lazy(() => import('./components/Products'))
 const Stocks = lazy(() => import('./components/Stocks'))
-const Checklists = lazy(() => import('./components/Checklists'))
 const Movements = lazy(() => import('./components/Movements'))
 const Alerts = lazy(() => import('./components/Alerts'))
 const Tour = lazy(() => import('./components/Tour'))
@@ -733,6 +732,7 @@ export default function App() {
         onQuickAction={(type) => setMoveModal({ type })}
         onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
         onModulesChanged={handleModulesChanged}
+        onOpenScanner={() => setShowScanner(true)}
       />
       </Suspense>
 
@@ -811,6 +811,7 @@ function TabContent({
   filteredProducts, filteredStock, filteredMovements, alerts,
   user, userRole, userProfile, isAdmin, membership, orgId, selectedOrg,
   onNavigate, onReload, onToast, onQuickAction, onMovement, onModulesChanged,
+  onOpenScanner,
 }) {
   switch (tab) {
     case 'board':
@@ -833,6 +834,7 @@ function TabContent({
           onNavigate={onNavigate}
           onReload={onReload}
           onToast={onToast}
+          onOpenScanner={onOpenScanner}
         />
       )
     case 'tournee':
