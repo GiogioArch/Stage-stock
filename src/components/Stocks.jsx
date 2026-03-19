@@ -86,23 +86,30 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
   }
 
   return (
-    <div style={{ padding: '0 16px 24px' }}>
-      {/* Total bar */}
+    <div style={{ paddingBottom: 24 }}>
+      {/* ─── Gradient Header ─── */}
       <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        marginBottom: 16, padding: '14px 18px', borderRadius: 12,
-        background: PALETTE.bgSurface, border: `1px solid ${PALETTE.border}`,
+        background: 'linear-gradient(135deg, #5B8DB8, #4A7DA8)',
+        padding: '24px 20px 20px',
+        marginBottom: 16,
       }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: PALETTE.textTertiary, textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
-          <div style={{ fontSize: 28, fontWeight: 600, color: PALETTE.accent }}>{globalTotal}</div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: 'white', marginBottom: 4 }}>Stock</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 600, marginBottom: 16 }}>
+          {products.length} produits · {locations.length} lieu{locations.length > 1 ? 'x' : ''}
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>{locations.length} lieu{locations.length > 1 ? 'x' : ''}</div>
-          <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>{products.length} produits</div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: 'white', lineHeight: 1 }}>{globalTotal}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Pièces totales</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: 'white', lineHeight: 1 }}>{locations.length}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Lieux</div>
+          </div>
         </div>
       </div>
 
+      <div style={{ padding: '0 16px' }}>
       {/* Category filter */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         <FilterPill active={filterCat === 'all'} onClick={() => setFilterCat('all')}>Tous</FilterPill>
@@ -243,6 +250,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
           onCancel={() => setConfirm(null)}
         />
       )}
+      </div>
     </div>
   )
 }
@@ -310,16 +318,14 @@ function AddLocationModal({ onClose, onSave }) {
 }
 
 function FilterPill({ active, color, onClick, children }) {
-  const c = color || PALETTE.accent
   return (
     <button onClick={onClick} style={{
-      padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: active ? 700 : 500,
+      padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 700,
       whiteSpace: 'nowrap', border: 'none',
-      background: active ? c : '#F1F5F9',
-      color: active ? '#FFFFFF' : '#64748B',
+      background: active ? '#1E293B' : '#F1F5F9',
+      color: active ? '#FFFFFF' : '#94A3B8',
       cursor: 'pointer', display: 'flex', alignItems: 'center',
       transition: 'all 0.2s ease',
-      boxShadow: active ? `0 2px 8px ${c}40` : 'none',
     }}>{children}</button>
   )
 }

@@ -69,6 +69,11 @@ export default function Products({ products, families, subfamilies, stock, locat
     return colors.success
   }
 
+  // Category stats for header
+  const merchCount = products.filter(p => p.category === 'merch').length
+  const matCount = products.filter(p => p.category === 'materiel').length
+  const consoCount = products.filter(p => p.category === 'consommable').length
+
   return (
     <>
     {/* Product Detail (floating window) */}
@@ -120,7 +125,37 @@ export default function Products({ products, families, subfamilies, stock, locat
       </div>
     )}
 
-    <div style={{ padding: '0 16px 24px' }}>
+    <div style={{ paddingBottom: 24 }}>
+      {/* ═══ HEADER GRADIENT BOLD ═══ */}
+      <div style={{
+        background: 'linear-gradient(135deg, #8B6DB8, #6B4D98)',
+        padding: '24px 16px 20px',
+        color: 'white',
+        marginBottom: 16,
+      }}>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, opacity: 0.85 }}>
+          Articles
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>
+          {products.length} référence{products.length > 1 ? 's' : ''}
+        </div>
+        <div style={{ display: 'flex', gap: 20, marginTop: 14 }}>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{merchCount}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Merch</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{matCount}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Matériel</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{consoCount}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Conso</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: '0 16px' }}>
       {/* Search */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10,
@@ -147,7 +182,7 @@ export default function Products({ products, families, subfamilies, stock, locat
         {CATEGORIES.map(cat => {
           const count = products.filter(p => p.category === cat.id).length
           return (
-            <FilterPill key={cat.id} active={filterCat === cat.id} color={cat.color}
+            <FilterPill key={cat.id} active={filterCat === cat.id}
               onClick={() => { setFilterCat(cat.id); setFilterSubfam('all') }}>
               {cat.icon && React.createElement(cat.icon, { size: 12 })} {cat.name} ({count})
             </FilterPill>
@@ -177,8 +212,8 @@ export default function Products({ products, families, subfamilies, stock, locat
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setModal({ type: 'csv' })} style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 12px', borderRadius: 8, background: 'rgba(91,141,184,0.08)',
-            border: `1px solid rgba(91,141,184,0.2)`, color: colors.accent, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            padding: '8px 12px', borderRadius: 8, background: 'rgba(139,109,184,0.08)',
+            border: `1px solid rgba(139,109,184,0.2)`, color: colors.accent, fontSize: 12, fontWeight: 700, cursor: 'pointer',
           }}>
             <FileDown size={14} /> CSV
           </button>
@@ -196,7 +231,7 @@ export default function Products({ products, families, subfamilies, stock, locat
       {filtered.length === 0 ? (
         <div style={{
           textAlign: 'center', padding: '48px 24px',
-          background: colors.bgSurface, borderRadius: 12, border: `1px solid ${colors.border}`,
+          background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
         }}>
           <Package size={40} color={colors.textTertiary} style={{ marginBottom: 12 }} />
           <div style={{ fontSize: 16, fontWeight: 700, color: colors.textPrimary, marginBottom: 4 }}>Aucun produit</div>
@@ -215,8 +250,10 @@ export default function Products({ products, families, subfamilies, stock, locat
               <div key={p.id} onClick={() => setModal({ type: 'detail', product: p })}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '12px 16px',
-                  background: colors.bgSurface, borderRadius: 12, border: `1px solid ${colors.border}`,
-                  transition: 'border-color 0.15s',
+                  background: 'white', borderRadius: 12, border: 'none',
+                  borderLeft: `4px solid ${cat.color || colors.accent}`,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                  transition: 'box-shadow 0.15s',
                 }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: 12, background: `${cat.color || colors.accent}15`,
@@ -295,6 +332,7 @@ export default function Products({ products, families, subfamilies, stock, locat
           onCancel={() => setConfirm(null)}
         />
       )}
+      </div>
     </div>
     </>
   )
@@ -442,21 +480,19 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
   )
 }
 
-function FilterPill({ active, color, small, onClick, children }) {
-  const c = color || colors.accent
+function FilterPill({ active, small, onClick, children }) {
   return (
     <button onClick={onClick} style={{
       padding: small ? '5px 12px' : '8px 16px',
-      borderRadius: 20,
+      borderRadius: small ? 8 : 10,
       fontSize: small ? 11 : 13,
-      fontWeight: active ? 700 : 500,
+      fontWeight: 700,
       whiteSpace: 'nowrap',
       border: 'none',
-      background: active ? c : '#F1F5F9',
+      background: active ? '#1E293B' : '#F1F5F9',
       color: active ? '#FFFFFF' : '#64748B',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
-      boxShadow: active ? `0 2px 8px ${c}40` : 'none',
     }}>{children}</button>
   )
 }

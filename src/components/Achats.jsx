@@ -136,43 +136,43 @@ export default function Achats({
   }
 
   return (
-    <div style={{ padding: '0 16px 24px' }}>
-      {/* Header */}
-      <div className="card" style={{
-        marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #D4648A08, #D4648A18)',
-        border: '1px solid #D4648A25',
+    <div style={{ paddingBottom: 24 }}>
+      {/* ─── Gradient Header ─── */}
+      <div style={{
+        background: 'linear-gradient(135deg, #D4648A, #B84D72)',
+        padding: '24px 20px 20px',
+        marginBottom: 16,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 8,
-            background: 'linear-gradient(135deg, #D4648A, #8A6CB3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #D4648A30',
-          }}></div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Achats & Appro</div>
-            <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>
-              Fournisseurs et bons de commande
-            </div>
-          </div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: 'white', marginBottom: 4 }}>Achats</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 600, marginBottom: 16 }}>
+          Fournisseurs et bons de commande
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Fournisseurs" value={activeSuppliers.length} color="#D4648A" />
-          <KpiBox label="En cours" value={pendingOrders.length} color="#E8935A" />
-          <KpiBox label="Dépensé" value={`${Math.round(totalSpent)}€`} color="#5DAB8B" />
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{activeSuppliers.length}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Fournisseurs</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{pendingOrders.length}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>En cours</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{Math.round(totalSpent)}€</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Dépensé</div>
+          </div>
         </div>
       </div>
 
+      <div style={{ padding: '0 16px' }}>
       {/* Section tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {SECTIONS.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)} style={{
-            flex: 1, padding: '7px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-            cursor: 'pointer', textAlign: 'center',
-            background: section === s.id ? '#D4648A15' : 'white',
-            color: section === s.id ? '#D4648A' : '#94A3B8',
-            border: `1px solid ${section === s.id ? '#D4648A40' : '#E2E8F0'}`,
+            flex: 1, padding: '9px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+            cursor: 'pointer', textAlign: 'center', border: 'none',
+            background: section === s.id ? '#1E293B' : '#F1F5F9',
+            color: section === s.id ? 'white' : '#94A3B8',
+            transition: 'all 0.2s',
           }}>{createElement(s.icon, { size: 14 })} {s.label}</button>
         ))}
       </div>
@@ -292,11 +292,10 @@ export default function Achats({
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }
-
-// ─── Forms ───
 
 function AddSupplierForm({ orgId, onDone, onToast }) {
   const [name, setName] = useState('')

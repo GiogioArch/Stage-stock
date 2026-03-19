@@ -116,52 +116,70 @@ export default function Forecast({ products, stock, events, locations }) {
   }
 
   return (
-    <div style={{ padding: '0 16px 24px' }}>
+    <div>
 
-      {/* ─── Header card ─── */}
-      <div className="card" style={{
-        marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #E8935A08, #D4648A18)',
-        border: '1px solid #E8935A25',
+      {/* ─── Gradient Header Banner (full-width) ─── */}
+      <div style={{
+        background: 'linear-gradient(135deg, #E8935A, #D07A42)',
+        padding: '24px 20px 20px',
+        marginBottom: 0,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 8,
-            background: 'linear-gradient(135deg, #E8935A, #D4648A)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, color: 'white',
-            boxShadow: '0 4px 16px #E8935A30',
-          }}></div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Prévisions Merch</div>
-            <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>
-              {upcomingEvents.length} concert{upcomingEvents.length > 1 ? 's' : ''} à venir · {merchProducts.length} réf. merch
-            </div>
-          </div>
+        <div style={{
+          fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.6)',
+          textTransform: 'uppercase', letterSpacing: 2, marginBottom: 6,
+        }}>Prévisions</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 4 }}>
+          Prévisions Merch
         </div>
-
-        {/* KPI row */}
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: 16 }}>
+          {upcomingEvents.length} concert{upcomingEvents.length > 1 ? 's' : ''} à venir · {merchProducts.length} réf. merch
+        </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Stock actuel" value={totalMerchStock} color="#E8935A" />
-          <KpiBox label="Ventes proj." value={totalProjectedSales} color="#E8935A" />
-          <KpiBox label="CA proj." value={`${totalProjectedCA}€`} color="#5DAB8B" />
-          <KpiBox label="Solde" value={totalMerchStock - totalProjectedSales} color={totalMerchStock - totalProjectedSales < 0 ? '#D4648A' : '#5DAB8B'} />
+          <div style={{
+            flex: 1, textAlign: 'center', padding: '10px 4px',
+            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{totalMerchStock}</div>
+            <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Stock actuel</div>
+          </div>
+          <div style={{
+            flex: 1, textAlign: 'center', padding: '10px 4px',
+            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{totalProjectedSales}</div>
+            <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Ventes proj.</div>
+          </div>
+          <div style={{
+            flex: 1, textAlign: 'center', padding: '10px 4px',
+            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{totalProjectedCA}€</div>
+            <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>CA proj.</div>
+          </div>
+          <div style={{
+            flex: 1, textAlign: 'center', padding: '10px 4px',
+            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{totalMerchStock - totalProjectedSales}</div>
+            <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Solde</div>
+          </div>
         </div>
       </div>
 
+      <div style={{ padding: '0 16px 24px' }}>
+
       {/* ─── Scenario selector ─── */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 8, marginTop: 16, marginBottom: 16 }}>
         {[
-          { id: 'low', label: 'Pessimiste', color: '#E8935A' },
-          { id: 'mid', label: 'Réaliste', color: '#E8935A' },
-          { id: 'high', label: 'Optimiste', color: '#5DAB8B' },
+          { id: 'low', label: 'Pessimiste' },
+          { id: 'mid', label: 'Réaliste' },
+          { id: 'high', label: 'Optimiste' },
         ].map(s => (
           <button key={s.id} onClick={() => setScenario(s.id)} style={{
             flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            cursor: 'pointer', textAlign: 'center',
-            background: scenario === s.id ? `${s.color}15` : 'white',
-            color: scenario === s.id ? s.color : '#94A3B8',
-            border: `1px solid ${scenario === s.id ? s.color + '40' : '#CBD5E1'}`,
+            cursor: 'pointer', textAlign: 'center', border: 'none',
+            background: scenario === s.id ? '#1E293B' : '#F1F5F9',
+            color: scenario === s.id ? '#fff' : '#94A3B8',
           }}>{s.label}</button>
         ))}
       </div>
@@ -428,6 +446,7 @@ export default function Forecast({ products, stock, events, locations }) {
           </div>
         </>
       )}
+      </div>
     </div>
   )
 }

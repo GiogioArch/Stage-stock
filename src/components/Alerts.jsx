@@ -94,36 +94,48 @@ export default function Alerts({ alerts, events, products, stock, locations, use
   ]
 
   return (
-    <div style={{ padding: '0 16px 24px' }}>
-      {/* ─── Summary card ─── */}
-      <div className="card" style={{
-        marginBottom: 16, padding: '16px',
-        background: ruptures > 0
-          ? `linear-gradient(135deg, ${COLORS.danger}08, ${COLORS.danger}18)`
-          : `linear-gradient(135deg, ${COLORS.success}08, ${COLORS.success}18)`,
-        border: `1px solid ${ruptures > 0 ? COLORS.danger + '25' : COLORS.success + '25'}`,
-        borderRadius: 12,
+    <div style={{ paddingBottom: 24 }}>
+      {/* ═══ HEADER GRADIENT BOLD ═══ */}
+      <div style={{
+        background: 'linear-gradient(135deg, #D4648A, #B84D72)',
+        padding: '24px 16px 20px',
+        color: 'white',
+        marginBottom: 16,
       }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 10 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, opacity: 0.85 }}>
+          Alertes
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>
           Centre de notifications
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <SummaryPill value={ruptures} label="Ruptures" color={COLORS.danger} />
-          <SummaryPill value={alertes} label="Alertes" color={COLORS.warning} />
-          <SummaryPill value={evtCount} label="Événements" color={COLORS.info} />
+        <div style={{ display: 'flex', gap: 20, marginTop: 14 }}>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{ruptures}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Ruptures</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{alertes}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Alertes</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{evtCount}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Concerts</div>
+          </div>
         </div>
       </div>
 
+      <div style={{ padding: '0 16px' }}>
       {/* ─── Filter pills ─── */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto' }}>
         {filterItems.map(f => (
           <button key={f.id} onClick={() => setFilter(f.id)} style={{
-            padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-            whiteSpace: 'nowrap', cursor: 'pointer',
-            display: 'flex', alignItems: 'center',
-            background: filter === f.id ? `${f.color}15` : COLORS.bgSurface,
-            color: filter === f.id ? f.color : COLORS.textTertiary,
-            border: `1px solid ${filter === f.id ? f.color + '30' : COLORS.border}`,
+            flex: 1, padding: '10px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+            whiteSpace: 'nowrap', cursor: 'pointer', textAlign: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: 'none',
+            background: filter === f.id ? '#1E293B' : '#F1F5F9',
+            color: filter === f.id ? '#FFFFFF' : '#64748B',
+            transition: 'all 0.2s',
           }}>
             <FilterIcon id={f.id} />
             {f.label}
@@ -141,12 +153,13 @@ export default function Alerts({ alerts, events, products, stock, locations, use
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {allNotifs.map((n, i) => (
-            <div key={i} className="card" style={{
+            <div key={i} style={{
               padding: '12px 14px',
               borderLeft: `4px solid ${n.color}`,
               borderRadius: 12,
-              background: COLORS.bgSurface,
-              border: `1px solid ${COLORS.border}`,
+              background: 'white',
+              border: 'none',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                 <div style={{ marginTop: 2 }}>
@@ -181,6 +194,7 @@ export default function Alerts({ alerts, events, products, stock, locations, use
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

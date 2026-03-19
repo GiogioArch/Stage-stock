@@ -280,46 +280,50 @@ export default function Equipe({
   const getMembersByRole = (code) => allMembers.filter(m => m.roleCode === code)
 
   return (
-    <div style={{ padding: '0 16px 24px' }}>
+    <div style={{ paddingBottom: 24 }}>
 
-      {/* ─── Header KPI ─── */}
-      <div className="card" style={{
-        marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #E8735A08, #E8735A18)',
-        border: '1.5px solid #E8735A25',
+      {/* ─── Gradient Header ─── */}
+      <div style={{
+        background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+        padding: '24px 20px 20px',
+        marginBottom: 16,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 14,
-            background: 'linear-gradient(135deg, #E8735A, #4A7DA8)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', boxShadow: '0 4px 16px #E8735A30',
-          }}>{createElement(Users, { size: 24 })}</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#1E293B' }}>Équipe</div>
-            <div style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>
-              {totalMembers} membre{totalMembers > 1 ? 's' : ''} · {assignedRoles}/{teamByRole.length} rôles pourvus
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: 'white' }}>Équipe</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 600, marginTop: 2 }}>
+              {assignedRoles}/{teamByRole.length} rôles pourvus
             </div>
           </div>
           {nextEvent && (
             <div style={{
-              padding: '6px 10px', borderRadius: 8, background: '#E8735A10',
+              padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.2)',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: 9, color: '#E8735A', fontWeight: 700 }}>PROCHAIN</div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#1E293B' }}>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>PROCHAIN</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'white' }}>
                 {new Date(nextEvent.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
             </div>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Membres" value={totalMembers} color="#E8735A" />
-          <KpiBox label="Rôles actifs" value={assignedRoles} color="#E8735A" />
-          <KpiBox label="Tâches" value={totalPendingTasks} color="#E8935A" />
-          <KpiBox label="Événements" value={upcomingEvents.length} color="#8B6DB8" />
+        <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{totalMembers}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Membres</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{totalPendingTasks}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Tâches</div>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{upcomingEvents.length}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Événements</div>
+          </div>
         </div>
       </div>
+
+      <div style={{ padding: '0 16px' }}>
 
       {/* ─── View toggle ─── */}
       <div style={{
@@ -880,6 +884,7 @@ export default function Equipe({
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

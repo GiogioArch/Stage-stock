@@ -83,44 +83,59 @@ export default function Finance({ products, stock, events, locations, depreciati
   ]
 
   return (
-    <div style={{ padding: '0 16px 24px' }}>
+    <div>
 
-      {/* Header */}
-      <div className="card" style={{
-        marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #E8935A08, #E8935A18)',
-        border: '1px solid #E8935A25',
+      {/* ─── Gradient Header Banner (full-width) ─── */}
+      <div style={{
+        background: 'linear-gradient(135deg, #E8935A, #D07A42)',
+        padding: '24px 20px 20px',
+        marginBottom: 0,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 8,
-            background: 'linear-gradient(135deg, #E8935A, #D4824A)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #E8935A30',
-          }}></div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Finance</div>
-            <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>
-              Suivi financier — {orgName || 'Projet'}
-            </div>
-          </div>
+        <div style={{
+          fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.6)',
+          textTransform: 'uppercase', letterSpacing: 2, marginBottom: 6,
+        }}>Finance</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 4 }}>
+          Suivi financier
+        </div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: 16 }}>
+          {orgName || 'Projet'}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Revenus" value={`${Math.round(revenueData.caReel + salesTotals.total)}€`} color="#5DAB8B" />
-          <KpiBox label="Dépenses" value={`${Math.round(expenseData.total)}€`} color="#D4648A" />
-          <KpiBox label="Marge" value={`${Math.round(margin)}€`} color={margin >= 0 ? '#5DAB8B' : '#D4648A'} />
+          <div style={{
+            flex: 1, textAlign: 'center', padding: '10px 4px',
+            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{Math.round(revenueData.caReel + salesTotals.total)}€</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Revenus</div>
+          </div>
+          <div style={{
+            flex: 1, textAlign: 'center', padding: '10px 4px',
+            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{Math.round(expenseData.total)}€</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Dépenses</div>
+          </div>
+          <div style={{
+            flex: 1, textAlign: 'center', padding: '10px 4px',
+            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{Math.round(margin)}€</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Marge</div>
+          </div>
         </div>
       </div>
 
+      <div style={{ padding: '0 16px 24px' }}>
+
       {/* Section tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 6, marginTop: 16, marginBottom: 16 }}>
         {SECTIONS.map(s => (
           <button key={s.id} onClick={() => setSection(s.id)} style={{
-            flex: 1, padding: '7px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-            cursor: 'pointer', textAlign: 'center',
-            background: section === s.id ? '#E8935A15' : 'white',
-            color: section === s.id ? '#E8935A' : '#94A3B8',
-            border: `1px solid ${section === s.id ? '#E8935A40' : '#CBD5E1'}`,
+            flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+            cursor: 'pointer', textAlign: 'center', border: 'none',
+            background: section === s.id ? '#1E293B' : '#F1F5F9',
+            color: section === s.id ? '#fff' : '#94A3B8',
           }}>{createElement(s.icon, { size: 14 })} {s.label}</button>
         ))}
       </div>
@@ -463,6 +478,7 @@ export default function Finance({ products, stock, events, locations, depreciati
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }
