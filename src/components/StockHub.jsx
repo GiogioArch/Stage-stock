@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react'
-import { useToast, useProject } from '../shared/hooks'
+
 
 const Depots = lazy(() => import('./Depots'))
 const Stocks = lazy(() => import('./Stocks'))
@@ -20,8 +20,6 @@ export default function StockHub({
   alerts, events,
   onMovement,
 }) {
-  const { orgId, reload, userRole } = useProject()
-  const onToast = useToast()
   const [activeTab, setActiveTab] = useState('par_lieu')
 
   return (
@@ -67,9 +65,6 @@ export default function StockHub({
             movements={movements}
             families={families}
             subfamilies={subfamilies}
-            orgId={orgId}
-            onReload={reload}
-            onToast={onToast}
             onMovement={onMovement}
           />
         )}
@@ -78,9 +73,6 @@ export default function StockHub({
             products={products}
             locations={locations}
             stock={stock}
-            orgId={orgId}
-            onReload={reload}
-            onToast={onToast}
             onMovement={onMovement}
           />
         )}
@@ -89,7 +81,6 @@ export default function StockHub({
             movements={movements}
             products={products}
             locations={locations}
-            onToast={onToast}
           />
         )}
         {activeTab === 'alertes' && (
@@ -99,7 +90,6 @@ export default function StockHub({
             products={products}
             stock={stock}
             locations={locations}
-            userRole={userRole}
           />
         )}
       </Suspense>

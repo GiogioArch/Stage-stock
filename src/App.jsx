@@ -36,7 +36,7 @@ const MyProjects = lazy(() => import('./components/MyProjects'))
 const Feedback = lazy(() => import('./components/Feedback'))
 const CGU = lazy(() => import('./components/Legal').then(m => ({ default: m.CGU })))
 const Privacy = lazy(() => import('./components/Legal').then(m => ({ default: m.Privacy })))
-import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3, Clock, MoreHorizontal, X as XIcon, Music, ScanLine, Radio } from 'lucide-react'
+import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3, Clock, MoreHorizontal, Music, Radio } from 'lucide-react'
 
 // ─── EK LIVE (fan-facing, no auth) ───
 const LiveApp = lazy(() => import('./live/LiveApp'))
