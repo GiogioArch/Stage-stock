@@ -1,4 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react'
+import { useToast } from '../shared/hooks'
 
 const Depots = lazy(() => import('./Depots'))
 const Stocks = lazy(() => import('./Stocks'))
@@ -17,8 +18,10 @@ const MODULE_COLOR = '#5B8DB8'
 export default function StockHub({
   locations, stock, products, movements, families, subfamilies,
   alerts, events, userRole, orgId,
-  onReload, onToast, onMovement,
+  onReload, onToast: _legacyToast, onMovement,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [activeTab, setActiveTab] = useState('par_lieu')
 
   return (

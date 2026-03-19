@@ -4,6 +4,7 @@ import { ROLE_CONF } from './RolePicker'
 import { db, safe } from '../lib/supabase'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
+import { useToast } from '../shared/hooks'
 import {
   ChevronDown, ChevronRight, ChevronLeft, User, Mail, Phone, Calendar,
   CheckCircle2, Circle, Clock, MapPin, AlertTriangle, Star,
@@ -177,8 +178,10 @@ function getHierarchyInfo(code) {
 export default function Equipe({
   roles, userProfiles, eventPacking, events, userRole,
   eventTasks, checklists, userAvailability, user,
-  orgId, onReload, onToast,
+  orgId, onReload, onToast: _legacyToast,
 }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [view, setView] = useState('organigramme')
   const [expandedRole, setExpandedRole] = useState(null)
   const [expandedLevel, setExpandedLevel] = useState('direction')

@@ -501,7 +501,9 @@ function AddProviderForm({ onDone, onToast: _legacyToast }) {
   )
 }
 
-function AddNeedForm({ events, onDone, onToast }) {
+function AddNeedForm({ events, onDone, onToast: _legacyToast }) {
+  const toast = useToast()
+  const onToast = _legacyToast || toast
   const [eventId, setEventId] = useState(events[0]?.id || '')
   const [category, setCategory] = useState('equipment')
   const [description, setDescription] = useState('')
