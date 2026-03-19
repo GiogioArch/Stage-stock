@@ -4,18 +4,10 @@ import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
 import ProductDetail from './ProductDetail'
 import CSVImport from './CSVImport'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { GradientHeader, FilterPills } from '../design'
 
-const colors = {
-  textPrimary: '#1E293B',
-  textSecondary: '#64748B',
-  textTertiary: '#94A3B8',
-  accent: '#8B6DB8',
-  bgSurface: '#F8FAFC',
-  border: '#E2E8F0',
-  danger: '#D4648A',
-  warning: '#E8935A',
-  success: '#5DAB8B',
-}
+const theme = getModuleTheme('articles')
 
 export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast }) {
   const [search, setSearch] = useState('')
@@ -59,14 +51,14 @@ export default function Products({ products, families, subfamilies, stock, locat
       setModal(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, colors.danger)
+      onToast('Erreur: ' + e.message, SEMANTIC.danger)
     }
   }
 
   function getStockColor(qty, minStock) {
-    if (qty === 0) return colors.danger
-    if (qty <= (minStock || 5)) return colors.warning
-    return colors.success
+    if (qty === 0) return SEMANTIC.danger
+    if (qty <= (minStock || 5)) return SEMANTIC.warning
+    return SEMANTIC.success
   }
 
   // Category stats for header
@@ -94,13 +86,13 @@ export default function Products({ products, families, subfamilies, stock, locat
           style={{
             width: '100%', maxWidth: 560, maxHeight: '85vh',
             background: 'white', borderRadius: 20,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
+            boxShadow: SHADOW.modal,
             overflowY: 'auto', WebkitOverflowScrolling: 'touch',
             animation: 'scaleIn 0.2s ease',
           }}
         >
           <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setModal(null)} style={{ width: 30, height: 30, borderRadius: 15, background: '#F1F5F9', border: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            <button onClick={() => setModal(null)} style={{ width: 30, height: 30, borderRadius: 15, background: BASE.bgHover, border: 'none', fontSize: 16, color: BASE.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           <ProductDetail
             embedded
@@ -127,100 +119,79 @@ export default function Products({ products, families, subfamilies, stock, locat
 
     <div style={{ paddingBottom: 24 }}>
       {/* ═══ HEADER GRADIENT BOLD ═══ */}
-      <div style={{
-        background: 'linear-gradient(135deg, #8B6DB8, #6B4D98)',
-        padding: '24px 16px 20px',
-        color: 'white',
-        marginBottom: 16,
-      }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, opacity: 0.85 }}>
-          Articles
-        </div>
-        <div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>
-          {products.length} référence{products.length > 1 ? 's' : ''}
-        </div>
-        <div style={{ display: 'flex', gap: 20, marginTop: 14 }}>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>{merchCount}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Merch</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>{matCount}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Matériel</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>{consoCount}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Conso</div>
-          </div>
-        </div>
-      </div>
+      <GradientHeader
+        module="articles"
+        title={`${products.length} référence${products.length > 1 ? 's' : ''}`}
+        stats={[
+          { value: merchCount, label: 'Merch' },
+          { value: matCount, label: 'Matériel' },
+          { value: consoCount, label: 'Conso' },
+        ]}
+      />
 
       <div style={{ padding: '0 16px' }}>
       {/* Search */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10,
-        background: colors.bgSurface, borderRadius: 12,
-        border: `1px solid ${colors.border}`, padding: '10px 14px', marginBottom: 14,
+        background: BASE.bgSurface, borderRadius: 12,
+        border: `1px solid ${BASE.border}`, padding: '10px 14px', marginBottom: 14,
       }}>
-        <Search size={16} color={colors.textTertiary} />
+        <Search size={16} color={BASE.textMuted} />
         <input
           placeholder="Rechercher un produit..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           style={{
             flex: 1, background: 'none', border: 'none', outline: 'none',
-            color: colors.textPrimary, fontSize: 14,
+            color: BASE.text, fontSize: 14,
           }}
         />
       </div>
 
       {/* Category pills */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12, overflowX: 'auto', paddingBottom: 4 }}>
-        <FilterPill active={filterCat === 'all'} onClick={() => { setFilterCat('all'); setFilterSubfam('all') }}>
-          Tous ({products.length})
-        </FilterPill>
-        {CATEGORIES.map(cat => {
-          const count = products.filter(p => p.category === cat.id).length
-          return (
-            <FilterPill key={cat.id} active={filterCat === cat.id}
-              onClick={() => { setFilterCat(cat.id); setFilterSubfam('all') }}>
-              {cat.icon && React.createElement(cat.icon, { size: 12 })} {cat.name} ({count})
-            </FilterPill>
-          )
-        })}
-      </div>
+      <FilterPills
+        options={[
+          { id: 'all', label: `Tous (${products.length})` },
+          ...CATEGORIES.map(cat => ({
+            id: cat.id,
+            label: `${cat.name} (${products.filter(p => p.category === cat.id).length})`,
+            icon: cat.icon,
+          })),
+        ]}
+        active={filterCat}
+        onChange={(id) => { setFilterCat(id); setFilterSubfam('all') }}
+      />
 
       {/* Subfamily filter */}
       {filterCat !== 'all' && availableSubfams.length > 0 && (
-        <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
-          <FilterPill small active={filterSubfam === 'all'} onClick={() => setFilterSubfam('all')}>
-            Tout
-          </FilterPill>
-          {availableSubfams.map(sf => (
-            <FilterPill key={sf.id} small active={filterSubfam === sf.id} onClick={() => setFilterSubfam(sf.id)}>
-              {sf.name}
-            </FilterPill>
-          ))}
-        </div>
+        <FilterPills
+          small
+          options={[
+            { id: 'all', label: 'Tout' },
+            ...availableSubfams.map(sf => ({ id: sf.id, label: sf.name })),
+          ]}
+          active={filterSubfam}
+          onChange={setFilterSubfam}
+        />
       )}
 
       {/* Product count + action buttons */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <span style={{ fontSize: 13, color: colors.textTertiary, fontWeight: 600 }}>
+        <span style={{ fontSize: 13, color: BASE.textMuted, fontWeight: 600 }}>
           {filtered.length} produit{filtered.length > 1 ? 's' : ''}
         </span>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setModal({ type: 'csv' })} style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 12px', borderRadius: 8, background: 'rgba(139,109,184,0.08)',
-            border: `1px solid rgba(139,109,184,0.2)`, color: colors.accent, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            padding: '8px 12px', borderRadius: RADIUS.sm, background: theme.tint08,
+            border: `1px solid ${theme.tint15}`, color: theme.color, fontSize: 12, fontWeight: 700, cursor: 'pointer',
           }}>
             <FileDown size={14} /> CSV
           </button>
           <button onClick={() => setModal({ type: 'add' })} style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 16px', borderRadius: 8, background: colors.accent,
-            color: '#FFFFFF', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer',
+            padding: '8px 16px', borderRadius: 8, background: theme.color,
+            color: BASE.white, fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer',
           }}>
             <Plus size={14} /> Ajouter
           </button>
@@ -233,9 +204,9 @@ export default function Products({ products, families, subfamilies, stock, locat
           textAlign: 'center', padding: '48px 24px',
           background: 'white', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
         }}>
-          <Package size={40} color={colors.textTertiary} style={{ marginBottom: 12 }} />
-          <div style={{ fontSize: 16, fontWeight: 700, color: colors.textPrimary, marginBottom: 4 }}>Aucun produit</div>
-          <div style={{ fontSize: 13, color: colors.textSecondary }}>
+          <Package size={40} color={BASE.textMuted} style={{ marginBottom: 12 }} />
+          <div style={{ fontSize: 16, fontWeight: 700, color: BASE.text, marginBottom: 4 }}>Aucun produit</div>
+          <div style={{ fontSize: 13, color: BASE.textSoft }}>
             {search ? 'Aucun résultat pour cette recherche' : 'Ajoute ton premier produit'}
           </div>
         </div>
@@ -251,19 +222,19 @@ export default function Products({ products, families, subfamilies, stock, locat
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '12px 16px',
                   background: 'white', borderRadius: 12, border: 'none',
-                  borderLeft: `4px solid ${cat.color || colors.accent}`,
+                  borderLeft: `4px solid ${cat.color || theme.color}`,
                   boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
                   transition: 'box-shadow 0.15s',
                 }}>
                 <div style={{
-                  width: 44, height: 44, borderRadius: 12, background: `${cat.color || colors.accent}15`,
+                  width: 44, height: 44, borderRadius: 12, background: `${cat.color || theme.color}15`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
                 }}>{p.image || (cat.icon && React.createElement(cat.icon, { size: 22 }))}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: colors.textPrimary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {p.name}
                   </div>
-                  <div style={{ fontSize: 11, color: colors.textTertiary, marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: BASE.textMuted, marginTop: 2 }}>
                     {p.sku} · <span style={{ color: cat.color }}>{cat.name}</span>
                   </div>
                 </div>
@@ -273,10 +244,10 @@ export default function Products({ products, families, subfamilies, stock, locat
                       fontSize: 18, fontWeight: 600,
                       color: getStockColor(qty, p.min_stock),
                     }}>{qty}</div>
-                    {isZero && <div style={{ fontSize: 9, color: colors.danger, fontWeight: 700 }}>RUPTURE</div>}
-                    {isLow && !isZero && <div style={{ fontSize: 9, color: colors.warning, fontWeight: 700 }}>BAS</div>}
+                    {isZero && <div style={{ fontSize: 9, color: SEMANTIC.danger, fontWeight: 700 }}>RUPTURE</div>}
+                    {isLow && !isZero && <div style={{ fontSize: 9, color: SEMANTIC.warning, fontWeight: 700 }}>BAS</div>}
                   </div>
-                  <ChevronRight size={16} color={colors.textTertiary} />
+                  <ChevronRight size={16} color={BASE.textMuted} />
                 </div>
               </div>
             )
@@ -303,7 +274,7 @@ export default function Products({ products, families, subfamilies, stock, locat
               setModal(null)
               onReload()
             } catch (e) {
-              onToast('Erreur: ' + e.message, colors.danger)
+              onToast('Erreur: ' + e.message, SEMANTIC.danger)
             }
           }}
         />
@@ -327,7 +298,7 @@ export default function Products({ products, families, subfamilies, stock, locat
           message={confirm.message}
           detail={confirm.detail}
           confirmLabel="Supprimer"
-          confirmColor={colors.danger}
+          confirmColor={SEMANTIC.danger}
           onConfirm={confirm.onConfirm}
           onCancel={() => setConfirm(null)}
         />
@@ -438,8 +409,8 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
         </div>
 
         {/* Comptabilité */}
-        <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: 14, marginTop: 4 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: colors.textTertiary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+        <div style={{ borderTop: `1px solid ${BASE.border}`, paddingTop: 14, marginTop: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Comptabilité
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -460,19 +431,19 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
               onChange={e => setUsefulLife(intOnly(e.target.value))} placeholder="Ex: 36 (3 ans)" />
           </div>
           {costHt && parseFloat(costHt) > 0 && parseFloat(costHt) < 500 && (
-            <div style={{ fontSize: 11, color: colors.warning, marginTop: 6, fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: SEMANTIC.warning, marginTop: 6, fontWeight: 600 }}>
               Sous le seuil de 500 EUR HT - comptabilisé en charge
             </div>
           )}
           {costHt && parseFloat(costHt) >= 500 && !usefulLife && (
-            <div style={{ fontSize: 11, color: colors.accent, marginTop: 6, fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: theme.color, marginTop: 6, fontWeight: 600 }}>
               Immobilisation - renseigner la durée d'amortissement
             </div>
           )}
         </div>
 
         <button className="btn-primary" onClick={handleSave} disabled={!name.trim() || !sku.trim()}
-          style={{ background: colors.accent, borderRadius: 8 }}>
+          style={{ background: theme.color, borderRadius: 8 }}>
           {isEdit ? 'Enregistrer' : 'Ajouter le produit'}
         </button>
       </div>
@@ -480,19 +451,3 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
   )
 }
 
-function FilterPill({ active, small, onClick, children }) {
-  return (
-    <button onClick={onClick} style={{
-      padding: small ? '5px 12px' : '8px 16px',
-      borderRadius: small ? 8 : 10,
-      fontSize: small ? 11 : 13,
-      fontWeight: 700,
-      whiteSpace: 'nowrap',
-      border: 'none',
-      background: active ? '#1E293B' : '#F1F5F9',
-      color: active ? '#FFFFFF' : '#64748B',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-    }}>{children}</button>
-  )
-}

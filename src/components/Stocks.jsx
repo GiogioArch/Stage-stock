@@ -2,6 +2,10 @@ import React, { useState, useMemo } from 'react'
 import { MapPin, Factory, Truck, Tent, Plane, Package, Home, ArrowDownToLine, ArrowUpFromLine, Trash2, ChevronDown, ChevronRight, Plus } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge } from './UI'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { GradientHeader, FilterPills } from '../design'
+
+const theme = getModuleTheme('stock')
 
 const ICON_MAP = {
   // Legacy emoji keys (existing DB entries)
@@ -26,22 +30,11 @@ const ICON_MAP = {
 // Only legacy emoji keys for the icon picker (backward compat with existing DB data)
 const ICON_KEYS = ['📍', '🏭', '🚐', '🎪', '✈️', '📦', '🏠']
 
-const PALETTE = {
-  textPrimary: '#1E293B',
-  textSecondary: '#64748B',
-  textTertiary: '#94A3B8',
-  accent: '#5B8DB8',
-  bgSurface: '#F8FAFC',
-  bgHover: '#F1F5F9',
-  border: '#E2E8F0',
-  danger: '#D4648A',
-}
-
-const LOCATION_COLORS = ['#5B8DB8', '#D4648A', '#5B8DB8', '#5DAB8B', '#E8935A', '#8B5DAB']
+const LOCATION_COLORS = [theme.color, SEMANTIC.danger, SEMANTIC.info, SEMANTIC.success, SEMANTIC.warning, SEMANTIC.melodie]
 
 function LocationIcon({ emoji, size = 20, color }) {
   const IconComponent = ICON_MAP[emoji] || MapPin
-  return <IconComponent size={size} color={color || PALETTE.textSecondary} />
+  return <IconComponent size={size} color={color || BASE.textSoft} />
 }
 
 export default function Stocks({ products, locations, stock, orgId, onReload, onToast, onMovement }) {
@@ -81,54 +74,40 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
       setModal(null)
       onReload()
     } catch (e) {
-      onToast('Erreur: ' + e.message, PALETTE.danger)
+      onToast('Erreur: ' + e.message, SEMANTIC.danger)
     }
   }
 
   return (
-    <div style={{ paddingBottom: 24 }}>
+    <div style={{ paddingBottom: SPACE.xxl }}>
       {/* ─── Gradient Header ─── */}
-      <div style={{
-        background: 'linear-gradient(135deg, #5B8DB8, #4A7DA8)',
-        padding: '24px 20px 20px',
-        marginBottom: 16,
-      }}>
-        <div style={{ fontSize: 22, fontWeight: 800, color: 'white', marginBottom: 4 }}>Stock</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 600, marginBottom: 16 }}>
-          {products.length} produits · {locations.length} lieu{locations.length > 1 ? 'x' : ''}
-        </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: 'white', lineHeight: 1 }}>{globalTotal}</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Pièces totales</div>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: 'white', lineHeight: 1 }}>{locations.length}</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Lieux</div>
-          </div>
-        </div>
-      </div>
+      <GradientHeader
+        module="stock"
+        title={`${products.length} produit${products.length > 1 ? 's' : ''}`}
+        subtitle={`${products.length} produits · ${locations.length} lieu${locations.length > 1 ? 'x' : ''}`}
+        stats={[
+          { value: globalTotal, label: 'Pièces totales' },
+          { value: locations.length, label: 'Lieux' },
+        ]}
+      />
 
       <div style={{ padding: '0 16px' }}>
       {/* Category filter */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
-        <FilterPill active={filterCat === 'all'} onClick={() => setFilterCat('all')}>Tous</FilterPill>
-        {CATEGORIES.map(cat => {
-          const CatIcon = cat.icon
-          return (
-            <FilterPill key={cat.id} active={filterCat === cat.id} color={cat.color} onClick={() => setFilterCat(cat.id)}>
-              <CatIcon size={13} style={{ marginRight: 4, verticalAlign: -2 }} /> {cat.name}
-            </FilterPill>
-          )
-        })}
-      </div>
+      <FilterPills
+        options={[
+          { id: 'all', label: 'Tous' },
+          ...CATEGORIES.map(cat => ({ id: cat.id, label: cat.name, icon: cat.icon })),
+        ]}
+        active={filterCat}
+        onChange={setFilterCat}
+      />
 
       {/* Locations */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {locationData.map(loc => (
           <div key={loc.id} style={{
             borderRadius: 12, overflow: 'hidden',
-            background: PALETTE.bgSurface, border: `1px solid ${PALETTE.border}`,
+            background: BASE.bgSurface, border: `1px solid ${BASE.border}`,
           }}>
             {/* Location header */}
             <button onClick={() => toggle(loc.id)} style={{
@@ -137,31 +116,31 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
             }}>
               <div style={{
                 width: 42, height: 42, borderRadius: 12,
-                background: (loc.color || PALETTE.accent) + '15',
+                background: (loc.color || theme.color) + '15',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <LocationIcon emoji={loc.icon || 'MapPin'} size={20} color={loc.color || PALETTE.accent} />
+                <LocationIcon emoji={loc.icon || 'MapPin'} size={20} color={loc.color || theme.color} />
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 600, color: PALETTE.textPrimary }}>{loc.name}</div>
-                <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>
+                <div style={{ fontSize: 15, fontWeight: 600, color: BASE.text }}>{loc.name}</div>
+                <div style={{ fontSize: 11, color: BASE.textMuted }}>
                   {loc.nbProducts} réf. · {loc.totalQty} pièces
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 20, fontWeight: 600, color: loc.color || PALETTE.accent }}>{loc.totalQty}</span>
+                <span style={{ fontSize: 20, fontWeight: 600, color: loc.color || theme.color }}>{loc.totalQty}</span>
                 {expanded[loc.id]
-                  ? <ChevronDown size={16} color={PALETTE.textTertiary} />
-                  : <ChevronRight size={16} color={PALETTE.textTertiary} />
+                  ? <ChevronDown size={16} color={BASE.textMuted} />
+                  : <ChevronRight size={16} color={BASE.textMuted} />
                 }
               </div>
             </button>
 
             {/* Expanded: stock items */}
             {expanded[loc.id] && (
-              <div style={{ borderTop: `1px solid ${PALETTE.border}`, padding: '8px 16px 12px' }}>
+              <div style={{ borderTop: `1px solid ${BASE.border}`, padding: '8px 16px 12px' }}>
                 {loc.items.length === 0 ? (
-                  <div style={{ padding: '12px 0', textAlign: 'center', fontSize: 13, color: PALETTE.textTertiary }}>
+                  <div style={{ padding: '12px 0', textAlign: 'center', fontSize: 13, color: BASE.textMuted }}>
                     Aucun stock ici
                   </div>
                 ) : (
@@ -171,16 +150,16 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
                     return (
                       <div key={item.product_id} style={{
                         display: 'flex', alignItems: 'center', gap: 10,
-                        padding: '8px 0', borderBottom: `1px solid ${PALETTE.border}`,
+                        padding: '8px 0', borderBottom: `1px solid ${BASE.border}`,
                       }}>
                         <CatIcon size={16} color={cat.color} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: PALETTE.textPrimary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {item.product.name}
                           </div>
                           <div style={{ fontSize: 10, color: cat.color }}>{cat.name}</div>
                         </div>
-                        <span style={{ fontSize: 16, fontWeight: 600, color: item.quantity <= (item.product.min_stock || 5) ? '#E8935A' : PALETTE.textPrimary }}>
+                        <span style={{ fontSize: 16, fontWeight: 600, color: item.quantity <= (item.product.min_stock || 5) ? SEMANTIC.warning : BASE.text }}>
                           {item.quantity}
                         </span>
                       </div>
@@ -188,7 +167,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
                   })
                 )}
                 {/* Location actions */}
-                <div style={{ display: 'flex', gap: 8, marginTop: 8, paddingTop: 8, borderTop: `1px solid ${PALETTE.border}` }}>
+                <div style={{ display: 'flex', gap: 8, marginTop: 8, paddingTop: 8, borderTop: `1px solid ${BASE.border}` }}>
                   <button className="btn-secondary" style={{ flex: 1, fontSize: 12, padding: '8px 12px', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
                     onClick={() => onMovement('in', loc.id)}>
                     <ArrowDownToLine size={14} /> Entrée
@@ -197,7 +176,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
                     onClick={() => onMovement('out', loc.id)}>
                     <ArrowUpFromLine size={14} /> Sortie
                   </button>
-                  <button className="btn-secondary" style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, borderColor: `${PALETTE.danger}30`, color: PALETTE.danger, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  <button className="btn-secondary" style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, borderColor: `${SEMANTIC.danger}30`, color: SEMANTIC.danger, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     onClick={() => setConfirm({
                       message: `Supprimer "${loc.name}" ?`,
                       detail: 'Le lieu et tout le stock associé seront supprimés.',
@@ -215,8 +194,8 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
       {/* Add location button */}
       <button onClick={() => setModal({ type: 'addLocation' })} style={{
         width: '100%', marginTop: 16, padding: 14, borderRadius: 12,
-        border: `2px dashed ${PALETTE.border}`, background: 'transparent',
-        color: PALETTE.textTertiary, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+        border: `2px dashed ${BASE.border}`, background: 'transparent',
+        color: BASE.textMuted, fontSize: 14, fontWeight: 700, cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
       }}>
         <Plus size={16} /> Ajouter un lieu de stockage
@@ -233,7 +212,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
               setModal(null)
               onReload()
             } catch (e) {
-              onToast('Erreur: ' + e.message, PALETTE.danger)
+              onToast('Erreur: ' + e.message, SEMANTIC.danger)
             }
           }}
         />
@@ -245,7 +224,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
           message={confirm.message}
           detail={confirm.detail}
           confirmLabel="Supprimer"
-          confirmColor={PALETTE.danger}
+          confirmColor={SEMANTIC.danger}
           onConfirm={confirm.onConfirm}
           onCancel={() => setConfirm(null)}
         />
@@ -260,7 +239,7 @@ function AddLocationModal({ onClose, onSave }) {
   const [name, setName] = useState('')
   const [type, setType] = useState('fixe')
   const [icon, setIcon] = useState('MapPin')
-  const [color, setColor] = useState('#5B8DB8')
+  const [color, setColor] = useState(theme.color)
 
   return (
     <Modal title="Nouveau lieu" onClose={onClose}>
@@ -287,11 +266,11 @@ function AddLocationModal({ onClose, onSave }) {
               return (
                 <button key={key} onClick={() => setIcon(key)} style={{
                   width: 44, height: 44, borderRadius: 12, fontSize: 22,
-                  border: `2px solid ${isActive ? PALETTE.accent : PALETTE.border}`,
-                  background: isActive ? `${PALETTE.accent}12` : 'transparent',
+                  border: `2px solid ${isActive ? theme.color : BASE.border}`,
+                  background: isActive ? theme.tint08 : 'transparent',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                 }}>
-                  <IconComp size={20} color={isActive ? PALETTE.accent : PALETTE.textTertiary} />
+                  <IconComp size={20} color={isActive ? theme.color : BASE.textMuted} />
                 </button>
               )
             })}
@@ -303,7 +282,7 @@ function AddLocationModal({ onClose, onSave }) {
             {LOCATION_COLORS.map(c => (
               <button key={c} onClick={() => setColor(c)} style={{
                 width: 36, height: 36, borderRadius: 10,
-                background: c, border: `3px solid ${color === c ? PALETTE.textPrimary : 'transparent'}`,
+                background: c, border: `3px solid ${color === c ? BASE.text : 'transparent'}`,
                 cursor: 'pointer',
               }} />
             ))}
@@ -317,15 +296,3 @@ function AddLocationModal({ onClose, onSave }) {
   )
 }
 
-function FilterPill({ active, color, onClick, children }) {
-  return (
-    <button onClick={onClick} style={{
-      padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 700,
-      whiteSpace: 'nowrap', border: 'none',
-      background: active ? '#1E293B' : '#F1F5F9',
-      color: active ? '#FFFFFF' : '#94A3B8',
-      cursor: 'pointer', display: 'flex', alignItems: 'center',
-      transition: 'all 0.2s ease',
-    }}>{children}</button>
-  )
-}
