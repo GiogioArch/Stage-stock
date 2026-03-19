@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from 'react'
 import { auth, db, safe } from './lib/supabase'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
+import { useToast } from './shared/hooks'
 
 // ─── Critical components (loaded immediately) ───
 import Landing from './components/Landing'
-import { Toast } from './components/UI'
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
 
 // ─── Previously critical, now lazy-loaded for bundle size ───
@@ -77,7 +77,7 @@ const PERSONAL_TABS = [
 export default function App() {
   // ─── Auth state ───
   const [user, setUser] = useState(undefined)
-  const [toast, setToast] = useState(null)
+  const showToast = useToast()
   const [legalPage, setLegalPage] = useState(null) // 'cgu' | 'privacy' | null
 
   // ─── Layer navigation: 'personal' (couche 2) | 'project' (couche 3) ───
@@ -153,10 +153,6 @@ export default function App() {
     })
   }, [tab])
 
-  // ─── Toast helper ───
-  const showToast = useCallback((message, color) => {
-    setToast({ message, color: color || '#5DAB8B' })
-  }, [])
 
   // ─── Auth check ───
   useEffect(() => {
@@ -457,7 +453,6 @@ export default function App() {
           onToast={(msg, color) => showToast(msg, color)}
         />
         </Suspense>
-        {toast && <Toast message={toast.message} color={toast.color} />}
       </>
     )
   }
@@ -487,7 +482,6 @@ export default function App() {
           onToast={(msg, color) => showToast(msg, color)}
         />
         </Suspense>
-        {toast && <Toast message={toast.message} color={toast.color} />}
       </>
     )
   }
@@ -601,9 +595,7 @@ export default function App() {
           </nav>
         )}
 
-        {/* Toast */}
-        {toast && <Toast message={toast.message} color={toast.color} onDone={() => setToast(null)} />}
-      </div>
+        </div>
     )
   }
 
@@ -886,9 +878,6 @@ export default function App() {
 
       {/* ─── Feedback widget (terrain) ─── */}
       <Suspense fallback={null}><Feedback user={user} orgId={selectedOrg?.id} context={tab} /></Suspense>
-
-      {/* ─── Toast ─── */}
-      {toast && <Toast message={toast.message} color={toast.color} onDone={() => setToast(null)} />}
     </div>
   )
 }
