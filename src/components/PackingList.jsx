@@ -74,14 +74,14 @@ export default function PackingList({ event, products, stock, locations, roles, 
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
       body { font-family: 'Inter', Arial, sans-serif; padding: 24px; color: #1E293B; font-size: 12px; }
-      .header { border-bottom: 3px solid #5B8DB8; padding-bottom: 12px; margin-bottom: 16px; }
+      .header { border-bottom: 3px solid #5DAB8B; padding-bottom: 12px; margin-bottom: 16px; }
       h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
       .meta { color: #64748B; font-size: 11px; line-height: 1.6; }
       .stats { display: flex; gap: 16px; margin: 12px 0; }
       .stat { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; }
       .stat-ok { background: #F0FDF4; color: #5DAB8B; }
       .stat-warn { background: #FEF2F2; color: #D4648A; }
-      .stat-info { background: #EFF6FF; color: #5B8DB8; }
+      .stat-info { background: #EFF6FF; color: #5DAB8B; }
       h2 { font-size: 13px; font-weight: 700; margin: 18px 0 6px; padding: 6px 10px; border-radius: 6px; }
       table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
       th { text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; border-bottom: 1px solid #E2E8F0; padding: 4px 8px; font-weight: 600; }
@@ -271,8 +271,8 @@ export default function PackingList({ event, products, stock, locations, roles, 
         <div style={{
           display: 'inline-flex', gap: 8, marginBottom: 20, flexWrap: 'wrap', justifyContent: 'center',
         }}>
-          {event.format && <Badge color="#5B8DB8">{event.format}</Badge>}
-          {event.capacite && <Badge color="#5B8DB8">{event.capacite} pers.</Badge>}
+          {event.format && <Badge color="#5DAB8B">{event.format}</Badge>}
+          {event.capacite && <Badge color="#5DAB8B">{event.capacite} pers.</Badge>}
           {event.territoire && <Badge color="#5DAB8B">{event.territoire}</Badge>}
         </div>
         <div>
@@ -281,7 +281,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
             disabled={generating}
             style={{
               padding: '12px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-              background: generating ? '#CBD5E1' : 'linear-gradient(135deg, #5B8DB8, #D4648A)',
+              background: generating ? '#CBD5E1' : 'linear-gradient(135deg, #5DAB8B, #D4648A)',
               color: 'white', cursor: generating ? 'wait' : 'pointer',
               boxShadow: '0 4px 16px rgba(232,115,90,0.25)', border: 'none',
             }}
@@ -303,7 +303,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
           </span>
           <span style={{
             fontSize: 22, fontWeight: 600,
-            color: overallPercent === 100 ? '#5DAB8B' : overallPercent >= 50 ? '#5B8DB8' : '#D4648A',
+            color: overallPercent === 100 ? '#5DAB8B' : overallPercent >= 50 ? '#5DAB8B' : '#D4648A',
           }}>{overallPercent}%</span>
         </div>
         <div style={{ height: 8, borderRadius: 4, background: '#F1F5F9', overflow: 'hidden' }}>
@@ -312,7 +312,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
             width: `${overallPercent}%`,
             background: overallPercent === 100
               ? 'linear-gradient(90deg, #5DAB8B, #4A9A7A)'
-              : 'linear-gradient(90deg, #5B8DB8, #D4648A)',
+              : 'linear-gradient(90deg, #5DAB8B, #D4648A)',
           }} />
         </div>
       </div>
@@ -321,7 +321,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
       <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
         <button onClick={handlePrint} style={{
           flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-          background: '#EFF6FF', border: '1px solid #5B8DB825', color: '#5B8DB8', cursor: 'pointer',
+          background: '#EFF6FF', border: '1px solid #5DAB8B25', color: '#5DAB8B', cursor: 'pointer',
         }}>{createElement(Printer, { size: 12 })} Imprimer</button>
         <button onClick={handleDownload} style={{
           flex: 1, minWidth: 80, padding: '10px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
@@ -417,7 +417,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
                   fontSize: 16, fontWeight: 600,
-                  color: rolePercent === 100 ? '#5DAB8B' : rolePercent > 0 ? '#5B8DB8' : '#D4648A',
+                  color: rolePercent === 100 ? '#5DAB8B' : rolePercent > 0 ? '#5DAB8B' : '#D4648A',
                 }}>{rolePercent}%</span>
                 <span style={{
                   fontSize: 12, color: '#CBD5E1',
@@ -452,7 +452,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
                     const p = item.product
                     if (!p) return null
                     const statusColor = item.packed ? '#5DAB8B'
-                      : item.quantity_packed > 0 ? '#5B8DB8' : '#D4648A'
+                      : item.quantity_packed > 0 ? '#5DAB8B' : '#D4648A'
                     const statusBg = item.packed ? 'rgba(47,182,93,0.08)'
                       : item.quantity_packed > 0 ? '#FFF5EB' : 'rgba(200,164,106,0.08)'
 

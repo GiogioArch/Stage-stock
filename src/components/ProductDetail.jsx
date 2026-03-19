@@ -124,14 +124,14 @@ export default function ProductDetail({ product, stock, locations, movements, ev
       }}>
         <button onClick={onClose} style={{
           display: 'flex', alignItems: 'center', gap: 6,
-          fontSize: 14, fontWeight: 700, color: '#5B8DB8',
+          fontSize: 14, fontWeight: 700, color: '#8B6DB8',
         }}>
           ← Retour
         </button>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={onEdit} style={{
             padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            background: 'rgba(91,141,184,0.08)', color: '#5B8DB8', border: '1px solid #5B8DB830',
+            background: 'rgba(139,109,184,0.08)', color: '#8B6DB8', border: '1px solid #8B6DB830',
           }}>Modifier</button>
           <button onClick={onDelete} style={{
             padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
@@ -174,7 +174,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <Badge color={cat.color}>{cat.icon && React.createElement(cat.icon, { size: 12 })} {cat.name}</Badge>
                 {product.variants && <Badge color="#94A3B8">{product.variants}</Badge>}
-                {product.unit && product.unit !== 'pièce' && <Badge color="#5B8DB8">{product.unit}</Badge>}
+                {product.unit && product.unit !== 'pièce' && <Badge color="#8B6DB8">{product.unit}</Badge>}
               </div>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           <KpiCard
             label="Stock total"
             value={totalQty}
-            color={totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#5B8DB8' : '#5DAB8B'}
+            color={totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#8B6DB8' : '#5DAB8B'}
             sub={`seuil: ${product.min_stock || 5}`}
           />
           <KpiCard
@@ -214,7 +214,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
           <KpiCard
             label="Concerts"
             value={linkedEvents.length}
-            color="#5B8DB8"
+            color="#8B6DB8"
             sub={`liés`}
           />
         </div>
@@ -313,13 +313,13 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
               <div style={{
                 fontSize: 48, fontWeight: 600, lineHeight: 1.1,
-                color: totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#5B8DB8' : '#5DAB8B',
+                color: totalQty === 0 ? '#D4648A' : totalQty <= (product.min_stock || 5) ? '#8B6DB8' : '#5DAB8B',
               }}>{totalQty}</div>
               <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
                 Seuil min : {product.min_stock || 5} · Unité : {product.unit || 'pièce'}
               </div>
               {totalQty === 0 && <Badge color="#D4648A">RUPTURE DE STOCK</Badge>}
-              {totalQty > 0 && totalQty <= (product.min_stock || 5) && <Badge color="#5B8DB8">STOCK BAS</Badge>}
+              {totalQty > 0 && totalQty <= (product.min_stock || 5) && <Badge color="#8B6DB8">STOCK BAS</Badge>}
             </div>
 
             {/* By location with bar chart */}
@@ -362,7 +362,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
               <StatPill icon="" label="Entrées" value={moveStats.totalIn} count={moveStats.ins} color="#5DAB8B" />
               <StatPill icon="" label="Sorties" value={moveStats.totalOut} count={moveStats.outs} color="#D4648A" />
-              <StatPill icon="" label="Transferts" value={moveStats.transfers} count={moveStats.transfers} color="#5B8DB8" />
+              <StatPill icon="" label="Transferts" value={moveStats.transfers} count={moveStats.transfers} color="#8B6DB8" />
             </div>
 
             {/* List */}
@@ -398,7 +398,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       </div>
                       <div style={{
                         fontSize: 16, fontWeight: 600,
-                        color: m.type === 'out' ? '#D4648A' : m.type === 'in' ? '#5DAB8B' : '#5B8DB8',
+                        color: m.type === 'out' ? '#D4648A' : m.type === 'in' ? '#5DAB8B' : '#8B6DB8',
                       }}>
                         {m.type === 'out' ? '−' : m.type === 'in' ? '+' : '↔'}{m.quantity}
                       </div>
@@ -428,7 +428,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       {linkedEvents.filter(e => !e.isPast).map(ev => (
                         <div key={ev.id} className="card" style={{
                           padding: '12px 14px',
-                          borderLeft: `4px solid ${ev.daysUntil <= 7 ? '#5B8DB8' : '#5B8DB8'}`,
+                          borderLeft: `4px solid ${ev.daysUntil <= 7 ? '#8B6DB8' : '#8B6DB8'}`,
                         }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
@@ -440,7 +440,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                                 {' · '}{ev.ville} · {ev.format}
                               </div>
                             </div>
-                            <Badge color={ev.daysUntil <= 3 ? '#D4648A' : ev.daysUntil <= 7 ? '#5B8DB8' : '#5B8DB8'}>
+                            <Badge color={ev.daysUntil <= 3 ? '#D4648A' : ev.daysUntil <= 7 ? '#8B6DB8' : '#8B6DB8'}>
                               J-{ev.daysUntil}
                             </Badge>
                           </div>
@@ -448,13 +448,13 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                           {/* Needs */}
                           <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
                             {ev.packing && (
-                              <MiniInfo label="Besoin packing" value={ev.packing.quantity_needed} color="#5B8DB8" />
+                              <MiniInfo label="Besoin packing" value={ev.packing.quantity_needed} color="#8B6DB8" />
                             )}
                             {ev.projectedSales > 0 && (
-                              <MiniInfo label="Ventes proj." value={`~${ev.projectedSales}`} color="#5B8DB8" />
+                              <MiniInfo label="Ventes proj." value={`~${ev.projectedSales}`} color="#8B6DB8" />
                             )}
                             {ev.capacite && (
-                              <MiniInfo label="Capacité" value={ev.capacite} color="#5B8DB8" />
+                              <MiniInfo label="Capacité" value={ev.capacite} color="#8B6DB8" />
                             )}
                           </div>
 
@@ -531,11 +531,11 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                   )}
                   <div style={{
                     marginTop: 8, padding: '8px 12px', borderRadius: 8,
-                    background: product.cost_ht >= 500 ? 'rgba(91,141,184,0.08)' : '#FEF6F0',
+                    background: product.cost_ht >= 500 ? 'rgba(139,109,184,0.08)' : '#FEF6F0',
                   }}>
                     <span style={{
                       fontSize: 12, fontWeight: 600,
-                      color: product.cost_ht >= 500 ? '#5B8DB8' : '#5B8DB8',
+                      color: product.cost_ht >= 500 ? '#8B6DB8' : '#8B6DB8',
                     }}>
                       {product.cost_ht >= 500 ? 'Immobilisation' : 'Charge'} — {product.cost_ht >= 500 ? 'amortissement linéaire' : 'sous le seuil de 500€ HT'}
                     </span>
@@ -568,12 +568,12 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                       <div style={{ margin: '12px 0 8px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                           <span style={{ fontSize: 11, color: '#94A3B8' }}>Amorti : {pct}%</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: nbv > 0 ? '#5B8DB8' : '#5DAB8B' }}>VNC : {nbv.toFixed(2)}€</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: nbv > 0 ? '#8B6DB8' : '#5DAB8B' }}>VNC : {nbv.toFixed(2)}€</span>
                         </div>
                         <div style={{ height: 10, borderRadius: 5, background: '#F1F5F9', overflow: 'hidden' }}>
                           <div style={{
                             width: `${pct}%`, height: '100%', borderRadius: 5,
-                            background: 'linear-gradient(90deg, #5B8DB8, #5DAB8B)',
+                            background: 'linear-gradient(90deg, #8B6DB8, #5DAB8B)',
                             transition: 'width 0.3s',
                           }} />
                         </div>
@@ -581,7 +581,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
 
                       <div style={{
                         marginTop: 10, padding: '8px 10px', borderRadius: 8,
-                        background: '#FEF6F0', fontSize: 10, color: '#5B8DB8', lineHeight: 1.5, fontWeight: 600,
+                        background: '#FEF6F0', fontSize: 10, color: '#8B6DB8', lineHeight: 1.5, fontWeight: 600,
                       }}>
                         Amortissement linéaire, prorata temporis base 360j. Durées à valider par expert-comptable.
                       </div>

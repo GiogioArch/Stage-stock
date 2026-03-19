@@ -88,15 +88,15 @@ export default function Finance({ products, stock, events, locations, depreciati
       {/* Header */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #5B8DB808, #5B8DB818)',
-        border: '1px solid #5B8DB825',
+        background: 'linear-gradient(135deg, #E8935A08, #E8935A18)',
+        border: '1px solid #E8935A25',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 8,
-            background: 'linear-gradient(135deg, #5B8DB8, #D4824A)',
+            background: 'linear-gradient(135deg, #E8935A, #D4824A)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #5B8DB830',
+            fontSize: 24, color: 'white', boxShadow: '0 4px 16px #E8935A30',
           }}></div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>Finance</div>
@@ -118,9 +118,9 @@ export default function Finance({ products, stock, events, locations, depreciati
           <button key={s.id} onClick={() => setSection(s.id)} style={{
             flex: 1, padding: '7px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center',
-            background: section === s.id ? '#5B8DB815' : 'white',
-            color: section === s.id ? '#5B8DB8' : '#94A3B8',
-            border: `1px solid ${section === s.id ? '#5B8DB840' : '#CBD5E1'}`,
+            background: section === s.id ? '#E8935A15' : 'white',
+            color: section === s.id ? '#E8935A' : '#94A3B8',
+            border: `1px solid ${section === s.id ? '#E8935A40' : '#CBD5E1'}`,
           }}>{createElement(s.icon, { size: 14 })} {s.label}</button>
         ))}
       </div>
@@ -144,11 +144,11 @@ export default function Finance({ products, stock, events, locations, depreciati
               </div>
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#CBD5E1' }}>Ventes prévues</div>
-                <div style={{ fontSize: 20, fontWeight: 600, color: '#5B8DB8' }}>{revenueData.ventesPrevues}</div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: '#E8935A' }}>{revenueData.ventesPrevues}</div>
               </div>
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#CBD5E1' }}>CA prévu</div>
-                <div style={{ fontSize: 20, fontWeight: 600, color: '#5B8DB8' }}>{revenueData.caPrevu}€</div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: '#E8935A' }}>{revenueData.caPrevu}€</div>
               </div>
             </div>
           </div>
@@ -161,11 +161,11 @@ export default function Finance({ products, stock, events, locations, depreciati
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 600, color: '#5B8DB8' }}>{Math.round(totalBrut)}€</div>
+                  <div style={{ fontSize: 18, fontWeight: 600, color: '#E8935A' }}>{Math.round(totalBrut)}€</div>
                   <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Valeur brute</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 600, color: '#5B8DB8' }}>{Math.round(totalAmorti)}€</div>
+                  <div style={{ fontSize: 18, fontWeight: 600, color: '#E8935A' }}>{Math.round(totalAmorti)}€</div>
                   <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Amorti</div>
                 </div>
                 <div>
@@ -182,7 +182,7 @@ export default function Finance({ products, stock, events, locations, depreciati
               Valorisation du stock
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 600, color: '#5B8DB8' }}>{Math.round(stockValue)}€</div>
+              <div style={{ fontSize: 28, fontWeight: 600, color: '#E8935A' }}>{Math.round(stockValue)}€</div>
               <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>
                 Valeur estimée au prix d'achat HT
               </div>
@@ -246,7 +246,7 @@ export default function Finance({ products, stock, events, locations, depreciati
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {revenueData.upcoming.filter(e => e.ca_prevu).map(ev => (
-                  <div key={ev.id} className="card" style={{ padding: '12px 14px', borderLeft: '4px solid #5B8DB8' }}>
+                  <div key={ev.id} className="card" style={{ padding: '12px 14px', borderLeft: '4px solid #E8935A' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700 }}>{ev.name || ev.lieu}</div>
@@ -255,7 +255,7 @@ export default function Finance({ products, stock, events, locations, depreciati
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 16, fontWeight: 600, color: '#5B8DB8' }}>{ev.ca_prevu}€</div>
+                        <div style={{ fontSize: 16, fontWeight: 600, color: '#E8935A' }}>{ev.ca_prevu}€</div>
                         {ev.ventes_prevues && <div style={{ fontSize: 10, color: '#94A3B8' }}>{ev.ventes_prevues} ventes</div>}
                       </div>
                     </div>
@@ -447,12 +447,12 @@ export default function Finance({ products, stock, events, locations, depreciati
                     {/* Progress */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                       <span style={{ fontSize: 10, color: '#94A3B8' }}>Brut: {Math.round(d.prix_achat_ht || 0)}€</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#5B8DB8' }}>{pct}% amorti</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#E8935A' }}>{pct}% amorti</span>
                     </div>
                     <div style={{ height: 4, borderRadius: 2, background: '#F1F5F9', overflow: 'hidden' }}>
                       <div style={{
                         width: `${pct}%`, height: '100%', borderRadius: 2,
-                        background: pct >= 100 ? '#5DAB8B' : '#5B8DB8',
+                        background: pct >= 100 ? '#5DAB8B' : '#E8935A',
                         transition: 'width 0.3s',
                       }} />
                     </div>

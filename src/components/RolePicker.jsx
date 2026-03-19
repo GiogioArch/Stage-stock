@@ -8,7 +8,7 @@ import {
 
 // Design tokens
 const colors = {
-  accent: '#5B8DB8',
+  accent: '#E8735A',
   textPrimary: '#1E293B',
   textSecondary: '#64748B',
   textTertiary: '#94A3B8',

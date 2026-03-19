@@ -30,7 +30,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
         }
       } catch (err) {
         if (mounted) {
-          onToast('Camera non disponible — mode manuel activé', '#5B8DB8')
+          onToast('Camera non disponible — mode manuel activé', '#8B6DB8')
           setManualMode(true)
         }
       }
@@ -138,7 +138,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
           {scanning && (
             <button onClick={() => setManualMode(!manualMode)} style={{
               padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-              background: manualMode ? '#5B8DB8' : 'rgba(255,255,255,0.15)',
+              background: manualMode ? '#8B6DB8' : 'rgba(255,255,255,0.15)',
               color: 'white', border: 'none', cursor: 'pointer',
             }}>
               {manualMode ? ' Caméra' : <>{createElement(Keyboard, { size: 12 })} Manuel</>}
@@ -201,11 +201,11 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
               autoFocus
               style={{
                 flex: 1, padding: '12px 16px', borderRadius: 12, fontSize: 15,
-                border: '2px solid #5B8DB8', background: 'rgba(255,255,255,0.95)',
+                border: '2px solid #8B6DB8', background: 'rgba(255,255,255,0.95)',
               }}
             />
             <button onClick={handleManualSearch} style={{
-              padding: '12px 20px', borderRadius: 12, background: '#5B8DB8',
+              padding: '12px 20px', borderRadius: 12, background: '#8B6DB8',
               color: 'white', fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer',
             }}>OK</button>
           </div>
@@ -284,7 +284,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
                   <span style={{ fontSize: 14, fontWeight: 600 }}>Total</span>
                   <span style={{
                     fontSize: 18, fontWeight: 600,
-                    color: totalQty <= 0 ? '#D4648A' : totalQty <= (matchedProduct.min_stock || 5) ? '#5B8DB8' : '#5DAB8B',
+                    color: totalQty <= 0 ? '#D4648A' : totalQty <= (matchedProduct.min_stock || 5) ? '#8B6DB8' : '#5DAB8B',
                   }}>{totalQty}</span>
                 </div>
               </div>
@@ -300,7 +300,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
                   color: 'white', fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer',
                 }}> Sortie</button>
                 <button onClick={() => { onMovement('transfer'); onClose() }} style={{
-                  flex: 1, padding: 14, borderRadius: 8, background: '#5B8DB8',
+                  flex: 1, padding: 14, borderRadius: 8, background: '#8B6DB8',
                   color: 'white', fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer',
                 }}> Transfert</button>
               </div>

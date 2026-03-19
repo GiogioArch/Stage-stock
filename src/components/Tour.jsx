@@ -5,18 +5,18 @@ import EventDetail from './EventDetail'
 import { Mic, Volume2, Drama, Music, Search, Calendar, Plus, ChevronRight } from 'lucide-react'
 
 const FORMAT_CONF = {
-  'concert live': { Icon: Mic, color: '#5B8DB8' },
-  'concert':      { Icon: Mic, color: '#5B8DB8' },
-  'live':         { Icon: Mic, color: '#5B8DB8' },
-  'sound system':  { Icon: Volume2, color: '#5B8DB8' },
-  'soundsystem':   { Icon: Volume2, color: '#5B8DB8' },
+  'concert live': { Icon: Mic, color: '#E8735A' },
+  'concert':      { Icon: Mic, color: '#E8735A' },
+  'live':         { Icon: Mic, color: '#E8735A' },
+  'sound system':  { Icon: Volume2, color: '#E8735A' },
+  'soundsystem':   { Icon: Volume2, color: '#E8735A' },
   'impro':         { Icon: Drama, color: '#8B6DB8' },
   'improvisation': { Icon: Drama, color: '#8B6DB8' },
 }
 
 function getFormatConf(format) {
-  if (!format) return { Icon: Music, color: '#5B8DB8' }
-  return FORMAT_CONF[format.toLowerCase().trim()] || { Icon: Music, color: '#5B8DB8' }
+  if (!format) return { Icon: Music, color: '#E8735A' }
+  return FORMAT_CONF[format.toLowerCase().trim()] || { Icon: Music, color: '#E8735A' }
 }
 
 export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, orgName, onReload, onToast }) {
@@ -130,9 +130,9 @@ export default function Tour({ events, products, stock, locations, families, sub
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 40, height: 40, borderRadius: 10,
-            background: 'rgba(91,141,184,0.12)',
+            background: 'rgba(232,115,90,0.12)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}><Calendar size={20} color="#5B8DB8" /></div>
+          }}><Calendar size={20} color="#E8735A" /></div>
           <div>
             <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>{orgName || 'Tournée'}</div>
             <div style={{ fontSize: 12, color: '#94A3B8' }}>
@@ -141,9 +141,9 @@ export default function Tour({ events, products, stock, locations, families, sub
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <StatBox label="A venir" value={upcomingCount} color="#5B8DB8" />
+          <StatBox label="A venir" value={upcomingCount} color="#E8735A" />
           <StatBox label="Passées" value={pastCount} color="#94A3B8" />
-          <StatBox label="Total" value={totalEvents} color="#5B8DB8" />
+          <StatBox label="Total" value={totalEvents} color="#E8735A" />
           {nextEvent && (
             <StatBox
               label="Prochain"
@@ -161,10 +161,10 @@ export default function Tour({ events, products, stock, locations, families, sub
           className="card"
           style={{
             width: '100%', marginBottom: 16, padding: '14px 16px',
-            borderLeft: '3px solid #5B8DB8', cursor: 'pointer', textAlign: 'left',
+            borderLeft: '3px solid #E8735A', cursor: 'pointer', textAlign: 'left',
           }}
         >
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#5B8DB8', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#E8735A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
             Prochain concert
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -175,7 +175,7 @@ export default function Tour({ events, products, stock, locations, families, sub
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#5B8DB8' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#E8735A' }}>
                 {parseDate(nextEvent.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
               </div>
               <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>
@@ -206,9 +206,9 @@ export default function Tour({ events, products, stock, locations, families, sub
           <button key={f.id} onClick={() => setFilter(f.id)} style={{
             flex: 1, padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 500,
             cursor: 'pointer', textAlign: 'center',
-            background: filter === f.id ? 'rgba(91,141,184,0.12)' : 'transparent',
-            color: filter === f.id ? '#5B8DB8' : '#94A3B8',
-            border: `1px solid ${filter === f.id ? 'rgba(91,141,184,0.2)' : '#E2E8F0'}`,
+            background: filter === f.id ? 'rgba(232,115,90,0.12)' : 'transparent',
+            color: filter === f.id ? '#E8735A' : '#94A3B8',
+            border: `1px solid ${filter === f.id ? 'rgba(232,115,90,0.2)' : '#E2E8F0'}`,
           }}>{f.label}</button>
         ))}
       </div>
@@ -216,8 +216,8 @@ export default function Tour({ events, products, stock, locations, families, sub
       {/* Add event button */}
       <button onClick={() => setEventModal({ type: 'add' })} style={{
         width: '100%', padding: '10px 16px', borderRadius: 8, marginBottom: 16,
-        background: 'transparent', border: '1px dashed rgba(91,141,184,0.3)', cursor: 'pointer',
-        fontSize: 13, fontWeight: 500, color: '#5B8DB8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+        background: 'transparent', border: '1px dashed rgba(232,115,90,0.3)', cursor: 'pointer',
+        fontSize: 13, fontWeight: 500, color: '#E8735A', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
       }}><Plus size={14} /> Ajouter un événement</button>
 
       {/* Event list grouped by month */}
@@ -274,7 +274,7 @@ export default function Tour({ events, products, stock, locations, families, sub
                       className="card"
                       style={{
                         width: '100%', padding: '12px 14px', cursor: 'pointer', textAlign: 'left',
-                        borderLeft: `3px solid ${isNext ? '#5B8DB8' : isPast ? '#E2E8F0' : fmt.color}`,
+                        borderLeft: `3px solid ${isNext ? '#E8735A' : isPast ? '#E2E8F0' : fmt.color}`,
                         opacity: isPast ? 0.6 : 1,
                       }}
                     >
@@ -282,11 +282,11 @@ export default function Tour({ events, products, stock, locations, families, sub
                         {/* Date block */}
                         <div style={{
                           width: 44, height: 48, borderRadius: 8, flexShrink: 0,
-                          background: isPast ? '#F1F5F9' : isNext ? 'rgba(91,141,184,0.12)' : `${fmt.color}12`,
+                          background: isPast ? '#F1F5F9' : isNext ? 'rgba(232,115,90,0.12)' : `${fmt.color}12`,
                           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                          border: isNext ? '1px solid rgba(91,141,184,0.2)' : '1px solid transparent',
+                          border: isNext ? '1px solid rgba(232,115,90,0.2)' : '1px solid transparent',
                         }}>
-                          <div style={{ fontSize: 15, fontWeight: 600, color: isPast ? '#CBD5E1' : isNext ? '#5B8DB8' : fmt.color, lineHeight: 1 }}>
+                          <div style={{ fontSize: 15, fontWeight: 600, color: isPast ? '#CBD5E1' : isNext ? '#E8735A' : fmt.color, lineHeight: 1 }}>
                             {d.getDate()}
                           </div>
                           <div style={{ fontSize: 9, fontWeight: 500, color: isPast ? '#CBD5E1' : '#94A3B8', textTransform: 'uppercase' }}>
@@ -303,7 +303,7 @@ export default function Tour({ events, products, stock, locations, families, sub
                             <span style={{ fontSize: 14, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {ev.name || ev.lieu}
                             </span>
-                            {isNext && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 4, background: '#5B8DB8', color: 'white', fontWeight: 500 }}>NEXT</span>}
+                            {isNext && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 4, background: '#E8735A', color: 'white', fontWeight: 500 }}>NEXT</span>}
                           </div>
                           <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 6 }}>
                             {ev.lieu && ev.lieu !== ev.name ? `${ev.lieu} — ` : ''}{ev.ville} ({ev.territoire})
@@ -314,12 +314,12 @@ export default function Tour({ events, products, stock, locations, families, sub
                             <Badge color={fmt.color}>{ev.format}</Badge>
                             {ev.capacite && <Badge color="#8B6DB8">{ev.capacite} pers.</Badge>}
                             {!isPast && daysUntil >= 0 && (
-                              <Badge color={daysUntil <= 3 ? '#D4648A' : daysUntil <= 7 ? '#E8935A' : '#5B8DB8'}>
+                              <Badge color={daysUntil <= 3 ? '#D4648A' : daysUntil <= 7 ? '#E8935A' : '#E8735A'}>
                                 J-{daysUntil}
                               </Badge>
                             )}
                             {isPast && <Badge color="#CBD5E1">Terminé</Badge>}
-                            {ev.transport_inter_iles && <Badge color="#5B8DB8">Inter-îles</Badge>}
+                            {ev.transport_inter_iles && <Badge color="#E8735A">Inter-îles</Badge>}
                           </div>
 
                           {/* Progress indicators */}
@@ -338,7 +338,7 @@ export default function Tour({ events, products, stock, locations, families, sub
                                   label="Packing"
                                   done={packDone}
                                   total={packTotal}
-                                  color="#5B8DB8"
+                                  color="#E8735A"
                                 />
                               )}
                             </div>

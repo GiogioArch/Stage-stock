@@ -9,7 +9,7 @@ const colors = {
   textPrimary: '#1E293B',
   textSecondary: '#64748B',
   textTertiary: '#94A3B8',
-  accent: '#5B8DB8',
+  accent: '#8B6DB8',
   bgSurface: '#F8FAFC',
   border: '#E2E8F0',
   danger: '#D4648A',

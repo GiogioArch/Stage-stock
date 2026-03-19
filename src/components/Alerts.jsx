@@ -7,7 +7,7 @@ const COLORS = {
   warning: '#E8935A',
   info: '#5B8DB8',
   success: '#5DAB8B',
-  accent: '#5B8DB8',
+  accent: '#D4648A',
   textPrimary: '#1E293B',
   textSecondary: '#64748B',
   textTertiary: '#94A3B8',

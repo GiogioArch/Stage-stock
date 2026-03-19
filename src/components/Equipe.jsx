@@ -15,14 +15,14 @@ import {
 const HIERARCHY = {
   direction: {
     label: 'Direction',
-    color: '#5B8DB8',
+    color: '#E8735A',
     icon: Crown,
     codes: ['TM', 'PM'],
     description: 'Pilotage stratégique et décisionnel de la tournée',
   },
   chefs: {
     label: 'Chefs Techniques',
-    color: '#14B8A6',
+    color: '#E8735A',
     icon: Shield,
     codes: ['TD', 'SE', 'LD', 'SM'],
     description: 'Responsables de département, coordination technique',
@@ -62,9 +62,9 @@ const TASK_STATUS_CONF = {
 }
 
 const CATEGORY_COLORS = {
-  logistique: '#5B8DB8', son: '#5B8DB8', lumiere: '#E8935A', scene: '#9B7DC4',
+  logistique: '#E8735A', son: '#E8735A', lumiere: '#E8935A', scene: '#9B7DC4',
   merch: '#D4648A', artiste: '#E8735A', securite: '#D4648A', transport: '#5DAB8B',
-  communication: '#5B8DB8', autre: '#94A3B8',
+  communication: '#E8735A', autre: '#94A3B8',
 }
 
 // ─── Missions par rôle ───
@@ -285,15 +285,15 @@ export default function Equipe({
       {/* ─── Header KPI ─── */}
       <div className="card" style={{
         marginBottom: 16, padding: '18px 16px',
-        background: 'linear-gradient(135deg, #5B8DB808, #5B8DB818)',
-        border: '1.5px solid #5B8DB825',
+        background: 'linear-gradient(135deg, #E8735A08, #E8735A18)',
+        border: '1.5px solid #E8735A25',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{
             width: 48, height: 48, borderRadius: 14,
-            background: 'linear-gradient(135deg, #5B8DB8, #4A7DA8)',
+            background: 'linear-gradient(135deg, #E8735A, #4A7DA8)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', boxShadow: '0 4px 16px #5B8DB830',
+            color: 'white', boxShadow: '0 4px 16px #E8735A30',
           }}>{createElement(Users, { size: 24 })}</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#1E293B' }}>Équipe</div>
@@ -303,10 +303,10 @@ export default function Equipe({
           </div>
           {nextEvent && (
             <div style={{
-              padding: '6px 10px', borderRadius: 8, background: '#5B8DB810',
+              padding: '6px 10px', borderRadius: 8, background: '#E8735A10',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: 9, color: '#5B8DB8', fontWeight: 700 }}>PROCHAIN</div>
+              <div style={{ fontSize: 9, color: '#E8735A', fontWeight: 700 }}>PROCHAIN</div>
               <div style={{ fontSize: 11, fontWeight: 800, color: '#1E293B' }}>
                 {new Date(nextEvent.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
@@ -314,8 +314,8 @@ export default function Equipe({
           )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <KpiBox label="Membres" value={totalMembers} color="#5B8DB8" />
-          <KpiBox label="Rôles actifs" value={assignedRoles} color="#14B8A6" />
+          <KpiBox label="Membres" value={totalMembers} color="#E8735A" />
+          <KpiBox label="Rôles actifs" value={assignedRoles} color="#E8735A" />
           <KpiBox label="Tâches" value={totalPendingTasks} color="#E8935A" />
           <KpiBox label="Événements" value={upcomingEvents.length} color="#8B6DB8" />
         </div>
@@ -597,8 +597,8 @@ export default function Equipe({
                         </span>
                         {user && m.user_id === user.id && (
                           <span style={{
-                            fontSize: 9, fontWeight: 700, color: '#5B8DB8',
-                            padding: '1px 6px', borderRadius: 4, background: '#5B8DB810',
+                            fontSize: 9, fontWeight: 700, color: '#E8735A',
+                            padding: '1px 6px', borderRadius: 4, background: '#E8735A10',
                           }}>MOI</span>
                         )}
                       </div>
@@ -705,9 +705,9 @@ export default function Equipe({
                 <button key={evt.id} onClick={() => setSelectedDate(evt.date)} style={{
                   padding: '6px 12px', borderRadius: 8, whiteSpace: 'nowrap',
                   fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                  background: selectedDate === evt.date ? '#5B8DB810' : '#F8FAFC',
-                  color: selectedDate === evt.date ? '#5B8DB8' : '#64748B',
-                  border: `1px solid ${selectedDate === evt.date ? '#5B8DB830' : '#E2E8F0'}`,
+                  background: selectedDate === evt.date ? '#E8735A10' : '#F8FAFC',
+                  color: selectedDate === evt.date ? '#E8735A' : '#64748B',
+                  border: `1px solid ${selectedDate === evt.date ? '#E8735A30' : '#E2E8F0'}`,
                   flexShrink: 0,
                 }}>
                   {new Date(evt.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
@@ -720,10 +720,10 @@ export default function Equipe({
           {upcomingEvents.filter(e => e.date === selectedDate).map(evt => (
             <div key={evt.id} className="card" style={{
               padding: '12px 14px', marginBottom: 12,
-              borderLeft: '4px solid #5B8DB8',
+              borderLeft: '4px solid #E8735A',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {createElement(Calendar, { size: 16, color: '#5B8DB8' })}
+                {createElement(Calendar, { size: 16, color: '#E8735A' })}
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#1E293B' }}>{evt.name}</span>
               </div>
               {evt.lieu && (
@@ -798,8 +798,8 @@ export default function Equipe({
                               }}>{task.title}</div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
                                 <span style={{
-                                  fontSize: 10, fontWeight: 800, color: '#5B8DB8',
-                                  padding: '1px 6px', borderRadius: 4, background: '#5B8DB808',
+                                  fontSize: 10, fontWeight: 800, color: '#E8735A',
+                                  padding: '1px 6px', borderRadius: 4, background: '#E8735A08',
                                   fontFamily: 'monospace',
                                 }}>{hour}</span>
                                 {task.priority === 'critical' && (
@@ -1028,7 +1028,7 @@ function MemberDetail({
         <div style={{ display: 'flex', gap: 8, marginTop: 18 }}>
           <KpiBox label="À faire" value={pendingTasks} color="#E8935A" />
           <KpiBox label="Fait" value={doneTasks} color="#5DAB8B" />
-          <KpiBox label="Packing" value={myPacking.length > 0 ? `${packDone}/${myPacking.length}` : '—'} color="#5B8DB8" />
+          <KpiBox label="Packing" value={myPacking.length > 0 ? `${packDone}/${myPacking.length}` : '—'} color="#E8735A" />
           <KpiBox label="Dispo" value={availableCount > 0 ? `${availableCount}/${upcomingEvents.length}` : '—'} color="#8B6DB8" />
         </div>
 
@@ -1160,7 +1160,7 @@ function MemberDetail({
             {myTasks.filter(t => t.status !== 'done').length > 4 && (
               <button onClick={() => setSubTab('taches')} style={{
                 width: '100%', padding: '8px 0', background: 'none', border: 'none',
-                cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#5B8DB8',
+                cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#E8735A',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
               }}>
                 Voir les {myTasks.filter(t => t.status !== 'done').length} tâches
@@ -1182,7 +1182,7 @@ function MemberDetail({
               <div key={evt.id} className="card" style={{
                 padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10,
               }}>
-                {createElement(Calendar, { size: 16, color: '#5B8DB8' })}
+                {createElement(Calendar, { size: 16, color: '#E8735A' })}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>{evt.name}</div>
                   <div style={{ fontSize: 10, color: '#94A3B8' }}>
@@ -1304,7 +1304,7 @@ function MemberDetail({
                   display: 'flex', alignItems: 'center', gap: 8,
                   padding: '6px 0', marginBottom: 6,
                 }}>
-                  {createElement(Calendar, { size: 14, color: '#5B8DB8' })}
+                  {createElement(Calendar, { size: 14, color: '#E8735A' })}
                   <span style={{ fontSize: 12, fontWeight: 800, color: '#1E293B' }}>
                     {evt?.name || 'Sans événement'}
                   </span>
@@ -1343,8 +1343,8 @@ function MemberDetail({
                           )}
                           <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap', alignItems: 'center' }}>
                             <span style={{
-                              fontSize: 10, fontWeight: 800, color: '#5B8DB8',
-                              padding: '1px 6px', borderRadius: 4, background: '#5B8DB808',
+                              fontSize: 10, fontWeight: 800, color: '#E8735A',
+                              padding: '1px 6px', borderRadius: 4, background: '#E8735A08',
                               fontFamily: 'monospace',
                             }}>
                               {task.hour_offset >= 0 ? `H+${task.hour_offset}` : `H${task.hour_offset}`}
@@ -1359,8 +1359,8 @@ function MemberDetail({
                             {task.flow_type && (
                               <span style={{
                                 fontSize: 8, padding: '1px 5px', borderRadius: 4,
-                                background: task.flow_type === 'physique' ? '#5DAB8B10' : '#5B8DB810',
-                                color: task.flow_type === 'physique' ? '#5DAB8B' : '#5B8DB8',
+                                background: task.flow_type === 'physique' ? '#5DAB8B10' : '#E8735A10',
+                                color: task.flow_type === 'physique' ? '#5DAB8B' : '#E8735A',
                                 fontWeight: 700,
                               }}>
                                 {task.flow_type === 'physique' ? 'PHY' : task.flow_type === 'info' ? 'INFO' : 'PHY+INFO'}
@@ -1591,7 +1591,7 @@ function MemberMiniCard({ member, onSelect, user }) {
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
             {member.display_name || member.pseudo || 'Membre'}
           </span>
-          {isMe && <span style={{ fontSize: 9, color: '#5B8DB8', fontWeight: 700 }}>(moi)</span>}
+          {isMe && <span style={{ fontSize: 9, color: '#E8735A', fontWeight: 700 }}>(moi)</span>}
         </div>
         {conf && (
           <div style={{ fontSize: 11, color: conf.color, fontWeight: 600 }}>{conf.label}</div>

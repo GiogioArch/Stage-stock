@@ -28,7 +28,7 @@ function getTerrMult(territoire) {
 }
 
 const CHECK_CATS = {
-  son:          { icon: Volume2, color: '#5B8DB8', label: 'Son' },
+  son:          { icon: Volume2, color: '#E8735A', label: 'Son' },
   lumiere:      { icon: Lightbulb, color: '#8B6DB8', label: 'Lumière' },
   instruments:  { icon: Guitar, color: '#D4648A', label: 'Instruments' },
   decor:        { icon: Drama, color: '#8B6DB8', label: 'Décor' },
@@ -102,9 +102,9 @@ export default function EventDetail({
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <button onClick={onClose} style={{
-          width: 36, height: 36, borderRadius: 8, background: 'rgba(91,141,184,0.1)',
+          width: 36, height: 36, borderRadius: 8, background: 'rgba(232,115,90,0.1)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', border: 'none', color: '#5B8DB8',
+          cursor: 'pointer', border: 'none', color: '#E8735A',
         }}><ChevronLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -119,9 +119,9 @@ export default function EventDetail({
         </Badge>
         {onEdit && (
           <button onClick={() => onEdit(event)} style={{
-            width: 36, height: 36, borderRadius: 8, background: 'rgba(91,141,184,0.08)',
+            width: 36, height: 36, borderRadius: 8, background: 'rgba(232,115,90,0.08)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', border: '1px solid rgba(91,141,184,0.15)', color: '#5B8DB8',
+            cursor: 'pointer', border: '1px solid rgba(232,115,90,0.15)', color: '#E8735A',
           }}><Pencil size={14} /></button>
         )}
         {onDelete && (
@@ -143,7 +143,7 @@ export default function EventDetail({
           <Badge color="#8B6DB8">
             {parseDate(event.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
           </Badge>
-          {event.format && <Badge color="#5B8DB8">{event.format}</Badge>}
+          {event.format && <Badge color="#E8735A">{event.format}</Badge>}
           {event.capacite && <Badge color="#8B6DB8">{event.capacite} pers.</Badge>}
           {event.transport_inter_iles && <Badge color="#E8935A">Inter-îles</Badge>}
           {event.statut && <Badge color="#5DAB8B">{event.statut}</Badge>}
@@ -184,9 +184,9 @@ export default function EventDetail({
             <button key={s.id} onClick={() => setSection(s.id)} style={{
               padding: '7px 14px', borderRadius: 8, fontSize: 11, fontWeight: 700,
               whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.15s',
-              border: `1px solid ${section === s.id ? '#5B8DB8' : '#E2E8F0'}`,
-              background: section === s.id ? 'rgba(91,141,184,0.1)' : '#F8FAFC',
-              color: section === s.id ? '#5B8DB8' : '#64748B',
+              border: `1px solid ${section === s.id ? '#E8735A' : '#E2E8F0'}`,
+              background: section === s.id ? 'rgba(232,115,90,0.1)' : '#F8FAFC',
+              color: section === s.id ? '#E8735A' : '#64748B',
               display: 'flex', alignItems: 'center', gap: 5,
             }}>
               <IconComponent size={13} /> {s.label}
@@ -320,7 +320,7 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             {event.ventes_prevues != null && <KpiCell label="Ventes prévues" value={event.ventes_prevues} color="#8B6DB8" />}
             {event.ca_prevu != null && <KpiCell label="CA prévu" value={`${event.ca_prevu}€`} color="#5DAB8B" />}
-            {event.merch_a_transferer != null && <KpiCell label="À transférer" value={event.merch_a_transferer} color="#5B8DB8" />}
+            {event.merch_a_transferer != null && <KpiCell label="À transférer" value={event.merch_a_transferer} color="#E8735A" />}
           </div>
         </div>
       )}
@@ -334,7 +334,7 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
           <button onClick={() => onSectionChange('checklist')} className="card" style={{ flex: 1, padding: '14px', cursor: 'pointer', textAlign: 'left', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 4 }}><CheckSquare size={14} /> Checklist</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: checkDone === checkTotal ? '#5DAB8B' : '#5B8DB8' }}>{checkDone}/{checkTotal}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: checkDone === checkTotal ? '#5DAB8B' : '#E8735A' }}>{checkDone}/{checkTotal}</span>
             </div>
             <ProgressBar done={checkDone} total={checkTotal} />
           </button>
@@ -343,9 +343,9 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
           <button onClick={() => onSectionChange('packing')} className="card" style={{ flex: 1, padding: '14px', cursor: 'pointer', textAlign: 'left', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 4 }}><Package size={14} /> Packing</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: packDone === packTotal ? '#5DAB8B' : '#5B8DB8' }}>{packDone}/{packTotal}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: packDone === packTotal ? '#5DAB8B' : '#E8735A' }}>{packDone}/{packTotal}</span>
             </div>
-            <ProgressBar done={packDone} total={packTotal} color="#5B8DB8" />
+            <ProgressBar done={packDone} total={packTotal} color="#E8735A" />
           </button>
         )}
       </div>
@@ -359,22 +359,22 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
             background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12,
           }}>
             <div style={{
-              width: 42, height: 42, borderRadius: 12, background: 'rgba(91,141,184,0.08)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5B8DB8',
+              width: 42, height: 42, borderRadius: 12, background: 'rgba(232,115,90,0.08)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8735A',
             }}><Package size={20} /></div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{cat.name}</div>
               <div style={{ fontSize: 11, color: '#94A3B8' }}>{cat.count} réf.</div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#5B8DB8' }}>{cat.qty}</div>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#E8735A' }}>{cat.qty}</div>
           </div>
         ))}
       </div>
 
       {/* Notes */}
       {event.notes && (
-        <div className="card" style={{ padding: '12px 16px', background: 'rgba(91,141,184,0.05)', borderLeft: '4px solid #5B8DB8', borderRadius: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#5B8DB8', marginBottom: 6 }}>Notes</div>
+        <div className="card" style={{ padding: '12px 16px', background: 'rgba(232,115,90,0.05)', borderLeft: '4px solid #E8735A', borderRadius: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#E8735A', marginBottom: 6 }}>Notes</div>
           <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{event.notes}</div>
         </div>
       )}
@@ -421,7 +421,7 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
       {/* Stats */}
       <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
         <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
-          <KpiCell label="Rôles" value={totalRoles} color="#5B8DB8" />
+          <KpiCell label="Rôles" value={totalRoles} color="#E8735A" />
           <KpiCell label="Assignés" value={assignedCount} color="#5DAB8B" />
           <KpiCell label="Membres" value={(userProfiles || []).length} color="#8B6DB8" />
         </div>
@@ -552,7 +552,7 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
       <div className="card" style={{ padding: '14px 16px', marginBottom: 16, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{checkDone}/{checkTotal} complété{checkDone > 1 ? 's' : ''}</span>
-          <span style={{ fontSize: 22, fontWeight: 600, color: checkDone === checkTotal && checkTotal > 0 ? '#5DAB8B' : '#5B8DB8' }}>
+          <span style={{ fontSize: 22, fontWeight: 600, color: checkDone === checkTotal && checkTotal > 0 ? '#5DAB8B' : '#E8735A' }}>
             {checkTotal > 0 ? Math.round((checkDone / checkTotal) * 100) : 0}%
           </span>
         </div>
@@ -621,7 +621,7 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
           onKeyDown={e => e.key === 'Enter' && handleAddItem()} />
         <button onClick={handleAddItem} disabled={!addItem.trim()} style={{
           padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          background: addItem.trim() ? '#5B8DB8' : '#E2E8F0', color: 'white', cursor: 'pointer',
+          background: addItem.trim() ? '#E8735A' : '#E2E8F0', color: 'white', cursor: 'pointer',
           border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}><Plus size={16} /></button>
       </div>
@@ -669,7 +669,7 @@ function PrevisionsSection({ event, products, stock }) {
       {/* Scenario selector */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {[
-          { id: 'low', label: 'Pessimiste', color: '#5B8DB8' },
+          { id: 'low', label: 'Pessimiste', color: '#E8735A' },
           { id: 'mid', label: 'Réaliste', color: '#8B6DB8' },
           { id: 'high', label: 'Optimiste', color: '#5DAB8B' },
         ].map(s => (
@@ -687,7 +687,7 @@ function PrevisionsSection({ event, products, stock }) {
       <div className="card" style={{ padding: '14px 16px', marginBottom: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
           <KpiCell label="Capacité" value={event.capacite || 0} color="#8B6DB8" />
-          <KpiCell label="Taux" value={`${Math.round(convRate * 100)}%`} color="#5B8DB8" />
+          <KpiCell label="Taux" value={`${Math.round(convRate * 100)}%`} color="#E8735A" />
           <KpiCell label="Ventes proj." value={projectedSales} color="#8B6DB8" />
           <KpiCell label="Stock après" value={stockAfter < 0 ? `−${Math.abs(stockAfter)}` : stockAfter} color={rupture ? '#D4648A' : '#5DAB8B'} />
         </div>
@@ -720,7 +720,7 @@ function PrevisionsSection({ event, products, stock }) {
           <div style={{
             position: 'absolute', left: 0, top: 0, bottom: 0,
             width: `${totalMerchStock > 0 ? Math.min(100, Math.round((projectedSales / totalMerchStock) * 100)) : 0}%`,
-            background: rupture ? '#D4648A' : '#5B8DB8',
+            background: rupture ? '#D4648A' : '#E8735A',
             borderRadius: 8, transition: 'width 0.4s',
           }} />
           <div style={{
@@ -737,7 +737,7 @@ function PrevisionsSection({ event, products, stock }) {
         padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)',
         fontSize: 11, color: '#64748B', lineHeight: 1.6, marginBottom: 14,
       }}>
-        {event.capacite} pers. × {Math.round(convRate * 100)}% conversion × {mult} ({event.territoire || 'défaut'}) = <strong style={{ color: '#5B8DB8' }}>{projectedSales} ventes</strong>
+        {event.capacite} pers. × {Math.round(convRate * 100)}% conversion × {mult} ({event.territoire || 'défaut'}) = <strong style={{ color: '#E8735A' }}>{projectedSales} ventes</strong>
       </div>
 
       {/* Per-product breakdown */}
@@ -841,7 +841,7 @@ function ResultsSection({ event, onReload, onToast }) {
       ? event.ca_reel - event.ca_prevu : null
 
     return (
-      <div className="card" style={{ padding: '14px 16px', marginBottom: 12, borderLeft: `4px solid ${hasResults ? '#5DAB8B' : '#5B8DB8'}`, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
+      <div className="card" style={{ padding: '14px 16px', marginBottom: 12, borderLeft: `4px solid ${hasResults ? '#5DAB8B' : '#E8735A'}`, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1 }}>
             {hasResults ? 'Résultats réels' : 'Saisir les résultats'}
@@ -857,7 +857,7 @@ function ResultsSection({ event, onReload, onToast }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: ecartVentes != null || ecartCA != null ? 10 : 0 }}>
               {event.ventes_reelles != null && <KpiCell label="Ventes réelles" value={event.ventes_reelles} color="#5DAB8B" />}
               {event.ca_reel != null && <KpiCell label="CA réel" value={`${event.ca_reel}€`} color="#5DAB8B" />}
-              {event.ticket_revenue > 0 && <KpiCell label="Billetterie" value={`${event.ticket_revenue}€`} color="#5B8DB8" />}
+              {event.ticket_revenue > 0 && <KpiCell label="Billetterie" value={`${event.ticket_revenue}€`} color="#E8735A" />}
               {event.sponsor_revenue > 0 && <KpiCell label="Sponsors" value={`${event.sponsor_revenue}€`} color="#8B6DB8" />}
               {event.budget > 0 && <KpiCell label="Budget" value={`${event.budget}€`} color="#8B6DB8" />}
             </div>
@@ -933,7 +933,7 @@ function ProgressBar({ done, total, color }) {
       <div style={{
         height: '100%', borderRadius: 3, transition: 'width 0.3s',
         width: `${pct}%`,
-        background: pct === 100 ? '#5DAB8B' : (color || '#5B8DB8'),
+        background: pct === 100 ? '#5DAB8B' : (color || '#E8735A'),
       }} />
     </div>
   )

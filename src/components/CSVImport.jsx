@@ -158,9 +158,9 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
           />
           <button onClick={() => fileRef.current?.click()} style={{
             padding: '14px 32px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: 'linear-gradient(135deg, #5B8DB8, #5DAB8B)',
+            background: 'linear-gradient(135deg, #8B6DB8, #5DAB8B)',
             color: 'white', cursor: 'pointer', border: 'none',
-            boxShadow: '0 4px 16px rgba(91,141,184,0.25)',
+            boxShadow: '0 4px 16px rgba(139,109,184,0.25)',
           }}>Choisir un fichier CSV</button>
 
           <div style={{ marginTop: 20, padding: '14px', borderRadius: 12, background: '#F1F5F9', textAlign: 'left' }}>
