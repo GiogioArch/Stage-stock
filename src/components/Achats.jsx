@@ -2,14 +2,18 @@ import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Badge, fmtDate } from './UI'
 import { ShoppingCart, Users } from 'lucide-react'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { GradientHeader, SubTabs } from '../design'
+
+const theme = getModuleTheme('achats')
 
 const STATUS_CONF = {
-  draft:     { label: 'Brouillon', color: '#94A3B8' },
-  sent:      { label: 'Envoyé', color: '#5B8DB8' },
-  confirmed: { label: 'Confirmé', color: '#D4648A' },
-  shipped:   { label: 'Expédié', color: '#E8935A' },
-  received:  { label: 'Reçu', color: '#5DAB8B' },
-  cancelled: { label: 'Annulé', color: '#D4648A' },
+  draft:     { label: 'Brouillon', color: BASE.textMuted },
+  sent:      { label: 'Envoyé', color: SEMANTIC.info },
+  confirmed: { label: 'Confirmé', color: SEMANTIC.danger },
+  shipped:   { label: 'Expédié', color: SEMANTIC.warning },
+  received:  { label: 'Reçu', color: SEMANTIC.success },
+  cancelled: { label: 'Annulé', color: SEMANTIC.danger },
 }
 
 export default function Achats({
@@ -64,41 +68,41 @@ export default function Achats({
         onReload()
         setSelectedOrder(null)
       } catch (e) {
-        onToast('Erreur : ' + e.message, '#D4648A')
+        onToast('Erreur : ' + e.message, SEMANTIC.danger)
       }
     }
 
     return (
-      <div style={{ padding: '0 16px 24px' }}>
+      <div style={{ padding: `0 ${SPACE.lg}px ${SPACE.xxl}px` }}>
         <button onClick={() => setSelectedOrder(null)} style={{
-          padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
-          background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer',
-          marginBottom: 16,
+          padding: `${SPACE.sm}px 14px`, borderRadius: RADIUS.lg, fontSize: 13, fontWeight: 600,
+          background: BASE.bgHover, border: `1px solid ${BASE.border}`, color: BASE.textMuted, cursor: 'pointer',
+          marginBottom: SPACE.lg,
         }}>← Retour</button>
 
-        <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div className="card" style={{ padding: SPACE.lg, marginBottom: SPACE.md }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.md }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#1E293B' }}>{order.order_number || 'Commande'}</div>
-              <div style={{ fontSize: 12, color: '#94A3B8' }}>{supplier?.name || 'Fournisseur non défini'}</div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: BASE.text }}>{order.order_number || 'Commande'}</div>
+              <div style={{ ...TYPO.caption, color: BASE.textMuted }}>{supplier?.name || 'Fournisseur non défini'}</div>
             </div>
             <Badge color={st.color}>{st.label}</Badge>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-            <div><span style={{ color: '#94A3B8' }}>Date :</span> <strong>{order.order_date || '—'}</strong></div>
-            <div><span style={{ color: '#94A3B8' }}>Livraison prévue :</span> <strong>{order.expected_date || '—'}</strong></div>
-            <div><span style={{ color: '#94A3B8' }}>Total HT :</span> <strong style={{ color: '#E8935A' }}>{order.total_ht}€</strong></div>
-            <div><span style={{ color: '#94A3B8' }}>TVA :</span> <strong>{order.tva_rate}%</strong></div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, fontSize: 12 }}>
+            <div><span style={{ color: BASE.textMuted }}>Date :</span> <strong>{order.order_date || '—'}</strong></div>
+            <div><span style={{ color: BASE.textMuted }}>Livraison prévue :</span> <strong>{order.expected_date || '—'}</strong></div>
+            <div><span style={{ color: BASE.textMuted }}>Total HT :</span> <strong style={{ color: SEMANTIC.warning }}>{order.total_ht}€</strong></div>
+            <div><span style={{ color: BASE.textMuted }}>TVA :</span> <strong>{order.tva_rate}%</strong></div>
           </div>
-          {order.notes && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 8 }}>{order.notes}</div>}
+          {order.notes && <div style={{ ...TYPO.micro, color: BASE.textMuted, marginTop: SPACE.sm }}>{order.notes}</div>}
         </div>
 
         {/* Lines */}
-        <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+        <div style={{ ...TYPO.overline, color: BASE.textMuted, marginBottom: SPACE.sm }}>
           Lignes de commande ({lines.length})
         </div>
         {lines.length === 0 ? (
-          <div className="card" style={{ padding: 20, textAlign: 'center', color: '#94A3B8', fontSize: 12 }}>
+          <div className="card" style={{ padding: SPACE.xl, textAlign: 'center', color: BASE.textMuted, ...TYPO.caption }}>
             Aucune ligne — ajoutez des articles à cette commande
           </div>
         ) : (
@@ -108,17 +112,17 @@ export default function Achats({
               return (
                 <div key={l.id} style={{
                   display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
-                  borderBottom: i < lines.length - 1 ? '1px solid #E2E8F0' : 'none',
+                  borderBottom: i < lines.length - 1 ? `1px solid ${BASE.border}` : 'none',
                 }}>
                   <span style={{ fontSize: 14 }}>{p?.image || ''}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 700 }}>{l.description || p?.name || '?'}</div>
-                    <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                    <div style={{ fontSize: 10, color: BASE.textMuted }}>
                       {l.quantity} × {l.unit_price_ht}€ HT
                       {l.quantity_received > 0 && ` · Reçu: ${l.quantity_received}`}
                     </div>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#E8935A' }}>{l.line_total_ht}€</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: SEMANTIC.warning }}>{l.line_total_ht}€</div>
                 </div>
               )
             })}
@@ -136,54 +140,35 @@ export default function Achats({
   }
 
   return (
-    <div style={{ paddingBottom: 24 }}>
+    <div style={{ paddingBottom: SPACE.xxl }}>
       {/* ─── Gradient Header ─── */}
-      <div style={{
-        background: 'linear-gradient(135deg, #D4648A, #B84D72)',
-        padding: '24px 20px 20px',
-        marginBottom: 16,
-      }}>
-        <div style={{ fontSize: 22, fontWeight: 800, color: 'white', marginBottom: 4 }}>Achats</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 600, marginBottom: 16 }}>
-          Fournisseurs et bons de commande
-        </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{activeSuppliers.length}</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Fournisseurs</div>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{pendingOrders.length}</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>En cours</div>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{Math.round(totalSpent)}€</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Dépensé</div>
-          </div>
-        </div>
-      </div>
+      <GradientHeader
+        module="achats"
+        title="Achats"
+        subtitle="Fournisseurs et bons de commande"
+        stats={[
+          { value: activeSuppliers.length, label: 'Fournisseurs' },
+          { value: pendingOrders.length, label: 'En cours' },
+          { value: `${Math.round(totalSpent)}€`, label: 'Dépensé' },
+        ]}
+      />
 
-      <div style={{ padding: '0 16px' }}>
       {/* Section tabs */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-        {SECTIONS.map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)} style={{
-            flex: 1, padding: '9px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700,
-            cursor: 'pointer', textAlign: 'center', border: 'none',
-            background: section === s.id ? '#1E293B' : '#F1F5F9',
-            color: section === s.id ? 'white' : '#94A3B8',
-            transition: 'all 0.2s',
-          }}>{createElement(s.icon, { size: 14 })} {s.label}</button>
-        ))}
-      </div>
+      <SubTabs
+        tabs={SECTIONS}
+        active={section}
+        onChange={setSection}
+      />
+
+      <div style={{ padding: `0 ${SPACE.lg}px` }}>
 
       {/* ─── Orders ─── */}
       {section === 'orders' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddOrder(!showAddOrder)} style={{
-              padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddOrder ? '#E2E8F0' : '#D4648A', color: showAddOrder ? '#94A3B8' : 'white',
+              padding: `${SPACE.sm}px ${SPACE.lg}px`, borderRadius: RADIUS.md, ...TYPO.caption,
+              background: showAddOrder ? BASE.bgActive : theme.color, color: showAddOrder ? BASE.textMuted : BASE.white,
               cursor: 'pointer', border: 'none',
             }}>
               {showAddOrder ? 'Annuler' : '+ Nouvelle commande'}
@@ -202,33 +187,33 @@ export default function Achats({
           )}
 
           {(purchaseOrders || []).length === 0 ? (
-            <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 8 }}></div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucune commande</div>
-              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Créez votre premier bon de commande</div>
+            <div className="card" style={{ padding: SPACE.xxxl, textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: SPACE.sm }}></div>
+              <div style={{ ...TYPO.bodyBold, color: BASE.text }}>Aucune commande</div>
+              <div style={{ ...TYPO.caption, color: BASE.textMuted, marginTop: SPACE.xs }}>Créez votre premier bon de commande</div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.sm }}>
               {(purchaseOrders || []).sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')).map(o => {
                 const st = STATUS_CONF[o.status] || STATUS_CONF.draft
                 const supplier = (suppliers || []).find(s => s.id === o.supplier_id)
                 const nbLines = (purchaseOrderLines || []).filter(l => l.order_id === o.id).length
                 return (
                   <button key={o.id} onClick={() => setSelectedOrder(o)} className="card" style={{
-                    padding: '14px 16px', cursor: 'pointer', textAlign: 'left', width: '100%',
+                    padding: `14px ${SPACE.lg}px`, cursor: 'pointer', textAlign: 'left', width: '100%',
                     borderLeft: `4px solid ${st.color}`,
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
+                        <div style={{ ...TYPO.bodyBold, color: BASE.text }}>
                           {o.order_number || 'Commande'}
                         </div>
-                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                        <div style={{ ...TYPO.micro, color: BASE.textMuted }}>
                           {supplier?.name || '?'} · {nbLines} article{nbLines > 1 ? 's' : ''} · {o.order_date}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#E8935A' }}>{o.total_ht}€</div>
+                        <div style={{ ...TYPO.bodyBold, color: SEMANTIC.warning }}>{o.total_ht}€</div>
                         <Badge color={st.color}>{st.label}</Badge>
                       </div>
                     </div>
@@ -245,8 +230,8 @@ export default function Achats({
         <div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddSupplier(!showAddSupplier)} style={{
-              padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddSupplier ? '#E2E8F0' : '#D4648A', color: showAddSupplier ? '#94A3B8' : 'white',
+              padding: `${SPACE.sm}px ${SPACE.lg}px`, borderRadius: RADIUS.md, ...TYPO.caption,
+              background: showAddSupplier ? BASE.bgActive : theme.color, color: showAddSupplier ? BASE.textMuted : BASE.white,
               cursor: 'pointer', border: 'none',
             }}>
               {showAddSupplier ? 'Annuler' : '+ Ajouter fournisseur'}
@@ -258,31 +243,31 @@ export default function Achats({
           )}
 
           {(suppliers || []).length === 0 ? (
-            <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 8 }}></div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun fournisseur</div>
+            <div className="card" style={{ padding: SPACE.xxxl, textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: SPACE.sm }}></div>
+              <div style={{ ...TYPO.bodyBold, color: BASE.text }}>Aucun fournisseur</div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: SPACE.sm }}>
               {(suppliers || []).map(s => {
                 const nbOrders = (purchaseOrders || []).filter(o => o.supplier_id === s.id).length
                 return (
-                  <div key={s.id} className="card" style={{ padding: '14px 16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div key={s.id} className="card" style={{ padding: `14px ${SPACE.lg}px` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.md }}>
                       <div style={{
-                        width: 44, height: 44, borderRadius: 12,
-                        background: '#D4648A15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
+                        width: 44, height: 44, borderRadius: RADIUS.lg,
+                        background: theme.tint15, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
                       }}></div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>{s.name}</div>
-                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                        <div style={{ ...TYPO.bodyBold, color: BASE.text }}>{s.name}</div>
+                        <div style={{ ...TYPO.micro, color: BASE.textMuted }}>
                           {s.contact_name || ''}{s.contact_phone ? ` · ${s.contact_phone}` : ''}
                           {s.delivery_days ? ` · Délai ${s.delivery_days}j` : ''}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#D4648A' }}>{nbOrders}</div>
-                        <div style={{ fontSize: 9, color: '#94A3B8' }}>cmd.</div>
+                        <div style={{ ...TYPO.bodyBold, color: theme.color }}>{nbOrders}</div>
+                        <div style={{ fontSize: 9, color: BASE.textMuted }}>cmd.</div>
                       </div>
                     </div>
                   </div>
@@ -320,15 +305,15 @@ function AddSupplierForm({ orgId, onDone, onToast }) {
       onToast('Fournisseur ajouté')
       onDone()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#D4648A')
+      onToast('Erreur : ' + e.message, SEMANTIC.danger)
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 12 }}>Nouveau fournisseur</div>
+    <div className="card" style={{ padding: SPACE.lg, marginBottom: 14 }}>
+      <div style={{ ...TYPO.h3, color: BASE.text, marginBottom: SPACE.md }}>Nouveau fournisseur</div>
       <input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="Nom du fournisseur" style={{ marginBottom: 10 }} />
       <input className="input" value={contactName} onChange={e => setContactName(e.target.value)} placeholder="Nom du contact" style={{ marginBottom: 10 }} />
       <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
@@ -364,7 +349,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
   const handleSave = async () => {
     if (!supplierId) return
     const validLines = lines.filter(l => (l.productId || l.description) && l.unitPrice)
-    if (validLines.length === 0) { onToast('Ajoutez au moins une ligne', '#D4648A'); return }
+    if (validLines.length === 0) { onToast('Ajoutez au moins une ligne', SEMANTIC.danger); return }
 
     setSaving(true)
     try {
@@ -403,15 +388,15 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
       onToast(`Commande ${orderNum} créée`)
       onDone()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#D4648A')
+      onToast('Erreur : ' + e.message, SEMANTIC.danger)
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 12 }}>Nouvelle commande</div>
+    <div className="card" style={{ padding: SPACE.lg, marginBottom: 14 }}>
+      <div style={{ ...TYPO.h3, color: BASE.text, marginBottom: SPACE.md }}>Nouvelle commande</div>
 
       <select className="input" value={supplierId} onChange={e => setSupplierId(e.target.value)} style={{ marginBottom: 10 }}>
         <option value="">— Fournisseur —</option>
@@ -423,7 +408,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
         <input className="input" value={tvaRate} onChange={e => setTvaRate(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="TVA %" style={{ flex: '0 0 80px' }} />
       </div>
 
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>ARTICLES</div>
+      <div style={{ ...TYPO.overline, color: BASE.textMuted, marginBottom: SPACE.xs + 2 }}>ARTICLES</div>
       {lines.map((l, i) => (
         <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 8, alignItems: 'center' }}>
           <select className="input" value={l.productId} onChange={e => {
@@ -438,22 +423,22 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
           <input className="input" value={l.unitPrice} onChange={e => updateLine(i, 'unitPrice', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="PU HT" style={{ flex: '0 0 70px' }} />
           {lines.length > 1 && (
             <button onClick={() => removeLine(i)} style={{
-              width: 28, height: 28, borderRadius: 8, background: '#D4648A15',
-              border: 'none', color: '#D4648A', fontSize: 14, cursor: 'pointer',
+              width: 28, height: 28, borderRadius: RADIUS.sm, background: theme.tint15,
+              border: 'none', color: theme.color, fontSize: 14, cursor: 'pointer',
             }}>×</button>
           )}
         </div>
       ))}
       <button onClick={addLine} style={{
-        width: '100%', padding: 8, borderRadius: 8, fontSize: 11, fontWeight: 700,
-        background: '#E2E8F0', border: 'none', color: '#94A3B8', cursor: 'pointer', marginBottom: 10,
+        width: '100%', padding: SPACE.sm, borderRadius: RADIUS.sm, ...TYPO.micro,
+        background: BASE.bgActive, border: 'none', color: BASE.textMuted, cursor: 'pointer', marginBottom: 10,
       }}>+ Ajouter une ligne</button>
 
       <textarea className="input" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notes (optionnel)" rows={2} style={{ marginBottom: 10, resize: 'vertical' }} />
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <span style={{ fontSize: 12, color: '#94A3B8' }}>Total HT :</span>
-        <span style={{ fontSize: 18, fontWeight: 600, color: '#E8935A' }}>{totalHT}€</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.md }}>
+        <span style={{ ...TYPO.caption, color: BASE.textMuted }}>Total HT :</span>
+        <span style={{ ...TYPO.h2, color: SEMANTIC.warning }}>{totalHT}€</span>
       </div>
 
       <button onClick={handleSave} disabled={!supplierId || saving} className="btn-primary">
@@ -466,11 +451,11 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
 function KpiBox({ label, value, color }) {
   return (
     <div style={{
-      flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: '#F1F5F9', borderRadius: 10, border: '1px solid #E2E8F0',
+      flex: 1, textAlign: 'center', padding: `${SPACE.sm}px ${SPACE.xs}px`,
+      background: BASE.bgHover, borderRadius: RADIUS.md, border: `1px solid ${BASE.border}`,
     }}>
-      <div style={{ fontSize: 14, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#94A3B8', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ ...TYPO.bodyBold, color, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 8, color: BASE.textMuted, fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

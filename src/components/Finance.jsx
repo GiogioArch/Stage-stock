@@ -2,10 +2,13 @@ import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { TrendingDown, BarChart3, DollarSign, Receipt, Scale, Clock } from 'lucide-react'
 import { Badge, parseDate } from './UI'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { GradientHeader, SubTabs } from '../design'
 
 export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, orgName, onReload, onToast }) {
   const [section, setSection] = useState('overview')
   const [showAddExpense, setShowAddExpense] = useState(false)
+  const theme = getModuleTheme('finance')
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -86,84 +89,46 @@ export default function Finance({ products, stock, events, locations, depreciati
     <div>
 
       {/* ─── Gradient Header Banner (full-width) ─── */}
-      <div style={{
-        background: 'linear-gradient(135deg, #E8935A, #D07A42)',
-        padding: '24px 20px 20px',
-        marginBottom: 0,
-      }}>
-        <div style={{
-          fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.6)',
-          textTransform: 'uppercase', letterSpacing: 2, marginBottom: 6,
-        }}>Finance</div>
-        <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 4 }}>
-          Suivi financier
-        </div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: 16 }}>
-          {orgName || 'Projet'}
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{
-            flex: 1, textAlign: 'center', padding: '10px 4px',
-            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
-          }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{Math.round(revenueData.caReel + salesTotals.total)}€</div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Revenus</div>
-          </div>
-          <div style={{
-            flex: 1, textAlign: 'center', padding: '10px 4px',
-            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
-          }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{Math.round(expenseData.total)}€</div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Dépenses</div>
-          </div>
-          <div style={{
-            flex: 1, textAlign: 'center', padding: '10px 4px',
-            background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(4px)',
-          }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{Math.round(margin)}€</div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Marge</div>
-          </div>
-        </div>
-      </div>
+      <GradientHeader
+        module="finance"
+        title="Suivi financier"
+        subtitle={orgName || 'Projet'}
+        stats={[
+          { value: `${Math.round(revenueData.caReel + salesTotals.total)}€`, label: 'Revenus' },
+          { value: `${Math.round(expenseData.total)}€`, label: 'Dépenses' },
+          { value: `${Math.round(margin)}€`, label: 'Marge' },
+        ]}
+      />
 
       <div style={{ padding: '0 16px 24px' }}>
 
       {/* Section tabs */}
-      <div style={{ display: 'flex', gap: 6, marginTop: 16, marginBottom: 16 }}>
-        {SECTIONS.map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)} style={{
-            flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-            cursor: 'pointer', textAlign: 'center', border: 'none',
-            background: section === s.id ? '#1E293B' : '#F1F5F9',
-            color: section === s.id ? '#fff' : '#94A3B8',
-          }}>{createElement(s.icon, { size: 14 })} {s.label}</button>
-        ))}
-      </div>
+      <SubTabs tabs={SECTIONS} active={section} onChange={setSection} />
 
       {/* ─── Overview ─── */}
       {section === 'overview' && (
         <div>
           {/* Revenue summary */}
           <div className="card" style={{ padding: '14px 16px', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
               Revenus merch
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#CBD5E1' }}>Ventes réalisées</div>
-                <div style={{ fontSize: 20, fontWeight: 600, color: '#5DAB8B' }}>{revenueData.ventesReelles}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: BASE.textDisabled }}>Ventes réalisées</div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: SEMANTIC.success }}>{revenueData.ventesReelles}</div>
               </div>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#CBD5E1' }}>CA réalisé</div>
-                <div style={{ fontSize: 20, fontWeight: 600, color: '#5DAB8B' }}>{revenueData.caReel}€</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: BASE.textDisabled }}>CA réalisé</div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: SEMANTIC.success }}>{revenueData.caReel}€</div>
               </div>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#CBD5E1' }}>Ventes prévues</div>
-                <div style={{ fontSize: 20, fontWeight: 600, color: '#E8935A' }}>{revenueData.ventesPrevues}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: BASE.textDisabled }}>Ventes prévues</div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: SEMANTIC.warning }}>{revenueData.ventesPrevues}</div>
               </div>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#CBD5E1' }}>CA prévu</div>
-                <div style={{ fontSize: 20, fontWeight: 600, color: '#E8935A' }}>{revenueData.caPrevu}€</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: BASE.textDisabled }}>CA prévu</div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: SEMANTIC.warning }}>{revenueData.caPrevu}€</div>
               </div>
             </div>
           </div>
@@ -171,21 +136,21 @@ export default function Finance({ products, stock, events, locations, depreciati
           {/* Asset summary */}
           {depreciationItems.length > 0 && (
             <div className="card" style={{ padding: '14px 16px', marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
                 Immobilisations
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 600, color: '#E8935A' }}>{Math.round(totalBrut)}€</div>
-                  <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Valeur brute</div>
+                  <div style={{ fontSize: 18, fontWeight: 600, color: SEMANTIC.warning }}>{Math.round(totalBrut)}€</div>
+                  <div style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 600 }}>Valeur brute</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 600, color: '#E8935A' }}>{Math.round(totalAmorti)}€</div>
-                  <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Amorti</div>
+                  <div style={{ fontSize: 18, fontWeight: 600, color: SEMANTIC.warning }}>{Math.round(totalAmorti)}€</div>
+                  <div style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 600 }}>Amorti</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 600, color: '#5DAB8B' }}>{Math.round(totalNet)}€</div>
-                  <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600 }}>Valeur nette</div>
+                  <div style={{ fontSize: 18, fontWeight: 600, color: SEMANTIC.success }}>{Math.round(totalNet)}€</div>
+                  <div style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 600 }}>Valeur nette</div>
                 </div>
               </div>
             </div>
@@ -193,12 +158,12 @@ export default function Finance({ products, stock, events, locations, depreciati
 
           {/* Stock value */}
           <div className="card" style={{ padding: '14px 16px' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
               Valorisation du stock
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 600, color: '#E8935A' }}>{Math.round(stockValue)}€</div>
-              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>
+              <div style={{ fontSize: 28, fontWeight: 600, color: SEMANTIC.warning }}>{Math.round(stockValue)}€</div>
+              <div style={{ fontSize: 11, color: BASE.textMuted, marginTop: 4 }}>
                 Valeur estimée au prix d'achat HT
               </div>
             </div>
@@ -206,8 +171,8 @@ export default function Finance({ products, stock, events, locations, depreciati
 
           {/* Legal note */}
           <div style={{
-            marginTop: 14, padding: '10px 14px', borderRadius: 12,
-            background: '#F1F5F940', fontSize: 10, color: '#94A3B8', lineHeight: 1.6,
+            marginTop: 14, padding: '10px 14px', borderRadius: RADIUS.lg,
+            background: `${BASE.bgHover}40`, fontSize: 10, color: BASE.textMuted, lineHeight: 1.6,
           }}>
             Comptabilité française — Amortissement linéaire, prorata temporis base 360j.
             Seuil immobilisation : 500€ HT. Les durées doivent être validées par expert-comptable.
@@ -219,7 +184,7 @@ export default function Finance({ products, stock, events, locations, depreciati
       {section === 'revenue' && (
         <div>
           {/* Past events with revenue */}
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Concerts avec résultats
           </div>
           {revenueData.past.length === 0 ? (
@@ -230,21 +195,21 @@ export default function Finance({ products, stock, events, locations, depreciati
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {revenueData.past.map(ev => (
-                <div key={ev.id} className="card" style={{ padding: '12px 14px', borderLeft: '4px solid #5DAB8B' }}>
+                <div key={ev.id} className="card" style={{ padding: '12px 14px', borderLeft: `4px solid ${SEMANTIC.success}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700 }}>{ev.name || ev.lieu}</div>
-                      <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                      <div style={{ fontSize: 11, color: BASE.textMuted }}>
                         {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
                       </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#5DAB8B' }}>{ev.ca_reel}€</div>
-                      <div style={{ fontSize: 10, color: '#94A3B8' }}>{ev.ventes_reelles} ventes</div>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: SEMANTIC.success }}>{ev.ca_reel}€</div>
+                      <div style={{ fontSize: 10, color: BASE.textMuted }}>{ev.ventes_reelles} ventes</div>
                     </div>
                   </div>
                   {ev.ca_prevu && (
-                    <div style={{ fontSize: 10, color: '#CBD5E1' }}>
+                    <div style={{ fontSize: 10, color: BASE.textDisabled }}>
                       Prévu: {ev.ca_prevu}€ · Écart: {ev.ca_reel - ev.ca_prevu > 0 ? '+' : ''}{ev.ca_reel - ev.ca_prevu}€
                     </div>
                   )}
@@ -256,22 +221,22 @@ export default function Finance({ products, stock, events, locations, depreciati
           {/* Upcoming forecasts */}
           {revenueData.upcoming.filter(e => e.ca_prevu).length > 0 && (
             <>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, margin: '16px 0 10px' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, margin: '16px 0 10px' }}>
                 Prévisions
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {revenueData.upcoming.filter(e => e.ca_prevu).map(ev => (
-                  <div key={ev.id} className="card" style={{ padding: '12px 14px', borderLeft: '4px solid #E8935A' }}>
+                  <div key={ev.id} className="card" style={{ padding: '12px 14px', borderLeft: `4px solid ${SEMANTIC.warning}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700 }}>{ev.name || ev.lieu}</div>
-                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                        <div style={{ fontSize: 11, color: BASE.textMuted }}>
                           {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 16, fontWeight: 600, color: '#E8935A' }}>{ev.ca_prevu}€</div>
-                        {ev.ventes_prevues && <div style={{ fontSize: 10, color: '#94A3B8' }}>{ev.ventes_prevues} ventes</div>}
+                        <div style={{ fontSize: 16, fontWeight: 600, color: SEMANTIC.warning }}>{ev.ca_prevu}€</div>
+                        {ev.ventes_prevues && <div style={{ fontSize: 10, color: BASE.textMuted }}>{ev.ventes_prevues} ventes</div>}
                       </div>
                     </div>
                   </div>
@@ -287,8 +252,8 @@ export default function Finance({ products, stock, events, locations, depreciati
         <div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button onClick={() => setShowAddExpense(!showAddExpense)} style={{
-              padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: showAddExpense ? '#F1F5F9' : '#D4648A', color: showAddExpense ? '#94A3B8' : 'white',
+              padding: '8px 16px', borderRadius: RADIUS.md, fontSize: 12, fontWeight: 600,
+              background: showAddExpense ? BASE.bgHover : SEMANTIC.danger, color: showAddExpense ? BASE.textMuted : BASE.white,
               cursor: 'pointer', border: 'none',
             }}>{showAddExpense ? 'Annuler' : '+ Ajouter dépense'}</button>
           </div>
@@ -300,7 +265,7 @@ export default function Finance({ products, stock, events, locations, depreciati
           {/* Summary by category */}
           {expenseData.total > 0 && (
             <div className="card" style={{ padding: '14px 16px', marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
                 Par catégorie · {Math.round(expenseData.total)}€ total
               </div>
               {Object.entries(expenseData.byCategory).sort((a, b) => b[1].total - a[1].total).map(([cat, data]) => {
@@ -308,11 +273,11 @@ export default function Finance({ products, stock, events, locations, depreciati
                 return (
                   <div key={cat} style={{ marginBottom: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
-                      <span style={{ color: '#1E293B', fontWeight: 600 }}>{EXPENSE_CATS[cat] || cat}</span>
-                      <span style={{ fontWeight: 600, color: '#D4648A' }}>{Math.round(data.total)}€</span>
+                      <span style={{ color: BASE.text, fontWeight: 600 }}>{EXPENSE_CATS[cat] || cat}</span>
+                      <span style={{ fontWeight: 600, color: SEMANTIC.danger }}>{Math.round(data.total)}€</span>
                     </div>
-                    <div style={{ height: 4, borderRadius: 2, background: '#F1F5F9', overflow: 'hidden' }}>
-                      <div style={{ width: `${pct}%`, height: '100%', borderRadius: 2, background: '#D4648A' }} />
+                    <div style={{ height: 4, borderRadius: 2, background: BASE.bgHover, overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', borderRadius: 2, background: SEMANTIC.danger }} />
                     </div>
                   </div>
                 )
@@ -324,7 +289,7 @@ export default function Finance({ products, stock, events, locations, depreciati
           {expenseData.items.length === 0 ? (
             <div className="card" style={{ padding: 32, textAlign: 'center' }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}></div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucune dépense</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: BASE.text }}>Aucune dépense</div>
             </div>
           ) : (
             <div className="card" style={{ padding: '6px 12px' }}>
@@ -333,16 +298,16 @@ export default function Finance({ products, stock, events, locations, depreciati
                 return (
                   <div key={exp.id} style={{
                     display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
-                    borderBottom: i < expenseData.items.length - 1 ? '1px solid #F1F5F9' : 'none',
+                    borderBottom: i < expenseData.items.length - 1 ? `1px solid ${BASE.bgHover}` : 'none',
                   }}>
                     <span style={{ fontSize: 14 }}>{(EXPENSE_CATS[exp.category] || '').split(' ')[0]}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exp.description}</div>
-                      <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                      <div style={{ fontSize: 10, color: BASE.textMuted }}>
                         {exp.date}{ev ? ` · ${ev.name || ev.lieu}` : ''}{exp.paid ? ' · Payé' : ''}
                       </div>
                     </div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#D4648A' }}>{exp.amount}€</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: SEMANTIC.danger }}>{exp.amount}€</div>
                   </div>
                 )
               })}
@@ -357,8 +322,8 @@ export default function Finance({ products, stock, events, locations, depreciati
           {(events || []).filter(e => e.date < today).length === 0 ? (
             <div className="card" style={{ padding: 32, textAlign: 'center' }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}></div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun concert passé</div>
-              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Le bilan apparaîtra après les premiers concerts</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: BASE.text }}>Aucun concert passé</div>
+              <div style={{ fontSize: 12, color: BASE.textMuted, marginTop: 4 }}>Le bilan apparaîtra après les premiers concerts</div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -372,30 +337,30 @@ export default function Finance({ products, stock, events, locations, depreciati
                 const evMargin = evTotal - evExpenses
                 return (
                   <div key={ev.id} className="card" style={{
-                    padding: '14px 16px', borderLeft: `4px solid ${evMargin >= 0 ? '#5DAB8B' : '#D4648A'}`,
+                    padding: '14px 16px', borderLeft: `4px solid ${evMargin >= 0 ? SEMANTIC.success : SEMANTIC.danger}`,
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                       <div>
                         <div style={{ fontSize: 14, fontWeight: 600 }}>{ev.name || ev.lieu}</div>
-                        <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                        <div style={{ fontSize: 11, color: BASE.textMuted }}>
                           {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} — {ev.ville}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 18, fontWeight: 600, color: evMargin >= 0 ? '#5DAB8B' : '#D4648A' }}>
+                        <div style={{ fontSize: 18, fontWeight: 600, color: evMargin >= 0 ? SEMANTIC.success : SEMANTIC.danger }}>
                           {evMargin >= 0 ? '+' : ''}{Math.round(evMargin)}€
                         </div>
-                        <div style={{ fontSize: 9, color: '#94A3B8' }}>marge</div>
+                        <div style={{ fontSize: 9, color: BASE.textMuted }}>marge</div>
                       </div>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, fontSize: 11 }}>
-                      <div><span style={{ color: '#94A3B8' }}>Merch :</span> <strong style={{ color: '#5DAB8B' }}>{evRevenu}€</strong></div>
-                      <div><span style={{ color: '#94A3B8' }}>Billets :</span> <strong>{evTickets}€</strong></div>
-                      <div><span style={{ color: '#94A3B8' }}>Sponsors :</span> <strong>{evSponsors}€</strong></div>
+                      <div><span style={{ color: BASE.textMuted }}>Merch :</span> <strong style={{ color: SEMANTIC.success }}>{evRevenu}€</strong></div>
+                      <div><span style={{ color: BASE.textMuted }}>Billets :</span> <strong>{evTickets}€</strong></div>
+                      <div><span style={{ color: BASE.textMuted }}>Sponsors :</span> <strong>{evSponsors}€</strong></div>
                     </div>
                     {evExpenses > 0 && (
                       <div style={{ fontSize: 11, marginTop: 4 }}>
-                        <span style={{ color: '#94A3B8' }}>Dépenses :</span> <strong style={{ color: '#D4648A' }}>-{Math.round(evExpenses)}€</strong>
+                        <span style={{ color: BASE.textMuted }}>Dépenses :</span> <strong style={{ color: SEMANTIC.danger }}>-{Math.round(evExpenses)}€</strong>
                       </div>
                     )}
                   </div>
@@ -403,22 +368,22 @@ export default function Finance({ products, stock, events, locations, depreciati
               })}
 
               {/* Total */}
-              <div className="card" style={{ padding: '14px 16px', background: '#F1F5F920' }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+              <div className="card" style={{ padding: '14px 16px', background: `${BASE.bgHover}20` }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: BASE.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
                   Bilan consolidé
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
                   <div>
-                    <div style={{ fontSize: 18, fontWeight: 600, color: '#5DAB8B' }}>{Math.round(revenueData.caReel + salesTotals.total)}€</div>
-                    <div style={{ fontSize: 9, color: '#94A3B8' }}>Total revenus</div>
+                    <div style={{ fontSize: 18, fontWeight: 600, color: SEMANTIC.success }}>{Math.round(revenueData.caReel + salesTotals.total)}€</div>
+                    <div style={{ fontSize: 9, color: BASE.textMuted }}>Total revenus</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 18, fontWeight: 600, color: '#D4648A' }}>{Math.round(expenseData.total)}€</div>
-                    <div style={{ fontSize: 9, color: '#94A3B8' }}>Total dépenses</div>
+                    <div style={{ fontSize: 18, fontWeight: 600, color: SEMANTIC.danger }}>{Math.round(expenseData.total)}€</div>
+                    <div style={{ fontSize: 9, color: BASE.textMuted }}>Total dépenses</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 18, fontWeight: 600, color: margin >= 0 ? '#5DAB8B' : '#D4648A' }}>{Math.round(margin)}€</div>
-                    <div style={{ fontSize: 9, color: '#94A3B8' }}>Marge nette</div>
+                    <div style={{ fontSize: 18, fontWeight: 600, color: margin >= 0 ? SEMANTIC.success : SEMANTIC.danger }}>{Math.round(margin)}€</div>
+                    <div style={{ fontSize: 9, color: BASE.textMuted }}>Marge nette</div>
                   </div>
                 </div>
               </div>
@@ -432,9 +397,9 @@ export default function Finance({ products, stock, events, locations, depreciati
         <div>
           {depreciationItems.length === 0 ? (
             <div className="empty-state" style={{ padding: 32 }}>
-              <div className="empty-icon">{createElement(TrendingDown, { size: 40, color: '#94A3B8' })}</div>
+              <div className="empty-icon">{createElement(TrendingDown, { size: 40, color: BASE.textMuted })}</div>
               <div className="empty-text">Aucune immobilisation</div>
-              <div style={{ fontSize: 11, color: '#CBD5E1', marginTop: 4 }}>
+              <div style={{ fontSize: 11, color: BASE.textDisabled, marginTop: 4 }}>
                 Les produits de plus de 500€ HT apparaîtront ici
               </div>
             </div>
@@ -450,24 +415,24 @@ export default function Finance({ products, stock, events, locations, depreciati
                         <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {d.product?.name || 'Produit inconnu'}
                         </div>
-                        <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                        <div style={{ fontSize: 10, color: BASE.textMuted }}>
                           Durée: {d.duree_amort || '?'} ans · Acquis: {d.date_acquisition ? parseDate(d.date_acquisition).toLocaleDateString('fr-FR') : '?'}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#5DAB8B' }}>{Math.round(d.valeur_nette || 0)}€</div>
-                        <div style={{ fontSize: 9, color: '#94A3B8' }}>net</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: SEMANTIC.success }}>{Math.round(d.valeur_nette || 0)}€</div>
+                        <div style={{ fontSize: 9, color: BASE.textMuted }}>net</div>
                       </div>
                     </div>
                     {/* Progress */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 10, color: '#94A3B8' }}>Brut: {Math.round(d.prix_achat_ht || 0)}€</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#E8935A' }}>{pct}% amorti</span>
+                      <span style={{ fontSize: 10, color: BASE.textMuted }}>Brut: {Math.round(d.prix_achat_ht || 0)}€</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: SEMANTIC.warning }}>{pct}% amorti</span>
                     </div>
-                    <div style={{ height: 4, borderRadius: 2, background: '#F1F5F9', overflow: 'hidden' }}>
+                    <div style={{ height: 4, borderRadius: 2, background: BASE.bgHover, overflow: 'hidden' }}>
                       <div style={{
                         width: `${pct}%`, height: '100%', borderRadius: 2,
-                        background: pct >= 100 ? '#5DAB8B' : '#E8935A',
+                        background: pct >= 100 ? SEMANTIC.success : SEMANTIC.warning,
                         transition: 'width 0.3s',
                       }} />
                     </div>
@@ -506,7 +471,7 @@ function AddExpenseForm({ events, orgId, onDone, onToast, cats }) {
       onToast('Dépense ajoutée')
       onDone()
     } catch (e) {
-      onToast('Erreur : ' + e.message, '#D4648A')
+      onToast('Erreur : ' + e.message, SEMANTIC.danger)
     } finally {
       setSaving(false)
     }
@@ -514,7 +479,7 @@ function AddExpenseForm({ events, orgId, onDone, onToast, cats }) {
 
   return (
     <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginBottom: 12 }}>Nouvelle dépense</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: BASE.text, marginBottom: 12 }}>Nouvelle dépense</div>
       <input className="input" value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" style={{ marginBottom: 10 }} />
       <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
         <input className="input" value={amount} onChange={e => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="Montant €" inputMode="decimal" style={{ flex: 1 }} />
@@ -540,10 +505,10 @@ function KpiBox({ label, value, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: '#F1F5F9', borderRadius: 10, border: '1px solid #F1F5F9',
+      background: BASE.bgHover, borderRadius: 10, border: `1px solid ${BASE.bgHover}`,
     }}>
       <div style={{ fontSize: 14, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#94A3B8', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 8, color: BASE.textMuted, fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }
