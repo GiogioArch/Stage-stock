@@ -17,10 +17,10 @@ export const MODULES = {
   },
   tournee: {
     id: 'tournee',
-    name: 'Tournee',
+    name: 'Tournée',
     icon: 'tent',
     color: '#E8735A',
-    description: 'Dates de concert, fiches detaillees, checklists et packing lists',
+    description: 'Dates de concert, fiches détaillées, checklists et packing lists',
     tables: {
       events: 'order=date.asc',
       checklists: 'order=category.asc,item.asc',
@@ -28,7 +28,7 @@ export const MODULES = {
     },
     deps: ['articles', 'depots', 'equipe'],
     order: 5,
-    tab: { id: 'tournee', label: 'Tournee', icon: 'tent' },
+    tab: { id: 'tournee', label: 'Tournée', icon: 'tent' },
   },
   articles: {
     id: 'articles',
@@ -47,37 +47,37 @@ export const MODULES = {
   },
   depots: {
     id: 'depots',
-    name: 'Depots',
+    name: 'Dépôts',
     icon: 'warehouse',
     color: '#5B8DB8',
-    description: 'Lieux de stockage, entrepots et vehicules',
+    description: 'Lieux de stockage, entrepôts et véhicules',
     tables: {
       locations: 'order=name.asc',
     },
     deps: [],
     order: 20,
-    tab: { id: 'depots', label: 'Depots', icon: 'warehouse' },
+    tab: { id: 'depots', label: 'Dépôts', icon: 'warehouse' },
   },
   stock: {
     id: 'stock',
     name: 'Gestion de stock',
     icon: 'clipboard-list',
-    color: '#5DAB8B',
-    description: 'Mouvements d\'entree/sortie, transferts, inventaire et scanner',
+    color: '#5B8DB8',
+    description: 'Mouvements d\'entrée/sortie, transferts, inventaire et scanner',
     tables: {
       stock: '',
       movements: 'order=created_at.desc&limit=200',
     },
     deps: ['articles', 'depots'],
     order: 30,
-    tab: { id: 'stock', label: 'Stock', icon: 'clipboard-list' },
+    tab: { id: 'stock_hub', label: 'Stock', icon: 'clipboard-list' },
   },
   equipe: {
     id: 'equipe',
-    name: 'Equipe',
+    name: 'Équipe',
     icon: 'users',
     color: '#E8735A',
-    description: 'Gestion de l\'equipe, roles et responsabilites',
+    description: 'Gestion de l\'équipe, rôles et responsabilités',
     tables: {
       user_profiles: 'order=display_name.asc',
       roles: 'order=code.asc',
@@ -86,14 +86,14 @@ export const MODULES = {
     deps: [],
     alwaysActive: true, // requis pour auth + role picker
     order: 40,
-    tab: { id: 'equipe', label: 'Equipe', icon: 'users' },
+    tab: { id: 'equipe', label: 'Équipe', icon: 'users' },
   },
   finance: {
     id: 'finance',
     name: 'Finance',
     icon: 'coins',
     color: '#E8935A',
-    description: 'Amortissements, revenus, depenses et bilan financier',
+    description: 'Amortissements, revenus, dépenses et bilan financier',
     tables: {
       product_depreciation: '',
       expenses: 'order=date.desc',
@@ -107,7 +107,7 @@ export const MODULES = {
     name: 'Alertes',
     icon: 'bell',
     color: '#D4648A',
-    description: 'Notifications de rupture, stock bas et echeances',
+    description: 'Notifications de rupture, stock bas et échéances',
     tables: {},
     deps: ['stock'],
     order: 60,
@@ -115,28 +115,28 @@ export const MODULES = {
   },
   timeline: {
     id: 'timeline',
-    name: 'Mode Evenement',
+    name: 'Mode Événement',
     icon: 'clock',
     color: '#5B8DB8',
-    description: 'Planning 48h heure par heure autour des evenements',
+    description: 'Planning 48h heure par heure autour des événements',
     tables: {
       event_tasks: 'order=hour_offset.asc',
       event_task_templates: '',
     },
     deps: ['tournee', 'equipe'],
     order: 46,
-    tab: { id: 'timeline', label: 'Evenement', icon: 'clock' },
+    tab: { id: 'timeline', label: 'Événement', icon: 'clock' },
   },
   forecast: {
     id: 'forecast',
-    name: 'Previsions',
+    name: 'Prévisions',
     icon: 'trending-up',
     color: '#E8735A',
-    description: 'Projections de ventes merch et reapprovisionnement',
+    description: 'Projections de ventes merch et réapprovisionnement',
     tables: {},
     deps: ['articles', 'stock', 'tournee'],
     order: 70,
-    tab: { id: 'forecast', label: 'Previsions', icon: 'trending-up' },
+    tab: { id: 'forecast', label: 'Prévisions', icon: 'trending-up' },
   },
   ventes: {
     id: 'ventes',
@@ -158,7 +158,7 @@ export const MODULES = {
     name: 'Achats',
     icon: 'shopping-bag',
     color: '#D4648A',
-    description: 'Fournisseurs, bons de commande et receptions',
+    description: 'Fournisseurs, bons de commande et réceptions',
     tables: {
       suppliers: 'order=name.asc',
       purchase_orders: 'order=created_at.desc',
@@ -174,7 +174,7 @@ export const MODULES = {
     name: 'Inventaire',
     icon: 'clipboard-check',
     color: '#8BAB5D',
-    description: 'Comptage physique et correction des ecarts stock',
+    description: 'Comptage physique et correction des écarts stock',
     tables: {},
     deps: ['articles', 'stock', 'depots'],
     order: 65,
@@ -185,7 +185,7 @@ export const MODULES = {
     name: 'Transport',
     icon: 'truck',
     color: '#E8735A',
-    description: 'Logistique inter-iles, prestataires et suivi des transports',
+    description: 'Logistique inter-îles, prestataires et suivi des transports',
     tables: {
       transport_providers: 'order=name.asc',
       vehicles: '',
@@ -201,7 +201,7 @@ export const MODULES = {
   },
 }
 
-// Modules actifs par defaut pour un nouveau compte
+// Modules actifs par défaut pour un nouveau compte
 export const DEFAULT_ACTIVE = [
   'dashboard', 'tournee', 'articles', 'depots', 'stock', 'equipe', 'timeline', 'alertes',
 ]
@@ -259,15 +259,13 @@ export function getRequiredTables(activeIds) {
 }
 
 // ─── Tab Groups (bottom nav) ───
-// Regroupe les modules en onglets principaux pour reduire la nav
+// Regroupe les modules en onglets principaux pour réduire la nav
 export const TAB_GROUPS = [
   { id: 'board', label: 'Board', icon: 'bar-chart-3', tabIds: ['board'] },
-  { id: 'tournee', label: 'Tournee', icon: 'tent', tabIds: ['tournee'] },
-  { id: 'stock-group', label: 'Stock', icon: 'package', tabIds: ['articles', 'depots', 'stock', 'inventaire', 'achats', 'alertes', 'forecast'] },
-  { id: 'ventes', label: 'Ventes', icon: 'shopping-cart', tabIds: ['ventes'] },
-  { id: 'finance', label: 'Finance', icon: 'coins', tabIds: ['finance'] },
-  { id: 'transport', label: 'Transport', icon: 'truck', tabIds: ['transport'] },
-  { id: 'reglages', label: 'Reglages', icon: 'settings', tabIds: ['equipe', 'settings'] },
+  { id: 'tournee', label: 'Concert', icon: 'tent', tabIds: ['tournee', 'timeline'] },
+  { id: 'stock-group', label: 'Stock', icon: 'package', tabIds: ['stock_hub', 'articles', 'achats', 'inventaire'] },
+  { id: 'equipe', label: 'Équipe', icon: 'users', tabIds: ['equipe'] },
+  { id: 'more', label: 'Plus', icon: 'more-horizontal', tabIds: ['finance', 'forecast', 'ventes', 'transport', 'settings'] },
 ]
 
 // Build the tab list for active modules, sorted by order

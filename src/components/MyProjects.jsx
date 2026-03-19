@@ -18,9 +18,8 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
     if (!deletingProject) return
     setDeleting(true)
     try {
-      // Delete project members then organization
-      await db.delete('project_members', `org_id=eq.${deletingProject.org_id}`)
-      await db.delete('organizations', `id=eq.${deletingProject.org_id}`)
+      const data = await db.rpc('delete_project_atomic', { p_org_id: deletingProject.org_id })
+      if (data && !data.success) throw new Error(data.error)
       onToast('Projet supprimé')
       setDeletingProject(null)
       onProjectsChanged()
@@ -187,7 +186,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
           background: showMenu ? '#E2E8F0' : 'transparent',
           border: 'none', cursor: 'pointer', color: '#94A3B8',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>⋯</button>
+        }} aria-label="Menu du projet">⋯</button>
       </div>
 
       {/* Dropdown menu */}

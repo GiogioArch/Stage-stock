@@ -425,7 +425,7 @@ export default function EventTimeline({
       )}
 
       {/* ─── Add Task FAB ─── */}
-      <button onClick={() => setShowAddTask(true)} style={{
+      <button onClick={() => setShowAddTask(true)} aria-label="Ajouter une tâche" style={{
         position: 'fixed', bottom: 90, right: 16, zIndex: 80,
         width: 52, height: 52, borderRadius: 16,
         background: 'linear-gradient(135deg, #5B8DB8, #4A7DA8)',
@@ -553,7 +553,7 @@ function AddTaskModal({ event, roles, userProfiles, orgId, user, onClose, onDone
         <div style={{ padding: '20px 18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>Nouvelle tâche</div>
-            <button onClick={onClose} style={{
+            <button onClick={onClose} aria-label="Fermer" style={{
               background: 'none', border: 'none', cursor: 'pointer', padding: 4,
             }}>{createElement(X, { size: 20, color: '#9A8B94' })}</button>
           </div>

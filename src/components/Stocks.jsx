@@ -176,7 +176,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
                     onClick={() => onMovement('out', loc.id)}>
                     <ArrowUpFromLine size={14} /> Sortie
                   </button>
-                  <button className="btn-secondary" style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, borderColor: `${SEMANTIC.danger}30`, color: SEMANTIC.danger, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  <button className="btn-secondary" aria-label="Supprimer le lieu" style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, borderColor: `${SEMANTIC.danger}30`, color: SEMANTIC.danger, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     onClick={() => setConfirm({
                       message: `Supprimer "${loc.name}" ?`,
                       detail: 'Le lieu et tout le stock associé seront supprimés.',

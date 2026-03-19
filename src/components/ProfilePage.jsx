@@ -705,7 +705,7 @@ function GearTab({ user, gear, onToast, onReload }) {
                       background: `${cond.color}15`, color: cond.color,
                     }}>{cond.label}</span>
                   </div>
-                  <button onClick={() => deleteGear(g.id)} style={{
+                  <button onClick={() => deleteGear(g.id)} aria-label="Supprimer" style={{
                     width: 28, height: 28, borderRadius: 8, background: '#8B6DB810',
                     border: 'none', color: '#8B6DB8', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1089,7 +1089,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
                       background: `${st.color}15`, color: st.color, border: 'none', cursor: 'pointer',
                     }}>{st.label}</button>
                   </div>
-                  <button onClick={() => deleteIncome(item.id)} style={{
+                  <button onClick={() => deleteIncome(item.id)} aria-label="Supprimer" style={{
                     width: 24, height: 24, borderRadius: 6, background: '#8B6DB810',
                     border: 'none', color: '#8B6DB8', fontSize: 11, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1166,7 +1166,7 @@ function SensitiveRow({ label, value, masked, show, onToggle }) {
         <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 700, fontFamily: 'monospace' }}>
           {show ? value : masked}
         </span>
-        <button onClick={onToggle} style={{
+        <button onClick={onToggle} aria-label={show ? 'Masquer' : 'Afficher'} style={{
           background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 2,
         }}>{show ? createElement(Lock, { size: 14 }) : createElement(Eye, { size: 14 })}</button>
       </div>

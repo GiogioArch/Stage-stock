@@ -117,7 +117,7 @@ export default function EventDetail({
           width: 36, height: 36, borderRadius: RADIUS.sm, background: theme.tint08,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', border: 'none', color: theme.color,
-        }}><ChevronLeft size={18} /></button>
+        }} aria-label="Retour"><ChevronLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ ...TYPO.bodyBold, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {event.name || event.lieu}
@@ -134,14 +134,14 @@ export default function EventDetail({
             width: 36, height: 36, borderRadius: RADIUS.sm, background: theme.tint08,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', border: `1px solid ${theme.tint15}`, color: theme.color,
-          }}><Pencil size={14} /></button>
+          }} aria-label="Modifier"><Pencil size={14} /></button>
         )}
         {onDelete && (
           <button onClick={() => onDelete(event)} style={{
             width: 36, height: 36, borderRadius: RADIUS.sm, background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.15)`, color: SEMANTIC.danger,
-          }}><Trash2 size={14} /></button>
+          }} aria-label="Supprimer"><Trash2 size={14} /></button>
         )}
       </div>
 
@@ -615,7 +615,7 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
         <input className="input" value={addItem} onChange={e => setAddItem(e.target.value)}
           placeholder="Ajouter un item..." style={{ flex: 1, ...TYPO.body, background: BASE.bgSurface, color: BASE.text, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.sm }}
           onKeyDown={e => e.key === 'Enter' && handleAddItem()} />
-        <button onClick={handleAddItem} disabled={!addItem.trim()} style={{
+        <button onClick={handleAddItem} disabled={!addItem.trim()} aria-label="Ajouter" style={{
           padding: `${SPACE.sm}px ${SPACE.lg}px`, borderRadius: RADIUS.sm, ...TYPO.bodyBold,
           background: addItem.trim() ? theme.color : BASE.border, color: BASE.white, cursor: 'pointer',
           border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',

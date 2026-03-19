@@ -103,10 +103,10 @@ export default function DepotDetail({
             <button onClick={() => onEdit(location)} style={{
               padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.md, ...TYPO.caption,
               background: theme.tint08, border: `1px solid ${theme.tint25}`, color: theme.color, cursor: 'pointer',
-            }}>{createElement(Pencil, { size: 14 })}</button>
+            }} aria-label="Modifier">{createElement(Pencil, { size: 14 })}</button>
           )}
           {onDelete && (
-            <button onClick={() => onDelete(location)} style={{
+            <button onClick={() => onDelete(location)} aria-label="Supprimer" style={{
               padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.md, ...TYPO.caption,
               background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)`, border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.18)`, color: SEMANTIC.danger, cursor: 'pointer',
             }}></button>

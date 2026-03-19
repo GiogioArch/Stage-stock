@@ -55,7 +55,7 @@ function getResponse(message, ctx = {}) {
     return `Salut ! Je suis **Mélodie**, ton assistante BackStage. Comment je peux t'aider ?`
 
   // Prochaine date / prochain concert
-  if (msg.match(/\b(prochain|prochaine|next|date|quand)\b/) && msg.match(/\b(concert|date|evenement|spectacle|show)\b/)) {
+  if (msg.match(/\b(prochain|prochaine|next|date|quand)\b/) && msg.match(/\b(concert|date|événement|spectacle|show)\b/)) {
     if (!nextEv) return "Tu n'as aucun événement à venir pour le moment. Ajoute-en un dans l'onglet **Tournée** !"
     const d = Math.ceil((new Date(nextEv.date) - new Date()) / 86400000)
     return `Ton prochain événement est **${nextEv.name || nextEv.lieu}** le **${new Date(nextEv.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}** (dans ${d} jour${d > 1 ? 's' : ''}).\n\n- Lieu : ${nextEv.ville || '?'}\n- Format : ${nextEv.format || '?'}\n- Capacité : ${nextEv.capacite || '?'} pers.\n\nClique sur la carte du prochain événement sur le tableau de bord pour voir la fiche complète.`
@@ -74,7 +74,7 @@ function getResponse(message, ctx = {}) {
     return "Pour ajouter un produit :\n1. Va dans l'onglet **Articles**\n2. Clique sur le bouton **+** en bas\n3. Remplis le nom, la catégorie, le SKU\n4. Enregistre\n\nTu peux aussi importer en masse via un fichier CSV."
 
   // Concert / Événement (info contextuelle)
-  if (msg.match(/\b(concert|evenement|tournee|spectacle|festival)\b/)) {
+  if (msg.match(/\b(concert|événement|tournee|spectacle|festival)\b/)) {
     let resp = `Tu as **${upcoming.length} événement${upcoming.length > 1 ? 's' : ''} à venir** et **${(events?.length || 0) - upcoming.length} passé${(events?.length || 0) - upcoming.length > 1 ? 's' : ''}**.`
     if (nextEv) {
       const d = Math.ceil((new Date(nextEv.date) - new Date()) / 86400000)
@@ -186,6 +186,7 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
     return (
       <button
         onClick={() => setOpen(true)}
+        aria-label="Ouvrir Mélodie"
         style={{
           position: 'fixed', bottom: 80, right: 16, zIndex: 150,
           width: 52, height: 52, borderRadius: 26,
@@ -231,7 +232,7 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
           <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>Mélodie</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Assistante BackStage</div>
         </div>
-        <button onClick={() => setOpen(false)} style={{
+        <button onClick={() => setOpen(false)} aria-label="Fermer" style={{
           width: 32, height: 32, borderRadius: 8,
           background: 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -315,7 +316,7 @@ export default function MelodieChat({ user, userRole, orgName, events, data }) {
             fontSize: 14, color: C.text, outline: 'none',
           }}
         />
-        <button onClick={sendMessage} disabled={!input.trim() || loading} style={{
+        <button onClick={sendMessage} disabled={!input.trim() || loading} aria-label="Envoyer" style={{
           width: 40, height: 40, borderRadius: 12,
           background: input.trim() ? C.accent : C.border,
           border: 'none', cursor: input.trim() ? 'pointer' : 'default',

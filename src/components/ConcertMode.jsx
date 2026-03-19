@@ -332,7 +332,7 @@ export default function ConcertMode({
           width: 36, height: 36, borderRadius: 10, background: '#3A3540',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 14, cursor: 'pointer', border: 'none', color: '#94A3B8',
-        }}>←</button>
+        }} aria-label="Retour">←</button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#5DAB8B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {selectedEvent.name || 'Concert'}
@@ -462,13 +462,13 @@ export default function ConcertMode({
                   {item.name}{item.variant ? ` (${item.variant})` : ''}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <button onClick={() => removeFromCart(item.key)} style={{
+                  <button onClick={() => removeFromCart(item.key)} aria-label="Diminuer" style={{
                     width: 28, height: 28, borderRadius: 8, background: '#8B6DB830',
                     color: '#8B6DB8', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>-</button>
                   <span style={{ fontSize: 14, fontWeight: 600, minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
-                  <button onClick={() => addToCart({ id: item.productId, name: item.name, image: item.image, sale_price: item.unitPrice }, item.variant)} style={{
+                  <button onClick={() => addToCart({ id: item.productId, name: item.name, image: item.image, sale_price: item.unitPrice }, item.variant)} aria-label="Augmenter" style={{
                     width: 28, height: 28, borderRadius: 8, background: '#5DAB8B30',
                     color: '#5DAB8B', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',

@@ -79,7 +79,7 @@ export default function Movements({ movements, products, locations, onToast }) {
             placeholder="Rechercher produit, lieu..."
           />
         </div>
-        <button onClick={() => setShowFilters(!showFilters)} style={{
+        <button onClick={() => setShowFilters(!showFilters)} aria-label="Filtrer" style={{
           width: 40, height: 40, borderRadius: 6,
           background: showFilters ? 'rgba(91,141,184,0.12)' : '#F8FAFC',
           border: `1px solid ${showFilters ? 'rgba(91,141,184,0.2)' : '#E2E8F0'}`,

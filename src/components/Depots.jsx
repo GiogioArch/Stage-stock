@@ -40,11 +40,8 @@ export default function Depots({ locations, stock, products, movements, families
     if (!deletingLocation) return
     setDeleting(true)
     try {
-      // Delete stock and movements for this location, then the location itself
-      await db.delete('stock', `location_id=eq.${deletingLocation.id}`)
-      await db.delete('movements', `from_loc=eq.${deletingLocation.id}`)
-      await db.delete('movements', `to_loc=eq.${deletingLocation.id}`)
-      await db.delete('locations', `id=eq.${deletingLocation.id}`)
+      const data = await db.rpc('delete_location_atomic', { p_location_id: deletingLocation.id })
+      if (data && !data.success) throw new Error(data.error)
       onToast('Dépôt supprimé')
       setDeletingLocation(null)
       onReload()
@@ -81,7 +78,7 @@ export default function Depots({ locations, stock, products, movements, families
           }}
         >
           <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setSelectedDepot(null)} style={{ width: 30, height: 30, borderRadius: 15, background: '#F1F5F9', border: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            <button onClick={() => setSelectedDepot(null)} aria-label="Fermer" style={{ width: 30, height: 30, borderRadius: 15, background: '#F1F5F9', border: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           <DepotDetail
             embedded
@@ -311,7 +308,7 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
           <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 4 }}>Icône</div>
           <div style={{ display: 'flex', gap: 4 }}>
             {ICONS.map(i => (
-              <button key={i} onClick={() => setIcon(i)} style={{
+              <button key={i} onClick={() => setIcon(i)} aria-label={`Icône ${i}`} style={{
                 width: 32, height: 32, borderRadius: 8,
                 border: icon === i ? '2px solid #5B8DB8' : '1px solid #CBD5E1',
                 background: icon === i ? '#5B8DB812' : 'white', cursor: 'pointer',

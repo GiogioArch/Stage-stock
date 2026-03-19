@@ -221,16 +221,16 @@ export default function LiveShop({ eventId, fanId }) {
                 {c.product.name}{c.variant ? ` (${c.variant.label || c.variant.size || c.variant.name})` : ''}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <button onClick={() => updateQty(i, -1)} style={{
+                <button onClick={() => updateQty(i, -1)} aria-label="Diminuer" style={{
                   width: 32, height: 32, borderRadius: 8, background: `${EK.camel}10`,
                   color: EK.text, border: `1px solid ${EK.cardBorder}`, fontSize: 16, cursor: 'pointer',
                 }}>-</button>
                 <span style={{ fontSize: 14, fontWeight: 600, color: EK.text, minWidth: 20, textAlign: 'center' }}>{c.qty}</span>
-                <button onClick={() => updateQty(i, 1)} style={{
+                <button onClick={() => updateQty(i, 1)} aria-label="Augmenter" style={{
                   width: 32, height: 32, borderRadius: 8, background: `${EK.camel}10`,
                   color: EK.text, border: `1px solid ${EK.cardBorder}`, fontSize: 16, cursor: 'pointer',
                 }}>+</button>
-                <button onClick={() => removeFromCart(i)} style={{
+                <button onClick={() => removeFromCart(i)} aria-label="Retirer du panier" style={{
                   width: 32, height: 32, borderRadius: 8, background: `${EK.bordeaux}20`,
                   color: EK.bordeaux, border: `1px solid ${EK.bordeaux}30`, fontSize: 13, cursor: 'pointer', marginLeft: 4,
                 }}></button>

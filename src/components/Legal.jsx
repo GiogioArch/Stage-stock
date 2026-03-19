@@ -104,7 +104,7 @@ function LegalPage({ title, onClose, children }) {
           width: 36, height: 36, borderRadius: 10, background: '#E2E8F0',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 16, cursor: 'pointer', border: 'none',
-        }}>←</button>
+        }} aria-label="Retour">←</button>
         <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>{title}</div>
       </div>
       <div style={{

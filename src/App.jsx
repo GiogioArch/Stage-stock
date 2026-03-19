@@ -3,13 +3,15 @@ import { auth, db, safe } from './lib/supabase'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
 
 // ─── Critical components (loaded immediately) ───
-import MelodieChat from './components/MelodieChat'
-import Board from './components/Board'
 import Landing from './components/Landing'
 import { Toast } from './components/UI'
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
-import MovementModal from './components/MovementModal'
-import Scanner from './components/Scanner'
+
+// ─── Previously critical, now lazy-loaded for bundle size ───
+const MelodieChat = lazy(() => import('./components/MelodieChat'))
+const Board = lazy(() => import('./components/Board'))
+const MovementModal = lazy(() => import('./components/MovementModal'))
+const Scanner = lazy(() => import('./components/Scanner'))
 
 // ─── Lazy-loaded components (loaded on demand) ───
 const Melodie = lazy(() => import('./components/Melodie'))
@@ -27,6 +29,7 @@ const Transport = lazy(() => import('./components/Transport'))
 const ConcertMode = lazy(() => import('./components/ConcertMode'))
 const Achats = lazy(() => import('./components/Achats'))
 const Inventaire = lazy(() => import('./components/Inventaire'))
+const StockHub = lazy(() => import('./components/StockHub'))
 const Settings = lazy(() => import('./modules/Settings'))
 const ProfilePage = lazy(() => import('./components/ProfilePage'))
 const PersonalDashboard = lazy(() => import('./components/PersonalDashboard'))
@@ -34,7 +37,7 @@ const MyProjects = lazy(() => import('./components/MyProjects'))
 const Feedback = lazy(() => import('./components/Feedback'))
 const CGU = lazy(() => import('./components/Legal').then(m => ({ default: m.CGU })))
 const Privacy = lazy(() => import('./components/Legal').then(m => ({ default: m.Privacy })))
-import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3, Clock } from 'lucide-react'
+import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3, Clock, MoreHorizontal, X as XIcon, Music, ScanLine, Radio } from 'lucide-react'
 
 // ─── EK LIVE (fan-facing, no auth) ───
 const LiveApp = lazy(() => import('./live/LiveApp'))
@@ -46,11 +49,22 @@ const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
 // Icon map for module tabs (replaces emojis from registry)
 const TAB_ICONS = {
   dashboard: BarChart3, board: BarChart3, tournee: Calendar, articles: Package,
-  depots: Warehouse, stock: ClipboardList, equipe: Users, finance: Coins,
+  depots: Warehouse, stock: ClipboardList, stock_hub: Package, equipe: Users, finance: Coins,
   alertes: Bell, forecast: TrendingUp, ventes: ShoppingCart,
   achats: ShoppingBag, inventaire: ClipboardCheck, transport: Truck,
   timeline: Clock, settings: SettingsIcon, reglages: SettingsIcon, 'stock-group': Package,
+  more: MoreHorizontal,
 }
+
+// Bottom sheet "Plus" menu items
+const MORE_ITEMS = [
+  { id: 'finance', label: 'Finance', icon: Coins, color: '#E8935A' },
+  { id: 'forecast', label: 'Prévisions', icon: TrendingUp, color: '#E8935A' },
+  { id: 'ventes', label: 'Ventes', icon: ShoppingCart, color: '#5DAB8B' },
+  { id: 'transport', label: 'Transport', icon: Truck, color: '#E8735A' },
+  { id: 'live', label: 'EK LIVE', icon: Radio, color: '#C5A55A' },
+  { id: 'settings', label: 'Réglages', icon: SettingsIcon, color: '#64748B' },
+]
 
 // Personal layer tabs
 const PERSONAL_TABS = [
@@ -110,6 +124,7 @@ export default function App() {
   // ─── Scanner & modal state ───
   const [showScanner, setShowScanner] = useState(false)
   const [moveModal, setMoveModal] = useState(null)
+  const [showMore, setShowMore] = useState(false)
 
   // ─── Offline ───
   const [offline, setOffline] = useState(!navigator.onLine)
@@ -421,7 +436,7 @@ export default function App() {
   if (pathname.startsWith('/live')) return <LiveErrorBoundary><Suspense fallback={<SplashScreen text="Chargement..." />}><LiveApp /></Suspense></LiveErrorBoundary>
   if (pathname.startsWith('/display')) return <LiveErrorBoundary><Suspense fallback={<SplashScreen text="Chargement..." />}><LiveDisplay /></Suspense></LiveErrorBoundary>
 
-  if (user === undefined) return <SplashScreen text="Verification..." />
+  if (user === undefined) return <SplashScreen text="Vérification..." />
 
   // Legal pages (accessible from landing)
   if (legalPage === 'cgu') return <Suspense fallback={<SplashScreen text="Chargement..." />}><CGU onClose={() => setLegalPage(null)} /></Suspense>
@@ -504,7 +519,7 @@ export default function App() {
                 display: 'flex', alignItems: 'center', gap: 4,
               }}><WifiOff size={12} /> Hors ligne</span>
             )}
-            <button onClick={handleLogout} style={{
+            <button onClick={handleLogout} aria-label="Déconnexion" style={{
               width: 36, height: 36, borderRadius: 8, background: 'rgba(212,100,138,0.1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
               border: '1px solid rgba(212,100,138,0.15)',
@@ -546,7 +561,7 @@ export default function App() {
               <span style={{
                 display: 'inline-block', padding: '4px 12px', borderRadius: 6,
                 background: '#F1F5F9', color: '#94A3B8', fontSize: 11, fontWeight: 500,
-              }}>Bientot disponible</span>
+              }}>Bientôt disponible</span>
             </div>
           </div>
         )}
@@ -653,7 +668,7 @@ export default function App() {
             }}><WifiOff size={12} /> Hors ligne</span>
           )}
           {isModuleActive('stock') && (
-            <button onClick={() => setShowScanner(true)} style={{
+            <button onClick={() => setShowScanner(true)} aria-label="Scanner" style={{
               width: 36, height: 36, borderRadius: 8, background: '#F8FAFC',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: '1px solid #E2E8F0', cursor: 'pointer',
@@ -736,32 +751,100 @@ export default function App() {
       />
       </Suspense>
 
-      {/* ─── Bottom Nav (Couche 3 — grouped) ─── */}
+      {/* ─── Bottom Nav (Couche 3 — 5 onglets) ─── */}
       <nav className="bottom-nav">
-        {activeGroups.map(g => {
-          const isActive = currentGroup?.id === g.id
-          const IconComp = TAB_ICONS[g.id] || Box
-          // Couleur du premier module du groupe
-          const groupColor = MODULES[g.groupTabs[0]?.moduleId]?.color || '#5B8DB8'
-          return (
-            <button key={g.id}
-              className={`nav-tab ${isActive ? 'active' : ''}`}
-              style={isActive ? { color: groupColor } : undefined}
-              onClick={() => {
-                if (!isActive) handleTabChange(g.groupTabs[0].id)
-              }}>
-              <span className="nav-icon"><IconComp size={18} /></span>
-              <span>{g.label}</span>
-              {g.id === 'stock-group' && alerts.length > 0 && (
-                <span className="nav-badge">{alerts.length}</span>
-              )}
-            </button>
-          )
-        })}
+        {/* 1. Board */}
+        <button className={`nav-tab ${tab === 'board' ? 'active' : ''}`}
+          style={tab === 'board' ? { color: '#E8735A' } : undefined}
+          onClick={() => handleTabChange('board')}
+          aria-label="Board">
+          <span className="nav-icon"><BarChart3 size={18} /></span>
+          <span>Board</span>
+        </button>
+        {/* 2. Concert */}
+        <button className={`nav-tab ${['tournee', 'timeline'].includes(tab) ? 'active' : ''}`}
+          style={['tournee', 'timeline'].includes(tab) ? { color: '#E8735A' } : undefined}
+          onClick={() => handleTabChange('tournee')}
+          aria-label="Concert">
+          <span className="nav-icon"><Music size={18} /></span>
+          <span>Concert</span>
+        </button>
+        {/* 3. Stock */}
+        <button className={`nav-tab ${['stock_hub', 'articles', 'depots', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? 'active' : ''}`}
+          style={['stock_hub', 'articles', 'depots', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? { color: '#5B8DB8' } : undefined}
+          onClick={() => handleTabChange('stock_hub')}
+          aria-label="Stock">
+          <span className="nav-icon"><Package size={18} /></span>
+          <span>Stock</span>
+          {alerts.length > 0 && <span className="nav-badge">{alerts.length}</span>}
+        </button>
+        {/* 4. Équipe */}
+        <button className={`nav-tab ${tab === 'equipe' ? 'active' : ''}`}
+          style={tab === 'equipe' ? { color: '#E8735A' } : undefined}
+          onClick={() => handleTabChange('equipe')}
+          aria-label="Équipe">
+          <span className="nav-icon"><Users size={18} /></span>
+          <span>Équipe</span>
+        </button>
+        {/* 5. Plus */}
+        <button className={`nav-tab ${showMore || ['finance', 'forecast', 'ventes', 'transport', 'settings'].includes(tab) ? 'active' : ''}`}
+          style={showMore || ['finance', 'forecast', 'ventes', 'transport', 'settings'].includes(tab) ? { color: '#5B8DB8' } : undefined}
+          onClick={() => setShowMore(!showMore)}
+          aria-label="Plus de modules">
+          <span className="nav-icon"><MoreHorizontal size={18} /></span>
+          <span>Plus</span>
+        </button>
       </nav>
+
+      {/* ─── Bottom Sheet "Plus" ─── */}
+      {showMore && (
+        <div onClick={() => setShowMore(false)} style={{
+          position: 'fixed', inset: 0, zIndex: 150,
+          background: 'rgba(15,23,42,0.4)',
+          backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+          animation: 'fadeIn 0.15s ease',
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            background: 'white', borderRadius: '20px 20px 0 0',
+            padding: '12px 16px max(20px, env(safe-area-inset-bottom))',
+            boxShadow: '0 -8px 32px rgba(0,0,0,0.12)',
+            animation: 'slideUp 0.2s ease',
+          }}>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: '#E2E8F0', margin: '0 auto 16px' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+              {MORE_ITEMS.map(item => {
+                const isActive = tab === item.id
+                return (
+                  <button key={item.id} onClick={() => {
+                    if (item.id === 'live') {
+                      window.open('/live', '_blank')
+                    } else {
+                      handleTabChange(item.id)
+                    }
+                    setShowMore(false)
+                  }} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    gap: 6, padding: '16px 8px', borderRadius: 12,
+                    background: isActive ? `${item.color}15` : '#F8FAFC',
+                    border: `1px solid ${isActive ? `${item.color}30` : '#E2E8F0'}`,
+                    cursor: 'pointer',
+                  }}>
+                    <item.icon size={22} color={item.color} />
+                    <span style={{ fontSize: 11, fontWeight: 600, color: isActive ? item.color : '#64748B' }}>
+                      {item.label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─── Scanner Overlay ─── */}
       {showScanner && (
+        <Suspense fallback={<div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="loader" /></div>}>
         <Scanner
           products={filteredProducts}
           locations={data.locations}
@@ -770,10 +853,12 @@ export default function App() {
           onClose={() => setShowScanner(false)}
           onToast={showToast}
         />
+        </Suspense>
       )}
 
       {/* ─── Movement Modal ─── */}
       {moveModal && (
+        <Suspense fallback={<div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="loader" /></div>}>
         <MovementModal
           type={moveModal.type}
           products={filteredProducts}
@@ -785,9 +870,11 @@ export default function App() {
           onDone={() => { setMoveModal(null); loadAll() }}
           onToast={showToast}
         />
+        </Suspense>
       )}
 
       {/* ─── Melodie Chatbot ─── */}
+      <Suspense fallback={null}>
       <MelodieChat
         user={user}
         userRole={userRole}
@@ -795,6 +882,7 @@ export default function App() {
         events={data.events}
         data={data}
       />
+      </Suspense>
 
       {/* ─── Feedback widget (terrain) ─── */}
       <Suspense fallback={null}><Feedback user={user} orgId={selectedOrg?.id} context={tab} /></Suspense>
@@ -872,6 +960,24 @@ function TabContent({
           orgId={orgId}
           onReload={onReload}
           onToast={onToast}
+        />
+      )
+    case 'stock_hub':
+      return (
+        <StockHub
+          locations={data.locations}
+          stock={filteredStock}
+          products={filteredProducts}
+          movements={filteredMovements}
+          families={data.families}
+          subfamilies={data.subfamilies}
+          alerts={alerts}
+          events={data.events}
+          userRole={userRole}
+          orgId={orgId}
+          onReload={onReload}
+          onToast={onToast}
+          onMovement={onMovement}
         />
       )
     case 'depots':

@@ -50,6 +50,7 @@ export default function Feedback({ user, orgId, context }) {
     return (
       <button
         onClick={() => setOpen(true)}
+        aria-label="Donner un avis"
         style={{
           position: 'fixed', bottom: 80, right: 16, zIndex: 90,
           width: 44, height: 44, borderRadius: 22,
@@ -79,7 +80,7 @@ export default function Feedback({ user, orgId, context }) {
         <span style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
           {sent ? <><CheckCircle size={14} color="#5DAB8B" style={{ verticalAlign: 'middle', marginRight: 4 }} />Merci !</> : 'Ton avis compte'}
         </span>
-        <button onClick={() => setOpen(false)} style={{
+        <button onClick={() => setOpen(false)} aria-label="Fermer" style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: 4,
         }}>
           <X size={16} color="#94A3B8" />

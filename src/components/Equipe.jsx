@@ -497,7 +497,7 @@ export default function Equipe({
               }}
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} style={{
+              <button onClick={() => setSearchQuery('')} aria-label="Effacer la recherche" style={{
                 background: 'none', border: 'none', cursor: 'pointer', padding: 2,
               }}>
                 {createElement(X, { size: 14, color: BASE.textMuted })}
@@ -639,7 +639,7 @@ export default function Equipe({
               width: 36, height: 36, borderRadius: 10, background: 'white',
               border: `1px solid ${BASE.border}`, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>‹</button>
+            }} aria-label="Jour précédent">‹</button>
             <div style={{ flex: 1, textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 800, color: BASE.text }}>
                 {new Date(selectedDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -656,7 +656,7 @@ export default function Equipe({
               width: 36, height: 36, borderRadius: 10, background: 'white',
               border: `1px solid ${BASE.border}`, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>›</button>
+            }} aria-label="Jour suivant">›</button>
           </div>
 
           {/* Quick jump to event dates */}
@@ -937,7 +937,7 @@ function MemberDetail({
         position: 'relative',
       }}>
         {/* Close button */}
-        <button onClick={onBack} style={{
+        <button onClick={onBack} aria-label="Fermer" style={{
           position: 'absolute', top: 10, right: 10,
           width: 30, height: 30, borderRadius: 8,
           background: BASE.bgHover, border: 'none', cursor: 'pointer',

@@ -24,7 +24,7 @@ export function Modal({ onClose, title, children }) {
         {title && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1E293B' }}>{title}</h3>
-            <button onClick={onClose} style={{ color: '#94A3B8', padding: 4, display: 'flex', alignItems: 'center' }}>
+            <button onClick={onClose} aria-label="Fermer" style={{ color: '#94A3B8', padding: 4, display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} />
             </button>
           </div>

@@ -43,9 +43,8 @@ export default function Products({ products, families, subfamilies, stock, locat
 
   async function handleDelete(product) {
     try {
-      await db.delete('stock', `product_id=eq.${product.id}`)
-      await db.delete('movements', `product_id=eq.${product.id}`)
-      await db.delete('products', `id=eq.${product.id}`)
+      const data = await db.rpc('delete_product_atomic', { p_product_id: product.id })
+      if (data && !data.success) throw new Error(data.error)
       onToast('Produit supprimé')
       setConfirm(null)
       setModal(null)
@@ -92,7 +91,7 @@ export default function Products({ products, families, subfamilies, stock, locat
           }}
         >
           <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setModal(null)} style={{ width: 30, height: 30, borderRadius: 15, background: BASE.bgHover, border: 'none', fontSize: 16, color: BASE.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            <button onClick={() => setModal(null)} aria-label="Fermer" style={{ width: 30, height: 30, borderRadius: 15, background: BASE.bgHover, border: 'none', fontSize: 16, color: BASE.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           <ProductDetail
             embedded

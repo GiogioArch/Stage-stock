@@ -425,7 +425,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
             <button onClick={() => removeLine(i)} style={{
               width: 28, height: 28, borderRadius: RADIUS.sm, background: theme.tint15,
               border: 'none', color: theme.color, fontSize: 14, cursor: 'pointer',
-            }}>×</button>
+            }} aria-label="Supprimer la ligne">×</button>
           )}
         </div>
       ))}

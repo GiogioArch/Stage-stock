@@ -5,22 +5,22 @@ import LiveSetlist from './LiveSetlist'
 import LiveReactions from './LiveReactions'
 import LiveShop from './LiveShop'
 
-// ─── Design tokens matching esykennenga.fr ───
+// ─── Design tokens EK 25 Célébration ───
 export const EK = {
-  bleu: '#10204E',
-  bleuF: '#0B1735',
-  camel: '#5B8DB8',
-  camelH: '#8BB8D8',
+  bleu: '#1B2244',
+  bleuF: '#111833',
+  camel: '#C5A55A',
+  camelH: '#D4B86A',
   kaki: '#3D4825',
   bordeaux: '#D4648A',
   green: '#5DAB8B',
-  card: '#F8FAFC',
-  cardBorder: '#CBD5E1',
-  bg: '#FFFFFF',
-  text: '#1E293B',
+  card: 'rgba(197,165,90,0.08)',
+  cardBorder: 'rgba(197,165,90,0.15)',
+  bg: '#1B2244',
+  text: '#F0ECE2',
   textDim: 'rgba(240,236,226,0.55)',
   textMuted: 'rgba(240,236,226,0.3)',
-  overlay: 'rgba(16,32,78,0.08)',
+  overlay: 'rgba(27,34,68,0.08)',
 }
 
 const SCREENS = [
@@ -105,17 +105,18 @@ export default function LiveApp() {
       <header style={{
         position: 'sticky', top: 0, zIndex: 50,
         padding: '10px 16px',
-        background: 'rgba(8,8,8,0.85)',
+        background: 'rgba(27,34,68,0.92)',
         backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         borderBottom: `1px solid ${EK.cardBorder}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative',
       }}>
         <img
           src="https://images.squarespace-cdn.com/content/6674cfe71695a578165178c4/2bae59e9-2a91-41ba-80db-8bc7f5aba758/Logo+EK25+Ce%CC%81le%CC%81bration-09.png?content-type=image%2Fpng"
           alt="EK 25 Célébration"
-          style={{ height: 50, objectFit: 'contain' }}
+          style={{ height: 80, objectFit: 'contain' }}
         />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ position: 'absolute', right: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
           {event?.date && (
             <div style={{
               padding: '5px 12px', borderRadius: 8,
@@ -127,7 +128,7 @@ export default function LiveApp() {
           )}
           <div style={{
             padding: '5px 10px', borderRadius: 8,
-            background: EK.green, color: '#fff',
+            background: EK.camel, color: EK.bleu,
             fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
           }}>LIVE</div>
         </div>
@@ -171,7 +172,7 @@ export default function LiveApp() {
       {/* ─── Global live styles ─── */}
       <style>{`
         * { box-sizing: border-box; }
-        body { background: ${EK.bg}; margin: 0; }
+        body { background: #1B2244; margin: 0; }
         ::selection { background: ${EK.camel}40; color: ${EK.text}; }
         input::placeholder { color: ${EK.textMuted}; }
       `}</style>

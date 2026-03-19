@@ -147,7 +147,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
           <button onClick={onClose} style={{
             padding: '6px 12px', borderRadius: 8, fontSize: 14, fontWeight: 700,
             background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', cursor: 'pointer',
-          }}></button>
+          }} aria-label="Fermer"></button>
         </div>
       </div>
 
