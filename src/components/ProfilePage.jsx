@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, createElement } from 'react'
 import { db, safe } from '../lib/supabase'
-import { Lock, Eye } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
 import { parseDate } from './UI'
 
@@ -145,7 +145,7 @@ export default function ProfilePage({
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 40, border: `3px solid ${roleConf?.color || '#E2E8F0'}40`,
         }}>
-          {!details.avatar_url && (roleConf?.icon || '')}
+          {!details.avatar_url && roleConf?.icon && createElement(roleConf.icon, { size: 32, color: roleConf.color })}
         </div>
         <div style={{ fontSize: 20, fontWeight: 600, color: '#1E293B' }}>
           {isPhysical
@@ -165,9 +165,9 @@ export default function ProfilePage({
       </div>
 
       {/* Tab pills */}
-      <div style={{ display: 'flex', gap: 6, padding: '12px 16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div role="tablist" aria-label="Sections du profil" style={{ display: 'flex', gap: 6, padding: '12px 16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{
+          <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} style={{
             padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
             whiteSpace: 'nowrap', cursor: 'pointer', flexShrink: 0,
             background: tab === t.id ? '#8B6DB8' : 'white',
@@ -221,11 +221,11 @@ export default function ProfilePage({
           background: 'linear-gradient(180deg, transparent 0%, #FFF8F0 30%)',
           paddingTop: 24,
         }}>
-          <button onClick={onSwitchProject} style={{
+          <button onClick={() => onSwitchProject && onSwitchProject()} style={{
             flex: 1, padding: '12px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
             background: '#EEF4FA', border: '1px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
           }}> Changer projet</button>
-          <button onClick={() => { onClose(); onLogout() }} style={{
+          <button onClick={() => { onClose && onClose(); onLogout && onLogout() }} style={{
             flex: 1, padding: '12px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
             background: '#FDF0F4', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
           }}> Déconnexion</button>
@@ -415,7 +415,10 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
         ) : (
           <>
             <Field label="SIRET (14 chiffres)" value={form.siret} onChange={v => set('siret', v.replace(/[^0-9]/g, '').slice(0, 14))} inputMode="numeric" />
-            <ReadRow label="SIREN (auto)" value={(form.siret || '').replace(/[^0-9]/g, '').slice(0, 9) || '—'} />
+            <div style={{ marginBottom: 12 }}>
+              <label className="label">SIREN (auto)</label>
+              <input className="input" disabled value={(form.siret || '').replace(/[^0-9]/g, '').slice(0, 9) || '—'} style={{ background: '#F1F5F9', color: '#94A3B8' }} />
+            </div>
             <Field label="N° TVA intracommunautaire" value={form.tva_number} onChange={v => set('tva_number', v)} />
           </>
         )}
@@ -586,6 +589,7 @@ function GearTab({ user, gear, onToast, onReload }) {
   }
 
   const deleteGear = async (id) => {
+    if (!window.confirm('Supprimer cet équipement ?')) return
     try {
       await db.delete('user_gear', `id=eq.${id}`)
       onToast('Supprimé')
@@ -952,6 +956,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
   }
 
   const deleteIncome = async (id) => {
+    if (!window.confirm('Supprimer ce revenu ?')) return
     try {
       await db.delete('user_income', `id=eq.${id}`)
       onToast('Supprimé')
@@ -1133,12 +1138,19 @@ function FieldSelect({ label, value, onChange, options }) {
 }
 
 function SensitiveField({ label, value, onChange }) {
+  const [visible, setVisible] = useState(false)
   return (
     <div style={{ marginBottom: 12 }}>
       <label className="label">{label}</label>
-      <input className="input" type="text" value={value || ''} onChange={e => onChange(e.target.value)}
-        style={{ background: '#FFFDF5' }}
-      />
+      <div style={{ position: 'relative' }}>
+        <input className="input" type={visible ? 'text' : 'password'} value={value || ''} onChange={e => onChange(e.target.value)}
+          style={{ background: '#FFFDF5', paddingRight: 36 }}
+        />
+        <button onClick={() => setVisible(!visible)} aria-label={visible ? 'Masquer' : 'Afficher'} type="button" style={{
+          position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+          background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: '#94A3B8',
+        }}>{createElement(visible ? EyeOff : Eye, { size: 16 })}</button>
+      </div>
     </div>
   )
 }
@@ -1168,7 +1180,7 @@ function SensitiveRow({ label, value, masked, show, onToggle }) {
         </span>
         <button onClick={onToggle} aria-label={show ? 'Masquer' : 'Afficher'} style={{
           background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 2,
-        }}>{show ? createElement(Lock, { size: 14 }) : createElement(Eye, { size: 14 })}</button>
+        }}>{show ? createElement(EyeOff, { size: 14 }) : createElement(Eye, { size: 14 })}</button>
       </div>
     </div>
   )
