@@ -124,58 +124,64 @@ export default function Tour({ events, products, stock, locations, families, sub
       </div>
     )}
 
-    <div style={{ padding: '0 16px 24px' }}>
-      {/* Header */}
-      <div className="card" style={{ marginBottom: 16, padding: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 10,
-            background: 'rgba(232,115,90,0.12)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}><Calendar size={20} color="#E8735A" /></div>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B' }}>{orgName || 'Tournée'}</div>
-            <div style={{ fontSize: 12, color: '#94A3B8' }}>
-              {totalEvents} date{totalEvents > 1 ? 's' : ''} programmée{totalEvents > 1 ? 's' : ''}
-            </div>
-          </div>
+    <div style={{ paddingBottom: 24 }}>
+      {/* ═══ HEADER GRADIENT BOLD ═══ */}
+      <div style={{
+        background: 'linear-gradient(135deg, #E8735A, #D4648A)',
+        padding: '24px 16px 20px',
+        color: 'white',
+        marginBottom: 16,
+      }}>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, opacity: 0.85 }}>
+          Tournée
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <StatBox label="A venir" value={upcomingCount} color="#E8735A" />
-          <StatBox label="Passées" value={pastCount} color="#94A3B8" />
-          <StatBox label="Total" value={totalEvents} color="#E8735A" />
+        <div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>
+          {orgName || 'Ma tournée'} — {totalEvents} date{totalEvents > 1 ? 's' : ''}
+        </div>
+        <div style={{ display: 'flex', gap: 20, marginTop: 14 }}>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{upcomingCount}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>A venir</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 800 }}>{pastCount}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Passées</div>
+          </div>
           {nextEvent && (
-            <StatBox
-              label="Prochain"
-              value={`J-${Math.max(0, Math.ceil((new Date(nextEvent.date) - new Date()) / 86400000))}`}
-              color="#5DAB8B"
-            />
+            <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+              <div style={{ fontSize: 22, fontWeight: 800 }}>
+                J-{Math.max(0, Math.ceil((new Date(nextEvent.date) - new Date()) / 86400000))}
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.8 }}>Prochain</div>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Prochain concert - accès rapide */}
+      <div style={{ padding: '0 16px' }}>
+      {/* ═══ PROCHAIN CONCERT ═══ */}
       {nextEvent && (
         <button
           onClick={() => setSelectedEvent(nextEvent)}
-          className="card"
           style={{
             width: '100%', marginBottom: 16, padding: '14px 16px',
-            borderLeft: '3px solid #E8735A', cursor: 'pointer', textAlign: 'left',
+            borderRadius: 12, cursor: 'pointer', textAlign: 'left',
+            background: 'white', border: 'none',
+            boxShadow: '0 2px 8px rgba(232,115,90,0.15), 0 0 0 1px rgba(232,115,90,0.1)',
           }}
         >
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#E8735A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#E8735A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
             Prochain concert
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>{nextEvent.name || nextEvent.lieu}</div>
-              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>
-                {nextEvent.lieu} — {nextEvent.ville} ({nextEvent.territoire})
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{nextEvent.name || nextEvent.lieu}</div>
+              <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>
+                {nextEvent.lieu} — {nextEvent.ville}
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#E8735A' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#E8735A' }}>
                 {parseDate(nextEvent.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
               </div>
               <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>
@@ -186,7 +192,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         </button>
       )}
 
-      {/* Search */}
+      {/* ═══ SEARCH ═══ */}
       <div className="search-bar" style={{ marginBottom: 12 }}>
         <span className="search-icon"><Search size={16} /></span>
         <input
@@ -196,28 +202,29 @@ export default function Tour({ events, products, stock, locations, families, sub
         />
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+      {/* ═══ FILTERS BOLD ═══ */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {[
           { id: 'upcoming', label: `A venir (${upcomingCount})` },
           { id: 'past', label: `Passées (${pastCount})` },
           { id: 'all', label: `Toutes (${totalEvents})` },
         ].map(f => (
           <button key={f.id} onClick={() => setFilter(f.id)} style={{
-            flex: 1, padding: '6px', borderRadius: 6, fontSize: 11, fontWeight: 500,
-            cursor: 'pointer', textAlign: 'center',
-            background: filter === f.id ? 'rgba(232,115,90,0.12)' : 'transparent',
-            color: filter === f.id ? '#E8735A' : '#94A3B8',
-            border: `1px solid ${filter === f.id ? 'rgba(232,115,90,0.2)' : '#E2E8F0'}`,
+            flex: 1, padding: '10px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+            cursor: 'pointer', textAlign: 'center', border: 'none',
+            background: filter === f.id ? '#1E293B' : '#F1F5F9',
+            color: filter === f.id ? '#FFFFFF' : '#64748B',
+            transition: 'all 0.2s',
           }}>{f.label}</button>
         ))}
       </div>
 
-      {/* Add event button */}
+      {/* ═══ ADD EVENT ═══ */}
       <button onClick={() => setEventModal({ type: 'add' })} style={{
-        width: '100%', padding: '10px 16px', borderRadius: 8, marginBottom: 16,
-        background: 'transparent', border: '1px dashed rgba(232,115,90,0.3)', cursor: 'pointer',
-        fontSize: 13, fontWeight: 500, color: '#E8735A', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+        width: '100%', padding: '12px 16px', borderRadius: 10, marginBottom: 16,
+        background: 'linear-gradient(135deg, #E8735A, #D4648A)', border: 'none', cursor: 'pointer',
+        fontSize: 13, fontWeight: 700, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+        boxShadow: '0 2px 8px rgba(232,115,90,0.3)',
       }}><Plus size={14} /> Ajouter un événement</button>
 
       {/* Event list grouped by month */}
@@ -271,28 +278,30 @@ export default function Tour({ events, products, stock, locations, families, sub
 
                     <button
                       onClick={() => setSelectedEvent(ev)}
-                      className="card"
                       style={{
-                        width: '100%', padding: '12px 14px', cursor: 'pointer', textAlign: 'left',
-                        borderLeft: `3px solid ${isNext ? '#E8735A' : isPast ? '#E2E8F0' : fmt.color}`,
+                        width: '100%', padding: '14px 16px', cursor: 'pointer', textAlign: 'left',
+                        borderRadius: 12, border: 'none', marginBottom: 2,
+                        borderLeft: `4px solid ${isNext ? '#E8735A' : isPast ? '#E2E8F0' : fmt.color}`,
+                        background: 'white',
+                        boxShadow: isNext ? '0 2px 12px rgba(232,115,90,0.12)' : '0 1px 4px rgba(0,0,0,0.04)',
                         opacity: isPast ? 0.6 : 1,
                       }}
                     >
                       <div style={{ display: 'flex', gap: 12 }}>
-                        {/* Date block */}
+                        {/* Date block — BOLD style (fond plein coloré) */}
                         <div style={{
-                          width: 44, height: 48, borderRadius: 8, flexShrink: 0,
-                          background: isPast ? '#F1F5F9' : isNext ? 'rgba(232,115,90,0.12)' : `${fmt.color}12`,
+                          width: 48, height: 52, borderRadius: 10, flexShrink: 0,
+                          background: isPast ? '#E2E8F0' : isNext ? '#E8735A' : fmt.color,
                           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                          border: isNext ? '1px solid rgba(232,115,90,0.2)' : '1px solid transparent',
+                          color: isPast ? '#94A3B8' : 'white',
                         }}>
-                          <div style={{ fontSize: 15, fontWeight: 600, color: isPast ? '#CBD5E1' : isNext ? '#E8735A' : fmt.color, lineHeight: 1 }}>
+                          <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1 }}>
                             {d.getDate()}
                           </div>
-                          <div style={{ fontSize: 9, fontWeight: 500, color: isPast ? '#CBD5E1' : '#94A3B8', textTransform: 'uppercase' }}>
+                          <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', opacity: isPast ? 0.7 : 0.9 }}>
                             {d.toLocaleDateString('fr-FR', { month: 'short' })}
                           </div>
-                          <div style={{ fontSize: 8, color: '#CBD5E1', fontWeight: 500 }}>
+                          <div style={{ fontSize: 8, fontWeight: 600, opacity: 0.7 }}>
                             {d.toLocaleDateString('fr-FR', { weekday: 'short' })}
                           </div>
                         </div>
@@ -303,7 +312,7 @@ export default function Tour({ events, products, stock, locations, families, sub
                             <span style={{ fontSize: 14, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {ev.name || ev.lieu}
                             </span>
-                            {isNext && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 4, background: '#E8735A', color: 'white', fontWeight: 500 }}>NEXT</span>}
+                            {isNext && <span style={{ fontSize: 9, padding: '2px 8px', borderRadius: 6, background: '#E8735A', color: 'white', fontWeight: 700 }}>NEXT</span>}
                           </div>
                           <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 6 }}>
                             {ev.lieu && ev.lieu !== ev.name ? `${ev.lieu} — ` : ''}{ev.ville} ({ev.territoire})
@@ -356,6 +365,7 @@ export default function Tour({ events, products, stock, locations, families, sub
           </div>
         ))
       )}
+      </div>
       {/* Event form modal */}
       {eventModal && (
         <EventFormModal
