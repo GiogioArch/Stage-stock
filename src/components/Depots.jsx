@@ -322,7 +322,7 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
         <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 4 }}>Couleur</div>
         <div style={{ display: 'flex', gap: 6 }}>
           {COLORS.map(c => (
-            <button key={c} onClick={() => setColor(c)} style={{
+            <button key={c} onClick={() => setColor(c)} aria-label={`Couleur ${c}`} style={{
               width: 28, height: 28, borderRadius: 8, background: c, cursor: 'pointer',
               border: color === c ? '3px solid #1E293B' : '2px solid transparent',
             }} />
