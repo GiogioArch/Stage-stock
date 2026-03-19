@@ -2,6 +2,8 @@ import React, { useState, useMemo, createElement } from 'react'
 import { Badge, Modal } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import { db, safe } from '../lib/supabase'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { GradientHeader, SubTabs } from '../design'
 import {
   ChevronDown, ChevronRight, ChevronLeft, User, Mail, Phone, Calendar,
   CheckCircle2, Circle, Clock, MapPin, AlertTriangle, Star,
@@ -10,26 +12,28 @@ import {
   MoreVertical, Edit3, Trash2, Plus, Filter, X,
 } from 'lucide-react'
 
+const theme = getModuleTheme('equipe')
+
 // ─── Hiérarchie des rôles ───
 // 3 niveaux : Direction → Chefs techniques → Opérateurs
 const HIERARCHY = {
   direction: {
     label: 'Direction',
-    color: '#E8735A',
+    color: theme.color,
     icon: Crown,
     codes: ['TM', 'PM'],
     description: 'Pilotage stratégique et décisionnel de la tournée',
   },
   chefs: {
     label: 'Chefs Techniques',
-    color: '#E8735A',
+    color: theme.color,
     icon: Shield,
     codes: ['TD', 'SE', 'LD', 'SM'],
     description: 'Responsables de département, coordination technique',
   },
   operateurs: {
     label: 'Opérateurs',
-    color: '#E8935A',
+    color: SEMANTIC.warning,
     icon: Zap,
     codes: ['BL', 'MM', 'LOG', 'SAFE', 'AA', 'PA'],
     description: 'Exécution terrain, logistique et support',
@@ -55,16 +59,16 @@ const ROLE_RELATIONS = {
 const ROLE_ORDER = ['TM', 'PM', 'TD', 'SE', 'LD', 'SM', 'BL', 'MM', 'LOG', 'SAFE', 'AA', 'PA']
 
 const TASK_STATUS_CONF = {
-  pending: { label: 'À faire', color: '#94A3B8', icon: Circle },
-  in_progress: { label: 'En cours', color: '#E8935A', icon: Clock },
-  done: { label: 'Fait', color: '#5DAB8B', icon: CheckCircle2 },
+  pending: { label: 'À faire', color: BASE.textMuted, icon: Circle },
+  in_progress: { label: 'En cours', color: SEMANTIC.warning, icon: Clock },
+  done: { label: 'Fait', color: SEMANTIC.success, icon: CheckCircle2 },
   skipped: { label: 'Ignoré', color: '#B8A0AE', icon: Circle },
 }
 
 const CATEGORY_COLORS = {
-  logistique: '#E8735A', son: '#E8735A', lumiere: '#E8935A', scene: '#9B7DC4',
-  merch: '#D4648A', artiste: '#E8735A', securite: '#D4648A', transport: '#5DAB8B',
-  communication: '#E8735A', autre: '#94A3B8',
+  logistique: theme.color, son: theme.color, lumiere: SEMANTIC.warning, scene: '#9B7DC4',
+  merch: SEMANTIC.danger, artiste: theme.color, securite: SEMANTIC.danger, transport: SEMANTIC.success,
+  communication: theme.color, autre: BASE.textMuted,
 }
 
 // ─── Missions par rôle ───
@@ -189,7 +193,7 @@ export default function Equipe({
     return (userProfiles || []).map(p => {
       const role = (roles || []).find(r => r.id === p.role_id)
       const code = role?.code
-      const conf = code ? (ROLE_CONF[code] || { icon: ClipboardList, color: '#9A8B94', label: role.name }) : null
+      const conf = code ? (ROLE_CONF[code] || { icon: ClipboardList, color: BASE.textMuted, label: role.name }) : null
       const memberTasks = (eventTasks || []).filter(t =>
         t.assigned_user_id === p.user_id || (!t.assigned_user_id && t.assigned_role === code)
       )
@@ -226,7 +230,7 @@ export default function Equipe({
     return ROLE_ORDER.map(code => {
       const role = (roles || []).find(r => r.code === code)
       if (!role) return null
-      const conf = ROLE_CONF[code] || { icon: ClipboardList, color: '#9A8B94', label: role.name }
+      const conf = ROLE_CONF[code] || { icon: ClipboardList, color: BASE.textMuted, label: role.name }
       const members = allMembers.filter(m => m.roleCode === code)
       const roleTasks = (eventTasks || []).filter(t => t.assigned_role === code && t.status !== 'done')
       const upcomingPacking = (eventPacking || []).filter(ep =>
@@ -272,7 +276,7 @@ export default function Equipe({
       onToast?.(newStatus === 'done' ? 'Tâche terminée ✓' : 'Tâche rouverte')
       onReload?.()
     } catch (e) {
-      onToast?.('Erreur: ' + e.message, '#D4648A')
+      onToast?.('Erreur: ' + e.message, SEMANTIC.danger)
     }
   }
 
@@ -283,73 +287,29 @@ export default function Equipe({
     <div style={{ paddingBottom: 24 }}>
 
       {/* ─── Gradient Header ─── */}
-      <div style={{
-        background: 'linear-gradient(135deg, #E8735A, #D4648A)',
-        padding: '24px 20px 20px',
-        marginBottom: 16,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: 'white' }}>Équipe</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 600, marginTop: 2 }}>
-              {assignedRoles}/{teamByRole.length} rôles pourvus
-            </div>
-          </div>
-          {nextEvent && (
-            <div style={{
-              padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.2)',
-              textAlign: 'center',
-            }}>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>PROCHAIN</div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: 'white' }}>
-                {new Date(nextEvent.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-              </div>
-            </div>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{totalMembers}</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Membres</div>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{totalPendingTasks}</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Tâches</div>
-          </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px', background: 'rgba(255,255,255,0.18)', borderRadius: 12 }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{upcomingEvents.length}</div>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: 3 }}>Événements</div>
-          </div>
-        </div>
-      </div>
+      <GradientHeader
+        module="equipe"
+        title="Équipe"
+        subtitle={`${assignedRoles}/${teamByRole.length} rôles pourvus`}
+        stats={[
+          { value: totalMembers, label: 'Membres' },
+          { value: totalPendingTasks, label: 'Tâches' },
+          { value: upcomingEvents.length, label: 'Événements' },
+        ]}
+      />
 
       <div style={{ padding: '0 16px' }}>
 
       {/* ─── View toggle ─── */}
-      <div style={{
-        display: 'flex', gap: 4, marginBottom: 16, padding: 3,
-        background: '#F1F5F9', borderRadius: 12,
-      }}>
-        {[
+      <SubTabs
+        tabs={[
           { id: 'organigramme', label: 'Organigramme', icon: Network },
           { id: 'membres', label: 'Membres', icon: Users },
           { id: 'planning', label: 'Planning', icon: CalendarDays },
-        ].map(v => (
-          <button key={v.id} onClick={() => { setView(v.id); setSelectedMember(null) }} style={{
-            flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-            cursor: 'pointer', textAlign: 'center',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-            background: view === v.id ? 'white' : 'transparent',
-            color: view === v.id ? '#1E293B' : '#94A3B8',
-            border: 'none',
-            boxShadow: view === v.id ? '0 1px 3px #0001' : 'none',
-            transition: 'all 0.2s',
-          }}>
-            {createElement(v.icon, { size: 13 })}
-            {v.label}
-          </button>
-        ))}
-      </div>
+        ]}
+        active={view}
+        onChange={(id) => { setView(id); setSelectedMember(null) }}
+      />
 
       {/* ═══ VIEW: ORGANIGRAMME (HIÉRARCHIE) ═══ */}
       {view === 'organigramme' && (
@@ -384,7 +344,7 @@ export default function Equipe({
                       <div style={{ fontSize: 14, fontWeight: 900, color: data.color }}>
                         {data.label}
                       </div>
-                      <div style={{ fontSize: 11, color: '#64748B' }}>
+                      <div style={{ fontSize: 11, color: BASE.textSoft }}>
                         {data.description}
                       </div>
                     </div>
@@ -392,14 +352,14 @@ export default function Equipe({
                       <div style={{ fontSize: 16, fontWeight: 900, color: data.color }}>
                         {levelMembers.length}
                       </div>
-                      <div style={{ fontSize: 8, color: '#94A3B8', fontWeight: 600 }}>
+                      <div style={{ fontSize: 8, color: BASE.textMuted, fontWeight: 600 }}>
                         membre{levelMembers.length > 1 ? 's' : ''}
                       </div>
                     </div>
                     <span style={{
                       transition: 'transform 0.2s',
                       transform: isExpanded ? 'rotate(180deg)' : 'none',
-                      color: '#94A3B8',
+                      color: BASE.textMuted,
                     }}>
                       {createElement(ChevronDown, { size: 16 })}
                     </span>
@@ -419,7 +379,7 @@ export default function Equipe({
                     {level !== 'direction' && (
                       <div style={{
                         textAlign: 'center', padding: '0 0 10px',
-                        fontSize: 10, color: '#94A3B8', fontWeight: 600,
+                        fontSize: 10, color: BASE.textMuted, fontWeight: 600,
                       }}>
                         {createElement(ArrowRight, { size: 12, style: { verticalAlign: 'middle', transform: 'rotate(90deg)' } })}
                         {' '}Reporte à {level === 'chefs' ? 'Direction' : 'Chefs Techniques'}
@@ -443,10 +403,10 @@ export default function Equipe({
                             {createElement(t.conf.icon, { size: 20, color: t.conf.color })}
                           </div>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 13, fontWeight: 800, color: '#1E293B' }}>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: BASE.text }}>
                               {t.conf.label}
                             </div>
-                            <div style={{ fontSize: 10, color: '#64748B' }}>
+                            <div style={{ fontSize: 10, color: BASE.textSoft }}>
                               {t.members.length > 0
                                 ? `${t.members.length} membre${t.members.length > 1 ? 's' : ''}`
                                 : 'Poste vacant'}
@@ -458,8 +418,8 @@ export default function Equipe({
                             <div style={{
                               display: 'flex', alignItems: 'center', gap: 2,
                             }}>
-                              {createElement(Link2, { size: 12, color: '#94A3B8' })}
-                              <span style={{ fontSize: 9, color: '#94A3B8', fontWeight: 700 }}>
+                              {createElement(Link2, { size: 12, color: BASE.textMuted })}
+                              <span style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 700 }}>
                                 {(ROLE_RELATIONS[t.code].collaborates || []).length}
                               </span>
                             </div>
@@ -472,7 +432,7 @@ export default function Equipe({
                             display: 'flex', alignItems: 'center', gap: 10,
                             padding: '10px 12px 10px 24px',
                             background: 'white', borderRadius: 10,
-                            border: '1px solid #E2E8F020',
+                            border: `1px solid ${BASE.border}20`,
                             width: '100%', cursor: 'pointer', textAlign: 'left',
                             marginBottom: 4, marginLeft: 16,
                             borderLeft: `3px solid ${t.conf.color}40`,
@@ -486,22 +446,22 @@ export default function Equipe({
                               {(m.display_name || m.pseudo || '?')[0].toUpperCase()}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: BASE.text }}>
                                 {m.display_name || m.pseudo || 'Membre'}
                               </div>
-                              <div style={{ fontSize: 10, color: '#64748B' }}>
+                              <div style={{ fontSize: 10, color: BASE.textSoft }}>
                                 {m.memberTasks.filter(tk => tk.status !== 'done').length} tâche{m.memberTasks.filter(tk => tk.status !== 'done').length !== 1 ? 's' : ''} en cours
                               </div>
                             </div>
                             {user && m.user_id === user.id && <Badge color={t.conf.color}>Moi</Badge>}
-                            {createElement(ChevronRight, { size: 14, color: '#94A3B8' })}
+                            {createElement(ChevronRight, { size: 14, color: BASE.textMuted })}
                           </button>
                         ))}
 
                         {t.members.length === 0 && (
                           <div style={{
                             marginLeft: 16, padding: '8px 12px',
-                            fontSize: 11, color: '#94A3B8', fontStyle: 'italic',
+                            fontSize: 11, color: BASE.textMuted, fontStyle: 'italic',
                           }}>
                             Aucun membre assigné
                           </div>
@@ -522,10 +482,10 @@ export default function Equipe({
           {/* Search bar */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
-            background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0',
+            background: BASE.bgSurface, borderRadius: 12, border: `1px solid ${BASE.border}`,
             marginBottom: 14,
           }}>
-            {createElement(Search, { size: 16, color: '#94A3B8' })}
+            {createElement(Search, { size: 16, color: BASE.textMuted })}
             <input
               type="text"
               placeholder="Rechercher un membre ou un rôle..."
@@ -533,14 +493,14 @@ export default function Equipe({
               onChange={e => setSearchQuery(e.target.value)}
               style={{
                 flex: 1, border: 'none', background: 'none', outline: 'none',
-                fontSize: 13, color: '#1E293B',
+                fontSize: 13, color: BASE.text,
               }}
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery('')} style={{
                 background: 'none', border: 'none', cursor: 'pointer', padding: 2,
               }}>
-                {createElement(X, { size: 14, color: '#94A3B8' })}
+                {createElement(X, { size: 14, color: BASE.textMuted })}
               </button>
             )}
           </div>
@@ -549,7 +509,7 @@ export default function Equipe({
           {filteredMembers.length === 0 ? (
             <div className="empty-state" style={{ padding: 40 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>
-                {createElement(Users, { size: 48, color: '#E2E8F0' })}
+                {createElement(Users, { size: 48, color: BASE.border })}
               </div>
               <div className="empty-text">{searchQuery ? 'Aucun résultat' : 'Aucun membre dans l\'équipe'}</div>
             </div>
@@ -566,16 +526,16 @@ export default function Equipe({
                   <button key={i} onClick={() => setSelectedMember(m)} className="card" style={{
                     display: 'flex', alignItems: 'center', gap: 14, padding: '16px',
                     width: '100%', cursor: 'pointer', textAlign: 'left',
-                    borderLeft: m.roleConf ? `4px solid ${m.roleConf.color}` : '4px solid #E2E8F0',
+                    borderLeft: m.roleConf ? `4px solid ${m.roleConf.color}` : `4px solid ${BASE.border}`,
                   }}>
                     {/* Avatar */}
                     <div style={{ position: 'relative' }}>
                       <div style={{
                         width: 50, height: 50, borderRadius: 14,
-                        background: m.roleConf ? `${m.roleConf.color}12` : '#F1F5F9',
+                        background: m.roleConf ? `${m.roleConf.color}12` : BASE.bgHover,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 20, fontWeight: 900, color: m.roleConf?.color || '#94A3B8',
-                        border: `2px solid ${m.roleConf?.color || '#E2E8F0'}25`,
+                        fontSize: 20, fontWeight: 900, color: m.roleConf?.color || BASE.textMuted,
+                        border: `2px solid ${m.roleConf?.color || BASE.border}25`,
                       }}>
                         {(m.display_name || m.pseudo || '?')[0].toUpperCase()}
                       </div>
@@ -596,13 +556,13 @@ export default function Equipe({
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: '#1E293B' }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: BASE.text }}>
                           {m.display_name || m.pseudo || 'Membre'}
                         </span>
                         {user && m.user_id === user.id && (
                           <span style={{
-                            fontSize: 9, fontWeight: 700, color: '#E8735A',
-                            padding: '1px 6px', borderRadius: 4, background: '#E8735A10',
+                            fontSize: 9, fontWeight: 700, color: theme.color,
+                            padding: '1px 6px', borderRadius: 4, background: `${theme.color}10`,
                           }}>MOI</span>
                         )}
                       </div>
@@ -623,16 +583,16 @@ export default function Equipe({
                       {totalTasks > 0 && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                           <div style={{
-                            flex: 1, height: 4, borderRadius: 2, background: '#F1F5F9',
+                            flex: 1, height: 4, borderRadius: 2, background: BASE.bgHover,
                             maxWidth: 100,
                           }}>
                             <div style={{
                               width: `${completionRate}%`, height: '100%', borderRadius: 2,
-                              background: completionRate >= 80 ? '#5DAB8B' : completionRate >= 50 ? '#E8935A' : '#94A3B8',
+                              background: completionRate >= 80 ? SEMANTIC.success : completionRate >= 50 ? SEMANTIC.warning : BASE.textMuted,
                               transition: 'width 0.3s',
                             }} />
                           </div>
-                          <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600 }}>
+                          <span style={{ fontSize: 10, color: BASE.textSoft, fontWeight: 600 }}>
                             {doneCount}/{totalTasks}
                           </span>
                         </div>
@@ -643,7 +603,7 @@ export default function Equipe({
                     <div style={{ textAlign: 'right' }}>
                       {pendingCount > 0 && (
                         <div style={{
-                          fontSize: 11, fontWeight: 800, color: '#E8935A',
+                          fontSize: 11, fontWeight: 800, color: SEMANTIC.warning,
                           display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end',
                         }}>
                           {createElement(Clock, { size: 12 })}
@@ -651,13 +611,13 @@ export default function Equipe({
                         </div>
                       )}
                       {m.packing.length > 0 && (
-                        <div style={{ fontSize: 10, color: '#64748B', marginTop: 2 }}>
+                        <div style={{ fontSize: 10, color: BASE.textSoft, marginTop: 2 }}>
                           {m.packing.filter(p => p.packed).length}/{m.packing.length} pack
                         </div>
                       )}
                     </div>
 
-                    {createElement(ChevronRight, { size: 16, color: '#CBD5E1' })}
+                    {createElement(ChevronRight, { size: 16, color: BASE.textDisabled })}
                   </button>
                 )
               })}
@@ -677,15 +637,15 @@ export default function Equipe({
               setSelectedDate(d.toISOString().split('T')[0])
             }} style={{
               width: 36, height: 36, borderRadius: 10, background: 'white',
-              border: '1px solid #E2E8F0', cursor: 'pointer', fontSize: 16,
+              border: `1px solid ${BASE.border}`, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>‹</button>
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B' }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: BASE.text }}>
                 {new Date(selectedDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </div>
               {selectedDate === today && (
-                <div style={{ fontSize: 10, color: '#5DAB8B', fontWeight: 700 }}>Aujourd'hui</div>
+                <div style={{ fontSize: 10, color: SEMANTIC.success, fontWeight: 700 }}>Aujourd'hui</div>
               )}
             </div>
             <button onClick={() => {
@@ -694,7 +654,7 @@ export default function Equipe({
               setSelectedDate(d.toISOString().split('T')[0])
             }} style={{
               width: 36, height: 36, borderRadius: 10, background: 'white',
-              border: '1px solid #E2E8F0', cursor: 'pointer', fontSize: 16,
+              border: `1px solid ${BASE.border}`, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>›</button>
           </div>
@@ -709,9 +669,9 @@ export default function Equipe({
                 <button key={evt.id} onClick={() => setSelectedDate(evt.date)} style={{
                   padding: '6px 12px', borderRadius: 8, whiteSpace: 'nowrap',
                   fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                  background: selectedDate === evt.date ? '#E8735A10' : '#F8FAFC',
-                  color: selectedDate === evt.date ? '#E8735A' : '#64748B',
-                  border: `1px solid ${selectedDate === evt.date ? '#E8735A30' : '#E2E8F0'}`,
+                  background: selectedDate === evt.date ? `${theme.color}10` : BASE.bgSurface,
+                  color: selectedDate === evt.date ? theme.color : BASE.textSoft,
+                  border: `1px solid ${selectedDate === evt.date ? `${theme.color}30` : BASE.border}`,
                   flexShrink: 0,
                 }}>
                   {new Date(evt.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
@@ -724,16 +684,16 @@ export default function Equipe({
           {upcomingEvents.filter(e => e.date === selectedDate).map(evt => (
             <div key={evt.id} className="card" style={{
               padding: '12px 14px', marginBottom: 12,
-              borderLeft: '4px solid #E8735A',
+              borderLeft: `4px solid ${theme.color}`,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {createElement(Calendar, { size: 16, color: '#E8735A' })}
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#1E293B' }}>{evt.name}</span>
+                {createElement(Calendar, { size: 16, color: theme.color })}
+                <span style={{ fontSize: 13, fontWeight: 800, color: BASE.text }}>{evt.name}</span>
               </div>
               {evt.lieu && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                  {createElement(MapPin, { size: 12, color: '#94A3B8' })}
-                  <span style={{ fontSize: 11, color: '#94A3B8' }}>{evt.lieu}{evt.ville ? `, ${evt.ville}` : ''}</span>
+                  {createElement(MapPin, { size: 12, color: BASE.textMuted })}
+                  <span style={{ fontSize: 11, color: BASE.textMuted }}>{evt.lieu}{evt.ville ? `, ${evt.ville}` : ''}</span>
                 </div>
               )}
             </div>
@@ -743,10 +703,10 @@ export default function Equipe({
           {dayTasks.length === 0 ? (
             <div className="empty-state" style={{ padding: 32 }}>
               <div style={{ marginBottom: 8 }}>
-                {createElement(CalendarDays, { size: 40, color: '#E2E8F0' })}
+                {createElement(CalendarDays, { size: 40, color: BASE.border })}
               </div>
               <div className="empty-text">Aucune tâche pour cette date</div>
-              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>
+              <div style={{ fontSize: 11, color: BASE.textMuted, marginTop: 4 }}>
                 Utilisez le mode événement pour planifier les tâches
               </div>
             </div>
@@ -756,7 +716,7 @@ export default function Equipe({
               {ROLE_ORDER.filter(code =>
                 dayTasks.some(t => t.assigned_role === code)
               ).map(code => {
-                const conf = ROLE_CONF[code] || { icon: ClipboardList, color: '#94A3B8', label: code }
+                const conf = ROLE_CONF[code] || { icon: ClipboardList, color: BASE.textMuted, label: code }
                 const roleDayTasks = dayTasks.filter(t => t.assigned_role === code)
                 const roleMember = getMembersByRole(code)
 
@@ -769,20 +729,20 @@ export default function Equipe({
                       {createElement(conf.icon, { size: 16, color: conf.color })}
                       <span style={{ fontSize: 12, fontWeight: 800, color: conf.color }}>{conf.label}</span>
                       {roleMember.length > 0 && (
-                        <span style={{ fontSize: 10, color: '#94A3B8' }}>
+                        <span style={{ fontSize: 10, color: BASE.textMuted }}>
                           — {roleMember.map(m => m.display_name || m.pseudo).join(', ')}
                         </span>
                       )}
                       <span style={{
                         marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                        color: '#64748B', padding: '2px 6px', borderRadius: 4,
-                        background: '#F1F5F9',
+                        color: BASE.textSoft, padding: '2px 6px', borderRadius: 4,
+                        background: BASE.bgHover,
                       }}>{roleDayTasks.length}</span>
                     </div>
 
                     {roleDayTasks.map(task => {
                       const statusConf = TASK_STATUS_CONF[task.status] || TASK_STATUS_CONF.pending
-                      const catColor = CATEGORY_COLORS[task.category] || '#94A3B8'
+                      const catColor = CATEGORY_COLORS[task.category] || BASE.textMuted
                       const hour = task.hour_offset >= 0 ? `H+${task.hour_offset}` : `H${task.hour_offset}`
                       return (
                         <button key={task.id} onClick={() => handleTaskToggle(task)} className="card" style={{
@@ -797,20 +757,20 @@ export default function Equipe({
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{
-                                fontSize: 12, fontWeight: 700, color: '#1E293B',
+                                fontSize: 12, fontWeight: 700, color: BASE.text,
                                 textDecoration: task.status === 'done' ? 'line-through' : 'none',
                               }}>{task.title}</div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
                                 <span style={{
-                                  fontSize: 10, fontWeight: 800, color: '#E8735A',
-                                  padding: '1px 6px', borderRadius: 4, background: '#E8735A08',
+                                  fontSize: 10, fontWeight: 800, color: theme.color,
+                                  padding: '1px 6px', borderRadius: 4, background: `${theme.color}08`,
                                   fontFamily: 'monospace',
                                 }}>{hour}</span>
                                 {task.priority === 'critical' && (
-                                  <span style={{ fontSize: 9, color: '#D4648A', fontWeight: 800 }}>CRITIQUE</span>
+                                  <span style={{ fontSize: 9, color: SEMANTIC.danger, fontWeight: 800 }}>CRITIQUE</span>
                                 )}
                                 {task.priority === 'high' && (
-                                  <span style={{ fontSize: 9, color: '#E8935A', fontWeight: 800 }}>PRIORITÉ</span>
+                                  <span style={{ fontSize: 9, color: SEMANTIC.warning, fontWeight: 800 }}>PRIORITÉ</span>
                                 )}
                               </div>
                             </div>
@@ -860,7 +820,7 @@ export default function Equipe({
               borderRadius: '20px 20px 0 0',
             }}>
               <div style={{
-                width: 36, height: 4, borderRadius: 2, background: '#E2E8F0',
+                width: 36, height: 4, borderRadius: 2, background: BASE.border,
               }} />
             </div>
             <div style={{ padding: '0 16px 24px' }}>
@@ -901,7 +861,7 @@ function MemberDetail({
 
   const role = (roles || []).find(r => r.id === member.role_id)
   const code = role?.code
-  const conf = code ? (ROLE_CONF[code] || { icon: ClipboardList, color: '#9A8B94', label: role.name }) : null
+  const conf = code ? (ROLE_CONF[code] || { icon: ClipboardList, color: BASE.textMuted, label: role.name }) : null
   const isMe = user && member.user_id === user.id
   const hierInfo = code ? getHierarchyInfo(code) : null
   const relations = code ? ROLE_RELATIONS[code] : null
@@ -973,26 +933,26 @@ function MemberDetail({
       <div className="card" style={{
         padding: '24px 16px 20px', marginBottom: 16, textAlign: 'center',
         background: conf ? `linear-gradient(180deg, ${conf.color}08, white)` : 'white',
-        borderTop: `4px solid ${conf?.color || '#E2E8F0'}`,
+        borderTop: `4px solid ${conf?.color || BASE.border}`,
         position: 'relative',
       }}>
         {/* Close button */}
         <button onClick={onBack} style={{
           position: 'absolute', top: 10, right: 10,
           width: 30, height: 30, borderRadius: 8,
-          background: '#F1F5F9', border: 'none', cursor: 'pointer',
+          background: BASE.bgHover, border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          {createElement(X, { size: 16, color: '#94A3B8' })}
+          {createElement(X, { size: 16, color: BASE.textMuted })}
         </button>
         {/* Avatar */}
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <div style={{
             width: 72, height: 72, borderRadius: 20, margin: '0 auto 14px',
-            background: conf ? `${conf.color}12` : '#F1F5F9',
+            background: conf ? `${conf.color}12` : BASE.bgHover,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 30, fontWeight: 900, color: conf?.color || '#94A3B8',
-            border: `3px solid ${conf?.color || '#E2E8F0'}25`,
+            fontSize: 30, fontWeight: 900, color: conf?.color || BASE.textMuted,
+            border: `3px solid ${conf?.color || BASE.border}25`,
           }}>
             {(member.display_name || member.pseudo || '?')[0].toUpperCase()}
           </div>
@@ -1010,7 +970,7 @@ function MemberDetail({
           )}
         </div>
 
-        <div style={{ fontSize: 20, fontWeight: 900, color: '#1E293B' }}>
+        <div style={{ fontSize: 20, fontWeight: 900, color: BASE.text }}>
           {member.display_name || member.pseudo || 'Membre'}
           {isMe && <span style={{ fontSize: 12, color: conf?.color, marginLeft: 6 }}>(moi)</span>}
         </div>
@@ -1024,17 +984,17 @@ function MemberDetail({
 
         {member.email && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 }}>
-            {createElement(Mail, { size: 12, color: '#94A3B8' })}
-            <span style={{ fontSize: 12, color: '#94A3B8' }}>{member.email}</span>
+            {createElement(Mail, { size: 12, color: BASE.textMuted })}
+            <span style={{ fontSize: 12, color: BASE.textMuted }}>{member.email}</span>
           </div>
         )}
 
         {/* ─── Stats row ─── */}
         <div style={{ display: 'flex', gap: 8, marginTop: 18 }}>
-          <KpiBox label="À faire" value={pendingTasks} color="#E8935A" />
-          <KpiBox label="Fait" value={doneTasks} color="#5DAB8B" />
-          <KpiBox label="Packing" value={myPacking.length > 0 ? `${packDone}/${myPacking.length}` : '—'} color="#E8735A" />
-          <KpiBox label="Dispo" value={availableCount > 0 ? `${availableCount}/${upcomingEvents.length}` : '—'} color="#8B6DB8" />
+          <KpiBox label="À faire" value={pendingTasks} color={SEMANTIC.warning} />
+          <KpiBox label="Fait" value={doneTasks} color={SEMANTIC.success} />
+          <KpiBox label="Packing" value={myPacking.length > 0 ? `${packDone}/${myPacking.length}` : '—'} color={theme.color} />
+          <KpiBox label="Dispo" value={availableCount > 0 ? `${availableCount}/${upcomingEvents.length}` : '—'} color={SEMANTIC.melodie} />
         </div>
 
         {/* Completion bar */}
@@ -1043,15 +1003,15 @@ function MemberDetail({
             <div style={{
               display: 'flex', justifyContent: 'space-between', marginBottom: 4,
             }}>
-              <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600 }}>Progression tâches</span>
-              <span style={{ fontSize: 10, fontWeight: 800, color: completionRate >= 80 ? '#5DAB8B' : '#E8935A' }}>
+              <span style={{ fontSize: 10, color: BASE.textSoft, fontWeight: 600 }}>Progression tâches</span>
+              <span style={{ fontSize: 10, fontWeight: 800, color: completionRate >= 80 ? SEMANTIC.success : SEMANTIC.warning }}>
                 {completionRate}%
               </span>
             </div>
-            <div style={{ height: 6, borderRadius: 3, background: '#F1F5F9' }}>
+            <div style={{ height: 6, borderRadius: 3, background: BASE.bgHover }}>
               <div style={{
                 width: `${completionRate}%`, height: '100%', borderRadius: 3,
-                background: completionRate >= 80 ? '#5DAB8B' : completionRate >= 50 ? '#E8935A' : '#94A3B8',
+                background: completionRate >= 80 ? SEMANTIC.success : completionRate >= 50 ? SEMANTIC.warning : BASE.textMuted,
                 transition: 'width 0.5s ease',
               }} />
             </div>
@@ -1062,7 +1022,7 @@ function MemberDetail({
       {/* ─── Sub-tabs ─── */}
       <div style={{
         display: 'flex', gap: 3, marginBottom: 14, padding: 3,
-        background: '#F1F5F9', borderRadius: 10, overflowX: 'auto',
+        background: BASE.bgHover, borderRadius: 10, overflowX: 'auto',
         WebkitOverflowScrolling: 'touch',
       }}>
         {[
@@ -1076,7 +1036,7 @@ function MemberDetail({
             flex: 1, padding: '7px 6px', borderRadius: 8, fontSize: 10, fontWeight: 700,
             cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap',
             background: subTab === s.id ? 'white' : 'transparent',
-            color: subTab === s.id ? '#1E293B' : '#94A3B8',
+            color: subTab === s.id ? BASE.text : BASE.textMuted,
             border: 'none',
             boxShadow: subTab === s.id ? '0 1px 3px #0001' : 'none',
           }}>{s.label}</button>
@@ -1089,31 +1049,31 @@ function MemberDetail({
           {/* Role description */}
           {role?.description && (
             <div className="card" style={{ padding: '14px 16px' }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>
                 Description du rôle
               </div>
-              <div style={{ fontSize: 13, color: '#1E293B', lineHeight: 1.6 }}>{role.description}</div>
+              <div style={{ fontSize: 13, color: BASE.text, lineHeight: 1.6 }}>{role.description}</div>
             </div>
           )}
 
           {/* Hierarchy position */}
           {hierInfo && relations && (
             <div className="card" style={{ padding: '14px 16px' }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
                 Position dans l'équipe
               </div>
               {relations.reportsTo && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  {createElement(ArrowRight, { size: 12, color: '#94A3B8', style: { transform: 'rotate(-90deg)' } })}
-                  <span style={{ fontSize: 12, color: '#64748B' }}>
+                  {createElement(ArrowRight, { size: 12, color: BASE.textMuted, style: { transform: 'rotate(-90deg)' } })}
+                  <span style={{ fontSize: 12, color: BASE.textSoft }}>
                     Reporte à <strong style={{ color: ROLE_CONF[relations.reportsTo]?.color }}>{ROLE_CONF[relations.reportsTo]?.label}</strong>
                   </span>
                 </div>
               )}
               {relations.supervises.length > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  {createElement(ArrowRight, { size: 12, color: '#94A3B8', style: { transform: 'rotate(90deg)' } })}
-                  <span style={{ fontSize: 12, color: '#64748B' }}>
+                  {createElement(ArrowRight, { size: 12, color: BASE.textMuted, style: { transform: 'rotate(90deg)' } })}
+                  <span style={{ fontSize: 12, color: BASE.textSoft }}>
                     Supervise {relations.supervises.map(c => (
                       <strong key={c} style={{ color: ROLE_CONF[c]?.color }}>{ROLE_CONF[c]?.label}</strong>
                     )).reduce((prev, curr) => [prev, ', ', curr])}
@@ -1122,8 +1082,8 @@ function MemberDetail({
               )}
               {relations.collaborates.length > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {createElement(Link2, { size: 12, color: '#94A3B8' })}
-                  <span style={{ fontSize: 12, color: '#64748B' }}>
+                  {createElement(Link2, { size: 12, color: BASE.textMuted })}
+                  <span style={{ fontSize: 12, color: BASE.textSoft }}>
                     Collabore avec {relations.collaborates.map(c => (
                       <strong key={c} style={{ color: ROLE_CONF[c]?.color }}>{ROLE_CONF[c]?.label}</strong>
                     )).reduce((prev, curr) => [prev, ', ', curr])}
@@ -1135,7 +1095,7 @@ function MemberDetail({
 
           {/* Next tasks preview */}
           <div className="card" style={{ padding: '14px 16px' }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
               Prochaines tâches
             </div>
             {myTasks.filter(t => t.status !== 'done').slice(0, 4).map(task => {
@@ -1145,27 +1105,27 @@ function MemberDetail({
                 <div key={task.id} style={{
                   display: 'flex', alignItems: 'center', gap: 8,
                   padding: '8px 0',
-                  borderBottom: '1px solid #F1F5F9',
+                  borderBottom: `1px solid ${BASE.bgHover}`,
                 }}>
                   {createElement(statusConf.icon, { size: 14, color: statusConf.color })}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</div>
-                    {evt && <div style={{ fontSize: 10, color: '#94A3B8' }}>{evt.name}</div>}
+                    <div style={{ fontSize: 12, fontWeight: 700, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</div>
+                    {evt && <div style={{ fontSize: 10, color: BASE.textMuted }}>{evt.name}</div>}
                   </div>
-                  {task.priority === 'critical' && createElement(AlertTriangle, { size: 12, color: '#D4648A' })}
-                  {task.priority === 'high' && createElement(AlertTriangle, { size: 12, color: '#E8935A' })}
+                  {task.priority === 'critical' && createElement(AlertTriangle, { size: 12, color: SEMANTIC.danger })}
+                  {task.priority === 'high' && createElement(AlertTriangle, { size: 12, color: SEMANTIC.warning })}
                 </div>
               )
             })}
             {myTasks.filter(t => t.status !== 'done').length === 0 && (
-              <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', padding: 12 }}>
+              <div style={{ fontSize: 12, color: BASE.textMuted, textAlign: 'center', padding: 12 }}>
                 Aucune tâche en attente
               </div>
             )}
             {myTasks.filter(t => t.status !== 'done').length > 4 && (
               <button onClick={() => setSubTab('taches')} style={{
                 width: '100%', padding: '8px 0', background: 'none', border: 'none',
-                cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#E8735A',
+                cursor: 'pointer', fontSize: 11, fontWeight: 700, color: theme.color,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
               }}>
                 Voir les {myTasks.filter(t => t.status !== 'done').length} tâches
@@ -1178,19 +1138,19 @@ function MemberDetail({
           {upcomingEvents.slice(0, 2).map(evt => {
             const avail = myAvailability.find(a => a.event_id === evt.id)
             const statusMap = {
-              available: { color: '#5DAB8B', label: 'Dispo' },
-              unavailable: { color: '#D4648A', label: 'Absent' },
-              maybe: { color: '#E8935A', label: 'Incertain' },
+              available: { color: SEMANTIC.success, label: 'Dispo' },
+              unavailable: { color: SEMANTIC.danger, label: 'Absent' },
+              maybe: { color: SEMANTIC.warning, label: 'Incertain' },
             }
-            const status = avail ? (statusMap[avail.status] || { color: '#94A3B8', label: '?' }) : { color: '#94A3B8', label: 'Non renseigné' }
+            const status = avail ? (statusMap[avail.status] || { color: BASE.textMuted, label: '?' }) : { color: BASE.textMuted, label: 'Non renseigné' }
             return (
               <div key={evt.id} className="card" style={{
                 padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10,
               }}>
-                {createElement(Calendar, { size: 16, color: '#E8735A' })}
+                {createElement(Calendar, { size: 16, color: theme.color })}
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>{evt.name}</div>
-                  <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: BASE.text }}>{evt.name}</div>
+                  <div style={{ fontSize: 10, color: BASE.textMuted }}>
                     {new Date(evt.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                   </div>
                 </div>
@@ -1214,7 +1174,7 @@ function MemberDetail({
             }}>
               {conf && createElement(conf.icon, { size: 20, color: conf.color })}
               <div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B' }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: BASE.text }}>
                   Missions — {conf?.label || 'Rôle'}
                 </div>
                 {hierInfo && (
@@ -1229,15 +1189,15 @@ function MemberDetail({
               <div key={i} style={{
                 display: 'flex', alignItems: 'flex-start', gap: 10,
                 padding: '10px 0',
-                borderBottom: i < missions.length - 1 ? '1px solid #F1F5F9' : 'none',
+                borderBottom: i < missions.length - 1 ? `1px solid ${BASE.bgHover}` : 'none',
               }}>
                 <div style={{
                   width: 24, height: 24, borderRadius: 7, flexShrink: 0,
-                  background: `${conf?.color || '#94A3B8'}10`,
+                  background: `${conf?.color || BASE.textMuted}10`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 11, fontWeight: 800, color: conf?.color || '#94A3B8',
+                  fontSize: 11, fontWeight: 800, color: conf?.color || BASE.textMuted,
                 }}>{i + 1}</div>
-                <div style={{ fontSize: 13, color: '#1E293B', lineHeight: 1.5, paddingTop: 2 }}>
+                <div style={{ fontSize: 13, color: BASE.text, lineHeight: 1.5, paddingTop: 2 }}>
                   {mission}
                 </div>
               </div>
@@ -1247,7 +1207,7 @@ function MemberDetail({
           {/* Responsabilités spécifiques (from role deps) */}
           {role?.dependency_codes && role.dependency_codes.length > 0 && (
             <div className="card" style={{ padding: '14px 16px' }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
                 Coordination requise
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -1268,7 +1228,7 @@ function MemberDetail({
           {/* Packing responsibility */}
           {myPacking.length > 0 && (
             <div className="card" style={{ padding: '14px 16px' }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
                 Responsabilité Packing
               </div>
               <div style={{
@@ -1276,15 +1236,15 @@ function MemberDetail({
               }}>
                 <div style={{
                   fontSize: 22, fontWeight: 900,
-                  color: packDone === myPacking.length ? '#5DAB8B' : '#E8935A',
+                  color: packDone === myPacking.length ? SEMANTIC.success : SEMANTIC.warning,
                 }}>
                   {Math.round((packDone / myPacking.length) * 100)}%
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: BASE.text }}>
                     {packDone}/{myPacking.length} items packés
                   </div>
-                  <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                  <div style={{ fontSize: 10, color: BASE.textMuted }}>
                     pour les prochains événements
                   </div>
                 </div>
@@ -1298,7 +1258,7 @@ function MemberDetail({
       {subTab === 'taches' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {tasksByEvent.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 24, color: '#94A3B8', fontSize: 12 }}>
+            <div style={{ textAlign: 'center', padding: 24, color: BASE.textMuted, fontSize: 12 }}>
               Aucune tâche assignée
             </div>
           ) : (
@@ -1309,18 +1269,18 @@ function MemberDetail({
                   display: 'flex', alignItems: 'center', gap: 8,
                   padding: '6px 0', marginBottom: 6,
                 }}>
-                  {createElement(Calendar, { size: 14, color: '#E8735A' })}
-                  <span style={{ fontSize: 12, fontWeight: 800, color: '#1E293B' }}>
+                  {createElement(Calendar, { size: 14, color: theme.color })}
+                  <span style={{ fontSize: 12, fontWeight: 800, color: BASE.text }}>
                     {evt?.name || 'Sans événement'}
                   </span>
                   {evt?.date && (
-                    <span style={{ fontSize: 10, color: '#94A3B8' }}>
+                    <span style={{ fontSize: 10, color: BASE.textMuted }}>
                       {new Date(evt.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                     </span>
                   )}
                   <span style={{
                     marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                    color: tasks.filter(t => t.status === 'done').length === tasks.length ? '#5DAB8B' : '#64748B',
+                    color: tasks.filter(t => t.status === 'done').length === tasks.length ? SEMANTIC.success : BASE.textSoft,
                   }}>
                     {tasks.filter(t => t.status === 'done').length}/{tasks.length}
                   </span>
@@ -1328,7 +1288,7 @@ function MemberDetail({
 
                 {tasks.map(task => {
                   const statusConf = TASK_STATUS_CONF[task.status] || TASK_STATUS_CONF.pending
-                  const catColor = CATEGORY_COLORS[task.category] || '#94A3B8'
+                  const catColor = CATEGORY_COLORS[task.category] || BASE.textMuted
                   return (
                     <button key={task.id} onClick={() => onTaskToggle(task)} className="card" style={{
                       padding: '10px 14px', width: '100%', cursor: 'pointer', textAlign: 'left',
@@ -1340,16 +1300,16 @@ function MemberDetail({
                         {createElement(statusConf.icon, { size: 16, color: statusConf.color })}
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{
-                            fontSize: 12, fontWeight: 700, color: '#1E293B',
+                            fontSize: 12, fontWeight: 700, color: BASE.text,
                             textDecoration: task.status === 'done' ? 'line-through' : 'none',
                           }}>{task.title}</div>
                           {task.description && (
-                            <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{task.description}</div>
+                            <div style={{ fontSize: 11, color: BASE.textSoft, marginTop: 2 }}>{task.description}</div>
                           )}
                           <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap', alignItems: 'center' }}>
                             <span style={{
-                              fontSize: 10, fontWeight: 800, color: '#E8735A',
-                              padding: '1px 6px', borderRadius: 4, background: '#E8735A08',
+                              fontSize: 10, fontWeight: 800, color: theme.color,
+                              padding: '1px 6px', borderRadius: 4, background: `${theme.color}08`,
                               fontFamily: 'monospace',
                             }}>
                               {task.hour_offset >= 0 ? `H+${task.hour_offset}` : `H${task.hour_offset}`}
@@ -1359,13 +1319,13 @@ function MemberDetail({
                               background: `${catColor}10`, color: catColor, fontWeight: 700,
                             }}>{task.category}</span>
                             {task.priority === 'critical' && (
-                              <span style={{ fontSize: 9, color: '#D4648A', fontWeight: 800 }}>CRITIQUE</span>
+                              <span style={{ fontSize: 9, color: SEMANTIC.danger, fontWeight: 800 }}>CRITIQUE</span>
                             )}
                             {task.flow_type && (
                               <span style={{
                                 fontSize: 8, padding: '1px 5px', borderRadius: 4,
-                                background: task.flow_type === 'physique' ? '#5DAB8B10' : '#E8735A10',
-                                color: task.flow_type === 'physique' ? '#5DAB8B' : '#E8735A',
+                                background: task.flow_type === 'physique' ? `${SEMANTIC.success}10` : `${theme.color}10`,
+                                color: task.flow_type === 'physique' ? SEMANTIC.success : theme.color,
                                 fontWeight: 700,
                               }}>
                                 {task.flow_type === 'physique' ? 'PHY' : task.flow_type === 'info' ? 'INFO' : 'PHY+INFO'}
@@ -1390,7 +1350,7 @@ function MemberDetail({
           {relatedMembers.supervisor && (
             <div className="card" style={{ padding: '14px 16px' }}>
               <div style={{
-                fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 10,
+                fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 10,
                 textTransform: 'uppercase', letterSpacing: 1,
                 display: 'flex', alignItems: 'center', gap: 6,
               }}>
@@ -1408,7 +1368,7 @@ function MemberDetail({
           {relatedMembers.supervised.length > 0 && (
             <div className="card" style={{ padding: '14px 16px' }}>
               <div style={{
-                fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 10,
+                fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 10,
                 textTransform: 'uppercase', letterSpacing: 1,
                 display: 'flex', alignItems: 'center', gap: 6,
               }}>
@@ -1426,7 +1386,7 @@ function MemberDetail({
           {relatedMembers.collaborators.length > 0 && (
             <div className="card" style={{ padding: '14px 16px' }}>
               <div style={{
-                fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 10,
+                fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 10,
                 textTransform: 'uppercase', letterSpacing: 1,
                 display: 'flex', alignItems: 'center', gap: 6,
               }}>
@@ -1442,7 +1402,7 @@ function MemberDetail({
 
           {/* No relations */}
           {!relatedMembers.supervisor && relatedMembers.supervised.length === 0 && relatedMembers.collaborators.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 24, color: '#94A3B8', fontSize: 12 }}>
+            <div style={{ textAlign: 'center', padding: 24, color: BASE.textMuted, fontSize: 12 }}>
               Aucune relation définie pour ce rôle
             </div>
           )}
@@ -1451,7 +1411,7 @@ function MemberDetail({
           {(relatedMembers.supervised.length > 0 || relatedMembers.collaborators.length > 0) && (
             <div className="card" style={{ padding: '14px 16px' }}>
               <div style={{
-                fontSize: 11, fontWeight: 800, color: '#94A3B8', marginBottom: 10,
+                fontSize: 11, fontWeight: 800, color: BASE.textMuted, marginBottom: 10,
                 textTransform: 'uppercase', letterSpacing: 1,
               }}>
                 Vue d'ensemble tâches liées
@@ -1465,18 +1425,18 @@ function MemberDetail({
                     <div key={m.user_id} style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '6px 0',
-                      borderBottom: '1px solid #F1F5F9',
+                      borderBottom: `1px solid ${BASE.bgHover}`,
                     }}>
                       <div style={{
                         width: 24, height: 24, borderRadius: 7,
-                        background: `${m.roleConf?.color || '#94A3B8'}12`,
+                        background: `${m.roleConf?.color || BASE.textMuted}12`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 10, fontWeight: 800, color: m.roleConf?.color || '#94A3B8',
+                        fontSize: 10, fontWeight: 800, color: m.roleConf?.color || BASE.textMuted,
                       }}>
                         {(m.display_name || '?')[0].toUpperCase()}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#1E293B' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: BASE.text }}>
                           {m.display_name || m.pseudo}
                         </span>
                         <span style={{ fontSize: 10, color: m.roleConf?.color, marginLeft: 6 }}>
@@ -1485,9 +1445,9 @@ function MemberDetail({
                       </div>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                         {pending > 0 && (
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#E8935A' }}>{pending}</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: SEMANTIC.warning }}>{pending}</span>
                         )}
-                        <span style={{ fontSize: 10, color: '#5DAB8B', fontWeight: 700 }}>{done}✓</span>
+                        <span style={{ fontSize: 10, color: SEMANTIC.success, fontWeight: 700 }}>{done}✓</span>
                       </div>
                     </div>
                   )
@@ -1505,14 +1465,14 @@ function MemberDetail({
             padding: '12px 16px', display: 'flex', gap: 12, justifyContent: 'center',
           }}>
             {[
-              { label: 'Dispo', count: myAvailability.filter(a => a.status === 'available').length, color: '#5DAB8B' },
-              { label: 'Absent', count: myAvailability.filter(a => a.status === 'unavailable').length, color: '#D4648A' },
-              { label: 'Incertain', count: myAvailability.filter(a => a.status === 'maybe').length, color: '#E8935A' },
-              { label: 'Non renseigné', count: upcomingEvents.length - myAvailability.length, color: '#94A3B8' },
+              { label: 'Dispo', count: myAvailability.filter(a => a.status === 'available').length, color: SEMANTIC.success },
+              { label: 'Absent', count: myAvailability.filter(a => a.status === 'unavailable').length, color: SEMANTIC.danger },
+              { label: 'Incertain', count: myAvailability.filter(a => a.status === 'maybe').length, color: SEMANTIC.warning },
+              { label: 'Non renseigné', count: upcomingEvents.length - myAvailability.length, color: BASE.textMuted },
             ].filter(s => s.count > 0).map(s => (
               <div key={s.label} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.count}</div>
-                <div style={{ fontSize: 9, color: '#64748B', fontWeight: 600 }}>{s.label}</div>
+                <div style={{ fontSize: 9, color: BASE.textSoft, fontWeight: 600 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -1521,11 +1481,11 @@ function MemberDetail({
           {(events || []).filter(e => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 12).map(evt => {
             const avail = myAvailability.find(a => a.event_id === evt.id)
             const statusMap = {
-              available: { color: '#5DAB8B', label: 'Disponible', bg: '#5DAB8B10' },
-              unavailable: { color: '#D4648A', label: 'Indisponible', bg: '#D4648A10' },
-              maybe: { color: '#E8935A', label: 'Peut-être', bg: '#E8935A10' },
+              available: { color: SEMANTIC.success, label: 'Disponible', bg: `${SEMANTIC.success}10` },
+              unavailable: { color: SEMANTIC.danger, label: 'Indisponible', bg: `${SEMANTIC.danger}10` },
+              maybe: { color: SEMANTIC.warning, label: 'Peut-être', bg: `${SEMANTIC.warning}10` },
             }
-            const status = avail ? (statusMap[avail.status] || { color: '#94A3B8', label: 'Inconnu', bg: '#94A3B810' }) : { color: '#94A3B8', label: 'Non renseigné', bg: '#94A3B810' }
+            const status = avail ? (statusMap[avail.status] || { color: BASE.textMuted, label: 'Inconnu', bg: `${BASE.textMuted}10` }) : { color: BASE.textMuted, label: 'Non renseigné', bg: `${BASE.textMuted}10` }
             const tasksForEvent = myTasks.filter(t => t.event_id === evt.id)
 
             return (
@@ -1535,18 +1495,18 @@ function MemberDetail({
                 <div style={{
                   width: 42, textAlign: 'center', flexShrink: 0,
                 }}>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#1E293B' }}>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: BASE.text }}>
                     {new Date(evt.date + 'T12:00:00').getDate()}
                   </div>
-                  <div style={{ fontSize: 9, color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase' }}>
+                  <div style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 600, textTransform: 'uppercase' }}>
                     {new Date(evt.date + 'T12:00:00').toLocaleDateString('fr-FR', { month: 'short' })}
                   </div>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {evt.name}
                   </div>
-                  <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                  <div style={{ fontSize: 10, color: BASE.textMuted }}>
                     {evt.lieu ? evt.lieu : ''}
                     {tasksForEvent.length > 0 && ` · ${tasksForEvent.length} tâche${tasksForEvent.length > 1 ? 's' : ''}`}
                   </div>
@@ -1559,7 +1519,7 @@ function MemberDetail({
             )
           })}
           {(events || []).filter(e => e.date >= today).length === 0 && (
-            <div style={{ textAlign: 'center', padding: 20, color: '#94A3B8', fontSize: 12 }}>
+            <div style={{ textAlign: 'center', padding: 20, color: BASE.textMuted, fontSize: 12 }}>
               Aucun événement à venir
             </div>
           )}
@@ -1580,23 +1540,23 @@ function MemberMiniCard({ member, onSelect, user }) {
   return (
     <button onClick={() => onSelect(member)} style={{
       display: 'flex', alignItems: 'center', gap: 10,
-      padding: '10px 12px', background: '#F8FAFC', borderRadius: 10,
-      border: '1px solid #E2E8F0', width: '100%', cursor: 'pointer', textAlign: 'left',
+      padding: '10px 12px', background: BASE.bgSurface, borderRadius: 10,
+      border: `1px solid ${BASE.border}`, width: '100%', cursor: 'pointer', textAlign: 'left',
     }}>
       <div style={{
         width: 36, height: 36, borderRadius: 10,
-        background: conf ? `${conf.color}12` : '#F1F5F9',
+        background: conf ? `${conf.color}12` : BASE.bgHover,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 14, fontWeight: 800, color: conf?.color || '#94A3B8',
+        fontSize: 14, fontWeight: 800, color: conf?.color || BASE.textMuted,
       }}>
         {(member.display_name || member.pseudo || '?')[0].toUpperCase()}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>
             {member.display_name || member.pseudo || 'Membre'}
           </span>
-          {isMe && <span style={{ fontSize: 9, color: '#E8735A', fontWeight: 700 }}>(moi)</span>}
+          {isMe && <span style={{ fontSize: 9, color: theme.color, fontWeight: 700 }}>(moi)</span>}
         </div>
         {conf && (
           <div style={{ fontSize: 11, color: conf.color, fontWeight: 600 }}>{conf.label}</div>
@@ -1604,11 +1564,11 @@ function MemberMiniCard({ member, onSelect, user }) {
       </div>
       {pendingCount > 0 && (
         <span style={{
-          fontSize: 10, fontWeight: 700, color: '#E8935A',
-          padding: '2px 6px', borderRadius: 4, background: '#E8935A10',
+          fontSize: 10, fontWeight: 700, color: SEMANTIC.warning,
+          padding: '2px 6px', borderRadius: 4, background: `${SEMANTIC.warning}10`,
         }}>{pendingCount} tâche{pendingCount > 1 ? 's' : ''}</span>
       )}
-      {createElement(ChevronRight, { size: 14, color: '#CBD5E1' })}
+      {createElement(ChevronRight, { size: 14, color: BASE.textDisabled })}
     </button>
   )
 }
@@ -1618,10 +1578,10 @@ function KpiBox({ label, value, color }) {
   return (
     <div style={{
       flex: 1, textAlign: 'center', padding: '8px 4px',
-      background: 'white', borderRadius: 10, border: '1px solid #F1F5F9',
+      background: 'white', borderRadius: 10, border: `1px solid ${BASE.bgHover}`,
     }}>
       <div style={{ fontSize: 16, fontWeight: 900, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 8, color: '#64748B', fontWeight: 700, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 8, color: BASE.textSoft, fontWeight: 700, marginTop: 2 }}>{label}</div>
     </div>
   )
 }

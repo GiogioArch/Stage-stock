@@ -2,6 +2,8 @@ import React, { useState, createElement } from 'react'
 import { parseDate, Badge } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
+import { FloatingDetail } from '../design'
+import { MODULES, BASE, SEMANTIC, SHADOW, SPACE, RADIUS, TYPO } from '../lib/theme'
 import {
   Package,
   Calendar,
@@ -17,28 +19,18 @@ import {
   RefreshCw,
 } from 'lucide-react'
 
-// ─── Palette pastel harmonisée ───
-const MOD = {
-  stock:   { icon: Package,        label: 'Stock',    color: '#5B8DB8', bg: '#E8F0FE', tab: 'stock' },
-  tournee: { icon: Calendar,       label: 'Tournée',  color: '#E8735A', bg: '#FDE8E4', tab: 'tournee' },
-  packing: { icon: ClipboardCheck, label: 'Packing',  color: '#5DAB8B', bg: '#E4F5EF', tab: 'packing' },
-  scanner: { icon: ScanLine,       label: 'Scanner',  color: '#8B6DB8', bg: '#F0E8FE', tab: 'scanner' },
-  finance: { icon: Coins,          label: 'Finance',  color: '#E8935A', bg: '#FEF0E4', tab: 'finance' },
-  achats:  { icon: ShoppingCart,    label: 'Achats',   color: '#D4648A', bg: '#FDE4EE', tab: 'achats' },
+// ─── Icon mapping (MODULES.icon is a string, we need actual components) ───
+const MOD_ICONS = {
+  stock: Package,
+  tournee: Calendar,
+  packing: ClipboardCheck,
+  scanner: ScanLine,
+  finance: Coins,
+  achats: ShoppingCart,
 }
 
-const C = {
-  text: '#1E293B',
-  textSoft: '#64748B',
-  textMuted: '#94A3B8',
-  bg: '#F8FAFC',
-  border: '#E2E8F0',
-  white: '#FFFFFF',
-  danger: '#D4648A',
-  warning: '#E8935A',
-  success: '#5DAB8B',
-  accent: '#5B8DB8',
-}
+// Keys rendered on the Board grid
+const BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance', 'achats']
 
 export default function Board({
   products, locations, stock, movements, alerts, events,
@@ -81,66 +73,43 @@ export default function Board({
   return (
     <>
       {/* ─── Event Detail floating ─── */}
-      {selectedEvent && (
-        <div
-          onClick={() => setSelectedEvent(null)}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 200,
-            background: 'rgba(15,23,42,0.4)',
-            backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 16, animation: 'fadeIn 0.15s ease',
-          }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              width: '100%', maxWidth: 560, maxHeight: '85vh',
-              background: 'white', borderRadius: 20,
-              boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
-              overflowY: 'auto', WebkitOverflowScrolling: 'touch',
-              animation: 'scaleIn 0.2s ease',
-            }}
-          >
-            <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setSelectedEvent(null)} style={{ width: 30, height: 30, borderRadius: 15, background: '#F1F5F9', border: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-            </div>
-            <EventDetail
-              embedded
-              event={selectedEvent}
-              events={events}
-              products={products}
-              stock={stock}
-              locations={locations}
-              families={families}
-              subfamilies={subfamilies}
-              checklists={checklists}
-              roles={roles}
-              eventPacking={eventPacking}
-              userProfiles={userProfiles || []}
-              userRole={userRole}
-              onClose={() => setSelectedEvent(null)}
-              onReload={onReload}
-              onToast={onToast}
-              onNavigateEvent={(ev) => setSelectedEvent(ev)}
-            />
-          </div>
-        </div>
-      )}
+      <FloatingDetail open={!!selectedEvent} onClose={() => setSelectedEvent(null)}>
+        {selectedEvent && (
+          <EventDetail
+            embedded
+            event={selectedEvent}
+            events={events}
+            products={products}
+            stock={stock}
+            locations={locations}
+            families={families}
+            subfamilies={subfamilies}
+            checklists={checklists}
+            roles={roles}
+            eventPacking={eventPacking}
+            userProfiles={userProfiles || []}
+            userRole={userRole}
+            onClose={() => setSelectedEvent(null)}
+            onReload={onReload}
+            onToast={onToast}
+            onNavigateEvent={(ev) => setSelectedEvent(ev)}
+          />
+        )}
+      </FloatingDetail>
 
-      <div style={{ padding: '0 16px 24px' }}>
+      <div style={{ padding: `0 ${SPACE.lg}px ${SPACE.xxl}px` }}>
 
         {/* ═══ 1. EN-TÊTE : Bonjour + Prochain événement ═══ */}
         <div style={{
-          padding: '20px 18px', borderRadius: 16, marginBottom: 16,
-          background: `linear-gradient(135deg, ${C.accent}12, ${C.accent}06)`,
-          border: `1px solid ${C.accent}20`,
+          padding: `${SPACE.xl}px ${SPACE.xl - 2}px`, borderRadius: RADIUS.xl, marginBottom: SPACE.lg,
+          background: `linear-gradient(135deg, ${SEMANTIC.info}12, ${SEMANTIC.info}06)`,
+          border: `1px solid ${SEMANTIC.info}20`,
         }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+          <div style={{ ...TYPO.h1, color: BASE.text, marginBottom: SPACE.xs }}>
             Bonjour{roleConf ? ` !` : ' !'}
           </div>
           {roleConf && (
-            <div style={{ fontSize: 13, color: C.textSoft, marginBottom: 12 }}>
+            <div style={{ fontSize: 13, color: BASE.textSoft, marginBottom: SPACE.md }}>
               {roleConf.label}
             </div>
           )}
@@ -149,43 +118,43 @@ export default function Board({
             <div
               onClick={() => setSelectedEvent(nextEvent)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '12px 14px', borderRadius: 12,
-                background: C.white, cursor: 'pointer',
-                border: `1px solid ${C.border}`,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                display: 'flex', alignItems: 'center', gap: SPACE.md,
+                padding: `${SPACE.md}px ${SPACE.md + 2}px`, borderRadius: RADIUS.lg,
+                background: BASE.white, cursor: 'pointer',
+                border: `1px solid ${BASE.border}`,
+                boxShadow: SHADOW.sm,
               }}
             >
               <div style={{
-                width: 48, height: 48, borderRadius: 12,
-                background: MOD.tournee.bg, color: MOD.tournee.color,
+                width: 48, height: 48, borderRadius: RADIUS.lg,
+                background: MODULES.tournee.bg, color: MODULES.tournee.color,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0, fontWeight: 700, fontSize: 13, lineHeight: 1.1, textAlign: 'center',
               }}>
                 {parseDate(nextEvent.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ ...TYPO.bodyBold, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {nextEvent.name || nextEvent.lieu}
                 </div>
-                <div style={{ fontSize: 11, color: C.textSoft }}>
+                <div style={{ ...TYPO.micro, color: BASE.textSoft }}>
                   {nextEvent.ville} — {nextEvent.format}
                 </div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{
                   fontSize: 18, fontWeight: 700,
-                  color: daysToNext <= 7 ? C.warning : C.accent,
+                  color: daysToNext <= 7 ? SEMANTIC.warning : SEMANTIC.info,
                 }}>
                   J-{daysToNext}
                 </div>
-                <div style={{ fontSize: 10, color: C.textMuted }}>
+                <div style={{ ...TYPO.label, color: BASE.textMuted }}>
                   Voir {createElement(ChevronRight, { size: 10, style: { verticalAlign: 'middle' } })}
                 </div>
               </div>
             </div>
           ) : (
-            <div style={{ fontSize: 13, color: C.textMuted }}>
+            <div style={{ fontSize: 13, color: BASE.textMuted }}>
               Aucun événement à venir
             </div>
           )}
@@ -196,8 +165,8 @@ export default function Board({
           <div
             onClick={() => onNavigate('alertes')}
             style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              padding: '12px 16px', borderRadius: 12, marginBottom: 16,
+              display: 'flex', alignItems: 'center', gap: SPACE.md,
+              padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
               background: criticalAlerts.length > 0 ? 'rgba(212,100,138,0.08)' : 'rgba(232,147,90,0.08)',
               border: `1px solid ${criticalAlerts.length > 0 ? 'rgba(212,100,138,0.2)' : 'rgba(232,147,90,0.2)'}`,
               cursor: 'pointer',
@@ -205,22 +174,22 @@ export default function Board({
           >
             {createElement(criticalAlerts.length > 0 ? AlertOctagon : AlertTriangle, {
               size: 20,
-              style: { color: criticalAlerts.length > 0 ? C.danger : C.warning, flexShrink: 0 },
+              style: { color: criticalAlerts.length > 0 ? SEMANTIC.danger : SEMANTIC.warning, flexShrink: 0 },
             })}
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>
                 {criticalAlerts.length > 0
                   ? `${criticalAlerts.length} rupture${criticalAlerts.length > 1 ? 's' : ''}`
                   : `${lowAlerts.length} alerte${lowAlerts.length > 1 ? 's' : ''} stock`
                 }
                 {criticalAlerts.length > 0 && lowAlerts.length > 0 && (
-                  <span style={{ fontWeight: 400, color: C.textSoft }}>
+                  <span style={{ fontWeight: 400, color: BASE.textSoft }}>
                     {' '}+ {lowAlerts.length} alerte{lowAlerts.length > 1 ? 's' : ''}
                   </span>
                 )}
               </div>
             </div>
-            {createElement(ChevronRight, { size: 16, style: { color: C.textMuted } })}
+            {createElement(ChevronRight, { size: 16, style: { color: BASE.textMuted } })}
           </div>
         )}
 
@@ -228,96 +197,100 @@ export default function Board({
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: 12,
-          marginBottom: 20,
+          gap: SPACE.md,
+          marginBottom: SPACE.xl,
         }}>
-          {Object.entries(MOD).map(([key, mod]) => (
-            <button
-              key={key}
-              onClick={() => onNavigate(mod.tab)}
-              style={{
-                display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center',
-                padding: '22px 12px 18px',
-                borderRadius: 16,
-                background: mod.bg,
-                border: `1.5px solid ${mod.color}18`,
-                cursor: 'pointer',
-                position: 'relative',
-                transition: 'transform 0.15s, box-shadow 0.15s',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              }}
-              onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.97)' }}
-              onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
-              onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
-            >
-              {/* Badge */}
-              {badges[key] && (
-                <div style={{
-                  position: 'absolute', top: 8, right: 10,
-                  fontSize: 10, fontWeight: 700,
-                  color: mod.color, background: C.white,
-                  padding: '2px 7px', borderRadius: 10,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                }}>
-                  {badges[key]}
-                </div>
-              )}
+          {BOARD_KEYS.map(key => {
+            const mod = MODULES[key]
+            const Icon = MOD_ICONS[key]
+            return (
+              <button
+                key={key}
+                onClick={() => onNavigate(key)}
+                style={{
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center',
+                  padding: `${SPACE.xxl - 2}px ${SPACE.md}px ${SPACE.xl - 2}px`,
+                  borderRadius: RADIUS.xl,
+                  background: mod.bg,
+                  border: `1.5px solid ${mod.color}18`,
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                  boxShadow: SHADOW.sm,
+                }}
+                onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.97)' }}
+                onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
+                onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+              >
+                {/* Badge */}
+                {badges[key] && (
+                  <div style={{
+                    position: 'absolute', top: SPACE.sm, right: SPACE.md - 2,
+                    ...TYPO.label, fontSize: 10,
+                    color: mod.color, background: BASE.white,
+                    padding: '2px 7px', borderRadius: RADIUS.md,
+                    boxShadow: SHADOW.sm,
+                  }}>
+                    {badges[key]}
+                  </div>
+                )}
 
-              <div style={{
-                width: 52, height: 52, borderRadius: 14,
-                background: C.white,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginBottom: 10,
-                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-              }}>
-                {createElement(mod.icon, { size: 26, style: { color: mod.color } })}
-              </div>
-              <div style={{
-                fontSize: 14, fontWeight: 700, color: mod.color,
-                letterSpacing: 0.2,
-              }}>
-                {mod.label}
-              </div>
-            </button>
-          ))}
+                <div style={{
+                  width: 52, height: 52, borderRadius: RADIUS.md + 4,
+                  background: BASE.white,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: SPACE.md - 2,
+                  boxShadow: SHADOW.card,
+                }}>
+                  {createElement(Icon, { size: 26, style: { color: mod.color } })}
+                </div>
+                <div style={{
+                  ...TYPO.bodyBold, color: mod.color,
+                  letterSpacing: 0.2,
+                }}>
+                  {mod.label}
+                </div>
+              </button>
+            )
+          })}
         </div>
 
         {/* ═══ 4. ACTIONS RAPIDES (petit format) ═══ */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.textSoft, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+        <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
           Actions rapides
         </div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-          <QuickBtn icon={ArrowDownToLine} label="Entrée" color={C.success} onClick={() => onQuickAction('in')} />
-          <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={C.danger} onClick={() => onQuickAction('out')} />
-          <QuickBtn icon={RefreshCw} label="Transfert" color={C.accent} onClick={() => onQuickAction('transfer')} />
+        <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.xl }}>
+          <QuickBtn icon={ArrowDownToLine} label="Entrée" color={SEMANTIC.success} onClick={() => onQuickAction('in')} />
+          <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={SEMANTIC.danger} onClick={() => onQuickAction('out')} />
+          <QuickBtn icon={RefreshCw} label="Transfert" color={SEMANTIC.info} onClick={() => onQuickAction('transfer')} />
         </div>
 
         {/* ═══ 5. PACKING PROGRESS (si applicable) ═══ */}
         {packingTotal > 0 && nextEvent && (
           <div style={{
-            padding: '14px 16px', borderRadius: 12, marginBottom: 16,
-            background: C.white, border: `1px solid ${C.border}`,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            padding: `${SPACE.md + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
+            background: BASE.white, border: `1px solid ${BASE.border}`,
+            boxShadow: SHADOW.sm,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.sm }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>
                   Mon packing — {nextEvent.name || nextEvent.lieu}
                 </div>
-                <div style={{ fontSize: 11, color: C.textSoft }}>
+                <div style={{ ...TYPO.micro, color: BASE.textSoft }}>
                   {packingDone}/{packingTotal} items prêts
                 </div>
               </div>
               <div style={{
                 fontSize: 20, fontWeight: 700,
-                color: packingPct === 100 ? C.success : packingPct >= 50 ? C.warning : C.danger,
+                color: packingPct === 100 ? SEMANTIC.success : packingPct >= 50 ? SEMANTIC.warning : SEMANTIC.danger,
               }}>{packingPct}%</div>
             </div>
-            <div style={{ height: 6, borderRadius: 3, background: '#F1F5F9', overflow: 'hidden' }}>
+            <div style={{ height: 6, borderRadius: 3, background: BASE.bgHover, overflow: 'hidden' }}>
               <div style={{
                 width: `${packingPct}%`, height: '100%', borderRadius: 3,
-                background: packingPct === 100 ? C.success : MOD.packing.color,
+                background: packingPct === 100 ? SEMANTIC.success : MODULES.packing.color,
                 transition: 'width 0.3s',
               }} />
             </div>
@@ -327,10 +300,10 @@ export default function Board({
         {/* ═══ 6. PROCHAINS ÉVÉNEMENTS (compact) ═══ */}
         {upcomingEvents.length > 1 && (
           <>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.textSoft, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
               Prochains événements
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: SPACE.sm }}>
               {upcomingEvents.slice(1, 4).map(ev => {
                 const d = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
                 return (
@@ -338,26 +311,26 @@ export default function Board({
                     key={ev.id}
                     onClick={() => setSelectedEvent(ev)}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-                      borderRadius: 10, background: C.white, border: `1px solid ${C.border}`,
+                      display: 'flex', alignItems: 'center', gap: SPACE.md - 2, padding: `${SPACE.md - 2}px ${SPACE.md}px`,
+                      borderRadius: RADIUS.md, background: BASE.white, border: `1px solid ${BASE.border}`,
                       cursor: 'pointer',
                     }}
                   >
                     <div style={{
-                      width: 36, height: 36, borderRadius: 8,
-                      background: MOD.tournee.bg, color: MOD.tournee.color,
+                      width: 36, height: 36, borderRadius: RADIUS.sm,
+                      background: MODULES.tournee.bg, color: MODULES.tournee.color,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 10, fontWeight: 700, lineHeight: 1.1, textAlign: 'center', flexShrink: 0,
                     }}>
                       {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {ev.name || ev.lieu}
                       </div>
-                      <div style={{ fontSize: 11, color: C.textSoft }}>{ev.ville}</div>
+                      <div style={{ ...TYPO.micro, color: BASE.textSoft }}>{ev.ville}</div>
                     </div>
-                    <Badge color={d <= 7 ? C.warning : C.accent}>J-{d}</Badge>
+                    <Badge color={d <= 7 ? SEMANTIC.warning : SEMANTIC.info}>J-{d}</Badge>
                   </div>
                 )
               })}
@@ -366,14 +339,14 @@ export default function Board({
               <button
                 onClick={() => onNavigate('tournee')}
                 style={{
-                  width: '100%', padding: 10, borderRadius: 10,
-                  background: 'none', border: `1px dashed ${C.border}`,
-                  fontSize: 12, fontWeight: 600, color: C.accent,
+                  width: '100%', padding: SPACE.md - 2, borderRadius: RADIUS.md,
+                  background: 'none', border: `1px dashed ${BASE.border}`,
+                  ...TYPO.caption, color: SEMANTIC.info,
                   cursor: 'pointer', textAlign: 'center',
                 }}
               >
                 Voir les {upcomingEvents.length} dates
-                {createElement(ChevronRight, { size: 12, style: { verticalAlign: 'middle', marginLeft: 4 } })}
+                {createElement(ChevronRight, { size: 12, style: { verticalAlign: 'middle', marginLeft: SPACE.xs } })}
               </button>
             )}
           </>
@@ -389,9 +362,9 @@ function QuickBtn({ icon, label, color, onClick }) {
   return (
     <button onClick={onClick} style={{
       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-      padding: '10px 8px', borderRadius: 10,
-      background: C.white, border: `1px solid ${C.border}`,
-      fontSize: 12, fontWeight: 600, color,
+      padding: `${SPACE.md - 2}px ${SPACE.sm}px`, borderRadius: RADIUS.md,
+      background: BASE.white, border: `1px solid ${BASE.border}`,
+      ...TYPO.caption, color,
       cursor: 'pointer',
     }}>
       {createElement(icon, { size: 16 })}
