@@ -6,7 +6,7 @@ import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
 import ProductDetail from './ProductDetail'
 import CSVImport from './CSVImport'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
-import { GradientHeader, FilterPills } from '../design'
+import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 
 const theme = getModuleTheme('articles')
 
@@ -71,52 +71,28 @@ export default function Products({ products, families, subfamilies, stock, locat
   return (
     <>
     {/* Product Detail (floating window) */}
-    {modal?.type === 'detail' && (
-      <div
-        onClick={() => setModal(null)}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 200,
-          background: 'rgba(15,23,42,0.4)',
-          backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 16,
-          animation: 'fadeIn 0.15s ease',
-        }}
-      >
-        <div
-          onClick={e => e.stopPropagation()}
-          style={{
-            width: '100%', maxWidth: 560, maxHeight: '85vh',
-            background: 'white', borderRadius: 20,
-            boxShadow: SHADOW.modal,
-            overflowY: 'auto', WebkitOverflowScrolling: 'touch',
-            animation: 'scaleIn 0.2s ease',
-          }}
-        >
-          <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setModal(null)} aria-label="Fermer" style={{ width: 30, height: 30, borderRadius: 15, background: BASE.bgHover, border: 'none', fontSize: 16, color: BASE.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-          </div>
-          <ProductDetail
-            embedded
-            product={modal.product}
-            products={products}
-            stock={stock}
-            locations={locations}
-            movements={movements || []}
-            events={events || []}
-            eventPacking={eventPacking || []}
-            onClose={() => setModal(null)}
-            onEdit={() => setModal({ type: 'edit', product: modal.product })}
-            onDelete={() => setConfirm({
-              message: `Supprimer "${modal.product.name}" ?`,
-              detail: 'Le produit, son stock et son historique de mouvements seront supprimés. Cette action est irréversible.',
-              onConfirm: () => handleDelete(modal.product),
-            })}
-            onToast={onToast}
-          />
-        </div>
-      </div>
-    )}
+    <FloatingDetail open={modal?.type === 'detail'} onClose={() => setModal(null)}>
+      {modal?.type === 'detail' && (
+        <ProductDetail
+          embedded
+          product={modal.product}
+          products={products}
+          stock={stock}
+          locations={locations}
+          movements={movements || []}
+          events={events || []}
+          eventPacking={eventPacking || []}
+          onClose={() => setModal(null)}
+          onEdit={() => setModal({ type: 'edit', product: modal.product })}
+          onDelete={() => setConfirm({
+            message: `Supprimer "${modal.product.name}" ?`,
+            detail: 'Le produit, son stock et son historique de mouvements seront supprimés. Cette action est irréversible.',
+            onConfirm: () => handleDelete(modal.product),
+          })}
+          onToast={onToast}
+        />
+      )}
+    </FloatingDetail>
 
     <div style={{ paddingBottom: 24 }}>
       {/* ═══ HEADER GRADIENT BOLD ═══ */}

@@ -18,9 +18,9 @@ const MODULE_COLOR = '#5B8DB8'
 export default function StockHub({
   locations, stock, products, movements, families, subfamilies,
   alerts, events,
-  onMovement,
+  onMovement, initialTab,
 }) {
-  const [activeTab, setActiveTab] = useState('par_lieu')
+  const [activeTab, setActiveTab] = useState(initialTab || 'par_lieu')
 
   return (
     <div>

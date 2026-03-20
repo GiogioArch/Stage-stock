@@ -6,6 +6,7 @@ import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
 import { FloatingDetail } from '../design'
 import { MODULES, BASE, SEMANTIC, SHADOW, SPACE, RADIUS, TYPO } from '../lib/theme'
+import { getMidRate, getTerritoryMult } from '../lib/forecast'
 import {
   Package,
   Calendar,
@@ -26,6 +27,7 @@ import {
   EyeOff,
   RotateCcw,
   X,
+  TrendingUp,
 } from 'lucide-react'
 
 // ─── Icon mapping (MODULES.icon is a string, we need actual components) ───
@@ -502,6 +504,56 @@ export default function Board({
             </div>
           </div>
         )}
+
+        {/* ═══ 5b. FORECAST RÉSUMÉ (merch prévisions prochains events) ═══ */}
+        {upcomingEvents.length > 0 && products.filter(p => p.category === 'merch').length > 0 && (() => {
+          const merchProducts = products.filter(p => p.category === 'merch')
+          const totalMerchStock = merchProducts.reduce((sum, p) =>
+            sum + stock.filter(s => s.product_id === p.id).reduce((s2, st) => s2 + (st.quantity || 0), 0), 0)
+          const totalForecast = upcomingEvents.slice(0, 5).reduce((sum, ev) => {
+            const rate = getMidRate(ev.format)
+            const mult = getTerritoryMult(ev.territoire)
+            return sum + Math.round((ev.capacite || 300) * rate * mult)
+          }, 0)
+          const coverage = totalForecast > 0 ? Math.round((totalMerchStock / totalForecast) * 100) : 100
+          if (totalForecast === 0) return null
+          return (
+            <div
+              onClick={() => onNavigate('forecast')}
+              style={{
+                padding: `${SPACE.md + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
+                background: BASE.white, border: `1px solid ${BASE.border}`,
+                boxShadow: SHADOW.sm, cursor: 'pointer',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.sm }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm }}>
+                  {createElement(TrendingUp, { size: 16, style: { color: MODULES.forecast?.color || SEMANTIC.warning } })}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>Prévisions merch</div>
+                    <div style={{ ...TYPO.micro, color: BASE.textSoft }}>
+                      {totalMerchStock} en stock · ~{totalForecast} prévus ({upcomingEvents.slice(0, 5).length} dates)
+                    </div>
+                  </div>
+                </div>
+                <div style={{
+                  fontSize: 16, fontWeight: 700,
+                  color: coverage >= 100 ? SEMANTIC.success : coverage >= 60 ? SEMANTIC.warning : SEMANTIC.danger,
+                }}>{coverage}%</div>
+              </div>
+              <div style={{ height: 4, borderRadius: 2, background: BASE.bgHover, overflow: 'hidden' }}>
+                <div style={{
+                  width: `${Math.min(100, coverage)}%`, height: '100%', borderRadius: 2,
+                  background: coverage >= 100 ? SEMANTIC.success : coverage >= 60 ? SEMANTIC.warning : SEMANTIC.danger,
+                  transition: 'width 0.3s',
+                }} />
+              </div>
+              <div style={{ ...TYPO.label, color: SEMANTIC.info, marginTop: SPACE.sm, textAlign: 'right' }}>
+                Voir les prévisions {createElement(ChevronRight, { size: 10, style: { verticalAlign: 'middle' } })}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* ═══ 6. PROCHAINS ÉVÉNEMENTS (compact) ═══ */}
         {sections.upcoming && upcomingEvents.length > 1 && (

@@ -773,12 +773,17 @@ function TabContent({
       )
     case 'alertes':
       return (
-        <Alerts
+        <StockHub
+          locations={data.locations}
+          stock={filteredStock}
+          products={filteredProducts}
+          movements={filteredMovements}
+          families={data.families}
+          subfamilies={data.subfamilies}
           alerts={alerts}
           events={data.events}
-          products={filteredProducts}
-          stock={filteredStock}
-          locations={data.locations}
+          onMovement={onMovement}
+          initialTab="alertes"
         />
       )
     case 'timeline': {

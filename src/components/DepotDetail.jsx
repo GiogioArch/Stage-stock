@@ -2,17 +2,11 @@ import React, { useState, useMemo, createElement } from 'react'
 import { useToast } from '../shared/hooks'
 import { Pencil, PackageOpen } from 'lucide-react'
 import { getMoveConf, fmtDate, Badge } from './UI'
-import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW, hexToRgb } from '../lib/theme'
 import { SubTabs } from '../design'
 
 const theme = getModuleTheme('stock')
-
-function hexToRgbLocal(hex) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `${r},${g},${b}`
-}
+const hexToRgbLocal = hexToRgb
 
 export default function DepotDetail({
   location, stock, products, movements, families, subfamilies,

@@ -4,41 +4,13 @@ import { db } from '../lib/supabase'
 import { Badge, CATEGORIES, fmtDate, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import PackingList from './PackingList'
-import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW, hexToRgb } from '../lib/theme'
 import { SubTabs } from '../design'
 import { useToast, useProject } from '../shared/hooks'
+import { getConversionRate as getConvRate, getTerritoryMult as getTerrMult } from '../lib/forecast'
 
 const theme = getModuleTheme('tournee')
-
-// Hex→rgb helper for inline rgba
-function hexToRgbLocal(hex) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `${r},${g},${b}`
-}
-
-// ─── Forecast helpers ───
-const CONVERSION_RATES = {
-  'concert live': { low: 0.10, mid: 0.11, high: 0.12 },
-  'concert':      { low: 0.10, mid: 0.11, high: 0.12 },
-  'live':         { low: 0.10, mid: 0.11, high: 0.12 },
-  'sound system':  { low: 0.06, mid: 0.07, high: 0.08 },
-  'soundsystem':   { low: 0.06, mid: 0.07, high: 0.08 },
-  'impro':         { low: 0.12, mid: 0.135, high: 0.15 },
-  'improvisation': { low: 0.12, mid: 0.135, high: 0.15 },
-}
-const DEFAULT_RATE = { low: 0.08, mid: 0.10, high: 0.12 }
-const TERRITORY_MULT = { 'martinique': 1.0, 'guadeloupe': 0.85 }
-
-function getConvRate(format) {
-  if (!format) return DEFAULT_RATE
-  return CONVERSION_RATES[format.toLowerCase().trim()] || DEFAULT_RATE
-}
-function getTerrMult(territoire) {
-  if (!territoire) return 0.90
-  return TERRITORY_MULT[territoire.toLowerCase().trim()] || 0.90
-}
+const hexToRgbLocal = hexToRgb
 
 const CHECK_CATS = {
   son:          { icon: Volume2, color: '#E8735A', label: 'Son' },
