@@ -28,8 +28,8 @@ const ICON_MAP = {
   'Package': Package,
 }
 
-// Only legacy emoji keys for the icon picker (backward compat with existing DB data)
-const ICON_KEYS = ['📍', '🏭', '🚐', '🎪', '✈️', '📦', '🏠']
+// Lucide name keys for the icon picker (matches Depots format)
+const ICON_KEYS = ['MapPin', 'Warehouse', 'Truck', 'Store', 'Building', 'Box', 'Home', 'Package']
 
 const LOCATION_COLORS = [theme.color, SEMANTIC.danger, SEMANTIC.info, SEMANTIC.success, SEMANTIC.warning, SEMANTIC.melodie]
 

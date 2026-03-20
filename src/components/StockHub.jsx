@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react'
-
+import { SubTabs } from '../design'
 
 const Depots = lazy(() => import('./Depots'))
 const Stocks = lazy(() => import('./Stocks'))
@@ -22,38 +22,17 @@ export default function StockHub({
 }) {
   const [activeTab, setActiveTab] = useState(initialTab || 'par_lieu')
 
+  const alertBadge = alerts && alerts.length > 0 ? { alertes: alerts.length } : undefined
+
   return (
     <div>
-      {/* Sub-tab navigation */}
-      <div style={{
-        display: 'flex', gap: 6, padding: '0 16px 12px',
-        overflowX: 'auto', WebkitOverflowScrolling: 'touch',
-        scrollbarWidth: 'none',
-      }}>
-        {TABS.map(t => {
-          const isActive = activeTab === t.id
-          return (
-            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
-              flex: 1, padding: '8px', borderRadius: 20, fontSize: 13, fontWeight: isActive ? 700 : 500,
-              cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap',
-              background: isActive ? MODULE_COLOR : '#F1F5F9',
-              color: isActive ? '#FFFFFF' : '#64748B',
-              border: 'none',
-              boxShadow: isActive ? `0 2px 8px ${MODULE_COLOR}40` : 'none',
-              transition: 'all 0.2s ease',
-            }}>{t.label}
-              {t.id === 'alertes' && alerts && alerts.length > 0 && (
-                <span style={{
-                  marginLeft: 6, padding: '1px 6px', borderRadius: 10,
-                  background: isActive ? 'rgba(255,255,255,0.3)' : '#D4648A',
-                  color: isActive ? '#fff' : '#fff',
-                  fontSize: 10, fontWeight: 700,
-                }}>{alerts.length}</span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+      <SubTabs
+        tabs={TABS}
+        active={activeTab}
+        onChange={setActiveTab}
+        color={MODULE_COLOR}
+        badge={alertBadge}
+      />
 
       {/* Tab content */}
       <Suspense fallback={<div style={{ padding: 32, textAlign: 'center' }}><div className="loader" /></div>}>

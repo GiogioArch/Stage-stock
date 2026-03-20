@@ -550,7 +550,7 @@ export default function App() {
           aria-label="Stock">
           <span className="nav-icon"><Package size={18} /></span>
           <span>Stock</span>
-          {alerts.length > 0 && <span className="nav-badge">{alerts.length}</span>}
+          {alerts.filter(a => a.level === 'rupture').length > 0 && <span className="nav-badge">{alerts.filter(a => a.level === 'rupture').length}</span>}
         </button>
         {/* 4. Équipe */}
         <button className={`nav-tab ${tab === 'equipe' ? 'active' : ''}`}

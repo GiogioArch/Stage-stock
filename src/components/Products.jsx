@@ -108,20 +108,12 @@ export default function Products({ products, families, subfamilies, stock, locat
 
       <div style={{ padding: '0 16px' }}>
       {/* Search */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        background: BASE.bgSurface, borderRadius: 12,
-        border: `1px solid ${BASE.border}`, padding: '10px 14px', marginBottom: 14,
-      }}>
-        <Search size={16} color={BASE.textMuted} />
+      <div className="search-bar" style={{ marginBottom: 14 }}>
+        <span className="search-icon"><Search size={16} /></span>
         <input
           placeholder="Rechercher un produit..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{
-            flex: 1, background: 'none', border: 'none', outline: 'none',
-            color: BASE.text, fontSize: 14,
-          }}
         />
       </div>
 
