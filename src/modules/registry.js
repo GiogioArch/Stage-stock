@@ -196,7 +196,7 @@ export const DEFAULT_ACTIVE = [
 
 // ─── Helpers ───
 
-const STORAGE_KEY = 'stage_stock_modules'
+const STORAGE_KEY = 'backstage_modules'
 
 export function getActiveModuleIds() {
   try {

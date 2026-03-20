@@ -1,7 +1,7 @@
-// Melodie — Chatbot IA Stage Stock
+// Melodie — Chatbot IA BackStage
 // Cloudflare Pages Function → Workers AI (Llama 3.1 8B)
 
-const SYSTEM_PROMPT = `Tu es Melodie, l'assistante virtuelle de Stage Stock, une application de gestion de stock et de logistique pour les professionnels du spectacle vivant (tournees, festivals, compagnies).
+const SYSTEM_PROMPT = `Tu es Melodie, l'assistante virtuelle de BackStage, une application de gestion de stock et de logistique pour les professionnels du spectacle vivant (tournees, festivals, compagnies).
 
 Tu es chaleureuse, professionnelle et efficace. Tu tutoies l'utilisateur.
 
@@ -116,7 +116,7 @@ function getFallbackResponse(message) {
   const msg = message.toLowerCase()
 
   if (msg.match(/bonjour|salut|hello|hey|coucou/))
-    return "Salut ! Je suis Melodie, ton assistante Stage Stock. Comment je peux t'aider ?"
+    return "Salut ! Je suis Melodie, ton assistante BackStage. Comment je peux t'aider ?"
 
   if (msg.match(/stock|quantit|combien/))
     return "Pour voir ton stock, va dans l'onglet Stock ou Depots. Tu y trouveras les quantites par lieu et par produit. Tu peux aussi faire un mouvement (entree, sortie, transfert) depuis le bouton + en bas."
@@ -142,5 +142,5 @@ function getFallbackResponse(message) {
   if (msg.match(/merci|thanks/))
     return "De rien ! N'hesite pas si tu as d'autres questions."
 
-  return "Je suis la pour t'aider avec Stage Stock ! Tu peux me poser des questions sur le stock, les concerts, l'equipe, le merch, les alertes... Qu'est-ce que tu veux savoir ?"
+  return "Je suis la pour t'aider avec BackStage ! Tu peux me poser des questions sur le stock, les concerts, l'equipe, le merch, les alertes... Qu'est-ce que tu veux savoir ?"
 }
