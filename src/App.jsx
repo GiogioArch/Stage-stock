@@ -748,24 +748,17 @@ function TabContent({
         />
       )
     case 'depots':
+      // Redirect to stock_hub (depots is now a sub-tab of StockHub)
       return (
-        <Depots
+        <StockHub
           locations={data.locations}
           stock={filteredStock}
           products={filteredProducts}
           movements={filteredMovements}
           families={data.families}
           subfamilies={data.subfamilies}
-          onMovement={onMovement}
-        />
-      )
-    case 'stock':
-      return (
-        <StockModule
-          products={filteredProducts}
-          locations={data.locations}
-          stock={filteredStock}
-          movements={filteredMovements}
+          alerts={alerts}
+          events={data.events}
           onMovement={onMovement}
         />
       )
@@ -803,16 +796,20 @@ function TabContent({
           locations={data.locations}
         />
       )
-    case 'timeline':
+    case 'timeline': {
+      const timelineEvent = data.events?.length > 0
+        ? (data.events.find(e => e.date >= new Date().toISOString().split('T')[0]) || data.events[data.events.length - 1])
+        : null
       return (
         <EventTimeline
-          event={data.events?.find(e => e.date >= new Date().toISOString().split('T')[0]) || data.events?.[data.events.length - 1]}
+          event={timelineEvent}
           events={data.events}
           eventTasks={data.event_tasks}
           roles={data.roles}
           userProfiles={data.user_profiles}
         />
       )
+    }
     case 'forecast':
       return (
         <Forecast
@@ -875,49 +872,6 @@ function TabContent({
     default:
       return null
   }
-}
-
-// ─── Stock Module (combines Stock view + Movements with sub-tabs) ───
-function StockModule({ products, locations, stock, movements, onMovement }) {
-  const [subTab, setSubTab] = useState('stock') // stock | mouvements
-
-  return (
-    <div>
-      {/* Sub-tab switcher */}
-      <div style={{ display: 'flex', gap: 6, padding: '0 16px 12px' }}>
-        {[
-          { id: 'stock', label: 'Niveaux de stock' },
-          { id: 'mouvements', label: 'Mouvements' },
-        ].map(s => (
-          <button key={s.id} onClick={() => setSubTab(s.id)} style={{
-            flex: 1, padding: '8px', borderRadius: 20, fontSize: 13, fontWeight: subTab === s.id ? 700 : 500,
-            cursor: 'pointer', textAlign: 'center',
-            background: subTab === s.id ? '#5B8DB8' : '#F1F5F9',
-            color: subTab === s.id ? '#FFFFFF' : '#64748B',
-            border: 'none',
-            boxShadow: subTab === s.id ? '0 2px 8px rgba(91,141,184,0.3)' : 'none',
-            transition: 'all 0.2s ease',
-          }}>{s.label}</button>
-        ))}
-      </div>
-
-      {subTab === 'stock' && (
-        <Stocks
-          products={products}
-          locations={locations}
-          stock={stock}
-          onMovement={onMovement}
-        />
-      )}
-      {subTab === 'mouvements' && (
-        <Movements
-          movements={movements}
-          products={products}
-          locations={locations}
-        />
-      )}
-    </div>
-  )
 }
 
 // ─── EK LIVE Error Boundary ───

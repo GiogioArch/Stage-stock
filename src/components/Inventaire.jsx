@@ -47,12 +47,15 @@ export default function Inventaire({ products, stock, locations }) {
     setSaving(true)
     try {
       for (const item of diffs) {
-        if (item.stockId) {
-          try {
+        try {
+          if (item.stockId) {
             await db.update('stock', `id=eq.${item.stockId}`, { quantity: item.counted })
-          } catch (e) {
-            console.error('Stock update error:', e)
+          } else {
+            // No existing stock row — create one (product counted but not in system)
+            await db.insert('stock', { product_id: item.id, location_id: selectedLocation.id, quantity: item.counted, org_id: orgId })
           }
+        } catch (e) {
+          console.error('Stock update error:', e)
         }
         // Log as movement
         try {

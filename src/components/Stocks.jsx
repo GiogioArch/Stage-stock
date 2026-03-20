@@ -86,8 +86,8 @@ export default function Stocks({ products, locations, stock, onMovement }) {
       {/* ─── Gradient Header ─── */}
       <GradientHeader
         module="stock"
-        title={`${products.length} produit${products.length > 1 ? 's' : ''}`}
-        subtitle={`${products.length} produits · ${locations.length} lieu${locations.length > 1 ? 'x' : ''}`}
+        title={`${globalTotal} pièce${globalTotal > 1 ? 's' : ''} en stock`}
+        subtitle={`${locations.length} lieu${locations.length > 1 ? 'x' : ''} · ${products.length} produit${products.length > 1 ? 's' : ''}`}
         stats={[
           { value: globalTotal, label: 'Pièces totales' },
           { value: locations.length, label: 'Lieux' },

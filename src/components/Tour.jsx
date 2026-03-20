@@ -97,7 +97,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         onClose={() => setSelectedEvent(null)}
         onNavigateEvent={(ev) => setSelectedEvent(ev)}
         onEdit={(ev) => { setSelectedEvent(null); setEventModal({ type: 'edit', event: ev }) }}
-        onDelete={(ev) => setConfirmDelete(ev)}
+        onDelete={(ev) => { setSelectedEvent(null); setConfirmDelete(ev) }}
       />
     </FloatingDetail>
 
@@ -349,18 +349,6 @@ export default function Tour({ events, products, stock, locations, families, sub
       )}
     </div>
     </>
-  )
-}
-
-function StatBox({ label, value, color }) {
-  return (
-    <div style={{
-      flex: 1, textAlign: 'center', padding: `${SPACE.sm}px ${SPACE.xs}px`,
-      background: BASE.bgHover, borderRadius: RADIUS.sm, border: `1px solid ${BASE.border}`,
-    }}>
-      <div style={{ fontSize: 15, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ ...TYPO.label, color: BASE.textMuted, marginTop: 2 }}>{label}</div>
-    </div>
   )
 }
 

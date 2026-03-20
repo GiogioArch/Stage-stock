@@ -42,15 +42,33 @@ export default function MovementModal({ type, products, locations, stock, presel
         try { await db.rpc('move_stock', { p_product_id: productId, p_location_id: fromLoc, p_delta: -qty }) }
         catch { await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, availableStock - qty), org_id: orgId }) }
       } else {
-        // Transfer = out from source + in to destination
+        // Transfer = out from source + in to destination (atomic: rollback source if dest fails)
+        let useRpc = true
         try {
           await db.rpc('move_stock', { p_product_id: productId, p_location_id: fromLoc, p_delta: -qty })
-          await db.rpc('move_stock', { p_product_id: productId, p_location_id: toLoc, p_delta: qty })
         } catch {
+          useRpc = false
           const srcStock = stock.find(s => s.product_id === productId && s.location_id === fromLoc)?.quantity || 0
-          const dstStock = stock.find(s => s.product_id === productId && s.location_id === toLoc)?.quantity || 0
           await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, srcStock - qty), org_id: orgId })
-          await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: dstStock + qty, org_id: orgId })
+        }
+        try {
+          if (useRpc) {
+            await db.rpc('move_stock', { p_product_id: productId, p_location_id: toLoc, p_delta: qty })
+          } else {
+            const dstStock = stock.find(s => s.product_id === productId && s.location_id === toLoc)?.quantity || 0
+            await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: dstStock + qty, org_id: orgId })
+          }
+        } catch (transferErr) {
+          // Rollback source: re-add the quantity we just removed
+          try {
+            if (useRpc) {
+              await db.rpc('move_stock', { p_product_id: productId, p_location_id: fromLoc, p_delta: qty })
+            } else {
+              const srcStock = stock.find(s => s.product_id === productId && s.location_id === fromLoc)?.quantity || 0
+              await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: srcStock + qty, org_id: orgId })
+            }
+          } catch { /* rollback best-effort */ }
+          throw new Error('Échec du transfert vers la destination — opération annulée')
         }
       }
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, createElement } from 'react'
 import { useToast } from '../shared/hooks'
-import { Keyboard } from 'lucide-react'
+import { Keyboard, X } from 'lucide-react'
 import { Modal } from './UI'
 
 export default function Scanner({ products, locations, stock, onMovement, onClose }) {
@@ -134,7 +134,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
         background: 'rgba(0,0,0,0.8)', zIndex: 2,
       }}>
         <div style={{ color: 'white', fontWeight: 600, fontSize: 16 }}>
-          {scanning ? ' Scanner' : ' Résultat'}
+          {scanning ? 'Scanner' : 'Résultat'}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {scanning && (
@@ -149,7 +149,8 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
           <button onClick={onClose} style={{
             padding: '6px 12px', borderRadius: 8, fontSize: 14, fontWeight: 700,
             background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', cursor: 'pointer',
-          }} aria-label="Fermer"></button>
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }} aria-label="Fermer">{createElement(X, { size: 18 })}</button>
         </div>
       </div>
 
