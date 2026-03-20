@@ -1,5 +1,5 @@
 import React, { useState, createElement } from 'react'
-import { useToast, useProject } from '../shared/hooks'
+import { useToast, useProject, useBoardConfig } from '../shared/hooks'
 import { parseDate, Badge } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
@@ -18,6 +18,13 @@ import {
   ArrowDownToLine,
   ArrowUpFromLine,
   RefreshCw,
+  Settings,
+  ChevronUp,
+  ChevronDown,
+  Eye,
+  EyeOff,
+  RotateCcw,
+  X,
 } from 'lucide-react'
 
 // ─── Icon mapping (MODULES.icon is a string, we need actual components) ───
@@ -30,8 +37,15 @@ const MOD_ICONS = {
   achats: ShoppingCart,
 }
 
-// Keys rendered on the Board grid
-const BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance', 'achats']
+// Module labels for display
+const MOD_LABELS = {
+  stock: 'Stock',
+  tournee: 'Tournée',
+  packing: 'Packing',
+  scanner: 'Scanner',
+  finance: 'Finance',
+  achats: 'Achats',
+}
 
 export default function Board({
   products, locations, stock, movements, alerts, events,
@@ -40,7 +54,12 @@ export default function Board({
   onOpenScanner,
 }) {
   const onToast = useToast()
-  const { userRole, reload } = useProject()
+  const { userRole } = useProject()
+  const {
+    boardKeys, allBoardKeys, hiddenKeys, sections,
+    isEditing, setEditing, saving,
+    moveUp, moveDown, toggleModule, toggleSection, resetBoard,
+  } = useBoardConfig()
   const [selectedEvent, setSelectedEvent] = useState(null)
 
   // ─── Data calculations ───
@@ -106,14 +125,33 @@ export default function Board({
           background: `linear-gradient(135deg, ${SEMANTIC.info}12, ${SEMANTIC.info}06)`,
           border: `1px solid ${SEMANTIC.info}20`,
         }}>
-          <div style={{ ...TYPO.h1, color: BASE.text, marginBottom: SPACE.xs }}>
-            Bonjour{roleConf ? ` !` : ' !'}
-          </div>
-          {roleConf && (
-            <div style={{ fontSize: 13, color: BASE.textSoft, marginBottom: SPACE.md }}>
-              {roleConf.label}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ ...TYPO.h1, color: BASE.text, marginBottom: SPACE.xs }}>
+                Bonjour{roleConf ? ` !` : ' !'}
+              </div>
+              {roleConf && (
+                <div style={{ fontSize: 13, color: BASE.textSoft, marginBottom: SPACE.md }}>
+                  {roleConf.label}
+                </div>
+              )}
             </div>
-          )}
+            {/* Bouton personnaliser */}
+            <button
+              onClick={() => setEditing(!isEditing)}
+              aria-label="Personnaliser le board"
+              style={{
+                width: 36, height: 36, borderRadius: RADIUS.md,
+                background: isEditing ? SEMANTIC.info : BASE.white,
+                border: `1px solid ${isEditing ? SEMANTIC.info : BASE.border}`,
+                color: isEditing ? BASE.white : BASE.textMuted,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: SHADOW.sm, flexShrink: 0,
+              }}
+            >
+              {createElement(isEditing ? X : Settings, { size: 18 })}
+            </button>
+          </div>
 
           {nextEvent ? (
             <div
@@ -161,8 +199,123 @@ export default function Board({
           )}
         </div>
 
-        {/* ═══ 2. BANDEAU ALERTES (seulement si problèmes) ═══ */}
-        {(criticalAlerts.length > 0 || lowAlerts.length > 0) && (
+        {/* ═══ MODE ÉDITION ═══ */}
+        {isEditing && (
+          <div style={{
+            padding: SPACE.lg, borderRadius: RADIUS.xl, marginBottom: SPACE.lg,
+            background: BASE.white, border: `2px solid ${SEMANTIC.info}40`,
+            boxShadow: SHADOW.card,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.md }}>
+              <div style={{ ...TYPO.bodyBold, color: BASE.text }}>Personnaliser le Board</div>
+              <button onClick={resetBoard} style={{
+                display: 'flex', alignItems: 'center', gap: 4,
+                padding: '4px 10px', borderRadius: RADIUS.sm, fontSize: 12,
+                background: 'none', border: `1px solid ${BASE.border}`,
+                color: BASE.textSoft, cursor: 'pointer',
+              }}>
+                {createElement(RotateCcw, { size: 12 })} Réinitialiser
+              </button>
+            </div>
+            <div style={{ ...TYPO.micro, color: BASE.textSoft, marginBottom: SPACE.md }}>
+              Réordonne et masque les modules de ton Board
+            </div>
+
+            {/* Module list */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {allBoardKeys.map((key, idx) => {
+                const mod = MODULES[key]
+                const Icon = MOD_ICONS[key]
+                const isHidden = hiddenKeys.includes(key)
+                if (!mod || !Icon) return null
+                return (
+                  <div key={key} style={{
+                    display: 'flex', alignItems: 'center', gap: SPACE.sm,
+                    padding: `${SPACE.sm + 2}px ${SPACE.md}px`,
+                    borderRadius: RADIUS.md,
+                    background: isHidden ? `${BASE.bgHover}` : mod.bg,
+                    border: `1px solid ${isHidden ? BASE.border : mod.color + '25'}`,
+                    opacity: isHidden ? 0.6 : 1,
+                  }}>
+                    {/* Icon */}
+                    <div style={{
+                      width: 32, height: 32, borderRadius: RADIUS.sm,
+                      background: isHidden ? BASE.bgHover : BASE.white,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      {createElement(Icon, { size: 18, style: { color: isHidden ? BASE.textMuted : mod.color } })}
+                    </div>
+
+                    {/* Label */}
+                    <div style={{
+                      flex: 1, fontSize: 14, fontWeight: 600,
+                      color: isHidden ? BASE.textMuted : mod.color,
+                    }}>
+                      {MOD_LABELS[key] || mod.label || key}
+                    </div>
+
+                    {/* Move buttons */}
+                    <button onClick={() => moveUp(key)} disabled={idx === 0 || saving}
+                      aria-label="Monter" style={editBtnStyle(idx === 0)}>
+                      {createElement(ChevronUp, { size: 16 })}
+                    </button>
+                    <button onClick={() => moveDown(key)} disabled={idx === allBoardKeys.length - 1 || saving}
+                      aria-label="Descendre" style={editBtnStyle(idx === allBoardKeys.length - 1)}>
+                      {createElement(ChevronDown, { size: 16 })}
+                    </button>
+
+                    {/* Toggle visibility */}
+                    <button onClick={() => toggleModule(key)} disabled={saving}
+                      aria-label={isHidden ? 'Afficher' : 'Masquer'}
+                      style={{
+                        ...editBtnStyle(false),
+                        color: isHidden ? SEMANTIC.danger : SEMANTIC.success,
+                      }}>
+                      {createElement(isHidden ? EyeOff : Eye, { size: 16 })}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Section toggles */}
+            <div style={{ marginTop: SPACE.lg, paddingTop: SPACE.md, borderTop: `1px solid ${BASE.border}` }}>
+              <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>Sections</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {[
+                  { id: 'alerts', label: 'Alertes' },
+                  { id: 'quick_actions', label: 'Actions rapides' },
+                  { id: 'packing', label: 'Packing' },
+                  { id: 'upcoming', label: 'Prochains events' },
+                ].map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => toggleSection(s.id)}
+                    style={{
+                      padding: '6px 12px', borderRadius: RADIUS.md, fontSize: 12, fontWeight: 500,
+                      background: sections[s.id] ? SEMANTIC.info : BASE.bgHover,
+                      color: sections[s.id] ? BASE.white : BASE.textMuted,
+                      border: `1px solid ${sections[s.id] ? SEMANTIC.info : BASE.border}`,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {saving && (
+              <div style={{ marginTop: SPACE.sm, fontSize: 12, color: SEMANTIC.info, textAlign: 'center' }}>
+                Sauvegarde...
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ═══ 2. BANDEAU ALERTES (seulement si problèmes + section visible) ═══ */}
+        {sections.alerts && (criticalAlerts.length > 0 || lowAlerts.length > 0) && (
           <div
             onClick={() => onNavigate('alertes')}
             style={{
@@ -194,16 +347,17 @@ export default function Board({
           </div>
         )}
 
-        {/* ═══ 3. GRILLE MODULES 2×3 ═══ */}
+        {/* ═══ 3. GRILLE MODULES (dynamique) ═══ */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: SPACE.md,
           marginBottom: SPACE.xl,
         }}>
-          {BOARD_KEYS.map(key => {
+          {boardKeys.map(key => {
             const mod = MODULES[key]
             const Icon = MOD_ICONS[key]
+            if (!mod || !Icon) return null
             const handleClick = () => {
               if (key === 'packing') {
                 if (nextEvent) {
@@ -266,7 +420,7 @@ export default function Board({
                   ...TYPO.bodyBold, color: mod.color,
                   letterSpacing: 0.2,
                 }}>
-                  {mod.label}
+                  {MOD_LABELS[key] || mod.label}
                 </div>
               </button>
             )
@@ -274,17 +428,21 @@ export default function Board({
         </div>
 
         {/* ═══ 4. ACTIONS RAPIDES (petit format) ═══ */}
-        <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
-          Actions rapides
-        </div>
-        <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.xl }}>
-          <QuickBtn icon={ArrowDownToLine} label="Entrée" color={SEMANTIC.success} onClick={() => onQuickAction('in')} />
-          <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={SEMANTIC.danger} onClick={() => onQuickAction('out')} />
-          <QuickBtn icon={RefreshCw} label="Transfert" color={SEMANTIC.info} onClick={() => onQuickAction('transfer')} />
-        </div>
+        {sections.quick_actions && (
+          <>
+            <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
+              Actions rapides
+            </div>
+            <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.xl }}>
+              <QuickBtn icon={ArrowDownToLine} label="Entrée" color={SEMANTIC.success} onClick={() => onQuickAction('in')} />
+              <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={SEMANTIC.danger} onClick={() => onQuickAction('out')} />
+              <QuickBtn icon={RefreshCw} label="Transfert" color={SEMANTIC.info} onClick={() => onQuickAction('transfer')} />
+            </div>
+          </>
+        )}
 
         {/* ═══ 5. PACKING PROGRESS (si applicable) ═══ */}
-        {packingTotal > 0 && nextEvent && (
+        {sections.packing && packingTotal > 0 && nextEvent && (
           <div style={{
             padding: `${SPACE.md + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
             background: BASE.white, border: `1px solid ${BASE.border}`,
@@ -315,7 +473,7 @@ export default function Board({
         )}
 
         {/* ═══ 6. PROCHAINS ÉVÉNEMENTS (compact) ═══ */}
-        {upcomingEvents.length > 1 && (
+        {sections.upcoming && upcomingEvents.length > 1 && (
           <>
             <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
               Prochains événements
@@ -372,6 +530,18 @@ export default function Board({
       </div>
     </>
   )
+}
+
+// ─── Edit button style helper ───
+function editBtnStyle(disabled) {
+  return {
+    width: 28, height: 28, borderRadius: RADIUS.sm,
+    background: 'none', border: `1px solid ${BASE.border}`,
+    color: disabled ? BASE.border : BASE.textMuted,
+    cursor: disabled ? 'default' : 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: 0, flexShrink: 0,
+  }
 }
 
 // ─── Quick action button (compact) ───
