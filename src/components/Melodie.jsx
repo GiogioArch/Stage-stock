@@ -123,6 +123,18 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
     else setStep('login')
   }, [user, onAuth, onComplete])
 
+  // ─── Friendly error messages ───
+  const friendlyError = (msg) => {
+    if (!msg) return 'Erreur inconnue'
+    const m = msg.toLowerCase()
+    if (m.includes('email not confirmed')) return 'Email non confirmé. Vérifie ta boîte mail (et tes spams) puis clique sur le lien de confirmation.'
+    if (m.includes('invalid login') || m.includes('invalid_grant')) return 'Email ou mot de passe incorrect.'
+    if (m.includes('user already registered')) return 'Ce compte existe déjà. Connecte-toi plutôt.'
+    if (m.includes('rate limit') || m.includes('too many')) return 'Trop de tentatives. Attends quelques minutes.'
+    if (m.includes('network') || m.includes('fetch')) return 'Erreur réseau — vérifie ta connexion.'
+    return msg
+  }
+
   // ─── Auth handlers ───
   const handleSignup = async () => {
     if (!email || !password) return setAuthError('Email et mot de passe requis')
@@ -131,9 +143,41 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
     setAuthError('')
     try {
       const data = await auth.signUp(email, password)
-      if (data.error) { setAuthError(data.error_description || data.error); return }
+      if (data.error) { setAuthError(friendlyError(data.error_description || data.error)); return }
+      // Supabase returns a fake user (no error) when email already exists (anti-leak)
+      // Detect: no identities = email already taken
+      if (data.identities && data.identities.length === 0) {
+        setAuthError('Ce compte existe déjà. Connecte-toi plutôt.')
+        return
+      }
+      // Store displayName for after login
+      if (displayName.trim()) localStorage.setItem('pending_display_name', displayName.trim())
       setStep('verify_email')
-    } catch (e) { setAuthError(e.message || 'Erreur réseau') }
+    } catch (e) { setAuthError(friendlyError(e.message)) }
+    finally { setAuthLoading(false) }
+  }
+
+  const handleResendVerification = async () => {
+    if (!email) return setAuthError('Entre ton email d\'abord')
+    setAuthLoading(true)
+    setAuthError('')
+    try {
+      // Re-calling signUp with same email resends the confirmation
+      const data = await auth.signUp(email, password || 'dummy_resend')
+      if (data.error) { setAuthError(friendlyError(data.error_description || data.error)); return }
+      onToast('Email de confirmation renvoyé !')
+    } catch (e) { setAuthError(friendlyError(e.message)) }
+    finally { setAuthLoading(false) }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!email) return setAuthError('Entre ton email d\'abord')
+    setAuthLoading(true)
+    setAuthError('')
+    try {
+      await auth.resetPassword(email)
+      onToast('Email de réinitialisation envoyé !')
+    } catch (e) { setAuthError(friendlyError(e.message)) }
     finally { setAuthLoading(false) }
   }
 
@@ -143,17 +187,20 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
     setAuthError('')
     try {
       const data = await auth.signIn(email, password)
-      if (data.error) { setAuthError(data.error_description || data.error); return }
+      if (data.error) { setAuthError(friendlyError(data.error_description || data.error)); return }
       if (data.access_token) {
         const u = data.user
         setUser(u)
-        if (displayName.trim()) {
-          try { await db.upsert('user_details', { user_id: u.id, first_name: displayName.trim() }) }
-          catch { try { await db.insert('user_details', { user_id: u.id, first_name: displayName.trim() }) } catch {} }
+        // Recover displayName from signup or from current form
+        const name = displayName.trim() || localStorage.getItem('pending_display_name') || ''
+        if (name) {
+          localStorage.removeItem('pending_display_name')
+          try { await db.upsert('user_details', { user_id: u.id, first_name: name }) }
+          catch { try { await db.insert('user_details', { user_id: u.id, first_name: name }) } catch {} }
         }
         onAuth(u)
       }
-    } catch (e) { setAuthError(e.message || 'Erreur réseau') }
+    } catch (e) { setAuthError(friendlyError(e.message)) }
     finally { setAuthLoading(false) }
   }
 
@@ -352,6 +399,14 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
           }}>
             J'ai confirmé, me connecter
           </button>
+          <button onClick={handleResendVerification} disabled={authLoading} style={{
+            width: '100%', padding: '12px', borderRadius: 14,
+            background: 'none', color: C.accent, fontSize: 14, fontWeight: 500,
+            border: `1px solid ${C.accent}30`, cursor: 'pointer',
+            opacity: authLoading ? 0.6 : 1,
+          }}>
+            {authLoading ? 'Envoi...' : 'Renvoyer l\'email'}
+          </button>
           <div style={{ fontSize: 12, color: C.textMuted, textAlign: 'center' }}>
             Vérifie aussi tes spams si tu ne trouves pas l'email
           </div>
@@ -401,8 +456,22 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
           }}>
             {authLoading ? <>{createElement(Loader2, { size: 16, className: 'spin' })} Connexion...</> : 'Se connecter'}
           </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, gap: 8 }}>
+            <button onClick={handleForgotPassword} disabled={authLoading} style={{
+              fontSize: 13, color: C.textMuted, background: 'none',
+              border: 'none', cursor: 'pointer', textAlign: 'left',
+            }}>
+              Mot de passe oublié ?
+            </button>
+            <button onClick={handleResendVerification} disabled={authLoading} style={{
+              fontSize: 13, color: C.textMuted, background: 'none',
+              border: 'none', cursor: 'pointer', textAlign: 'right',
+            }}>
+              Renvoyer le lien
+            </button>
+          </div>
           <button onClick={() => { setStep('bonjour'); setAuthError('') }} style={{
-            marginTop: 10, fontSize: 13, color: C.accent, background: 'none',
+            marginTop: 6, fontSize: 13, color: C.accent, background: 'none',
             border: 'none', cursor: 'pointer', width: '100%', textAlign: 'center',
           }}>
             Première connexion ?
