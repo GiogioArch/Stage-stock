@@ -199,6 +199,8 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
           catch { try { await db.insert('user_details', { user_id: u.id, first_name: name }) } catch {} }
         }
         onAuth(u)
+      } else if (!data.error) {
+        setAuthError('Connexion échouée. Vérifie tes identifiants.')
       }
     } catch (e) { setAuthError(friendlyError(e.message)) }
     finally { setAuthLoading(false) }
