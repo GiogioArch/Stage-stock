@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { db } from '../lib/supabase'
 import { useToast } from '../shared/hooks'
 
-const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
+const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
 
 export default function ProjectPicker({ userId, onProjectSelected }) {
   const onToast = useToast()
@@ -25,7 +25,7 @@ export default function ProjectPicker({ userId, onProjectSelected }) {
           await db.insert('project_members', {
             user_id: userId,
             org_id: '00000000-0000-0000-0000-000000000001',
-            module_access: ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes'],
+            module_access: ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes'],
             is_admin: false,
             status: 'active',
           })

@@ -2,9 +2,9 @@ import React, { useState, useMemo, createElement } from 'react'
 import { useToast, useProject } from '../shared/hooks'
 import { db } from '../lib/supabase'
 import { Warehouse, Store, Building, Box, Truck, MapPin, Home, Package } from 'lucide-react'
-import { Badge, Confirm } from './UI'
+import { Badge, Confirm, CATEGORIES } from './UI'
 import DepotDetail from './DepotDetail'
-import { FloatingDetail } from '../design'
+import { FloatingDetail, FilterPills } from '../design'
 import { SEMANTIC } from '../lib/theme'
 
 const DEPOT_ICON_MAP = {
@@ -19,24 +19,30 @@ export default function Depots({ locations, stock, products, movements, families
   const [editingLocation, setEditingLocation] = useState(null)
   const [deletingLocation, setDeletingLocation] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  const [filterCat, setFilterCat] = useState('all')
 
   // Stats per location
   const locationStats = useMemo(() => {
     return (locations || []).map(loc => {
       const locStock = (stock || []).filter(s => s.location_id === loc.id && s.quantity > 0)
-      const totalQty = locStock.reduce((sum, s) => sum + (s.quantity || 0), 0)
-      const nbProducts = new Set(locStock.map(s => s.product_id)).size
       // Products detail
-      const productDetails = locStock
+      let productDetails = locStock
         .map(s => {
           const p = (products || []).find(pr => pr.id === s.product_id)
           return p ? { ...p, qty: s.quantity } : null
         })
         .filter(Boolean)
-        .sort((a, b) => b.qty - a.qty)
+
+      if (filterCat !== 'all') {
+        productDetails = productDetails.filter(p => p.category === filterCat)
+      }
+
+      productDetails.sort((a, b) => b.qty - a.qty)
+      const totalQty = productDetails.reduce((sum, p) => sum + (p.qty || 0), 0)
+      const nbProducts = new Set(productDetails.map(p => p.id)).size
       return { ...loc, totalQty, nbProducts, productDetails }
     })
-  }, [locations, stock, products])
+  }, [locations, stock, products, filterCat])
 
   const totalStock = locationStats.reduce((s, l) => s + l.totalQty, 0)
   const activeLocations = locationStats.filter(l => l.totalQty > 0).length
@@ -147,6 +153,16 @@ export default function Depots({ locations, stock, products, movements, families
           onCancel={() => setShowAdd(false)}
         />
       )}
+
+      {/* Category filter */}
+      <FilterPills
+        options={[
+          { id: 'all', label: 'Tous' },
+          ...CATEGORIES.map(cat => ({ id: cat.id, label: cat.name, icon: cat.icon })),
+        ]}
+        active={filterCat}
+        onChange={setFilterCat}
+      />
 
       {/* Locations list */}
       {locationStats.length === 0 ? (

@@ -1,7 +1,7 @@
 {
-  "name": "stage-stock",
+  "name": "backstage",
   "version": "8.0.0",
-  "description": "WMS pour artistes — EK TOUR 25 ANS",
+  "description": "BackStage — Gestion de tournée pour les pros du spectacle",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -20,7 +20,7 @@ const C = {
   danger: '#D4648A',
 }
 
-const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
+const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
 
 // Parcours raccourci : 8 étapes au lieu de 18
 // splash (3s) → choice → bonjour (2s) → signup/login → verify → roles → project → go

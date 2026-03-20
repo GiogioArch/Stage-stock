@@ -64,18 +64,18 @@ export const ROLE_INHERITS = {
 
 // Modules par rôle (accès de base pour chaque métier)
 export const ROLE_MODULES = {
-  TM:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast', 'ventes', 'achats', 'inventaire', 'transport', 'timeline'],
-  PM:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast', 'achats', 'inventaire', 'timeline'],
-  TD:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'inventaire', 'timeline'],
-  SE:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'timeline'],
-  LD:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'timeline'],
-  SM:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'timeline'],
-  BL:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes'],
-  MM:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'ventes', 'forecast'],
-  LOG:  ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'transport', 'inventaire'],
+  TM:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'finance', 'forecast', 'ventes', 'achats', 'inventaire', 'transport', 'timeline'],
+  PM:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'finance', 'forecast', 'achats', 'inventaire', 'timeline'],
+  TD:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'inventaire', 'timeline'],
+  SE:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'timeline'],
+  LD:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'timeline'],
+  SM:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'timeline'],
+  BL:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes'],
+  MM:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'ventes', 'forecast'],
+  LOG:  ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'transport', 'inventaire'],
   SAFE: ['dashboard', 'equipe', 'tournee', 'alertes', 'timeline'],
   AA:   ['dashboard', 'equipe', 'tournee', 'alertes', 'timeline'],
-  PA:   ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'achats', 'inventaire'],
+  PA:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'achats', 'inventaire'],
 }
 
 // Calcule tous les modules accessibles = propres + hérités (récursif, sans doublons)

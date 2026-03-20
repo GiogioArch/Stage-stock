@@ -1,4 +1,4 @@
-/* ─── Stage Stock Design System — Pro Light v1.0 ─── */
+/* ─── BackStage Design System — Pro Light v1.0 ─── */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
@@ -16,7 +16,7 @@
   --text-tertiary: #94A3B8;
   --text-disabled: #CBD5E1;
 
-  /* ─── Accent (Bleu Stage Stock) ─── */
+  /* ─── Accent (Bleu BackStage) ─── */
   --accent: #5B8DB8;
   --accent-hover: #4A7DA8;
   --accent-subtle: rgba(91,141,184,0.10);

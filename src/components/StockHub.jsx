@@ -2,13 +2,11 @@ import React, { useState, lazy, Suspense } from 'react'
 import { SubTabs } from '../design'
 
 const Depots = lazy(() => import('./Depots'))
-const Stocks = lazy(() => import('./Stocks'))
 const Movements = lazy(() => import('./Movements'))
 const Alerts = lazy(() => import('./Alerts'))
 
 const TABS = [
-  { id: 'par_lieu', label: 'Par lieu' },
-  { id: 'par_produit', label: 'Par produit' },
+  { id: 'depots', label: 'Dépôts' },
   { id: 'mouvements', label: 'Mouvements' },
   { id: 'alertes', label: 'Alertes' },
 ]
@@ -20,7 +18,7 @@ export default function StockHub({
   alerts, events,
   onMovement, initialTab,
 }) {
-  const [activeTab, setActiveTab] = useState(initialTab || 'par_lieu')
+  const [activeTab, setActiveTab] = useState(initialTab || 'depots')
 
   const alertBadge = alerts && alerts.length > 0 ? { alertes: alerts.length } : undefined
 
@@ -36,7 +34,7 @@ export default function StockHub({
 
       {/* Tab content */}
       <Suspense fallback={<div style={{ padding: 32, textAlign: 'center' }}><div className="loader" /></div>}>
-        {activeTab === 'par_lieu' && (
+        {activeTab === 'depots' && (
           <Depots
             locations={locations}
             stock={stock}
@@ -44,14 +42,6 @@ export default function StockHub({
             movements={movements}
             families={families}
             subfamilies={subfamilies}
-            onMovement={onMovement}
-          />
-        )}
-        {activeTab === 'par_produit' && (
-          <Stocks
-            products={products}
-            locations={locations}
-            stock={stock}
             onMovement={onMovement}
           />
         )}
