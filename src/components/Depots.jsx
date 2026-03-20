@@ -1,14 +1,19 @@
 import React, { useState, useMemo, createElement } from 'react'
+import { useToast, useProject } from '../shared/hooks'
 import { db } from '../lib/supabase'
 import { Warehouse, Store, Building, Box, Truck, MapPin, Home, Package } from 'lucide-react'
-import { Badge } from './UI'
+import { Badge, Confirm } from './UI'
 import DepotDetail from './DepotDetail'
+import { FloatingDetail } from '../design'
+import { SEMANTIC } from '../lib/theme'
 
 const DEPOT_ICON_MAP = {
   Warehouse, Store, Building, Box, Truck, MapPin, Home, Package,
 }
 
-export default function Depots({ locations, stock, products, movements, families, subfamilies, orgId, onReload, onToast, onMovement }) {
+export default function Depots({ locations, stock, products, movements, families, subfamilies, onMovement }) {
+  const onToast = useToast()
+  const { orgId, reload } = useProject()
   const [showAdd, setShowAdd] = useState(false)
   const [selectedDepot, setSelectedDepot] = useState(null)
   const [editingLocation, setEditingLocation] = useState(null)
@@ -40,14 +45,11 @@ export default function Depots({ locations, stock, products, movements, families
     if (!deletingLocation) return
     setDeleting(true)
     try {
-      // Delete stock and movements for this location, then the location itself
-      await db.delete('stock', `location_id=eq.${deletingLocation.id}`)
-      await db.delete('movements', `from_loc=eq.${deletingLocation.id}`)
-      await db.delete('movements', `to_loc=eq.${deletingLocation.id}`)
-      await db.delete('locations', `id=eq.${deletingLocation.id}`)
+      const data = await db.rpc('delete_location_atomic', { p_location_id: deletingLocation.id })
+      if (data && !data.success) throw new Error(data.error)
       onToast('Dépôt supprimé')
       setDeletingLocation(null)
-      onReload()
+      reload()
     } catch (e) {
       onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
@@ -58,49 +60,23 @@ export default function Depots({ locations, stock, products, movements, families
   return (
     <>
     {/* ─── Depot detail (floating window) ─── */}
-    {selectedDepot && (
-      <div
-        onClick={() => setSelectedDepot(null)}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 200,
-          background: 'rgba(15,23,42,0.4)',
-          backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 16,
-          animation: 'fadeIn 0.15s ease',
-        }}
-      >
-        <div
-          onClick={e => e.stopPropagation()}
-          style={{
-            width: '100%', maxWidth: 560, maxHeight: '85vh',
-            background: 'white', borderRadius: 20,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
-            overflowY: 'auto', WebkitOverflowScrolling: 'touch',
-            animation: 'scaleIn 0.2s ease',
-          }}
-        >
-          <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setSelectedDepot(null)} style={{ width: 30, height: 30, borderRadius: 15, background: '#F1F5F9', border: 'none', fontSize: 16, color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-          </div>
-          <DepotDetail
-            embedded
-            location={selectedDepot}
-            stock={stock}
-            products={products}
-            movements={movements}
-            families={families}
-            subfamilies={subfamilies}
-            onClose={() => setSelectedDepot(null)}
-            onMovement={onMovement}
-            onToast={onToast}
-            onEdit={(loc) => { setSelectedDepot(null); setEditingLocation(loc) }}
-            onDelete={(loc) => { setSelectedDepot(null); setDeletingLocation(loc) }}
-            onReload={onReload}
-          />
-        </div>
-      </div>
-    )}
+    <FloatingDetail open={!!selectedDepot} onClose={() => setSelectedDepot(null)}>
+      {selectedDepot && (
+        <DepotDetail
+          embedded
+          location={selectedDepot}
+          stock={stock}
+          products={products}
+          movements={movements}
+          families={families}
+          subfamilies={subfamilies}
+          onClose={() => setSelectedDepot(null)}
+          onMovement={onMovement}
+          onEdit={(loc) => { setSelectedDepot(null); setEditingLocation(loc) }}
+          onDelete={(loc) => { setSelectedDepot(null); setDeletingLocation(loc) }}
+        />
+      )}
+    </FloatingDetail>
     <div style={{ padding: '0 16px 24px' }}>
 
       {/* Header */}
@@ -134,55 +110,24 @@ export default function Depots({ locations, stock, products, movements, families
       {editingLocation && (
         <LocationForm
           location={editingLocation}
-          orgId={orgId}
-          onDone={() => { setEditingLocation(null); onReload() }}
+          onDone={() => { setEditingLocation(null); reload() }}
           onCancel={() => setEditingLocation(null)}
-          onToast={onToast}
         />
       )}
 
       {/* Delete confirmation */}
       {deletingLocation && (
-        <div className="card" style={{
-          padding: 20, marginBottom: 14,
-          border: '2px solid #D4648A30', background: 'rgba(200,164,106,0.08)',
-        }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#D4648A', marginBottom: 8, textAlign: 'center' }}>
-            Supprimer ce dépôt ?
-          </div>
-          <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 6, lineHeight: 1.5 }}>
-            <strong>{deletingLocation.icon} {deletingLocation.name}</strong>
-          </div>
-          {(() => {
+        <Confirm
+          message="Supprimer ce dépôt ?"
+          detail={`${deletingLocation.icon || ''} ${deletingLocation.name}${(() => {
             const locSt = locationStats.find(l => l.id === deletingLocation.id)
-            if (locSt && locSt.totalQty > 0) {
-              return (
-                <div style={{
-                  padding: '8px 12px', borderRadius: 10, marginBottom: 12,
-                  background: '#FEF3CD', border: '1px solid #F0D78C',
-                  fontSize: 11, color: '#856404', fontWeight: 700, textAlign: 'center',
-                }}>
-                  Ce dépôt contient {locSt.totalQty} unités de stock qui seront supprimées.
-                </div>
-              )
-            }
-            return null
-          })()}
-          <div style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', marginBottom: 16 }}>
-            Cette action est irréversible.
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => setDeletingLocation(null)} style={{
-              flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 700,
-              background: '#F1F5F9', color: '#94A3B8', cursor: 'pointer', border: '1px solid #CBD5E1',
-            }}>Annuler</button>
-            <button onClick={handleDelete} disabled={deleting} style={{
-              flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 600,
-              background: '#D4648A', color: 'white', cursor: 'pointer', border: 'none',
-              opacity: deleting ? 0.6 : 1,
-            }}>{deleting ? 'Suppression...' : 'Supprimer'}</button>
-          </div>
-        </div>
+            return locSt && locSt.totalQty > 0 ? ` — ${locSt.totalQty} unités de stock seront supprimées` : ''
+          })()}`}
+          confirmLabel={deleting ? 'Suppression...' : 'Supprimer'}
+          confirmColor={SEMANTIC.danger}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingLocation(null)}
+        />
       )}
 
       {/* Add location */}
@@ -198,10 +143,8 @@ export default function Depots({ locations, stock, products, movements, families
 
       {showAdd && (
         <LocationForm
-          orgId={orgId}
-          onDone={() => { setShowAdd(false); onReload() }}
+          onDone={() => { setShowAdd(false); reload() }}
           onCancel={() => setShowAdd(false)}
-          onToast={onToast}
         />
       )}
 
@@ -261,7 +204,9 @@ export default function Depots({ locations, stock, products, movements, families
 }
 
 // ─── Shared form for Create + Edit ───
-function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
+function LocationForm({ location, onDone, onCancel }) {
+  const onToast = useToast()
+  const { orgId } = useProject()
   const isEdit = !!location
   const [name, setName] = useState(location?.name || '')
   const [icon, setIcon] = useState(location?.icon || 'Warehouse')
@@ -270,7 +215,7 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
   const [saving, setSaving] = useState(false)
 
   const ICONS = ['Warehouse', 'Store', 'Building', 'Box', 'Truck', 'MapPin', 'Home', 'Package']
-  const COLORS = ['#5B8DB8', '#5B8DB8', '#5DAB8B', '#D4648A', '#5B8DB8', '#8B6DB8', '#8BAB5D']
+  const COLORS = ['#5B8DB8', '#5DAB8B', '#D4648A', '#E8935A', '#8B6DB8', '#E8735A', '#8BAB5D']
 
   const handleSave = async () => {
     if (!name.trim()) return
@@ -311,7 +256,7 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
           <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 4 }}>Icône</div>
           <div style={{ display: 'flex', gap: 4 }}>
             {ICONS.map(i => (
-              <button key={i} onClick={() => setIcon(i)} style={{
+              <button key={i} onClick={() => setIcon(i)} aria-label={`Icône ${i}`} style={{
                 width: 32, height: 32, borderRadius: 8,
                 border: icon === i ? '2px solid #5B8DB8' : '1px solid #CBD5E1',
                 background: icon === i ? '#5B8DB812' : 'white', cursor: 'pointer',
@@ -325,7 +270,7 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
         <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 4 }}>Couleur</div>
         <div style={{ display: 'flex', gap: 6 }}>
           {COLORS.map(c => (
-            <button key={c} onClick={() => setColor(c)} style={{
+            <button key={c} onClick={() => setColor(c)} aria-label={`Couleur ${c}`} style={{
               width: 28, height: 28, borderRadius: 8, background: c, cursor: 'pointer',
               border: color === c ? '3px solid #1E293B' : '2px solid transparent',
             }} />

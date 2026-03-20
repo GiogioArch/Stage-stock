@@ -4,6 +4,7 @@ import { Badge, fmtDate } from './UI'
 import { ShoppingCart, Users } from 'lucide-react'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
+import { useToast, useProject, useAuth } from '../shared/hooks'
 
 const theme = getModuleTheme('achats')
 
@@ -18,8 +19,11 @@ const STATUS_CONF = {
 
 export default function Achats({
   suppliers, purchaseOrders, purchaseOrderLines, products,
-  locations, orgId, userId, onReload, onToast,
+  locations,
 }) {
+  const onToast = useToast()
+  const { orgId, reload } = useProject()
+  const { user } = useAuth()
   const [section, setSection] = useState('orders')
   const [showAddSupplier, setShowAddSupplier] = useState(false)
   const [showAddOrder, setShowAddOrder] = useState(false)
@@ -65,7 +69,7 @@ export default function Achats({
         if (next === 'received') updates.received_date = new Date().toISOString().split('T')[0]
         await db.update('purchase_orders', `id=eq.${order.id}`, updates)
         onToast(`Commande → ${STATUS_CONF[next].label}`)
-        onReload()
+        reload()
         setSelectedOrder(null)
       } catch (e) {
         onToast('Erreur : ' + e.message, SEMANTIC.danger)
@@ -179,10 +183,7 @@ export default function Achats({
             <AddOrderForm
               suppliers={activeSuppliers}
               products={products}
-              orgId={orgId}
-              userId={userId}
-              onDone={() => { setShowAddOrder(false); onReload() }}
-              onToast={onToast}
+              onDone={() => { setShowAddOrder(false); reload() }}
             />
           )}
 
@@ -239,7 +240,7 @@ export default function Achats({
           </div>
 
           {showAddSupplier && (
-            <AddSupplierForm orgId={orgId} onDone={() => { setShowAddSupplier(false); onReload() }} onToast={onToast} />
+            <AddSupplierForm onDone={() => { setShowAddSupplier(false); reload() }} />
           )}
 
           {(suppliers || []).length === 0 ? (
@@ -282,7 +283,9 @@ export default function Achats({
   )
 }
 
-function AddSupplierForm({ orgId, onDone, onToast }) {
+function AddSupplierForm({ onDone }) {
+  const onToast = useToast()
+  const { orgId } = useProject()
   const [name, setName] = useState('')
   const [contactName, setContactName] = useState('')
   const [contactPhone, setContactPhone] = useState('')
@@ -328,7 +331,10 @@ function AddSupplierForm({ orgId, onDone, onToast }) {
   )
 }
 
-function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
+function AddOrderForm({ suppliers, products, onDone }) {
+  const onToast = useToast()
+  const { orgId } = useProject()
+  const { user } = useAuth()
   const [supplierId, setSupplierId] = useState(suppliers[0]?.id || '')
   const [expectedDate, setExpectedDate] = useState('')
   const [tvaRate, setTvaRate] = useState('8.5')
@@ -365,7 +371,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
         tva_rate: rate,
         expected_date: expectedDate || null,
         notes: notes.trim() || null,
-        created_by: userId,
+        created_by: user?.id,
       })
       const orderId = result?.[0]?.id
       if (orderId) {
@@ -425,7 +431,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
             <button onClick={() => removeLine(i)} style={{
               width: 28, height: 28, borderRadius: RADIUS.sm, background: theme.tint15,
               border: 'none', color: theme.color, fontSize: 14, cursor: 'pointer',
-            }}>×</button>
+            }} aria-label="Supprimer la ligne">×</button>
           )}
         </div>
       ))}

@@ -1,15 +1,18 @@
 import React, { useState, useMemo } from 'react'
+import { useToast, useProject } from '../shared/hooks'
 import { Search, FileDown, Package, Plus, ChevronRight, Edit, Trash2, Filter } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
 import ProductDetail from './ProductDetail'
 import CSVImport from './CSVImport'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
-import { GradientHeader, FilterPills } from '../design'
+import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 
 const theme = getModuleTheme('articles')
 
-export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking, userRole, orgId, onReload, onToast }) {
+export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking }) {
+  const { orgId, reload, userRole } = useProject()
+  const onToast = useToast()
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [filterSubfam, setFilterSubfam] = useState('all')
@@ -43,13 +46,12 @@ export default function Products({ products, families, subfamilies, stock, locat
 
   async function handleDelete(product) {
     try {
-      await db.delete('stock', `product_id=eq.${product.id}`)
-      await db.delete('movements', `product_id=eq.${product.id}`)
-      await db.delete('products', `id=eq.${product.id}`)
+      const data = await db.rpc('delete_product_atomic', { p_product_id: product.id })
+      if (data && !data.success) throw new Error(data.error)
       onToast('Produit supprimé')
       setConfirm(null)
       setModal(null)
-      onReload()
+      reload()
     } catch (e) {
       onToast('Erreur: ' + e.message, SEMANTIC.danger)
     }
@@ -69,53 +71,28 @@ export default function Products({ products, families, subfamilies, stock, locat
   return (
     <>
     {/* Product Detail (floating window) */}
-    {modal?.type === 'detail' && (
-      <div
-        onClick={() => setModal(null)}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 200,
-          background: 'rgba(15,23,42,0.4)',
-          backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 16,
-          animation: 'fadeIn 0.15s ease',
-        }}
-      >
-        <div
-          onClick={e => e.stopPropagation()}
-          style={{
-            width: '100%', maxWidth: 560, maxHeight: '85vh',
-            background: 'white', borderRadius: 20,
-            boxShadow: SHADOW.modal,
-            overflowY: 'auto', WebkitOverflowScrolling: 'touch',
-            animation: 'scaleIn 0.2s ease',
-          }}
-        >
-          <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'white', borderRadius: '20px 20px 0 0', padding: '10px 14px 0', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={() => setModal(null)} style={{ width: 30, height: 30, borderRadius: 15, background: BASE.bgHover, border: 'none', fontSize: 16, color: BASE.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-          </div>
-          <ProductDetail
-            embedded
-            product={modal.product}
-            products={products}
-            stock={stock}
-            locations={locations}
-            movements={movements || []}
-            events={events || []}
-            eventPacking={eventPacking || []}
-            userRole={userRole}
-            onClose={() => setModal(null)}
-            onEdit={() => setModal({ type: 'edit', product: modal.product })}
-            onDelete={() => setConfirm({
-              message: `Supprimer "${modal.product.name}" ?`,
-              detail: 'Le produit, son stock et son historique de mouvements seront supprimés. Cette action est irréversible.',
-              onConfirm: () => handleDelete(modal.product),
-            })}
-            onToast={onToast}
-          />
-        </div>
-      </div>
-    )}
+    <FloatingDetail open={modal?.type === 'detail'} onClose={() => setModal(null)}>
+      {modal?.type === 'detail' && (
+        <ProductDetail
+          embedded
+          product={modal.product}
+          products={products}
+          stock={stock}
+          locations={locations}
+          movements={movements || []}
+          events={events || []}
+          eventPacking={eventPacking || []}
+          onClose={() => setModal(null)}
+          onEdit={() => setModal({ type: 'edit', product: modal.product })}
+          onDelete={() => setConfirm({
+            message: `Supprimer "${modal.product.name}" ?`,
+            detail: 'Le produit, son stock et son historique de mouvements seront supprimés. Cette action est irréversible.',
+            onConfirm: () => handleDelete(modal.product),
+          })}
+          onToast={onToast}
+        />
+      )}
+    </FloatingDetail>
 
     <div style={{ paddingBottom: 24 }}>
       {/* ═══ HEADER GRADIENT BOLD ═══ */}
@@ -131,20 +108,12 @@ export default function Products({ products, families, subfamilies, stock, locat
 
       <div style={{ padding: '0 16px' }}>
       {/* Search */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        background: BASE.bgSurface, borderRadius: 12,
-        border: `1px solid ${BASE.border}`, padding: '10px 14px', marginBottom: 14,
-      }}>
-        <Search size={16} color={BASE.textMuted} />
+      <div className="search-bar" style={{ marginBottom: 14 }}>
+        <span className="search-icon"><Search size={16} /></span>
         <input
           placeholder="Rechercher un produit..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{
-            flex: 1, background: 'none', border: 'none', outline: 'none',
-            color: BASE.text, fontSize: 14,
-          }}
         />
       </div>
 
@@ -272,7 +241,7 @@ export default function Products({ products, families, subfamilies, stock, locat
                 onToast('Produit ajouté')
               }
               setModal(null)
-              onReload()
+              reload()
             } catch (e) {
               onToast('Erreur: ' + e.message, SEMANTIC.danger)
             }
@@ -285,10 +254,8 @@ export default function Products({ products, families, subfamilies, stock, locat
         <CSVImport
           families={families}
           subfamilies={subfamilies}
-          orgId={orgId}
-          onDone={() => { setModal(null); onReload() }}
+          onDone={() => { setModal(null); reload() }}
           onClose={() => setModal(null)}
-          onToast={onToast}
         />
       )}
 

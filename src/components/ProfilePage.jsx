@@ -1,8 +1,12 @@
 import React, { useState, useCallback, useMemo, createElement } from 'react'
 import { db, safe } from '../lib/supabase'
-import { Lock, Eye } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
-import { parseDate } from './UI'
+import { useToast } from '../shared/hooks'
+import { parseDate, maskIban, maskSS } from '../shared/utils'
+import {
+  Field, FieldSelect, SensitiveField, SensitiveRow,
+  ReadCard, ReadRow, SaveBar, Divider, EmptyState, SocialRow,
+} from '../shared/ui'
 
 const LEGAL_STATUS_LABELS = {
   intermittent: 'Intermittent du spectacle',
@@ -37,22 +41,14 @@ const TABS = [
   { id: 'finances', label: 'Finances' },
 ]
 
-// ─── Mask helpers ───
-function maskIban(v) {
-  if (!v || v.length < 8) return v || ''
-  return v.slice(0, 4) + ' •••• •••• •••• ' + v.slice(-4)
-}
-function maskSS(v) {
-  if (!v || v.length < 6) return v || ''
-  return v.slice(0, 1) + ' ' + v.slice(1, 3) + ' •• •• ••• ••• ' + v.slice(-2)
-}
 
 export default function ProfilePage({
-  user, userProfile, userRole, userDetails: initialDetails,
+  user, userRole, userDetails: initialDetails,
   membership, selectedOrg, allProjects, roles,
   userGear, userAvailability, userIncome, allEvents,
-  onClose, onToast, onReload, onLogout, onSwitchProject, onOpenProject,
+  onClose, onReload, onLogout, onSwitchProject, onOpenProject,
 }) {
+  const onToast = useToast()
   const [tab, setTab] = useState('identity')
   const [editing, setEditing] = useState(!initialDetails)
   const [details, setDetails] = useState(initialDetails || { account_type: 'physical' })
@@ -145,7 +141,7 @@ export default function ProfilePage({
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 40, border: `3px solid ${roleConf?.color || '#E2E8F0'}40`,
         }}>
-          {!details.avatar_url && (roleConf?.icon || '')}
+          {!details.avatar_url && roleConf?.icon && createElement(roleConf.icon, { size: 32, color: roleConf.color })}
         </div>
         <div style={{ fontSize: 20, fontWeight: 600, color: '#1E293B' }}>
           {isPhysical
@@ -165,9 +161,9 @@ export default function ProfilePage({
       </div>
 
       {/* Tab pills */}
-      <div style={{ display: 'flex', gap: 6, padding: '12px 16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div role="tablist" aria-label="Sections du profil" style={{ display: 'flex', gap: 6, padding: '12px 16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{
+          <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} style={{
             padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
             whiteSpace: 'nowrap', cursor: 'pointer', flexShrink: 0,
             background: tab === t.id ? '#8B6DB8' : 'white',
@@ -203,13 +199,13 @@ export default function ProfilePage({
           />
         )}
         {tab === 'gear' && (
-          <GearTab user={user} gear={userGear || []} onToast={onToast} onReload={onReload} />
+          <GearTab user={user} gear={userGear || []} onReload={onReload} />
         )}
         {tab === 'calendar' && (
-          <CalendarTab user={user} events={allEvents || []} availability={userAvailability || []} onToast={onToast} onReload={onReload} />
+          <CalendarTab user={user} events={allEvents || []} availability={userAvailability || []} onReload={onReload} />
         )}
         {tab === 'finances' && (
-          <FinancesTab user={user} income={userIncome || []} events={allEvents || []} onToast={onToast} onReload={onReload} />
+          <FinancesTab user={user} income={userIncome || []} events={allEvents || []} onReload={onReload} />
         )}
       </div>
 
@@ -221,11 +217,11 @@ export default function ProfilePage({
           background: 'linear-gradient(180deg, transparent 0%, #FFF8F0 30%)',
           paddingTop: 24,
         }}>
-          <button onClick={onSwitchProject} style={{
+          <button onClick={() => onSwitchProject && onSwitchProject()} style={{
             flex: 1, padding: '12px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
             background: '#EEF4FA', border: '1px solid #5B8DB830', color: '#5B8DB8', cursor: 'pointer',
           }}> Changer projet</button>
-          <button onClick={() => { onClose(); onLogout() }} style={{
+          <button onClick={() => { onClose && onClose(); onLogout && onLogout() }} style={{
             flex: 1, padding: '12px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
             background: '#FDF0F4', border: '1px solid #8B6DB830', color: '#8B6DB8', cursor: 'pointer',
           }}> Déconnexion</button>
@@ -415,7 +411,10 @@ function ProTab({ form, details, editing, isPhysical, set, onSave, onEdit, onCan
         ) : (
           <>
             <Field label="SIRET (14 chiffres)" value={form.siret} onChange={v => set('siret', v.replace(/[^0-9]/g, '').slice(0, 14))} inputMode="numeric" />
-            <ReadRow label="SIREN (auto)" value={(form.siret || '').replace(/[^0-9]/g, '').slice(0, 9) || '—'} />
+            <div style={{ marginBottom: 12 }}>
+              <label className="label">SIREN (auto)</label>
+              <input className="input" disabled value={(form.siret || '').replace(/[^0-9]/g, '').slice(0, 9) || '—'} style={{ background: '#F1F5F9', color: '#94A3B8' }} />
+            </div>
             <Field label="N° TVA intracommunautaire" value={form.tva_number} onChange={v => set('tva_number', v)} />
           </>
         )}
@@ -550,7 +549,8 @@ const CONDITION_CONF = {
   hs:        { label: 'HS', color: '#94A3B8' },
 }
 
-function GearTab({ user, gear, onToast, onReload }) {
+function GearTab({ user, gear, onReload }) {
+  const onToast = useToast()
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ name: '', category: 'instrument', brand: '', model: '', serial_number: '', purchase_value: '', current_condition: 'bon', notes: '' })
   const [saving, setSaving] = useState(false)
@@ -586,6 +586,7 @@ function GearTab({ user, gear, onToast, onReload }) {
   }
 
   const deleteGear = async (id) => {
+    if (!window.confirm('Supprimer cet équipement ?')) return
     try {
       await db.delete('user_gear', `id=eq.${id}`)
       onToast('Supprimé')
@@ -672,11 +673,7 @@ function GearTab({ user, gear, onToast, onReload }) {
 
       {/* Gear list */}
       {gear.length === 0 && !showAdd ? (
-        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun matériel</div>
-          <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Ajoute tes instruments et équipements perso</div>
-        </div>
+        <EmptyState icon="" title="Aucun matériel" subtitle="Ajoute tes instruments et équipements perso" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {gear.map(g => {
@@ -705,7 +702,7 @@ function GearTab({ user, gear, onToast, onReload }) {
                       background: `${cond.color}15`, color: cond.color,
                     }}>{cond.label}</span>
                   </div>
-                  <button onClick={() => deleteGear(g.id)} style={{
+                  <button onClick={() => deleteGear(g.id)} aria-label="Supprimer" style={{
                     width: 28, height: 28, borderRadius: 8, background: '#8B6DB810',
                     border: 'none', color: '#8B6DB8', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -731,7 +728,8 @@ const AVAIL_CONF = {
   unknown:     { label: 'Non renseigné', color: '#94A3B8', icon: '' },
 }
 
-function CalendarTab({ user, events, availability, onToast, onReload }) {
+function CalendarTab({ user, events, availability, onReload }) {
+  const onToast = useToast()
   const today = new Date().toISOString().split('T')[0]
 
   const availMap = useMemo(() => {
@@ -852,10 +850,7 @@ function CalendarTab({ user, events, availability, onToast, onReload }) {
 
       {/* Upcoming */}
       {upcomingEvents.length === 0 ? (
-        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucune date à venir</div>
-        </div>
+        <EmptyState icon="" title="Aucune date à venir" />
       ) : (
         <>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
@@ -899,7 +894,8 @@ const INCOME_STATUS = {
   cancelled: { label: 'Annulé', color: '#8B6DB8' },
 }
 
-function FinancesTab({ user, income, events, onToast, onReload }) {
+function FinancesTab({ user, income, events, onReload }) {
+  const onToast = useToast()
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ type: 'cachet', description: '', amount: '', date: new Date().toISOString().split('T')[0], event_id: '', notes: '' })
   const [saving, setSaving] = useState(false)
@@ -952,6 +948,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
   }
 
   const deleteIncome = async (id) => {
+    if (!window.confirm('Supprimer ce revenu ?')) return
     try {
       await db.delete('user_income', `id=eq.${id}`)
       onToast('Supprimé')
@@ -1051,11 +1048,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
 
       {/* Income list */}
       {sortedIncome.length === 0 && !showAdd ? (
-        <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}></div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>Aucun revenu enregistré</div>
-          <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Ajoute tes cachets, factures et remboursements</div>
-        </div>
+        <EmptyState icon="" title="Aucun revenu enregistré" subtitle="Ajoute tes cachets, factures et remboursements" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {sortedIncome.map(item => {
@@ -1089,7 +1082,7 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
                       background: `${st.color}15`, color: st.color, border: 'none', cursor: 'pointer',
                     }}>{st.label}</button>
                   </div>
-                  <button onClick={() => deleteIncome(item.id)} style={{
+                  <button onClick={() => deleteIncome(item.id)} aria-label="Supprimer" style={{
                     width: 24, height: 24, borderRadius: 6, background: '#8B6DB810',
                     border: 'none', color: '#8B6DB8', fontSize: 11, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1104,112 +1097,3 @@ function FinancesTab({ user, income, events, onToast, onReload }) {
   )
 }
 
-// ════════════════════════════════════════
-// Shared sub-components
-// ════════════════════════════════════════
-function Field({ label, value, onChange, type = 'text', placeholder, multiline, inputMode }) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <label className="label">{label}</label>
-      {multiline ? (
-        <textarea className="input" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={3} style={{ resize: 'vertical' }} />
-      ) : (
-        <input className="input" type={type} inputMode={inputMode} value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
-      )}
-    </div>
-  )
-}
-
-function FieldSelect({ label, value, onChange, options }) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <label className="label">{label}</label>
-      <select className="input" value={value || ''} onChange={e => onChange(e.target.value || null)}>
-        <option value="">— Choisir —</option>
-        {Object.entries(options).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-      </select>
-    </div>
-  )
-}
-
-function SensitiveField({ label, value, onChange }) {
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <label className="label">{label}</label>
-      <input className="input" type="text" value={value || ''} onChange={e => onChange(e.target.value)}
-        style={{ background: '#FFFDF5' }}
-      />
-    </div>
-  )
-}
-
-function ReadCard({ children }) {
-  return <div className="card" style={{ padding: 16 }}>{children}</div>
-}
-
-function ReadRow({ label, value }) {
-  if (!value) return null
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '6px 0', gap: 12 }}>
-      <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600, flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 700, textAlign: 'right', wordBreak: 'break-word' }}>{value}</span>
-    </div>
-  )
-}
-
-function SensitiveRow({ label, value, masked, show, onToggle }) {
-  if (!value) return null
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', background: '#FFFDF5', borderRadius: 8, margin: '2px -4px', paddingLeft: 4, paddingRight: 4 }}>
-      <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>{label}</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 700, fontFamily: 'monospace' }}>
-          {show ? value : masked}
-        </span>
-        <button onClick={onToggle} style={{
-          background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 2,
-        }}>{show ? createElement(Lock, { size: 14 }) : createElement(Eye, { size: 14 })}</button>
-      </div>
-    </div>
-  )
-}
-
-function SocialRow({ instagram, facebook, linkedin }) {
-  if (!instagram && !facebook && !linkedin) return null
-  return (
-    <div style={{ display: 'flex', gap: 8, paddingTop: 8 }}>
-      {instagram && <SocialBadge label="Instagram" value={instagram} color="#E1306C" />}
-      {facebook && <SocialBadge label="Facebook" value={facebook} color="#1877F2" />}
-      {linkedin && <SocialBadge label="LinkedIn" value={linkedin} color="#0A66C2" />}
-    </div>
-  )
-}
-
-function SocialBadge({ label, value, color }) {
-  return (
-    <span style={{
-      padding: '3px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700,
-      background: `${color}12`, color, cursor: 'default',
-    }}>{label}: {value}</span>
-  )
-}
-
-function Divider() {
-  return <div style={{ height: 1, background: '#E2E8F0', margin: '12px 0' }} />
-}
-
-function SaveBar({ onSave, onCancel, saving, hasId }) {
-  return (
-    <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-      {hasId && (
-        <button onClick={onCancel} style={{
-          flex: 1, padding: 14, borderRadius: 8, fontSize: 13, fontWeight: 700,
-          background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer',
-        }}>Annuler</button>
-      )}
-      <button className="btn-primary" onClick={onSave} disabled={saving} style={{ flex: 2 }}>
-        {saving ? 'Enregistrement...' : 'Enregistrer'}
-      </button>
-    </div>
-  )
-}

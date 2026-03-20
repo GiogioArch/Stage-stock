@@ -167,9 +167,9 @@ export default function LiveSetlist({ eventId, fanId }) {
                     <button onClick={() => handleVote(song.id)} disabled={voted} style={{
                       padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
                       cursor: voted ? 'default' : 'pointer',
-                      background: voted ? `${EK.camel}20` : EK.bleu,
-                      color: voted ? EK.camel : EK.camel,
-                      border: voted ? `1px solid ${EK.camel}30` : `1px solid ${EK.camel}40`,
+                      background: voted ? EK.camel : 'rgba(197,165,90,0.12)',
+                      color: voted ? EK.bleu : EK.camel,
+                      border: voted ? `1px solid ${EK.camel}` : `1px solid ${EK.camel}40`,
                       minWidth: 44, minHeight: 44,
                       letterSpacing: '0.05em',
                       transition: 'all 0.2s ease',

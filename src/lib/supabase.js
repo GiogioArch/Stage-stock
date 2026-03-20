@@ -29,6 +29,10 @@ export const auth = {
       body: JSON.stringify({ email, password }),
     })
     const data = await res.json()
+    if (!res.ok && !data.error) {
+      data.error = 'signup_failed'
+      data.error_description = data.msg || `Erreur inscription (${res.status})`
+    }
     if (data.access_token) {
       accessToken = data.access_token
       localStorage.setItem('sb_token', data.access_token)
@@ -44,6 +48,10 @@ export const auth = {
       body: JSON.stringify({ email, password }),
     })
     const data = await res.json()
+    if (!res.ok && !data.error) {
+      data.error = 'login_failed'
+      data.error_description = data.msg || `Erreur connexion (${res.status})`
+    }
     if (data.access_token) {
       accessToken = data.access_token
       localStorage.setItem('sb_token', data.access_token)

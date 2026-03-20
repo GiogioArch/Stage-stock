@@ -5,6 +5,7 @@ import EventDetail from './EventDetail'
 import { Mic, Volume2, Drama, Music, Search, Calendar, Plus, ChevronRight } from 'lucide-react'
 import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 import { MODULES, SEMANTIC, BASE, SPACE, TYPO, RADIUS, SHADOW, getModuleTheme } from '../lib/theme'
+import { useToast, useProject } from '../shared/hooks'
 
 const FORMAT_CONF = {
   'concert live': { Icon: Mic, color: MODULES.tournee.color },
@@ -21,7 +22,9 @@ function getFormatConf(format) {
   return FORMAT_CONF[format.toLowerCase().trim()] || { Icon: Music, color: MODULES.tournee.color }
 }
 
-export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, orgId, orgName, onReload, onToast }) {
+export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles }) {
+  const { orgId, selectedOrg, reload, userRole } = useProject()
+  const onToast = useToast()
   const [filter, setFilter] = useState('upcoming') // upcoming | past | all
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [search, setSearch] = useState('')
@@ -91,14 +94,10 @@ export default function Tour({ events, products, stock, locations, families, sub
         roles={roles}
         eventPacking={eventPacking}
         userProfiles={userProfiles}
-        userRole={userRole}
-        orgId={orgId}
         onClose={() => setSelectedEvent(null)}
-        onReload={onReload}
-        onToast={onToast}
         onNavigateEvent={(ev) => setSelectedEvent(ev)}
         onEdit={(ev) => { setSelectedEvent(null); setEventModal({ type: 'edit', event: ev }) }}
-        onDelete={(ev) => setConfirmDelete(ev)}
+        onDelete={(ev) => { setSelectedEvent(null); setConfirmDelete(ev) }}
       />
     </FloatingDetail>
 
@@ -106,7 +105,7 @@ export default function Tour({ events, products, stock, locations, families, sub
       {/* ═══ HEADER GRADIENT BOLD ═══ */}
       <GradientHeader
         module="tournee"
-        title={`${orgName || 'Ma tournée'} — ${totalEvents} date${totalEvents > 1 ? 's' : ''}`}
+        title={`${selectedOrg?.name || 'Ma tournée'} — ${totalEvents} date${totalEvents > 1 ? 's' : ''}`}
         stats={[
           { value: upcomingCount, label: 'A venir' },
           { value: pastCount, label: 'Passées' },
@@ -320,10 +319,8 @@ export default function Tour({ events, products, stock, locations, families, sub
       {eventModal && (
         <EventFormModal
           event={eventModal.type === 'edit' ? eventModal.event : null}
-          orgId={orgId}
           onClose={() => setEventModal(null)}
-          onSave={() => { setEventModal(null); onReload() }}
-          onToast={onToast}
+          onSave={() => { setEventModal(null); reload() }}
         />
       )}
 
@@ -342,7 +339,7 @@ export default function Tour({ events, products, stock, locations, families, sub
               onToast('Événement supprimé')
               setConfirmDelete(null)
               setSelectedEvent(null)
-              onReload()
+              reload()
             } catch (e) {
               onToast('Erreur: ' + e.message, SEMANTIC.danger)
             }
@@ -352,18 +349,6 @@ export default function Tour({ events, products, stock, locations, families, sub
       )}
     </div>
     </>
-  )
-}
-
-function StatBox({ label, value, color }) {
-  return (
-    <div style={{
-      flex: 1, textAlign: 'center', padding: `${SPACE.sm}px ${SPACE.xs}px`,
-      background: BASE.bgHover, borderRadius: RADIUS.sm, border: `1px solid ${BASE.border}`,
-    }}>
-      <div style={{ fontSize: 15, fontWeight: 600, color, lineHeight: 1 }}>{value}</div>
-      <div style={{ ...TYPO.label, color: BASE.textMuted, marginTop: 2 }}>{label}</div>
-    </div>
   )
 }
 
@@ -390,7 +375,9 @@ function ProgressMini({ label, done, total, color }) {
 const FORMATS = ['concert live', 'sound system', 'impro', 'festival', 'showcase']
 const TERRITOIRES = ['martinique', 'guadeloupe', 'guyane', 'reunion']
 
-function EventFormModal({ event, orgId, onClose, onSave, onToast }) {
+function EventFormModal({ event, onClose, onSave }) {
+  const onToast = useToast()
+  const { orgId } = useProject()
   const [name, setName] = useState(event?.name || '')
   const [date, setDate] = useState(event?.date || '')
   const [lieu, setLieu] = useState(event?.lieu || '')

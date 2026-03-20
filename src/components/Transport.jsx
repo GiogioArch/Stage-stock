@@ -2,12 +2,14 @@ import React, { useState, useMemo, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Building, Map as MapIcon, Ship, Truck, Car } from 'lucide-react'
 import { Badge, parseDate } from './UI'
+import { useToast, useProject } from '../shared/hooks'
 
 export default function Transport({
   events, transportProviders, vehicles, transportRoutes,
   transportNeeds, transportBookings, transportManifests, transportCosts,
-  onReload, onToast,
 }) {
+  const onToast = useToast()
+  const { reload } = useProject()
   const [section, setSection] = useState('overview')
   const [showAddProvider, setShowAddProvider] = useState(false)
   const [showAddNeed, setShowAddNeed] = useState(false)
@@ -192,8 +194,7 @@ export default function Transport({
           {showAddNeed && (
             <AddNeedForm
               events={upcomingEvents}
-              onDone={() => { setShowAddNeed(false); onReload() }}
-              onToast={onToast}
+              onDone={() => { setShowAddNeed(false); reload() }}
             />
           )}
 
@@ -270,7 +271,7 @@ export default function Transport({
                                     {n.weight_kg ? ` · ${n.weight_kg}kg` : ''}
                                   </div>
                                 </div>
-                                <NeedStatusButton need={n} onReload={onReload} onToast={onToast} />
+                                <NeedStatusButton need={n} onReload={reload} />
                               </div>
                             )
                           })
@@ -299,7 +300,7 @@ export default function Transport({
           </div>
 
           {showAddProvider && (
-            <AddProviderForm onDone={() => { setShowAddProvider(false); onReload() }} onToast={onToast} />
+            <AddProviderForm onDone={() => { setShowAddProvider(false); reload() }} />
           )}
 
           {(transportProviders || []).length === 0 ? (
@@ -395,7 +396,8 @@ export default function Transport({
 
 // ─── Sub-components ───
 
-function NeedStatusButton({ need, onReload, onToast }) {
+function NeedStatusButton({ need, onReload }) {
+  const onToast = useToast()
   const statusFlow = ['pending', 'booked', 'in_transit', 'delivered']
   const STATUS_CONF = {
     pending: { label: 'En attente', color: '#E8935A' },
@@ -429,7 +431,8 @@ function NeedStatusButton({ need, onReload, onToast }) {
   )
 }
 
-function AddProviderForm({ onDone, onToast }) {
+function AddProviderForm({ onDone }) {
+  const onToast = useToast()
   const [name, setName] = useState('')
   const [type, setType] = useState('ferry')
   const [contactName, setContactName] = useState('')
@@ -494,7 +497,8 @@ function AddProviderForm({ onDone, onToast }) {
   )
 }
 
-function AddNeedForm({ events, onDone, onToast }) {
+function AddNeedForm({ events, onDone }) {
+  const onToast = useToast()
   const [eventId, setEventId] = useState(events[0]?.id || '')
   const [category, setCategory] = useState('equipment')
   const [description, setDescription] = useState('')

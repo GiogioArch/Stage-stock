@@ -4,6 +4,7 @@ import { db } from '../lib/supabase'
 import { ROLE_CONF } from '../components/RolePicker'
 import { MODULES } from './registry'
 import { Modal } from '../components/UI'
+import { useToast } from '../shared/hooks'
 
 const MOD_ICONS = {
   'bar-chart-3': BarChart3, tent: Calendar, package: Package, warehouse: Warehouse,
@@ -12,7 +13,8 @@ const MOD_ICONS = {
   'clipboard-check': ClipboardCheck, truck: Truck, settings: SettingsGear,
 }
 
-export default function AccessManager({ membership, roles, userProfiles, onReload, onToast }) {
+export default function AccessManager({ membership, roles, userProfiles, onReload }) {
+  const onToast = useToast()
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingMember, setEditingMember] = useState(null)

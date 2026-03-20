@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { db, safe } from '../lib/supabase'
+import { useProject, useAuth } from '../shared/hooks'
 import { MessageSquare, Send, X, ThumbsUp, ThumbsDown, Meh, Loader2, CheckCircle } from 'lucide-react'
 
 const MOODS = [
@@ -10,7 +11,9 @@ const MOODS = [
 
 // Lightweight feedback widget — appears as a floating button
 // Stores feedback in Supabase table 'feedback' (will be created if needed)
-export default function Feedback({ user, orgId, context }) {
+export default function Feedback({ context }) {
+  const { orgId } = useProject()
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [mood, setMood] = useState(null)
   const [message, setMessage] = useState('')
@@ -50,6 +53,7 @@ export default function Feedback({ user, orgId, context }) {
     return (
       <button
         onClick={() => setOpen(true)}
+        aria-label="Donner un avis"
         style={{
           position: 'fixed', bottom: 80, right: 16, zIndex: 90,
           width: 44, height: 44, borderRadius: 22,
@@ -79,7 +83,7 @@ export default function Feedback({ user, orgId, context }) {
         <span style={{ fontSize: 14, fontWeight: 600, color: '#1E293B' }}>
           {sent ? <><CheckCircle size={14} color="#5DAB8B" style={{ verticalAlign: 'middle', marginRight: 4 }} />Merci !</> : 'Ton avis compte'}
         </span>
-        <button onClick={() => setOpen(false)} style={{
+        <button onClick={() => setOpen(false)} aria-label="Fermer" style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: 4,
         }}>
           <X size={16} color="#94A3B8" />

@@ -1,31 +1,12 @@
 import React, { useState, useMemo } from 'react'
 import { Badge, getCat, fmtDate, getMoveConf, parseDate } from './UI'
-import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW, hexToRgb } from '../lib/theme'
 import { SubTabs } from '../design'
+import { useToast, useProject } from '../shared/hooks'
+import { getMidRate as getRate, getTerritoryMult as getMult } from '../lib/forecast'
 
 const theme = getModuleTheme('articles')
-
-function hexToRgbLocal(hex) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `${r},${g},${b}`
-}
-
-// ─── Forecast helpers (same logic as Forecast.jsx) ───
-const CONV_RATES = {
-  'concert live': 0.11, 'concert': 0.11, 'live': 0.11,
-  'sound system': 0.07, 'soundsystem': 0.07,
-  'impro': 0.135, 'improvisation': 0.135,
-}
-const TERR_MULT = { 'martinique': 1.0, 'guadeloupe': 0.85 }
-
-function getRate(format) {
-  return CONV_RATES[(format || '').toLowerCase().trim()] || 0.10
-}
-function getMult(territoire) {
-  return TERR_MULT[(territoire || '').toLowerCase().trim()] || 0.90
-}
+const hexToRgbLocal = hexToRgb
 
 const SECTIONS = [
   { id: 'resume', label: 'Résumé', icon: '' },
@@ -35,7 +16,9 @@ const SECTIONS = [
   { id: 'compta', label: 'Compta', icon: '' },
 ]
 
-export default function ProductDetail({ product, stock, locations, movements, events, eventPacking, products, userRole, onClose, onEdit, onDelete, onToast, embedded }) {
+export default function ProductDetail({ product, stock, locations, movements, events, eventPacking, products, onClose, onEdit, onDelete, embedded }) {
+  const onToast = useToast()
+  const { userRole } = useProject()
   const [section, setSection] = useState('resume')
 
   const cat = getCat(product.category)

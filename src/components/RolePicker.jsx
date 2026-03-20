@@ -5,6 +5,7 @@ import {
   Settings, Shirt, Truck, Shield, Mic, ClipboardList, Check, Loader2,
   ChevronDown, Users, Crown,
 } from 'lucide-react'
+import { useAuth, useProject, useToast } from '../shared/hooks'
 
 // Design tokens
 const colors = {
@@ -123,7 +124,11 @@ function getRoleLevel(code) {
 const LEVEL_LABELS = ['Direction', 'Chefs Techniques', 'Opérateurs']
 const LEVEL_COLORS = ['#5B8DB8', '#14B8A6', '#E8935A']
 
-export default function RolePicker({ roles, userId, orgId, onRoleSelected, onToast }) {
+export default function RolePicker({ roles, onRoleSelected }) {
+  const { user } = useAuth()
+  const { orgId } = useProject()
+  const onToast = useToast()
+  const userId = user?.id
   const [selected, setSelected] = useState(null)
   const [saving, setSaving] = useState(false)
 

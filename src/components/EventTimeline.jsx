@@ -1,6 +1,7 @@
 import React, { useState, useMemo, createElement, useCallback } from 'react'
 import { ROLE_CONF } from './RolePicker'
 import { db } from '../lib/supabase'
+import { useToast, useProject, useAuth } from '../shared/hooks'
 import {
   Clock, ChevronDown, ChevronRight, Plus, Check, Circle,
   CheckCircle2, AlertTriangle, Truck, MessageSquare, Zap,
@@ -41,8 +42,11 @@ const ROLE_ORDER = ['TM', 'PM', 'SE', 'LD', 'BL', 'SM', 'TD', 'MM', 'LOG', 'SAFE
 
 export default function EventTimeline({
   event, events, eventTasks, roles, userProfiles,
-  orgId, user, onReload, onToast, onBack,
+  onBack,
 }) {
+  const onToast = useToast()
+  const { orgId, reload } = useProject()
+  const { user } = useAuth()
   const [viewMode, setViewMode] = useState('timeline') // timeline | role | flow
   const [showAddTask, setShowAddTask] = useState(false)
   const [expandedHour, setExpandedHour] = useState(null)
@@ -111,7 +115,7 @@ export default function EventTimeline({
         updated_at: new Date().toISOString(),
       })
       onToast?.(newStatus === 'done' ? 'Tâche terminée ✓' : 'Tâche rouverte')
-      onReload?.()
+      reload?.()
     } catch (e) {
       onToast?.('Erreur: ' + e.message, '#D4648A')
     }
@@ -425,7 +429,7 @@ export default function EventTimeline({
       )}
 
       {/* ─── Add Task FAB ─── */}
-      <button onClick={() => setShowAddTask(true)} style={{
+      <button onClick={() => setShowAddTask(true)} aria-label="Ajouter une tâche" style={{
         position: 'fixed', bottom: 90, right: 16, zIndex: 80,
         width: 52, height: 52, borderRadius: 16,
         background: 'linear-gradient(135deg, #5B8DB8, #4A7DA8)',
@@ -442,11 +446,8 @@ export default function EventTimeline({
           event={event}
           roles={roles}
           userProfiles={userProfiles}
-          orgId={orgId}
-          user={user}
           onClose={() => setShowAddTask(false)}
-          onDone={() => { setShowAddTask(false); onReload?.() }}
-          onToast={onToast}
+          onDone={() => { setShowAddTask(false); reload?.() }}
         />
       )}
     </div>
@@ -510,7 +511,9 @@ function TaskCard({ task, onToggle, compact, showHour }) {
 }
 
 // ─── Add Task Modal ───
-function AddTaskModal({ event, roles, userProfiles, orgId, user, onClose, onDone, onToast }) {
+function AddTaskModal({ event, roles, userProfiles, onClose, onDone }) {
+  const onToast = useToast()
+  const { orgId } = useProject()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('autre')
@@ -553,7 +556,7 @@ function AddTaskModal({ event, roles, userProfiles, orgId, user, onClose, onDone
         <div style={{ padding: '20px 18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#3D3042' }}>Nouvelle tâche</div>
-            <button onClick={onClose} style={{
+            <button onClick={onClose} aria-label="Fermer" style={{
               background: 'none', border: 'none', cursor: 'pointer', padding: 4,
             }}>{createElement(X, { size: 20, color: '#9A8B94' })}</button>
           </div>

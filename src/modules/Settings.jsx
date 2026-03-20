@@ -2,6 +2,7 @@ import React, { useState, createElement } from 'react'
 import { BarChart3, Calendar, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, Settings as SettingsGear, Box } from 'lucide-react'
 import { MODULES, DEFAULT_ACTIVE, setActiveModuleIds } from './registry'
 import AccessManager from './AccessManager'
+import { useToast, useProject } from '../shared/hooks'
 
 const MOD_ICONS = {
   'bar-chart-3': BarChart3, tent: Calendar, package: Package, warehouse: Warehouse,
@@ -10,7 +11,9 @@ const MOD_ICONS = {
   'clipboard-check': ClipboardCheck, truck: Truck, settings: SettingsGear,
 }
 
-export default function Settings({ activeModuleIds: rawIds, onModulesChanged, onToast, onClose, membership, roles, userProfiles, onReload }) {
+export default function Settings({ activeModuleIds: rawIds, onModulesChanged, onClose, roles, userProfiles }) {
+  const onToast = useToast()
+  const { membership, reload } = useProject()
   const activeModuleIds = Array.isArray(rawIds) ? rawIds : DEFAULT_ACTIVE
   const [subTab, setSubTab] = useState('access') // access | modules
   const [localActive, setLocalActive] = useState(() => new Set(activeModuleIds))
@@ -67,8 +70,7 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
           membership={membership}
           roles={roles || []}
           userProfiles={userProfiles || []}
-          onReload={onReload}
-          onToast={onToast}
+          reload={reload}
         />
       )}
 

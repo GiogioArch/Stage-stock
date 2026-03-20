@@ -2,36 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { Badge, parseDate } from './UI'
 import { GradientHeader, FilterPills } from '../design'
 import { MODULES, SEMANTIC, BASE, SPACE, TYPO, RADIUS, SHADOW, getModuleTheme } from '../lib/theme'
-
-// ─── Forecast configuration ───
-const CONVERSION_RATES = {
-  'concert live': { low: 0.10, mid: 0.11, high: 0.12 },
-  'concert':      { low: 0.10, mid: 0.11, high: 0.12 },
-  'live':         { low: 0.10, mid: 0.11, high: 0.12 },
-  'sound system':  { low: 0.06, mid: 0.07, high: 0.08 },
-  'soundsystem':   { low: 0.06, mid: 0.07, high: 0.08 },
-  'impro':         { low: 0.12, mid: 0.135, high: 0.15 },
-  'improvisation': { low: 0.12, mid: 0.135, high: 0.15 },
-}
-const DEFAULT_RATE = { low: 0.08, mid: 0.10, high: 0.12 }
-
-const TERRITORY_MULT = {
-  'martinique': 1.0,
-  'guadeloupe': 0.85,
-}
-const DEFAULT_TERRITORY = 0.90
-
-function getConversionRate(format) {
-  if (!format) return DEFAULT_RATE
-  const key = format.toLowerCase().trim()
-  return CONVERSION_RATES[key] || DEFAULT_RATE
-}
-
-function getTerritoryMult(territoire) {
-  if (!territoire) return DEFAULT_TERRITORY
-  const key = territoire.toLowerCase().trim()
-  return TERRITORY_MULT[key] || DEFAULT_TERRITORY
-}
+import { getConversionRate, getTerritoryMult } from '../lib/forecast'
 
 export default function Forecast({ products, stock, events, locations }) {
   const [scenario, setScenario] = useState('mid') // low, mid, high

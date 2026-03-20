@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { db } from '../lib/supabase'
+import { useToast } from '../shared/hooks'
 
 const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
 
-export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
+export default function ProjectPicker({ userId, onProjectSelected }) {
+  const onToast = useToast()
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
@@ -159,7 +161,6 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
           userId={userId}
           onCreated={() => loadProjects()}
           onCancel={() => setShowCreate(false)}
-          onToast={onToast}
         />
       )}
     </div>
@@ -167,7 +168,8 @@ export default function ProjectPicker({ userId, onProjectSelected, onToast }) {
 }
 
 // ─── Create Project Form ───
-function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
+function CreateProjectForm({ userId, onCreated, onCancel }) {
+  const onToast = useToast()
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [saving, setSaving] = useState(false)

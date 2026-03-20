@@ -2,10 +2,12 @@ import React, { useState, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { Pencil } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
+import { useToast, useAuth } from '../shared/hooks'
 
 const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
 
-export default function MyProjects({ userId, allProjects, onOpenProject, onProjectsChanged, onToast }) {
+export default function MyProjects({ allProjects, onOpenProject, onProjectsChanged }) {
+  const onToast = useToast()
   const [showCreate, setShowCreate] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
@@ -18,9 +20,8 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
     if (!deletingProject) return
     setDeleting(true)
     try {
-      // Delete project members then organization
-      await db.delete('project_members', `org_id=eq.${deletingProject.org_id}`)
-      await db.delete('organizations', `id=eq.${deletingProject.org_id}`)
+      const data = await db.rpc('delete_project_atomic', { p_org_id: deletingProject.org_id })
+      if (data && !data.success) throw new Error(data.error)
       onToast('Projet supprimé')
       setDeletingProject(null)
       onProjectsChanged()
@@ -48,7 +49,6 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
           project={editingProject}
           onSaved={() => { setEditingProject(null); onProjectsChanged() }}
           onCancel={() => setEditingProject(null)}
-          onToast={onToast}
         />
       )}
 
@@ -121,10 +121,8 @@ export default function MyProjects({ userId, allProjects, onOpenProject, onProje
         </div>
       ) : (
         <CreateProjectForm
-          userId={userId}
           onCreated={() => { setShowCreate(false); onProjectsChanged() }}
           onCancel={() => setShowCreate(false)}
-          onToast={onToast}
         />
       )}
     </div>
@@ -187,7 +185,7 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
           background: showMenu ? '#E2E8F0' : 'transparent',
           border: 'none', cursor: 'pointer', color: '#94A3B8',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>⋯</button>
+        }} aria-label="Menu du projet">⋯</button>
       </div>
 
       {/* Dropdown menu */}
@@ -218,7 +216,8 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
   )
 }
 
-function EditProjectForm({ project, onSaved, onCancel, onToast }) {
+function EditProjectForm({ project, onSaved, onCancel }) {
+  const onToast = useToast()
   const [name, setName] = useState(project.org?.name || '')
   const [slug, setSlug] = useState(project.org?.slug || '')
   const [saving, setSaving] = useState(false)
@@ -267,7 +266,9 @@ function EditProjectForm({ project, onSaved, onCancel, onToast }) {
   )
 }
 
-function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
+function CreateProjectForm({ onCreated, onCancel }) {
+  const onToast = useToast()
+  const { user } = useAuth()
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [saving, setSaving] = useState(false)
@@ -287,7 +288,7 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
       })
       const org = orgs[0]
       await db.insert('project_members', {
-        user_id: userId,
+        user_id: user?.id,
         org_id: org.id,
         module_access: ALL_MODULES,
         is_admin: true,

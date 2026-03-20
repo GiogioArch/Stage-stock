@@ -2,8 +2,11 @@ import React, { useState, useRef, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { FileText } from 'lucide-react'
 import { Modal } from './UI'
+import { useProject, useToast } from '../shared/hooks'
 
-export default function CSVImport({ families, subfamilies, orgId, onDone, onClose, onToast }) {
+export default function CSVImport({ families, subfamilies, onDone, onClose }) {
+  const { orgId } = useProject()
+  const onToast = useToast()
   const [rows, setRows] = useState([])
   const [headers, setHeaders] = useState([])
   const [mapping, setMapping] = useState({})

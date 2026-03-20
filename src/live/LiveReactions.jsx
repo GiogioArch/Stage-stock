@@ -49,14 +49,14 @@ export default function LiveReactions({ eventId, fanId }) {
       {/* Emoji bar — frosted glass */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(8,8,8,0.92)',
+        background: 'rgba(27,34,68,0.92)',
         backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
         borderTop: `1px solid ${EK.cardBorder}`,
         display: 'flex', justifyContent: 'space-around', alignItems: 'center',
         padding: '8px 8px max(8px, env(safe-area-inset-bottom))',
       }}>
         {EMOJIS.map(emoji => (
-          <button key={emoji} onClick={() => handleTap(emoji)} style={{
+          <button key={emoji} onClick={() => handleTap(emoji)} aria-label={`Réaction ${emoji}`} style={{
             width: 52, height: 52, borderRadius: 8,
             background: cooldown ? `${EK.camel}08` : EK.card,
             border: `1px solid ${tappedEmoji === emoji ? EK.camel : EK.cardBorder}`,

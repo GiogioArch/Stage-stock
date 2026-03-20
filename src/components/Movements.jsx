@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react'
+import { useToast } from '../shared/hooks'
 import { getMoveConf, fmtDate, Badge } from './UI'
 import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, Search, X, Filter, ClipboardList } from 'lucide-react'
 
-export default function Movements({ movements, products, locations, onToast }) {
+export default function Movements({ movements, products, locations }) {
+  const onToast = useToast()
   const [typeFilter, setTypeFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
@@ -79,7 +81,7 @@ export default function Movements({ movements, products, locations, onToast }) {
             placeholder="Rechercher produit, lieu..."
           />
         </div>
-        <button onClick={() => setShowFilters(!showFilters)} style={{
+        <button onClick={() => setShowFilters(!showFilters)} aria-label="Filtrer" style={{
           width: 40, height: 40, borderRadius: 6,
           background: showFilters ? 'rgba(91,141,184,0.12)' : '#F8FAFC',
           border: `1px solid ${showFilters ? 'rgba(91,141,184,0.2)' : '#E2E8F0'}`,

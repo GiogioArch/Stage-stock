@@ -1,22 +1,18 @@
 import React, { useState, useMemo, createElement } from 'react'
+import { useToast } from '../shared/hooks'
 import { Pencil, PackageOpen } from 'lucide-react'
 import { getMoveConf, fmtDate, Badge } from './UI'
-import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW, hexToRgb } from '../lib/theme'
 import { SubTabs } from '../design'
 
 const theme = getModuleTheme('stock')
-
-function hexToRgbLocal(hex) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `${r},${g},${b}`
-}
+const hexToRgbLocal = hexToRgb
 
 export default function DepotDetail({
   location, stock, products, movements, families, subfamilies,
-  onClose, onMovement, onToast, onEdit, onDelete, onReload, embedded,
+  onClose, onMovement, onEdit, onDelete, embedded,
 }) {
+  const onToast = useToast()
   const [section, setSection] = useState('inventory')
 
   // ─── Stock in this location ───
@@ -103,10 +99,10 @@ export default function DepotDetail({
             <button onClick={() => onEdit(location)} style={{
               padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.md, ...TYPO.caption,
               background: theme.tint08, border: `1px solid ${theme.tint25}`, color: theme.color, cursor: 'pointer',
-            }}>{createElement(Pencil, { size: 14 })}</button>
+            }} aria-label="Modifier">{createElement(Pencil, { size: 14 })}</button>
           )}
           {onDelete && (
-            <button onClick={() => onDelete(location)} style={{
+            <button onClick={() => onDelete(location)} aria-label="Supprimer" style={{
               padding: `${SPACE.sm}px ${SPACE.md}px`, borderRadius: RADIUS.md, ...TYPO.caption,
               background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)`, border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.18)`, color: SEMANTIC.danger, cursor: 'pointer',
             }}></button>

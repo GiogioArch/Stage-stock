@@ -4,6 +4,7 @@ import { ROLE_CONF } from './RolePicker'
 import { db, safe } from '../lib/supabase'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
+import { useToast, useProject, useAuth } from '../shared/hooks'
 import {
   ChevronDown, ChevronRight, ChevronLeft, User, Mail, Phone, Calendar,
   CheckCircle2, Circle, Clock, MapPin, AlertTriangle, Star,
@@ -175,10 +176,12 @@ function getHierarchyInfo(code) {
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════
 export default function Equipe({
-  roles, userProfiles, eventPacking, events, userRole,
-  eventTasks, checklists, userAvailability, user,
-  orgId, onReload, onToast,
+  roles, userProfiles, eventPacking, events,
+  eventTasks, checklists, userAvailability,
 }) {
+  const onToast = useToast()
+  const { orgId, reload, userRole } = useProject()
+  const { user } = useAuth()
   const [view, setView] = useState('organigramme')
   const [expandedRole, setExpandedRole] = useState(null)
   const [expandedLevel, setExpandedLevel] = useState('direction')
@@ -274,7 +277,7 @@ export default function Equipe({
         updated_at: new Date().toISOString(),
       })
       onToast?.(newStatus === 'done' ? 'Tâche terminée ✓' : 'Tâche rouverte')
-      onReload?.()
+      reload?.()
     } catch (e) {
       onToast?.('Erreur: ' + e.message, SEMANTIC.danger)
     }
@@ -497,7 +500,7 @@ export default function Equipe({
               }}
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} style={{
+              <button onClick={() => setSearchQuery('')} aria-label="Effacer la recherche" style={{
                 background: 'none', border: 'none', cursor: 'pointer', padding: 2,
               }}>
                 {createElement(X, { size: 14, color: BASE.textMuted })}
@@ -639,7 +642,7 @@ export default function Equipe({
               width: 36, height: 36, borderRadius: 10, background: 'white',
               border: `1px solid ${BASE.border}`, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>‹</button>
+            }} aria-label="Jour précédent">‹</button>
             <div style={{ flex: 1, textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 800, color: BASE.text }}>
                 {new Date(selectedDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -656,7 +659,7 @@ export default function Equipe({
               width: 36, height: 36, borderRadius: 10, background: 'white',
               border: `1px solid ${BASE.border}`, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>›</button>
+            }} aria-label="Jour suivant">›</button>
           </div>
 
           {/* Quick jump to event dates */}
@@ -937,7 +940,7 @@ function MemberDetail({
         position: 'relative',
       }}>
         {/* Close button */}
-        <button onClick={onBack} style={{
+        <button onClick={onBack} aria-label="Fermer" style={{
           position: 'absolute', top: 10, right: 10,
           width: 30, height: 30, borderRadius: 8,
           background: BASE.bgHover, border: 'none', cursor: 'pointer',

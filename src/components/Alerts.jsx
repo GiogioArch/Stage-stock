@@ -13,7 +13,7 @@ function StatusIcon({ type, size = 20 }) {
   return <Circle size={size} color={BASE.textMuted} />
 }
 
-export default function Alerts({ alerts, events, products, stock, locations, userRole }) {
+export default function Alerts({ alerts, events, products, stock, locations }) {
   const [filter, setFilter] = useState('all') // all, rupture, alerte, event
 
   const now = new Date()

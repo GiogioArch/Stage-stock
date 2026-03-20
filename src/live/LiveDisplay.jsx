@@ -34,7 +34,7 @@ export default function LiveDisplay() {
   return (
     <div ref={containerRef} onClick={requestFullscreen} style={{
       position: 'fixed', inset: 0,
-      background: '#000',
+      background: '#000000',
       overflow: 'hidden',
       fontFamily: "'Inter', sans-serif",
       cursor: 'pointer',

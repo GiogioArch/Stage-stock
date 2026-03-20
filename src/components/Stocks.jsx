@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { useToast, useProject } from '../shared/hooks'
 import { MapPin, Factory, Truck, Tent, Plane, Package, Home, ArrowDownToLine, ArrowUpFromLine, Trash2, ChevronDown, ChevronRight, Plus } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge } from './UI'
@@ -27,8 +28,8 @@ const ICON_MAP = {
   'Package': Package,
 }
 
-// Only legacy emoji keys for the icon picker (backward compat with existing DB data)
-const ICON_KEYS = ['📍', '🏭', '🚐', '🎪', '✈️', '📦', '🏠']
+// Lucide name keys for the icon picker (matches Depots format)
+const ICON_KEYS = ['MapPin', 'Warehouse', 'Truck', 'Store', 'Building', 'Box', 'Home', 'Package']
 
 const LOCATION_COLORS = [theme.color, SEMANTIC.danger, SEMANTIC.info, SEMANTIC.success, SEMANTIC.warning, SEMANTIC.melodie]
 
@@ -37,7 +38,9 @@ function LocationIcon({ emoji, size = 20, color }) {
   return <IconComponent size={size} color={color || BASE.textSoft} />
 }
 
-export default function Stocks({ products, locations, stock, orgId, onReload, onToast, onMovement }) {
+export default function Stocks({ products, locations, stock, onMovement }) {
+  const onToast = useToast()
+  const { orgId, reload } = useProject()
   const [expanded, setExpanded] = useState({})
   const [filterCat, setFilterCat] = useState('all')
   const [modal, setModal] = useState(null)
@@ -72,7 +75,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
       onToast('Lieu supprimé')
       setConfirm(null)
       setModal(null)
-      onReload()
+      reload()
     } catch (e) {
       onToast('Erreur: ' + e.message, SEMANTIC.danger)
     }
@@ -83,8 +86,8 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
       {/* ─── Gradient Header ─── */}
       <GradientHeader
         module="stock"
-        title={`${products.length} produit${products.length > 1 ? 's' : ''}`}
-        subtitle={`${products.length} produits · ${locations.length} lieu${locations.length > 1 ? 'x' : ''}`}
+        title={`${globalTotal} pièce${globalTotal > 1 ? 's' : ''} en stock`}
+        subtitle={`${locations.length} lieu${locations.length > 1 ? 'x' : ''} · ${products.length} produit${products.length > 1 ? 's' : ''}`}
         stats={[
           { value: globalTotal, label: 'Pièces totales' },
           { value: locations.length, label: 'Lieux' },
@@ -176,7 +179,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
                     onClick={() => onMovement('out', loc.id)}>
                     <ArrowUpFromLine size={14} /> Sortie
                   </button>
-                  <button className="btn-secondary" style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, borderColor: `${SEMANTIC.danger}30`, color: SEMANTIC.danger, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  <button className="btn-secondary" aria-label="Supprimer le lieu" style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, borderColor: `${SEMANTIC.danger}30`, color: SEMANTIC.danger, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     onClick={() => setConfirm({
                       message: `Supprimer "${loc.name}" ?`,
                       detail: 'Le lieu et tout le stock associé seront supprimés.',
@@ -210,7 +213,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
               await db.insert('locations', { ...data, org_id: orgId })
               onToast('Lieu ajouté')
               setModal(null)
-              onReload()
+              reload()
             } catch (e) {
               onToast('Erreur: ' + e.message, SEMANTIC.danger)
             }

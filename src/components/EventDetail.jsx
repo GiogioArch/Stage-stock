@@ -4,40 +4,13 @@ import { db } from '../lib/supabase'
 import { Badge, CATEGORIES, fmtDate, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import PackingList from './PackingList'
-import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
+import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW, hexToRgb } from '../lib/theme'
 import { SubTabs } from '../design'
+import { useToast, useProject } from '../shared/hooks'
+import { getConversionRate as getConvRate, getTerritoryMult as getTerrMult } from '../lib/forecast'
 
 const theme = getModuleTheme('tournee')
-
-// Hex→rgb helper for inline rgba
-function hexToRgbLocal(hex) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `${r},${g},${b}`
-}
-
-// ─── Forecast helpers ───
-const CONVERSION_RATES = {
-  'concert live': { low: 0.10, mid: 0.11, high: 0.12 },
-  'concert':      { low: 0.10, mid: 0.11, high: 0.12 },
-  'live':         { low: 0.10, mid: 0.11, high: 0.12 },
-  'sound system':  { low: 0.06, mid: 0.07, high: 0.08 },
-  'soundsystem':   { low: 0.06, mid: 0.07, high: 0.08 },
-  'impro':         { low: 0.12, mid: 0.135, high: 0.15 },
-  'improvisation': { low: 0.12, mid: 0.135, high: 0.15 },
-}
-const DEFAULT_RATE = { low: 0.08, mid: 0.10, high: 0.12 }
-const TERRITORY_MULT = { 'martinique': 1.0, 'guadeloupe': 0.85 }
-
-function getConvRate(format) {
-  if (!format) return DEFAULT_RATE
-  return CONVERSION_RATES[format.toLowerCase().trim()] || DEFAULT_RATE
-}
-function getTerrMult(territoire) {
-  if (!territoire) return 0.90
-  return TERRITORY_MULT[territoire.toLowerCase().trim()] || 0.90
-}
+const hexToRgbLocal = hexToRgb
 
 const CHECK_CATS = {
   son:          { icon: Volume2, color: '#E8735A', label: 'Son' },
@@ -59,10 +32,12 @@ const SECTIONS = [
 
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
-  checklists, roles, eventPacking, userProfiles, userRole, orgId,
-  onClose, onReload, onToast, onNavigateEvent, onEdit, onDelete, embedded,
+  checklists, roles, eventPacking, userProfiles,
+  onClose, onNavigateEvent, onEdit, onDelete, embedded, initialSection,
 }) {
-  const [section, setSection] = useState('resume')
+  const onToast = useToast()
+  const { orgId, reload: onReload, userRole } = useProject()
+  const [section, setSection] = useState(initialSection || 'resume')
 
   const daysUntil = Math.ceil((new Date(event.date) - new Date()) / 86400000)
   const isPast = event.date < new Date().toISOString().split('T')[0]
@@ -117,7 +92,7 @@ export default function EventDetail({
           width: 36, height: 36, borderRadius: RADIUS.sm, background: theme.tint08,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', border: 'none', color: theme.color,
-        }}><ChevronLeft size={18} /></button>
+        }} aria-label="Retour"><ChevronLeft size={18} /></button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ ...TYPO.bodyBold, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {event.name || event.lieu}
@@ -134,14 +109,14 @@ export default function EventDetail({
             width: 36, height: 36, borderRadius: RADIUS.sm, background: theme.tint08,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', border: `1px solid ${theme.tint15}`, color: theme.color,
-          }}><Pencil size={14} /></button>
+          }} aria-label="Modifier"><Pencil size={14} /></button>
         )}
         {onDelete && (
           <button onClick={() => onDelete(event)} style={{
             width: 36, height: 36, borderRadius: RADIUS.sm, background: `rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.08)`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', border: `1px solid rgba(${hexToRgbLocal(SEMANTIC.danger)}, 0.15)`, color: SEMANTIC.danger,
-          }}><Trash2 size={14} /></button>
+          }} aria-label="Supprimer"><Trash2 size={14} /></button>
         )}
       </div>
 
@@ -209,7 +184,6 @@ export default function EventDetail({
             daysUntil={daysUntil}
             onSectionChange={setSection}
             onReload={onReload}
-            onToast={onToast}
           />
         )}
         {section === 'equipe' && (
@@ -229,7 +203,6 @@ export default function EventDetail({
             checkTotal={checkTotal}
             orgId={orgId}
             onReload={onReload}
-            onToast={onToast}
           />
         )}
         {section === 'packing' && (
@@ -259,7 +232,8 @@ export default function EventDetail({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // RÉSUMÉ
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload, onToast }) {
+function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload }) {
+  const onToast = useToast()
 
   // Stock by category
   const catStats = CATEGORIES.map(cat => {
@@ -322,7 +296,7 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
       )}
 
       {/* Résultats réels — Saisie post-concert */}
-      <ResultsSection event={event} onReload={onReload} onToast={onToast} />
+      <ResultsSection event={event} onReload={onReload} />
 
       {/* Progression checklist & packing */}
       <div style={{ display: 'flex', gap: SPACE.md, marginBottom: SPACE.md }}>
@@ -497,7 +471,8 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // CHECKLIST
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId, onReload, onToast }) {
+function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId, onReload }) {
+  const onToast = useToast()
   const [addItem, setAddItem] = useState('')
   const [addCat, setAddCat] = useState('logistique')
 
@@ -615,7 +590,7 @@ function ChecklistSection({ event, eventChecklist, checkDone, checkTotal, orgId,
         <input className="input" value={addItem} onChange={e => setAddItem(e.target.value)}
           placeholder="Ajouter un item..." style={{ flex: 1, ...TYPO.body, background: BASE.bgSurface, color: BASE.text, border: `1px solid ${BASE.border}`, borderRadius: RADIUS.sm }}
           onKeyDown={e => e.key === 'Enter' && handleAddItem()} />
-        <button onClick={handleAddItem} disabled={!addItem.trim()} style={{
+        <button onClick={handleAddItem} disabled={!addItem.trim()} aria-label="Ajouter" style={{
           padding: `${SPACE.sm}px ${SPACE.lg}px`, borderRadius: RADIUS.sm, ...TYPO.bodyBold,
           background: addItem.trim() ? theme.color : BASE.border, color: BASE.white, cursor: 'pointer',
           border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -791,7 +766,8 @@ function KpiCell({ label, value, color }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Résultats réels post-concert
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ResultsSection({ event, onReload, onToast }) {
+function ResultsSection({ event, onReload }) {
+  const onToast = useToast()
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({

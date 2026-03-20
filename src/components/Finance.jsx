@@ -4,8 +4,11 @@ import { TrendingDown, BarChart3, DollarSign, Receipt, Scale, Clock } from 'luci
 import { Badge, parseDate } from './UI'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
+import { useToast, useProject } from '../shared/hooks'
 
-export default function Finance({ products, stock, events, locations, depreciation, expenses, sales, orgId, orgName, onReload, onToast }) {
+export default function Finance({ products, stock, events, locations, depreciation, expenses, sales }) {
+  const onToast = useToast()
+  const { orgId, selectedOrg, reload } = useProject()
   const [section, setSection] = useState('overview')
   const [showAddExpense, setShowAddExpense] = useState(false)
   const theme = getModuleTheme('finance')
@@ -92,7 +95,7 @@ export default function Finance({ products, stock, events, locations, depreciati
       <GradientHeader
         module="finance"
         title="Suivi financier"
-        subtitle={orgName || 'Projet'}
+        subtitle={selectedOrg?.name || 'Projet'}
         stats={[
           { value: `${Math.round(revenueData.caReel + salesTotals.total)}€`, label: 'Revenus' },
           { value: `${Math.round(expenseData.total)}€`, label: 'Dépenses' },
@@ -259,7 +262,7 @@ export default function Finance({ products, stock, events, locations, depreciati
           </div>
 
           {showAddExpense && (
-            <AddExpenseForm events={events} orgId={orgId} onDone={() => { setShowAddExpense(false); if (onReload) onReload() }} onToast={onToast} cats={EXPENSE_CATS} />
+            <AddExpenseForm events={events} onDone={() => { setShowAddExpense(false); reload() }} cats={EXPENSE_CATS} />
           )}
 
           {/* Summary by category */}
@@ -448,7 +451,9 @@ export default function Finance({ products, stock, events, locations, depreciati
   )
 }
 
-function AddExpenseForm({ events, orgId, onDone, onToast, cats }) {
+function AddExpenseForm({ events, onDone, cats }) {
+  const onToast = useToast()
+  const { orgId } = useProject()
   const [category, setCategory] = useState('other')
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')

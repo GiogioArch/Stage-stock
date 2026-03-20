@@ -45,6 +45,7 @@ export function FloatingDetail({ open, onClose, children }) {
         {/* Bouton fermer */}
         <button
           onClick={onClose}
+          aria-label="Fermer"
           style={{
             position: 'sticky',
             top: SPACE.sm,

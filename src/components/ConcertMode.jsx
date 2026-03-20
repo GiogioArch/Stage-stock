@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, createElement } from 'react'
 import { db } from '../lib/supabase'
 import { CreditCard, Smartphone, Receipt } from 'lucide-react'
 import { parseDate } from './UI'
+import { useToast, useProject, useAuth } from '../shared/hooks'
 
 const PAYMENT_METHODS = [
   { id: 'cash', label: 'Espèces', icon: null },
@@ -12,9 +13,12 @@ const PAYMENT_METHODS = [
 const VARIANT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
 export default function ConcertMode({
-  products, stock, locations, events, orgId, userId,
-  onClose, onReload, onToast,
+  products, stock, locations, events,
+  onClose,
 }) {
+  const onToast = useToast()
+  const { orgId, reload } = useProject()
+  const { user } = useAuth()
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [cart, setCart] = useState([])
   const [payMethod, setPayMethod] = useState('cash')
@@ -125,7 +129,7 @@ export default function ConcertMode({
         p_payment_method: payMethod,
         p_total_amount: cartTotal,
         p_items_count: cartCount,
-        p_sold_by: userId,
+        p_sold_by: user?.id,
         p_items: itemsPayload,
       })
 
@@ -141,7 +145,7 @@ export default function ConcertMode({
       clearCart()
       setShowPayment(false)
       onToast(`Vente ${saleNum} — ${cartTotal}€`)
-      if (onReload) onReload()
+      if (reload) reload()
     } catch (e) {
       onToast('Erreur : ' + e.message, '#8B6DB8')
     } finally {
@@ -174,7 +178,7 @@ export default function ConcertMode({
         total_mobile: sessionMobile,
         nb_transactions: sessionCount,
         nb_items_sold: sessionItems,
-        closed_by: userId,
+        closed_by: user?.id,
       })
       onToast('Caisse clôturée')
       setShowReport(true)
@@ -332,7 +336,7 @@ export default function ConcertMode({
           width: 36, height: 36, borderRadius: 10, background: '#3A3540',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 14, cursor: 'pointer', border: 'none', color: '#94A3B8',
-        }}>←</button>
+        }} aria-label="Retour">←</button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#5DAB8B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {selectedEvent.name || 'Concert'}
@@ -462,13 +466,13 @@ export default function ConcertMode({
                   {item.name}{item.variant ? ` (${item.variant})` : ''}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <button onClick={() => removeFromCart(item.key)} style={{
+                  <button onClick={() => removeFromCart(item.key)} aria-label="Diminuer" style={{
                     width: 28, height: 28, borderRadius: 8, background: '#8B6DB830',
                     color: '#8B6DB8', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>-</button>
                   <span style={{ fontSize: 14, fontWeight: 600, minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
-                  <button onClick={() => addToCart({ id: item.productId, name: item.name, image: item.image, sale_price: item.unitPrice }, item.variant)} style={{
+                  <button onClick={() => addToCart({ id: item.productId, name: item.name, image: item.image, sale_price: item.unitPrice }, item.variant)} aria-label="Augmenter" style={{
                     width: 28, height: 28, borderRadius: 8, background: '#5DAB8B30',
                     color: '#5DAB8B', fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
