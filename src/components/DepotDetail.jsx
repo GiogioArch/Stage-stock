@@ -71,7 +71,7 @@ export default function DepotDetail({
   const lName = (id) => location.id === id ? location.name : '?'
 
   const SECTIONS = [
-    { id: 'inventory', label: 'Inventaire', icon: '' },
+    { id: 'inventory', label: 'Contenu', icon: '' },
     { id: 'movements', label: 'Mouvements', icon: '' },
     { id: 'value', label: 'Valeur', icon: '' },
     { id: 'alerts', label: 'Alertes', icon: '', count: alerts.length },

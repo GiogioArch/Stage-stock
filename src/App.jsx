@@ -15,11 +15,9 @@ const Scanner = lazy(() => import('./components/Scanner'))
 // ─── Lazy-loaded components (loaded on demand) ───
 const Melodie = lazy(() => import('./components/Melodie'))
 const Products = lazy(() => import('./components/Products'))
-const Stocks = lazy(() => import('./components/Stocks'))
 const Movements = lazy(() => import('./components/Movements'))
 const Alerts = lazy(() => import('./components/Alerts'))
 const Tour = lazy(() => import('./components/Tour'))
-const Depots = lazy(() => import('./components/Depots'))
 const Equipe = lazy(() => import('./components/Equipe'))
 const Finance = lazy(() => import('./components/Finance'))
 const Forecast = lazy(() => import('./components/Forecast'))
@@ -544,8 +542,8 @@ export default function App() {
           <span>Concert</span>
         </button>
         {/* 3. Stock */}
-        <button className={`nav-tab ${['stock_hub', 'articles', 'depots', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? 'active' : ''}`}
-          style={['stock_hub', 'articles', 'depots', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? { color: '#5B8DB8' } : undefined}
+        <button className={`nav-tab ${['stock_hub', 'articles', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? 'active' : ''}`}
+          style={['stock_hub', 'articles', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? { color: '#5B8DB8' } : undefined}
           onClick={() => handleTabChange('stock_hub')}
           aria-label="Stock">
           <span className="nav-icon"><Package size={18} /></span>
@@ -719,21 +717,6 @@ function TabContent({
         />
       )
     case 'stock_hub':
-      return (
-        <StockHub
-          locations={data.locations}
-          stock={filteredStock}
-          products={filteredProducts}
-          movements={filteredMovements}
-          families={data.families}
-          subfamilies={data.subfamilies}
-          alerts={alerts}
-          events={data.events}
-          onMovement={onMovement}
-        />
-      )
-    case 'depots':
-      // Redirect to stock_hub (depots is now a sub-tab of StockHub)
       return (
         <StockHub
           locations={data.locations}

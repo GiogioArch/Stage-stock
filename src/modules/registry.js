@@ -26,7 +26,7 @@ export const MODULES = {
       checklists: 'order=category.asc,item.asc',
       event_packing: 'order=role_code.asc,created_at.asc',
     },
-    deps: ['articles', 'depots', 'equipe'],
+    deps: ['articles', 'stock', 'equipe'],
     order: 5,
     tab: { id: 'tournee', label: 'Tournée', icon: 'tent' },
   },
@@ -45,30 +45,18 @@ export const MODULES = {
     order: 10,
     tab: { id: 'articles', label: 'Articles', icon: 'package' },
   },
-  depots: {
-    id: 'depots',
-    name: 'Dépôts',
-    icon: 'warehouse',
-    color: '#5B8DB8',
-    description: 'Lieux de stockage, entrepôts et véhicules',
-    tables: {
-      locations: 'order=name.asc',
-    },
-    deps: [],
-    order: 20,
-    tab: { id: 'depots', label: 'Dépôts', icon: 'warehouse' },
-  },
   stock: {
     id: 'stock',
     name: 'Gestion de stock',
     icon: 'clipboard-list',
     color: '#5B8DB8',
-    description: 'Mouvements d\'entrée/sortie, transferts, inventaire et scanner',
+    description: 'Lieux de stockage, mouvements d\'entrée/sortie, transferts et scanner',
     tables: {
+      locations: 'order=name.asc',
       stock: '',
       movements: 'order=created_at.desc&limit=200',
     },
-    deps: ['articles', 'depots'],
+    deps: ['articles'],
     order: 30,
     tab: { id: 'stock_hub', label: 'Stock', icon: 'clipboard-list' },
   },
@@ -165,7 +153,7 @@ export const MODULES = {
       purchase_order_lines: '',
       purchase_receipts: '',
     },
-    deps: ['articles', 'depots', 'stock'],
+    deps: ['articles', 'stock'],
     order: 55,
     tab: { id: 'achats', label: 'Achats', icon: 'shopping-bag' },
   },
@@ -176,7 +164,7 @@ export const MODULES = {
     color: '#8BAB5D',
     description: 'Comptage physique et correction des écarts stock',
     tables: {},
-    deps: ['articles', 'stock', 'depots'],
+    deps: ['articles', 'stock'],
     order: 65,
     tab: { id: 'inventaire', label: 'Inventaire', icon: 'clipboard-check' },
   },
@@ -195,7 +183,7 @@ export const MODULES = {
       transport_manifests: '',
       transport_costs: '',
     },
-    deps: ['tournee', 'depots'],
+    deps: ['tournee', 'stock'],
     order: 75,
     tab: { id: 'transport', label: 'Transport', icon: 'truck' },
   },
@@ -203,7 +191,7 @@ export const MODULES = {
 
 // Modules actifs par défaut pour un nouveau compte
 export const DEFAULT_ACTIVE = [
-  'dashboard', 'tournee', 'articles', 'depots', 'stock', 'equipe', 'timeline', 'alertes',
+  'dashboard', 'tournee', 'articles', 'stock', 'equipe', 'timeline', 'alertes',
 ]
 
 // ─── Helpers ───
