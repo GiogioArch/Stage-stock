@@ -61,11 +61,11 @@ const SECTIONS = [
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
   checklists, roles, eventPacking, userProfiles,
-  onClose, onNavigateEvent, onEdit, onDelete, embedded,
+  onClose, onNavigateEvent, onEdit, onDelete, embedded, initialSection,
 }) {
   const onToast = useToast()
   const { orgId, reload: onReload, userRole } = useProject()
-  const [section, setSection] = useState('resume')
+  const [section, setSection] = useState(initialSection || 'resume')
 
   const daysUntil = Math.ceil((new Date(event.date) - new Date()) / 86400000)
   const isPast = event.date < new Date().toISOString().split('T')[0]

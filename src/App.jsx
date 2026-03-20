@@ -56,17 +56,14 @@ const TAB_ICONS = {
 const MORE_ITEMS = [
   { id: 'finance', label: 'Finance', icon: Coins, color: '#E8935A' },
   { id: 'forecast', label: 'Prévisions', icon: TrendingUp, color: '#E8935A' },
-  { id: 'ventes', label: 'Ventes', icon: ShoppingCart, color: '#5DAB8B' },
   { id: 'transport', label: 'Transport', icon: Truck, color: '#E8735A' },
   { id: 'live', label: 'EK LIVE', icon: Radio, color: '#C5A55A' },
-  { id: 'settings', label: 'Réglages', icon: SettingsIcon, color: '#64748B' },
 ]
 
 // Personal layer tabs
 const PERSONAL_TABS = [
   { id: 'home', label: 'Accueil', Icon: Home },
   { id: 'projects', label: 'Projets', Icon: FolderOpen },
-  { id: 'calendar', label: 'Calendrier', Icon: Calendar },
   { id: 'profile', label: 'Profil', Icon: User },
 ]
 
@@ -347,23 +344,6 @@ export default function App() {
             onProjectsChanged={loadPersonalData}
           />
         )}
-        {personalTab === 'calendar' && (
-          <div style={{ padding: '0 16px' }}>
-            <div className="card" style={{ padding: '32px 20px', textAlign: 'center' }}>
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-                <Calendar size={32} color="#CBD5E1" />
-              </div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B', marginBottom: 6 }}>Mon calendrier</div>
-              <div style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.5, marginBottom: 12 }}>
-                Toutes tes dates de concert, tous projets confondus.
-              </div>
-              <span style={{
-                display: 'inline-block', padding: '4px 12px', borderRadius: 6,
-                background: '#F1F5F9', color: '#94A3B8', fontSize: 11, fontWeight: 500,
-              }}>Bientôt disponible</span>
-            </div>
-          </div>
-        )}
         {personalTab === 'profile' && (
           <ProfilePage
             user={user}
@@ -465,6 +445,11 @@ export default function App() {
               display: 'flex', alignItems: 'center', gap: 4,
             }}><WifiOff size={12} /> Hors ligne</span>
           )}
+          <button onClick={() => handleTabChange('settings')} aria-label="Réglages" style={{
+              width: 36, height: 36, borderRadius: 8, background: '#F8FAFC',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '1px solid #E2E8F0', cursor: 'pointer',
+            }}><SettingsIcon size={16} color="#64748B" /></button>
           {isModuleActive('stock') && (
             <button onClick={() => setShowScanner(true)} aria-label="Scanner" style={{
               width: 36, height: 36, borderRadius: 8, background: '#F8FAFC',
@@ -551,8 +536,8 @@ export default function App() {
           <span>Board</span>
         </button>
         {/* 2. Concert */}
-        <button className={`nav-tab ${['tournee', 'timeline'].includes(tab) ? 'active' : ''}`}
-          style={['tournee', 'timeline'].includes(tab) ? { color: '#E8735A' } : undefined}
+        <button className={`nav-tab ${['tournee', 'timeline', 'ventes'].includes(tab) ? 'active' : ''}`}
+          style={['tournee', 'timeline', 'ventes'].includes(tab) ? { color: '#E8735A' } : undefined}
           onClick={() => handleTabChange('tournee')}
           aria-label="Concert">
           <span className="nav-icon"><Music size={18} /></span>
@@ -576,8 +561,8 @@ export default function App() {
           <span>Équipe</span>
         </button>
         {/* 5. Plus */}
-        <button className={`nav-tab ${showMore || ['finance', 'forecast', 'ventes', 'transport', 'settings'].includes(tab) ? 'active' : ''}`}
-          style={showMore || ['finance', 'forecast', 'ventes', 'transport', 'settings'].includes(tab) ? { color: '#5B8DB8' } : undefined}
+        <button className={`nav-tab ${showMore || ['finance', 'forecast', 'transport', 'settings'].includes(tab) ? 'active' : ''}`}
+          style={showMore || ['finance', 'forecast', 'transport', 'settings'].includes(tab) ? { color: '#5B8DB8' } : undefined}
           onClick={() => setShowMore(!showMore)}
           aria-label="Plus de modules">
           <span className="nav-icon"><MoreHorizontal size={18} /></span>

@@ -1,6 +1,7 @@
 import React, { useState, createElement } from 'react'
 import { useToast, useProject, useBoardConfig } from '../shared/hooks'
-import { parseDate, Badge } from './UI'
+import { parseDate, Badge, Confirm } from './UI'
+import { db } from '../lib/supabase'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
 import { FloatingDetail } from '../design'
@@ -61,6 +62,9 @@ export default function Board({
     moveUp, moveDown, toggleModule, toggleSection, resetBoard,
   } = useBoardConfig()
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const [eventDetailSection, setEventDetailSection] = useState(null)
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const { reload } = useProject()
 
   // ─── Data calculations ───
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { label: userRole.name }) : null
@@ -96,7 +100,7 @@ export default function Board({
   return (
     <>
       {/* ─── Event Detail floating ─── */}
-      <FloatingDetail open={!!selectedEvent} onClose={() => setSelectedEvent(null)}>
+      <FloatingDetail open={!!selectedEvent} onClose={() => { setSelectedEvent(null); setEventDetailSection(null) }}>
         {selectedEvent && (
           <EventDetail
             embedded
@@ -111,11 +115,37 @@ export default function Board({
             roles={roles}
             eventPacking={eventPacking}
             userProfiles={userProfiles || []}
-            onClose={() => setSelectedEvent(null)}
-            onNavigateEvent={(ev) => setSelectedEvent(ev)}
+            onClose={() => { setSelectedEvent(null); setEventDetailSection(null) }}
+            onNavigateEvent={(ev) => { setEventDetailSection(null); setSelectedEvent(ev) }}
+            onEdit={() => { setSelectedEvent(null); setEventDetailSection(null); onNavigate('tournee') }}
+            onDelete={(ev) => { setSelectedEvent(null); setConfirmDelete(ev) }}
+            initialSection={eventDetailSection}
           />
         )}
       </FloatingDetail>
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <Confirm
+          message="Supprimer cet événement ?"
+          detail={`${confirmDelete.name || confirmDelete.lieu} — ${parseDate(confirmDelete.date).toLocaleDateString('fr-FR')}`}
+          confirmLabel="Supprimer"
+          confirmColor={SEMANTIC.danger}
+          onConfirm={async () => {
+            try {
+              await db.delete('event_packing', `event_id=eq.${confirmDelete.id}`)
+              await db.delete('checklists', `event_id=eq.${confirmDelete.id}`)
+              await db.delete('events', `id=eq.${confirmDelete.id}`)
+              onToast('Événement supprimé')
+              setConfirmDelete(null)
+              reload()
+            } catch (e) {
+              onToast('Erreur: ' + e.message, SEMANTIC.danger)
+            }
+          }}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
 
       <div style={{ padding: `0 ${SPACE.lg}px ${SPACE.xxl}px` }}>
 
@@ -361,6 +391,7 @@ export default function Board({
             const handleClick = () => {
               if (key === 'packing') {
                 if (nextEvent) {
+                  setEventDetailSection('packing')
                   setSelectedEvent(nextEvent)
                 } else {
                   onNavigate('tournee')

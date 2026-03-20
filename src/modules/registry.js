@@ -262,7 +262,7 @@ export function getRequiredTables(activeIds) {
 // Regroupe les modules en onglets principaux pour réduire la nav
 export const TAB_GROUPS = [
   { id: 'board', label: 'Board', icon: 'bar-chart-3', tabIds: ['board'] },
-  { id: 'tournee', label: 'Concert', icon: 'tent', tabIds: ['tournee', 'timeline'] },
+  { id: 'tournee', label: 'Concert', icon: 'tent', tabIds: ['tournee', 'timeline', 'ventes'] },
   { id: 'stock-group', label: 'Stock', icon: 'package', tabIds: ['stock_hub', 'articles', 'achats', 'inventaire'] },
   { id: 'equipe', label: 'Équipe', icon: 'users', tabIds: ['equipe'] },
   { id: 'more', label: 'Plus', icon: 'more-horizontal', tabIds: ['finance', 'forecast', 'ventes', 'transport', 'settings'] },
