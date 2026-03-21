@@ -402,21 +402,23 @@ export default function App() {
     )
   }
 
-  if (userRole === null && data.roles.length > 0) {
-    return (
-      <RolePicker
-        roles={data.roles}
-        onRoleSelected={(role) => project.setUserRole(role)}
-      />
-    )
-  }
-
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#94A3B8', label: userRole.name }) : null
 
   const projectCtx = useMemo(() => ({
     orgId: selectedOrg?.id, selectedOrg, reload: loadAll,
     userRole, isAdmin, membership,
   }), [selectedOrg, loadAll, userRole, isAdmin, membership])
+
+  if (userRole === null && data.roles.length > 0) {
+    return (
+      <ProjectProvider value={projectCtx}>
+        <RolePicker
+          roles={data.roles}
+          onRoleSelected={(role) => project.setUserRole(role)}
+        />
+      </ProjectProvider>
+    )
+  }
 
   return (
     <ProjectProvider value={projectCtx}>
