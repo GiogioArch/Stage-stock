@@ -4,7 +4,7 @@ import { AlertTriangle } from 'lucide-react'
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { hasError: false, error: null }
+    this.state = { hasError: false, error: null, componentStack: null }
   }
 
   static getDerivedStateFromError(error) {
@@ -13,10 +13,8 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('BackStage crash:', error)
-    console.error('Error message:', error?.message)
-    console.error('Error type:', typeof error, Object.prototype.toString.call(error))
     console.error('Component stack:', errorInfo?.componentStack)
-    // Future: send to Sentry or monitoring service
+    this.setState({ componentStack: errorInfo?.componentStack || null })
   }
 
   render() {
@@ -40,9 +38,27 @@ export default class ErrorBoundary extends React.Component {
           }}>
             {String(this.state.error?.message || 'Erreur inconnue')}
           </div>
+          {typeof window !== 'undefined' && window.__bs_state && (
+            <div style={{
+              fontSize: 10, color: '#5B8DB8', background: '#E8F0FE', borderRadius: 8,
+              padding: '6px 10px', marginBottom: 12, maxWidth: 320, wordBreak: 'break-word',
+              fontFamily: 'monospace',
+            }}>
+              {window.__bs_state}
+            </div>
+          )}
+          {this.state.componentStack && (
+            <div style={{ marginBottom: 12, maxWidth: 320, textAlign: 'left' }}>
+              <div style={{ fontSize: 11, color: '#D4648A', fontWeight: 600, marginBottom: 4 }}>Composant :</div>
+              <pre style={{
+                fontSize: 9, color: '#64748B', background: '#FDE4EE', borderRadius: 8,
+                padding: 8, overflow: 'auto', maxHeight: 120, whiteSpace: 'pre-wrap',
+              }}>{this.state.componentStack}</pre>
+            </div>
+          )}
           {this.state.error?.stack && (
             <details style={{ marginBottom: 16, maxWidth: 320, textAlign: 'left' }}>
-              <summary style={{ fontSize: 11, color: '#94A3B8', cursor: 'pointer' }}>Détails techniques</summary>
+              <summary style={{ fontSize: 11, color: '#94A3B8', cursor: 'pointer' }}>Stack technique</summary>
               <pre style={{
                 fontSize: 9, color: '#94A3B8', background: '#F1F5F9', borderRadius: 8,
                 padding: 8, marginTop: 6, overflow: 'auto', maxHeight: 200, whiteSpace: 'pre-wrap',

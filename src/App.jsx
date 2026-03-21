@@ -92,11 +92,13 @@ export default function App() {
   const [selectedOrg, setSelectedOrg] = useState(null)
 
   // ─── Project data (from hook) ───
+  // NOTE: useProjectData returns a new object via useMemo — only pass when org is selected
   const project = useProjectData(user, selectedOrg, requiredTables)
   // Destructure stable setState references to avoid depending on the whole object
   const projectSetMembership = project.setMembership
   const projectSetUserRole = project.setUserRole
   const projectReset = project.reset
+
 
   // ─── Scanner & modal state ───
   const [showScanner, setShowScanner] = useState(false)
@@ -408,6 +410,9 @@ export default function App() {
   }
 
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#94A3B8', label: userRole.name }) : null
+
+  // Save debug state for error boundary
+  window.__bs_state = `user=${!!user} layer=${layer} tab=${tab} org=${!!selectedOrg} role=${userRole?.code || String(userRole)} admin=${isAdmin} members=${data.project_members?.length} products=${data.products?.length}`
 
   const projectCtx = useMemo(() => ({
     orgId: selectedOrg?.id, selectedOrg, reload: loadAll,
