@@ -23,6 +23,13 @@ export function useProjectData(user, selectedOrg, requiredTables) {
     event_tasks: [],
     event_task_templates: [],
     user_availability: [],
+    // Finance & Ventes
+    expenses: [], sales: [], sale_items: [], cash_reports: [],
+    // Achats
+    suppliers: [], purchase_orders: [], purchase_order_lines: [], purchase_receipts: [],
+    // Transport
+    transport_providers: [], vehicles: [], transport_routes: [],
+    transport_needs: [], transport_bookings: [], transport_manifests: [], transport_costs: [],
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)

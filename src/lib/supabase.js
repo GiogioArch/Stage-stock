@@ -142,7 +142,7 @@ async function fetchWithRetry(url, options, retries = 2) {
 // ─── Database (safe wrappers) ───
 // Every call is individually try/caught — no Promise.all that fails as a block
 
-async function handleResponse(res) {
+async function handleResponse(res, expectArray = false) {
   if (res.status === 401) {
     const refreshed = await auth.refresh()
     if (refreshed) throw new Error('RETRY')
@@ -150,10 +150,16 @@ async function handleResponse(res) {
   }
   if (!res.ok) {
     const text = await res.text()
-    throw new Error(text || `Erreur ${res.status}`)
+    let msg
+    try { msg = JSON.parse(text)?.message || text } catch { msg = text }
+    throw new Error(msg || `Erreur ${res.status}`)
   }
   const text = await res.text()
-  return text ? JSON.parse(text) : []
+  if (!text) return []
+  const parsed = JSON.parse(text)
+  // GET queries should always return arrays — protect against unexpected objects
+  if (expectArray && !Array.isArray(parsed)) return []
+  return parsed
 }
 
 export const db = {
@@ -161,11 +167,11 @@ export const db = {
     const url = `${SUPABASE_URL}/rest/v1/${table}${query ? '?' + query : ''}`
     let res = await fetchWithRetry(url, { headers: headers() })
     try {
-      return await handleResponse(res)
+      return await handleResponse(res, true)
     } catch (e) {
       if (e.message === 'RETRY') {
         res = await fetchWithRetry(url, { headers: headers() }, 0)
-        return await handleResponse(res)
+        return await handleResponse(res, true)
       }
       throw e
     }
@@ -217,9 +223,11 @@ export const db = {
 }
 
 // ─── Safe fetcher (tables that might not exist) ───
+// ALWAYS returns an array — never an object or undefined
 export async function safe(table, query = '') {
   try {
-    return await db.get(table, query)
+    const result = await db.get(table, query)
+    return Array.isArray(result) ? result : []
   } catch {
     return []
   }
