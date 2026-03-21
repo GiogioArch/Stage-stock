@@ -93,6 +93,10 @@ export default function App() {
 
   // ─── Project data (from hook) ───
   const project = useProjectData(user, selectedOrg, requiredTables)
+  // Destructure stable setState references to avoid depending on the whole object
+  const projectSetMembership = project.setMembership
+  const projectSetUserRole = project.setUserRole
+  const projectReset = project.reset
 
   // ─── Scanner & modal state ───
   const [showScanner, setShowScanner] = useState(false)
@@ -200,33 +204,34 @@ export default function App() {
 
   // ─── Enter a project (couche 2 → couche 3) ───
   const enterProject = useCallback((projectMembership) => {
-    project.setMembership(projectMembership)
+    projectSetMembership(projectMembership)
     setSelectedOrg(projectMembership.org)
     setLayer('project')
     setTab('board')
-    project.setUserRole(undefined) // will be loaded by loadAll
-  }, [project])
+    projectSetUserRole(undefined) // will be loaded by loadAll
+  }, [projectSetMembership, projectSetUserRole])
 
   // ─── Return to personal layer (couche 3 → couche 2) ───
   const backToPersonal = useCallback(() => {
     setLayer('personal')
     setSelectedOrg(null)
-    project.reset()
+    projectReset()
     setShowScanner(false)
     setMoveModal(null)
     window.scrollTo(0, 0)
     loadPersonalData()
-  }, [loadPersonalData, project])
+  }, [loadPersonalData, projectReset])
 
   // ─── Logout ───
+  const personalReset = personal.reset
   const handleLogout = useCallback(() => {
     authLogout()
-    project.reset()
-    personal.reset()
+    projectReset()
+    personalReset()
     setSelectedOrg(null)
     setLayer('personal')
     setPersonalTab('home')
-  }, [authLogout, project, personal])
+  }, [authLogout, projectReset, personalReset])
 
   // ═══════════════════════════════════════════════
   // ROUTING
@@ -414,7 +419,7 @@ export default function App() {
       <ProjectProvider value={projectCtx}>
         <RolePicker
           roles={data.roles}
-          onRoleSelected={(role) => project.setUserRole(role)}
+          onRoleSelected={projectSetUserRole}
         />
       </ProjectProvider>
     )

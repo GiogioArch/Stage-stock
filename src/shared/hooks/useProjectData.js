@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { db, safe } from '../../lib/supabase'
 import { ROLE_CONF } from '../../components/RolePicker'
 
@@ -143,7 +143,7 @@ export function useProjectData(user, selectedOrg, requiredTables) {
     setMembership(undefined)
   }, [])
 
-  return {
+  return useMemo(() => ({
     data,
     loading,
     error,
@@ -157,5 +157,6 @@ export function useProjectData(user, selectedOrg, requiredTables) {
     alerts,
     loadAll,
     reset,
-  }
+  }), [data, loading, error, userRole, userProfile, membership, isAdmin,
+    filteredProducts, filteredStock, filteredMovements, alerts, loadAll, reset])
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef } from 'react'
 import { db } from '../../lib/supabase'
 import { useProject } from './useProject'
 
@@ -18,7 +18,9 @@ export function useBoardConfig() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  const config = membership?.board_config || {}
+  // Memoize config to avoid creating a new {} every render when board_config is null
+  const boardConfig = membership?.board_config
+  const config = useMemo(() => boardConfig || {}, [boardConfig])
   const allowedModules = membership?.module_access || []
 
   // Board order: use saved order, filtered by module_access
