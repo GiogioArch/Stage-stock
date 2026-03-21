@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { db, safe } from '../../lib/supabase'
 
 /**
@@ -74,7 +74,7 @@ export function usePersonalData(user) {
     setPersonalEvents([])
   }, [])
 
-  return {
+  return useMemo(() => ({
     allProjects,
     userDetails, setUserDetails,
     userGear,
@@ -84,5 +84,6 @@ export function usePersonalData(user) {
     loading,
     reload: load,
     reset,
-  }
+  }), [allProjects, userDetails, userGear, userAvailability, userIncome,
+    personalEvents, loading, load, reset])
 }
