@@ -13,6 +13,7 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('BackStage crash:', error, errorInfo)
+    console.error('Component stack:', errorInfo?.componentStack)
     // Future: send to Sentry or monitoring service
   }
 
@@ -37,6 +38,15 @@ export default class ErrorBoundary extends React.Component {
           }}>
             {this.state.error?.message || 'Erreur inconnue'}
           </div>
+          {this.state.error?.stack && (
+            <details style={{ marginBottom: 16, maxWidth: 320, textAlign: 'left' }}>
+              <summary style={{ fontSize: 11, color: '#94A3B8', cursor: 'pointer' }}>Détails techniques</summary>
+              <pre style={{
+                fontSize: 9, color: '#94A3B8', background: '#F1F5F9', borderRadius: 8,
+                padding: 8, marginTop: 6, overflow: 'auto', maxHeight: 200, whiteSpace: 'pre-wrap',
+              }}>{this.state.error.stack}</pre>
+            </details>
+          )}
           <button
             onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload() }}
             style={{
