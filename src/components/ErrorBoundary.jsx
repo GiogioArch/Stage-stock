@@ -12,7 +12,9 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('BackStage crash:', error, errorInfo)
+    console.error('BackStage crash:', error)
+    console.error('Error message:', error?.message)
+    console.error('Error type:', typeof error, Object.prototype.toString.call(error))
     console.error('Component stack:', errorInfo?.componentStack)
     // Future: send to Sentry or monitoring service
   }
@@ -36,7 +38,7 @@ export default class ErrorBoundary extends React.Component {
             fontSize: 11, color: '#CBD5E1', background: '#F1F5F9', borderRadius: 10,
             padding: '8px 14px', marginBottom: 20, maxWidth: 320, wordBreak: 'break-word',
           }}>
-            {this.state.error?.message || 'Erreur inconnue'}
+            {String(this.state.error?.message || 'Erreur inconnue')}
           </div>
           {this.state.error?.stack && (
             <details style={{ marginBottom: 16, maxWidth: 320, textAlign: 'left' }}>

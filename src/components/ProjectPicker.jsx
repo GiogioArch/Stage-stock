@@ -247,7 +247,7 @@ function CreateProjectForm({ userId, onCreated, onCancel }) {
           background: '#FFF0F0', border: '1px solid #D4648A40',
           fontSize: 12, color: '#D4648A', fontWeight: 600, lineHeight: 1.4,
         }}>
-          {error}
+          {String(error)}
         </div>
       )}
       <div style={{ display: 'flex', gap: 10 }}>

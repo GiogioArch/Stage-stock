@@ -391,7 +391,7 @@ export default function App() {
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center', background: '#FFFFFF' }}>
         <AlertTriangle size={32} color="#D4648A" style={{ marginBottom: 16 }} />
         <div style={{ color: '#D4648A', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>Erreur de connexion</div>
-        <div style={{ color: '#94A3B8', fontSize: 13, marginBottom: 20 }}>{error}</div>
+        <div style={{ color: '#94A3B8', fontSize: 13, marginBottom: 20 }}>{typeof error === 'string' ? error : String(error?.message || error || 'Erreur inconnue')}</div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-primary" style={{ maxWidth: 200 }} onClick={loadAll}>Réessayer</button>
           <button onClick={backToPersonal} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
