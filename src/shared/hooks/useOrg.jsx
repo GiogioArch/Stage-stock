@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react'
 
 const OrgContext = createContext(null)
 
@@ -30,16 +30,18 @@ export function OrgProvider({ children, onLayerChange }) {
 
   const updateMembership = useCallback((m) => setMembership(m), [])
 
+  const value = useMemo(() => ({
+    org: selectedOrg,
+    membership,
+    layer,
+    enterProject,
+    backToPersonal,
+    updateMembership,
+    setSelectedOrg,
+  }), [selectedOrg, membership, layer, enterProject, backToPersonal, updateMembership])
+
   return (
-    <OrgContext.Provider value={{
-      org: selectedOrg,
-      membership,
-      layer,
-      enterProject,
-      backToPersonal,
-      updateMembership,
-      setSelectedOrg,
-    }}>
+    <OrgContext.Provider value={value}>
       {children}
     </OrgContext.Provider>
   )

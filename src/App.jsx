@@ -92,11 +92,13 @@ export default function App() {
   const [selectedOrg, setSelectedOrg] = useState(null)
 
   // ─── Project data (from hook) ───
+  // NOTE: useProjectData returns a new object via useMemo — only pass when org is selected
   const project = useProjectData(user, selectedOrg, requiredTables)
   // Destructure stable setState references to avoid depending on the whole object
   const projectSetMembership = project.setMembership
   const projectSetUserRole = project.setUserRole
   const projectReset = project.reset
+
 
   // ─── Scanner & modal state ───
   const [showScanner, setShowScanner] = useState(false)
@@ -142,6 +144,12 @@ export default function App() {
     filteredProducts, filteredStock, filteredMovements, alerts, loadAll } = project
   const { allProjects, userDetails, userGear, userAvailability, userIncome,
     personalEvents, loading: personalLoading, reload: loadPersonalData } = personal
+
+  // projectCtx MUST be defined before any early return (Rules of Hooks)
+  const projectCtx = useMemo(() => ({
+    orgId: selectedOrg?.id, selectedOrg, reload: loadAll,
+    userRole, isAdmin, membership,
+  }), [selectedOrg, loadAll, userRole, isAdmin, membership])
 
   // ─── Active tabs from registry (filtered by user's module_access) ───
   const tabs = useMemo(() => {
@@ -202,6 +210,22 @@ export default function App() {
     [activeModuleIds]
   )
 
+  // ─── Stable Melodie callbacks (avoid inline functions in JSX) ───
+  const handleMelodieAuth = useCallback((u) => setUser(u), [setUser])
+  const handleMelodieComplete = useCallback((m) => {
+    if (m) enterProject(m)
+    loadPersonalData()
+  }, [enterProject, loadPersonalData])
+
+  // ─── Stable modal/scanner callbacks ───
+  const handleCloseScanner = useCallback(() => setShowScanner(false), [])
+  const handleCloseMoveModal = useCallback(() => setMoveModal(null), [])
+  const handleMoveDone = useCallback(() => { setMoveModal(null); loadAll() }, [loadAll])
+  const handleOpenScanner = useCallback(() => setShowScanner(true), [])
+  const handleQuickAction = useCallback((type) => setMoveModal({ type }), [])
+  const handleMovement = useCallback((type, locId) => setMoveModal({ type, preselectedLocation: locId }), [])
+  const clearLegalPage = useCallback(() => setLegalPage(null), [])
+
   // ─── Enter a project (couche 2 → couche 3) ───
   const enterProject = useCallback((projectMembership) => {
     projectSetMembership(projectMembership)
@@ -245,8 +269,8 @@ export default function App() {
   if (user === undefined) return <SplashScreen text="Vérification..." />
 
   // Legal pages (accessible from landing)
-  if (legalPage === 'cgu') return <Suspense fallback={<SplashScreen text="Chargement..." />}><CGU onClose={() => setLegalPage(null)} /></Suspense>
-  if (legalPage === 'privacy') return <Suspense fallback={<SplashScreen text="Chargement..." />}><Privacy onClose={() => setLegalPage(null)} /></Suspense>
+  if (legalPage === 'cgu') return <Suspense fallback={<SplashScreen text="Chargement..." />}><CGU onClose={clearLegalPage} /></Suspense>
+  if (legalPage === 'privacy') return <Suspense fallback={<SplashScreen text="Chargement..." />}><Privacy onClose={clearLegalPage} /></Suspense>
 
   // Not logged in → Mélodie handles splash + welcome + auth + onboarding
   if (user === null) {
@@ -255,11 +279,8 @@ export default function App() {
         <Suspense fallback={<SplashScreen text="Chargement..." />}>
         <Melodie
           roles={data.roles}
-          onAuth={(u) => setUser(u)}
-          onComplete={(membership) => {
-            if (membership) enterProject(membership)
-            loadPersonalData()
-          }}
+          onAuth={handleMelodieAuth}
+          onComplete={handleMelodieComplete}
         />
         </Suspense>
       </>
@@ -283,11 +304,8 @@ export default function App() {
           existingUser={user}
           startStep="select_roles"
           roles={data.roles}
-          onAuth={(u) => setUser(u)}
-          onComplete={(membership) => {
-            if (membership) enterProject(membership)
-            loadPersonalData()
-          }}
+          onAuth={handleMelodieAuth}
+          onComplete={handleMelodieComplete}
         />
         </Suspense>
       </>
@@ -409,11 +427,6 @@ export default function App() {
 
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#94A3B8', label: userRole.name }) : null
 
-  const projectCtx = useMemo(() => ({
-    orgId: selectedOrg?.id, selectedOrg, reload: loadAll,
-    userRole, isAdmin, membership,
-  }), [selectedOrg, loadAll, userRole, isAdmin, membership])
-
   if (userRole === null && data.roles.length > 0) {
     return (
       <ProjectProvider value={projectCtx}>
@@ -456,7 +469,7 @@ export default function App() {
               border: '1px solid #E2E8F0', cursor: 'pointer',
             }}><SettingsIcon size={16} color="#64748B" /></button>
           {isModuleActive('stock') && (
-            <button onClick={() => setShowScanner(true)} aria-label="Scanner" style={{
+            <button onClick={handleOpenScanner} aria-label="Scanner" style={{
               width: 36, height: 36, borderRadius: 8, background: '#F8FAFC',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: '1px solid #E2E8F0', cursor: 'pointer',
@@ -523,10 +536,10 @@ export default function App() {
         filteredMovements={filteredMovements}
         alerts={alerts}
         onNavigate={handleTabChange}
-        onQuickAction={(type) => setMoveModal({ type })}
-        onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
+        onQuickAction={handleQuickAction}
+        onMovement={handleMovement}
         onModulesChanged={handleModulesChanged}
-        onOpenScanner={() => setShowScanner(true)}
+        onOpenScanner={handleOpenScanner}
       />
       </Suspense>
 
@@ -629,7 +642,7 @@ export default function App() {
           locations={data.locations}
           stock={filteredStock}
           onMovement={(type) => { setShowScanner(false); setMoveModal({ type }) }}
-          onClose={() => setShowScanner(false)}
+          onClose={handleCloseScanner}
         />
         </Suspense>
       )}
@@ -643,8 +656,8 @@ export default function App() {
           locations={data.locations}
           stock={filteredStock}
           preselectedLocation={moveModal.preselectedLocation}
-          onClose={() => setMoveModal(null)}
-          onDone={() => { setMoveModal(null); loadAll() }}
+          onClose={handleCloseMoveModal}
+          onDone={handleMoveDone}
         />
         </Suspense>
       )}
