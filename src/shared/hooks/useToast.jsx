@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 
 const ToastContext = createContext(null)
 
@@ -17,10 +17,13 @@ export function ToastProvider({ children }) {
     setCurrent({ message, color: color || '#5DAB8B' })
   }, [])
 
+  // Stable callback — avoid creating new function reference on every render
+  const clearToast = useCallback(() => setCurrent(null), [])
+
   return (
     <ToastContext.Provider value={showToast}>
       {children}
-      {current && <ToastBubble message={current.message} color={current.color} onDone={() => setCurrent(null)} />}
+      {current && <ToastBubble message={current.message} color={current.color} onDone={clearToast} />}
     </ToastContext.Provider>
   )
 }
