@@ -210,6 +210,16 @@ export default function App() {
     [activeModuleIds]
   )
 
+  // ─── Enter a project (couche 2 → couche 3) ───
+  // NOTE: must be defined before handleMelodieComplete which depends on it
+  const enterProject = useCallback((projectMembership) => {
+    projectSetMembership(projectMembership)
+    setSelectedOrg(projectMembership.org)
+    setLayer('project')
+    setTab('board')
+    projectSetUserRole(undefined) // will be loaded by loadAll
+  }, [projectSetMembership, projectSetUserRole])
+
   // ─── Stable Melodie callbacks (avoid inline functions in JSX) ───
   const handleMelodieAuth = useCallback((u) => setUser(u), [setUser])
   const handleMelodieComplete = useCallback((m) => {
@@ -225,15 +235,6 @@ export default function App() {
   const handleQuickAction = useCallback((type) => setMoveModal({ type }), [])
   const handleMovement = useCallback((type, locId) => setMoveModal({ type, preselectedLocation: locId }), [])
   const clearLegalPage = useCallback(() => setLegalPage(null), [])
-
-  // ─── Enter a project (couche 2 → couche 3) ───
-  const enterProject = useCallback((projectMembership) => {
-    projectSetMembership(projectMembership)
-    setSelectedOrg(projectMembership.org)
-    setLayer('project')
-    setTab('board')
-    projectSetUserRole(undefined) // will be loaded by loadAll
-  }, [projectSetMembership, projectSetUserRole])
 
   // ─── Return to personal layer (couche 3 → couche 2) ───
   const backToPersonal = useCallback(() => {
