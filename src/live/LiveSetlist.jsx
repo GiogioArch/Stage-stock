@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { safe, db, createRealtimeWs } from '../lib/supabase'
-import { EK } from './LiveApp'
+import { EK } from './theme'
 
 export default function LiveSetlist({ eventId, fanId }) {
   const [songs, setSongs] = useState([])

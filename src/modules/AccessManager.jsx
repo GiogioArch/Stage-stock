@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, createElement } from 'react'
 import { BarChart3, Calendar, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, Settings as SettingsGear, Box } from 'lucide-react'
 import { db } from '../lib/supabase'
-import { ROLE_CONF } from '../components/RolePicker'
+import { ROLE_CONF } from '../config/roles'
 import { MODULES } from './registry'
 import { Modal } from '../components/UI'
 import { useToast } from '../shared/hooks'
