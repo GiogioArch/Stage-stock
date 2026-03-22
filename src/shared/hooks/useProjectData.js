@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef, useLayoutEffect } from 'react'
 import { db, safe } from '../../lib/supabase'
 import { ROLE_CONF } from '../../components/RolePicker'
 
@@ -12,6 +12,15 @@ const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
  * profil utilisateur, alertes stock, auto-refresh.
  */
 export function useProjectData(user, selectedOrg, requiredTables) {
+  // Stabilize requiredTables reference — only update when content actually changes
+  const tablesRef = useRef(requiredTables)
+  const tablesKey = JSON.stringify(requiredTables)
+  const stableTablesKeyRef = useRef(tablesKey)
+  if (tablesKey !== stableTablesKeyRef.current) {
+    stableTablesKeyRef.current = tablesKey
+    tablesRef.current = requiredTables
+  }
+  const stableTables = tablesRef.current
   const [data, setData] = useState({
     products: [], families: [], subfamilies: [],
     locations: [],
@@ -67,7 +76,7 @@ export function useProjectData(user, selectedOrg, requiredTables) {
     setLoading(true)
     setError(null)
     try {
-      const tableEntries = Object.entries(requiredTables)
+      const tableEntries = Object.entries(stableTables)
       const [mainResults, members] = await Promise.all([
         Promise.all(tableEntries.map(([table, query]) => {
           if (table === 'roles' || table === 'product_depreciation') return safe(table, query)
@@ -94,7 +103,7 @@ export function useProjectData(user, selectedOrg, requiredTables) {
     } finally {
       setLoading(false)
     }
-  }, [user, selectedOrg, requiredTables, loadUserProfile])
+  }, [user, selectedOrg, stableTables, loadUserProfile])
 
   useEffect(() => {
     if (user && selectedOrg) loadAll()

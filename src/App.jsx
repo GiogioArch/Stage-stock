@@ -145,6 +145,12 @@ export default function App() {
   const { allProjects, userDetails, userGear, userAvailability, userIncome,
     personalEvents, loading: personalLoading, reload: loadPersonalData } = personal
 
+  // projectCtx MUST be defined before any early return (Rules of Hooks)
+  const projectCtx = useMemo(() => ({
+    orgId: selectedOrg?.id, selectedOrg, reload: loadAll,
+    userRole, isAdmin, membership,
+  }), [selectedOrg, loadAll, userRole, isAdmin, membership])
+
   // ─── Active tabs from registry (filtered by user's module_access) ───
   const tabs = useMemo(() => {
     const moduleTabs = getActiveTabs(activeModuleIds)
@@ -420,14 +426,6 @@ export default function App() {
   }
 
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#94A3B8', label: userRole.name }) : null
-
-  // Save debug state for error boundary
-  window.__bs_state = `user=${!!user} layer=${layer} tab=${tab} org=${!!selectedOrg} role=${userRole?.code || String(userRole)} admin=${isAdmin} members=${data.project_members?.length} products=${data.products?.length}`
-
-  const projectCtx = useMemo(() => ({
-    orgId: selectedOrg?.id, selectedOrg, reload: loadAll,
-    userRole, isAdmin, membership,
-  }), [selectedOrg, loadAll, userRole, isAdmin, membership])
 
   if (userRole === null && data.roles.length > 0) {
     return (
