@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { safe, db } from '../lib/supabase'
-import { EK } from './LiveApp'
+import { EK } from './theme'
 
 export default function LiveShop({ eventId, fanId }) {
   const [products, setProducts] = useState([])

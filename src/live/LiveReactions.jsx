@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { db } from '../lib/supabase'
-import { EK } from './LiveApp'
+import { EK } from './theme'
 
 const EMOJIS = ['🔥', '❤️', '', '👏', '🤩']
 const COOLDOWN_MS = 1000

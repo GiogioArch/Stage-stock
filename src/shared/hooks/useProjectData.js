@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef, useLayoutEffect } from 'react'
 import { db, safe } from '../../lib/supabase'
-import { ROLE_CONF } from '../../components/RolePicker'
+import { ROLE_CONF } from '../../config/roles'
 
 // Admin role codes that see everything
 const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']

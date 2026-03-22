@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createRealtimeWs } from '../lib/supabase'
-import { EK } from './LiveApp'
+import { EK } from './theme'
 
 export default function LiveDisplay() {
   const [emojis, setEmojis] = useState([])
