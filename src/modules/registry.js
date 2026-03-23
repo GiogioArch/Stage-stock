@@ -152,6 +152,8 @@ export const MODULES = {
       purchase_orders: 'order=created_at.desc',
       purchase_order_lines: '',
       purchase_receipts: '',
+      supplier_documents: 'order=doc_date.desc',
+      supplier_products: '',
     },
     deps: ['articles', 'stock'],
     order: 55,

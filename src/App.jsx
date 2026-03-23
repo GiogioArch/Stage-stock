@@ -819,7 +819,10 @@ function TabContent({
           suppliers={data.suppliers}
           purchaseOrders={data.purchase_orders}
           purchaseOrderLines={data.purchase_order_lines}
+          supplierDocuments={data.supplier_documents}
+          supplierProducts={data.supplier_products}
           products={filteredProducts}
+          stock={filteredStock}
           locations={data.locations}
         />
       )
