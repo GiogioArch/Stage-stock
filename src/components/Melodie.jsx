@@ -98,6 +98,21 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
   const [createdOrg, setCreatedOrg] = useState(null)
   const [createdMembership, setCreatedMembership] = useState(null)
 
+  // ─── Invite token detection ───
+  const [inviteToken, setInviteToken] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('invite')
+    if (token) {
+      localStorage.setItem('pending_invite_token', token)
+      // Clean URL
+      const url = new URL(window.location.href)
+      url.searchParams.delete('invite')
+      window.history.replaceState({}, '', url.pathname + url.search)
+      return token
+    }
+    return localStorage.getItem('pending_invite_token') || null
+  })
+
   // ─── Auto-advance effect ───
   useEffect(() => {
     const rule = AUTO_ADVANCE[step]
@@ -198,12 +213,69 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
           try { await db.upsert('user_details', { user_id: u.id, first_name: name }) }
           catch { try { await db.insert('user_details', { user_id: u.id, first_name: name }) } catch {} }
         }
+        // If user has an invite token, auto-join the org and skip onboarding
+        const pendingToken = inviteToken || localStorage.getItem('pending_invite_token')
+        if (pendingToken) {
+          const joined = await handleJoinViaInvite(u)
+          if (joined) {
+            setStep('cest_parti')
+            return
+          }
+        }
         onAuth(u)
       } else if (!data.error) {
         setAuthError('Connexion échouée. Vérifie tes identifiants.')
       }
     } catch (e) { setAuthError(friendlyError(e.message)) }
     finally { setAuthLoading(false) }
+  }
+
+  // ─── Join org via invite token ───
+  const handleJoinViaInvite = async (currentUser) => {
+    const token = inviteToken || localStorage.getItem('pending_invite_token')
+    if (!token || !currentUser) return false
+    try {
+      // Validate invite token
+      const invites = await db.get('project_invitations',
+        `token=eq.${token}&accepted_at=is.null`)
+      if (!invites || invites.length === 0) {
+        onToast('Invitation invalide ou expirée', C.danger)
+        localStorage.removeItem('pending_invite_token')
+        return false
+      }
+      const invite = invites[0]
+      // Check expiry
+      if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+        onToast('Invitation expirée', C.danger)
+        localStorage.removeItem('pending_invite_token')
+        return false
+      }
+      // Create project_members entry
+      const members = await db.insert('project_members', {
+        user_id: currentUser.id,
+        org_id: invite.org_id,
+        module_access: ALL_MODULES,
+        is_admin: false,
+        status: 'active',
+      })
+      // Mark invite as accepted
+      try {
+        await db.update('project_invitations', `id=eq.${invite.id}`, {
+          accepted_at: new Date().toISOString(),
+        })
+      } catch { /* non-critical */ }
+      // Get org info
+      const orgs = await db.get('organizations', `id=eq.${invite.org_id}`)
+      const org = orgs?.[0] || { id: invite.org_id, name: 'Projet' }
+      localStorage.removeItem('pending_invite_token')
+      localStorage.setItem('onboarding_complete', 'true')
+      setCreatedMembership({ ...members[0], org })
+      setInviteToken(null)
+      return true
+    } catch (e) {
+      onToast('Erreur: ' + e.message, C.danger)
+      return false
+    }
   }
 
   const handleRolesConfirm = () => {

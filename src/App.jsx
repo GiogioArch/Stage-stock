@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from 'react'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
 import { useToast, useAuth, usePersonalData, useProjectData, ProjectProvider } from './shared/hooks'
+import { db } from './lib/supabase'
 
 // ─── Critical components (loaded immediately) ───
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
@@ -162,6 +163,47 @@ export default function App() {
     window.addEventListener('offline', off)
     return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
   }, [])
+
+  // ─── Handle invite token for already-logged-in users ───
+  useEffect(() => {
+    if (!user) return
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('invite')
+    if (!token) return
+    // Clean URL immediately
+    const url = new URL(window.location.href)
+    url.searchParams.delete('invite')
+    window.history.replaceState({}, '', url.pathname + url.search)
+    // Auto-join
+    ;(async () => {
+      try {
+        const invites = await db.get('project_invitations', `token=eq.${token}&accepted_at=is.null`)
+        if (!invites || invites.length === 0) return
+        const invite = invites[0]
+        if (invite.expires_at && new Date(invite.expires_at) < new Date()) return
+        // Check if user is already a member
+        const existing = await db.get('project_members',
+          `user_id=eq.${user.id}&org_id=eq.${invite.org_id}&status=eq.active`)
+        if (existing && existing.length > 0) {
+          // Already member — just enter the project
+          const orgs = await db.get('organizations', `id=eq.${invite.org_id}`)
+          const org = orgs?.[0] || { id: invite.org_id, name: 'Projet' }
+          enterProject({ ...existing[0], org })
+          return
+        }
+        const members = await db.insert('project_members', {
+          user_id: user.id, org_id: invite.org_id,
+          module_access: ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'finance', 'forecast'],
+          is_admin: false, status: 'active',
+        })
+        try { await db.update('project_invitations', `id=eq.${invite.id}`, { accepted_at: new Date().toISOString() }) } catch {}
+        const orgs = await db.get('organizations', `id=eq.${invite.org_id}`)
+        const org = orgs?.[0] || { id: invite.org_id, name: 'Projet' }
+        loadPersonalData()
+        enterProject({ ...members[0], org })
+      } catch { /* ignore */ }
+    })()
+  }, [user])
 
   // ─── Legal page listener (from Landing) ───
   useEffect(() => {
