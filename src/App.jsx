@@ -3,7 +3,6 @@ import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, get
 import { useToast, useAuth, usePersonalData, useProjectData, ProjectProvider } from './shared/hooks'
 
 // ─── Critical components (loaded immediately) ───
-import Landing from './components/Landing'
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
 
 // ─── Previously critical, now lazy-loaded for bundle size ───
@@ -68,7 +67,6 @@ const PERSONAL_TABS = [
 export default function App() {
   // ─── Auth (from context) ───
   const { user, setUser, logout: authLogout } = useAuth()
-  const showToast = useToast()
   const [legalPage, setLegalPage] = useState(null) // 'cgu' | 'privacy' | null
 
   // ─── Layer navigation: 'personal' (couche 2) | 'project' (couche 3) ───
@@ -863,7 +861,7 @@ function TabContent({
           activeModuleIds={activeModuleIds}
           onModulesChanged={onModulesChanged}
           roles={data.roles}
-          userProfiles={data.project_members}
+          userProfiles={data.user_profiles}
         />
       )
     default:

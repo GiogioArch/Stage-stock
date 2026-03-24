@@ -223,7 +223,7 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
       const moduleAccess = primaryRole ? getInheritedModules(primaryRole) : ALL_MODULES
       const members = await db.insert('project_members', {
         user_id: user.id, org_id: org.id,
-        module_access: moduleAccess, is_admin: true, status: 'active', role_id: primaryRole,
+        module_access: moduleAccess, is_admin: true, status: 'active',
       })
       setCreatedMembership({ ...members[0], org })
       if (primaryRole) {

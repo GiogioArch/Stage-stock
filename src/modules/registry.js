@@ -255,7 +255,7 @@ export const TAB_GROUPS = [
   { id: 'tournee', label: 'Concert', icon: 'tent', tabIds: ['tournee', 'timeline', 'ventes'] },
   { id: 'stock-group', label: 'Stock', icon: 'package', tabIds: ['stock_hub', 'articles', 'achats', 'inventaire'] },
   { id: 'equipe', label: 'Équipe', icon: 'users', tabIds: ['equipe'] },
-  { id: 'more', label: 'Plus', icon: 'more-horizontal', tabIds: ['finance', 'forecast', 'ventes', 'transport', 'settings'] },
+  { id: 'more', label: 'Plus', icon: 'more-horizontal', tabIds: ['finance', 'forecast', 'transport', 'settings'] },
 ]
 
 // Build the tab list for active modules, sorted by order
