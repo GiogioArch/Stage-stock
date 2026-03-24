@@ -55,7 +55,7 @@ export default function Inventaire({ products, stock, locations }) {
             await db.insert('stock', { product_id: item.id, location_id: selectedLocation.id, quantity: item.counted, org_id: orgId })
           }
         } catch (e) {
-          console.error('Stock update error:', e)
+          onToast('Erreur stock : ' + e.message, '#D4648A')
         }
         // Log as movement
         try {
@@ -69,7 +69,7 @@ export default function Inventaire({ products, stock, locations }) {
             note: `Inventaire physique — écart ${item.diff > 0 ? '+' : ''}${item.diff}`,
           })
         } catch (e) {
-          console.error('Movement log error:', e)
+          onToast('Erreur mouvement : ' + e.message, '#D4648A')
         }
       }
 

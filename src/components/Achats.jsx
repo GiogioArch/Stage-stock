@@ -389,7 +389,7 @@ function AddOrderForm({ suppliers, products, onDone }) {
               unit_price_ht: price,
               line_total_ht: qty * price,
             })
-          } catch (e) { console.error('Line insert error:', e) }
+          } catch (e) { onToast('Erreur ligne : ' + e.message, '#D4648A') }
         }
       }
       onToast(`Commande ${orderNum} créée`)

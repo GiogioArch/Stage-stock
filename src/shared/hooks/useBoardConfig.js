@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef } from 'react'
 import { db } from '../../lib/supabase'
 import { useProject } from './useProject'
+import { useToast } from './useToast'
 
 const DEFAULT_BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance', 'achats']
 
@@ -15,6 +16,7 @@ const DEFAULT_BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance',
  */
 export function useBoardConfig() {
   const { membership, reload } = useProject()
+  const onToast = useToast()
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -68,7 +70,7 @@ export function useBoardConfig() {
       })
       if (reload) reload()
     } catch (e) {
-      console.error('Failed to save board config:', e)
+      onToast?.('Erreur sauvegarde board', '#D4648A')
     } finally {
       setSaving(false)
     }
