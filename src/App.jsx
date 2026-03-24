@@ -22,6 +22,7 @@ const Forecast = lazy(() => import('./components/Forecast'))
 const EventTimeline = lazy(() => import('./components/EventTimeline'))
 const Transport = lazy(() => import('./components/Transport'))
 const ConcertMode = lazy(() => import('./components/ConcertMode'))
+const SalesAnalytics = lazy(() => import('./components/SalesAnalytics'))
 const Achats = lazy(() => import('./components/Achats'))
 const Inventaire = lazy(() => import('./components/Inventaire'))
 const StockHub = lazy(() => import('./components/StockHub'))
@@ -62,6 +63,56 @@ const PERSONAL_TABS = [
   { id: 'projects', label: 'Projets', Icon: FolderOpen },
   { id: 'profile', label: 'Profil', Icon: User },
 ]
+
+// ─── Ventes Module (sub-tabs: Analytics + Mode Concert) ───
+function VentesModule({ products, stock, locations, events, sales, saleItems, onNavigate }) {
+  const [subTab, setSubTab] = useState('analytics')
+  const ACCENT = '#5DAB8B'
+
+  if (subTab === 'pos') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' }}>Chargement...</div>}>
+        <ConcertMode
+          products={products}
+          stock={stock}
+          locations={locations}
+          events={events}
+          onClose={() => setSubTab('analytics')}
+        />
+      </Suspense>
+    )
+  }
+
+  return (
+    <div style={{ paddingBottom: 80 }}>
+      {/* Sub-tabs */}
+      <div style={{
+        display: 'flex', gap: 6, padding: '12px 16px',
+        position: 'sticky', top: 0, zIndex: 10, background: '#F8FAFC',
+      }}>
+        {[
+          { id: 'analytics', label: 'Analyse' },
+          { id: 'pos', label: 'Mode Concert' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setSubTab(t.id)} style={{
+            padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 600,
+            background: subTab === t.id ? ACCENT : '#F1F5F9',
+            color: subTab === t.id ? 'white' : '#64748B',
+            border: 'none', cursor: 'pointer',
+          }}>{t.label}</button>
+        ))}
+      </div>
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' }}>Chargement...</div>}>
+        <SalesAnalytics
+          sales={sales}
+          saleItems={saleItems}
+          products={products}
+          events={events}
+        />
+      </Suspense>
+    </div>
+  )
+}
 
 export default function App() {
   // ─── Auth (from context) ───
@@ -818,12 +869,14 @@ function TabContent({
       )
     case 'ventes':
       return (
-        <ConcertMode
+        <VentesModule
           products={filteredProducts}
           stock={filteredStock}
           locations={data.locations}
           events={data.events}
-          onClose={() => onNavigate('board')}
+          sales={data.sales}
+          saleItems={data.sale_items}
+          onNavigate={onNavigate}
         />
       )
     case 'transport':

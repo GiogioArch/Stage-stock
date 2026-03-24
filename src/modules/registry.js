@@ -183,7 +183,7 @@ export const MODULES = {
 
 // Modules actifs par défaut pour un nouveau compte
 export const DEFAULT_ACTIVE = [
-  'dashboard', 'tournee', 'articles', 'stock', 'equipe', 'timeline',
+  'dashboard', 'tournee', 'articles', 'stock', 'equipe', 'timeline', 'ventes',
 ]
 
 // ─── Helpers ───

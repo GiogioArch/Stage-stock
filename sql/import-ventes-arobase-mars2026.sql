@@ -1,0 +1,97 @@
+-- ═══════════════════════════════════════════════════════════════════
+-- IMPORT VENTES AROBASE — 20 & 21 MARS 2026
+-- Fichier unique, idempotent (ON CONFLICT, IF NOT EXISTS)
+-- ═══════════════════════════════════════════════════════════════════
+
+-- 1. Add sale_price column to products if not exists
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='products' AND column_name='sale_price') THEN
+    ALTER TABLE products ADD COLUMN sale_price NUMERIC DEFAULT 0;
+  END IF;
+END $$;
+
+-- 2. Create missing products from Notion inventory
+INSERT INTO products (id, name, sku, category, family_id, subfamily_id, cost_ht, sale_price, variants, image, org_id)
+VALUES
+  ('c0000001-0000-0000-0000-000000000001', 'T-shirt EK 25 Célébration — Noir', 'EK-TSH-NOI-MT', 'merch',
+   '69849c95-54d5-45d1-ad03-e4674d855864', '0f82b231-d201-4813-a6f1-213d6c30440b',
+   5.00, 25.00, 'M, L, XL, XXL', '👕', '00000000-0000-0000-0000-000000000001'),
+  ('c0000001-0000-0000-0000-000000000002', 'Polo Homme Noir — Solda Lanmou', 'EK-POH-NOI-MT', 'merch',
+   '69849c95-54d5-45d1-ad03-e4674d855864', '0f82b231-d201-4813-a6f1-213d6c30440b',
+   NULL, 30.00, 'S, M, L, XL, XXL', '👔', '00000000-0000-0000-0000-000000000001'),
+  ('c0000001-0000-0000-0000-000000000003', 'T-shirt Femme Noir col V Victoria', 'EK-TSF-NOI-MT-V', 'merch',
+   '69849c95-54d5-45d1-ad03-e4674d855864', '0f82b231-d201-4813-a6f1-213d6c30440b',
+   NULL, 20.00, 'S, M, L, XL', '👚', '00000000-0000-0000-0000-000000000001'),
+  ('c0000001-0000-0000-0000-000000000004', 'T-shirt Unique (Pièce artiste)', 'EK-TSU-UNI', 'merch',
+   '69849c95-54d5-45d1-ad03-e4674d855864', '0f82b231-d201-4813-a6f1-213d6c30440b',
+   NULL, 40.00, '', '🎨', '00000000-0000-0000-0000-000000000001'),
+  ('c0000001-0000-0000-0000-000000000005', 'Livre Coloriage Pom''Kanèl', 'EK-LIV-PMC-U', 'merch',
+   '69849c95-54d5-45d1-ad03-e4674d855864', '5badfa3a-bb96-40d5-b650-e219e7e9c01a',
+   NULL, 13.00, '', '📖', '00000000-0000-0000-0000-000000000001')
+ON CONFLICT (id) DO NOTHING;
+
+-- 3. Set sale_price on existing merch products
+UPDATE products SET sale_price = 30.00 WHERE id = 'b0000001-0000-0000-0000-000000000001' AND (sale_price IS NULL OR sale_price = 0);
+UPDATE products SET sale_price = 30.00 WHERE id = 'b0000001-0000-0000-0000-000000000002' AND (sale_price IS NULL OR sale_price = 0);
+UPDATE products SET sale_price = 30.00 WHERE id = 'b0000001-0000-0000-0000-000000000003' AND (sale_price IS NULL OR sale_price = 0);
+UPDATE products SET sale_price = 30.00 WHERE id = 'b0000001-0000-0000-0000-000000000004' AND (sale_price IS NULL OR sale_price = 0);
+UPDATE products SET sale_price = 35.00 WHERE id = '73671904-c927-4fa7-8b16-8d058c1902c4' AND (sale_price IS NULL OR sale_price = 0);
+UPDATE products SET sale_price = 12.00 WHERE id = 'da4c6654-feb9-44c5-9c32-cbea5a89702b' AND (sale_price IS NULL OR sale_price = 0);
+UPDATE products SET sale_price = 15.00 WHERE id = '56ba7d97-46bc-4bb8-afde-13616b1d7fa0' AND (sale_price IS NULL OR sale_price = 0);
+UPDATE products SET sale_price = 15.00 WHERE id = '69f95a19-b41e-4819-85d2-b0fe1944d57e' AND (sale_price IS NULL OR sale_price = 0);
+UPDATE products SET sale_price = 15.00 WHERE id = '00522926-5cd6-4e07-884a-922ece05256c' AND (sale_price IS NULL OR sale_price = 0);
+
+-- 4. Import sales — 20 mars (3 ventes, 92€)
+INSERT INTO sales (id, org_id, event_id, sale_number, payment_method, total_amount, items_count, notes, created_at)
+VALUES
+  ('d0000001-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '7a84cb80-e75e-46ea-b596-da7df9a26cbf', 'V-ARO20-001', 'card', 50.00, 3, 'Client: René Coail + Danielle. Polo patron offert.', '2026-03-20T21:30:00+04:00'),
+  ('d0000001-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', '7a84cb80-e75e-46ea-b596-da7df9a26cbf', 'V-ARO20-002', 'card', 30.00, 1, 'Client: Roselyne Nestoret (Yolande). Tél: 0696 02 22 29. Coupe femme.', '2026-03-20T22:00:00+04:00'),
+  ('d0000001-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001', '7a84cb80-e75e-46ea-b596-da7df9a26cbf', 'V-ARO20-003', 'card', 12.00, 1, NULL, '2026-03-20T22:30:00+04:00')
+ON CONFLICT (id) DO NOTHING;
+
+-- 5. Import sales — 21 mars (6 ventes, 208€)
+INSERT INTO sales (id, org_id, event_id, sale_number, payment_method, total_amount, items_count, notes, created_at)
+VALUES
+  ('d0000001-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000001', '0e768487-59da-49cb-8381-c9c1414d7322', 'V-ARO21-001', 'card', 55.00, 2, NULL, '2026-03-21T21:30:00+04:00'),
+  ('d0000001-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000001', '0e768487-59da-49cb-8381-c9c1414d7322', 'V-ARO21-002', 'card', 60.00, 3, NULL, '2026-03-21T22:00:00+04:00'),
+  ('d0000001-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000001', '0e768487-59da-49cb-8381-c9c1414d7322', 'V-ARO21-003', 'card', 25.00, 1, 'Client: Catherine Beroard-Gabbidom. Tél: 0696974268. 39 rue des Amours, Schoelcher 97233. Coupe femme.', '2026-03-21T22:15:00+04:00'),
+  ('d0000001-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000001', '0e768487-59da-49cb-8381-c9c1414d7322', 'V-ARO21-004', 'cash', 15.00, 1, NULL, '2026-03-21T22:30:00+04:00'),
+  ('d0000001-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000001', '0e768487-59da-49cb-8381-c9c1414d7322', 'V-ARO21-005', 'card', 40.00, 1, NULL, '2026-03-21T23:00:00+04:00'),
+  ('d0000001-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000001', '0e768487-59da-49cb-8381-c9c1414d7322', 'V-ARO21-006', 'card', 13.00, 1, NULL, '2026-03-21T23:15:00+04:00')
+ON CONFLICT (id) DO NOTHING;
+
+-- 6. Import sale_items (12 lignes)
+INSERT INTO sale_items (id, org_id, sale_id, product_id, variant, quantity, unit_price, line_total, created_at)
+VALUES
+  -- Sale 1: 2x T-shirt EK 25 M + 1x Polo Noir M (offert)
+  ('e0000001-0001-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000001', 'c0000001-0000-0000-0000-000000000001', 'M', 1, 25.00, 25.00, '2026-03-20T21:30:00+04:00'),
+  ('e0000001-0002-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000001', 'c0000001-0000-0000-0000-000000000001', 'M', 1, 25.00, 25.00, '2026-03-20T21:31:00+04:00'),
+  ('e0000001-0003-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000001', 'c0000001-0000-0000-0000-000000000002', 'M', 1, 0.00, 0.00, '2026-03-20T21:32:00+04:00'),
+  -- Sale 2: 1x T-shirt EK 25 M (coupe femme, 30€)
+  ('e0000001-0001-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000002', 'c0000001-0000-0000-0000-000000000001', 'M', 1, 30.00, 30.00, '2026-03-20T22:00:00+04:00'),
+  -- Sale 3: 1x Porte-clé
+  ('e0000001-0001-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000003', 'da4c6654-feb9-44c5-9c32-cbea5a89702b', NULL, 1, 12.00, 12.00, '2026-03-20T22:30:00+04:00'),
+  -- Sale 4: 1x Tee-shirt unique + 1x Tote bag
+  ('e0000001-0001-0000-0000-000000000004', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000004', 'c0000001-0000-0000-0000-000000000004', NULL, 1, 40.00, 40.00, '2026-03-21T21:30:00+04:00'),
+  ('e0000001-0002-0000-0000-000000000004', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000004', '56ba7d97-46bc-4bb8-afde-13616b1d7fa0', NULL, 1, 15.00, 15.00, '2026-03-21T21:31:00+04:00'),
+  -- Sale 5: 3x Col V M
+  ('e0000001-0001-0000-0000-000000000005', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000005', 'c0000001-0000-0000-0000-000000000003', 'M', 3, 20.00, 60.00, '2026-03-21T22:00:00+04:00'),
+  -- Sale 6: 1x T-shirt EK 25 M (coupe femme, Catherine)
+  ('e0000001-0001-0000-0000-000000000006', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000006', 'c0000001-0000-0000-0000-000000000001', 'M', 1, 25.00, 25.00, '2026-03-21T22:15:00+04:00'),
+  -- Sale 7: 1x CD (espèces)
+  ('e0000001-0001-0000-0000-000000000007', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000007', '69f95a19-b41e-4819-85d2-b0fe1944d57e', NULL, 1, 15.00, 15.00, '2026-03-21T22:30:00+04:00'),
+  -- Sale 8: 1x Tee-shirt unique
+  ('e0000001-0001-0000-0000-000000000008', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000008', 'c0000001-0000-0000-0000-000000000004', NULL, 1, 40.00, 40.00, '2026-03-21T23:00:00+04:00'),
+  -- Sale 9: 1x Livre Pom'Kanèl
+  ('e0000001-0001-0000-0000-000000000009', '00000000-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000009', 'c0000001-0000-0000-0000-000000000005', NULL, 1, 13.00, 13.00, '2026-03-21T23:15:00+04:00')
+ON CONFLICT (id) DO NOTHING;
+
+-- 7. Update events with real sales data
+UPDATE events SET ventes_reelles = 5, ca_reel = 92.00 WHERE id = '7a84cb80-e75e-46ea-b596-da7df9a26cbf';
+UPDATE events SET ventes_reelles = 9, ca_reel = 208.00 WHERE id = '0e768487-59da-49cb-8381-c9c1414d7322';
+
+-- 8. Verification
+SELECT 'sales' AS tbl, COUNT(*) AS cnt FROM sales
+UNION ALL SELECT 'sale_items', COUNT(*) FROM sale_items
+UNION ALL SELECT 'products_with_price', COUNT(*) FROM products WHERE sale_price > 0
+UNION ALL SELECT 'events_with_ca_reel', COUNT(*) FROM events WHERE ca_reel > 0;
