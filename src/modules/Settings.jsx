@@ -70,7 +70,7 @@ export default function Settings({ activeModuleIds: rawIds, onModulesChanged, on
           membership={membership}
           roles={roles || []}
           userProfiles={userProfiles || []}
-          reload={reload}
+          onReload={reload}
         />
       )}
 

@@ -19,6 +19,7 @@ const STATUS_CONF = {
 
 export default function Achats({
   suppliers, purchaseOrders, purchaseOrderLines, products,
+  supplierDocuments, supplierProducts, stock,
   locations,
 }) {
   const onToast = useToast()
@@ -388,7 +389,7 @@ function AddOrderForm({ suppliers, products, onDone }) {
               unit_price_ht: price,
               line_total_ht: qty * price,
             })
-          } catch (e) { console.error('Line insert error:', e) }
+          } catch (e) { onToast('Erreur ligne : ' + e.message, '#D4648A') }
         }
       }
       onToast(`Commande ${orderNum} créée`)
@@ -420,7 +421,7 @@ function AddOrderForm({ suppliers, products, onDone }) {
           <select className="input" value={l.productId} onChange={e => {
             updateLine(i, 'productId', e.target.value)
             const p = (products || []).find(pr => pr.id === e.target.value)
-            if (p) { updateLine(i, 'description', p.name); if (p.prix_achat_ht) updateLine(i, 'unitPrice', String(p.prix_achat_ht)) }
+            if (p) { updateLine(i, 'description', p.name); if (p.cost_ht) updateLine(i, 'unitPrice', String(p.cost_ht)) }
           }} style={{ flex: 2 }}>
             <option value="">— Article —</option>
             {(products || []).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}

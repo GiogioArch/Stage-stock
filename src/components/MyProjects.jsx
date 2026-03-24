@@ -4,7 +4,7 @@ import { Pencil } from 'lucide-react'
 import { ROLE_CONF } from './RolePicker'
 import { useToast, useAuth } from '../shared/hooks'
 
-const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
+const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'finance', 'forecast']
 
 export default function MyProjects({ allProjects, onOpenProject, onProjectsChanged }) {
   const onToast = useToast()

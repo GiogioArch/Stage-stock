@@ -1,16 +1,14 @@
 import React, { useState, useMemo, createElement } from 'react'
-import { Badge, Modal } from './UI'
 import { ROLE_CONF } from './RolePicker'
-import { db, safe } from '../lib/supabase'
+import { db } from '../lib/supabase'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
-import { GradientHeader, SubTabs } from '../design'
+import { GradientHeader } from '../design'
 import { useToast, useProject, useAuth } from '../shared/hooks'
 import {
-  ChevronDown, ChevronRight, ChevronLeft, User, Mail, Phone, Calendar,
-  CheckCircle2, Circle, Clock, MapPin, AlertTriangle, Star,
-  Briefcase, ClipboardList, CalendarDays, Users, Eye, Search,
-  ArrowRight, Link2, Shield, Zap, Crown, UserCheck, Network,
-  MoreVertical, Edit3, Trash2, Plus, Filter, X,
+  ChevronDown, ChevronRight, Mail, Calendar,
+  CheckCircle2, Circle, Clock, AlertTriangle,
+  ClipboardList, Users, Search,
+  ArrowRight, Link2, Shield, Zap, Crown, UserCheck, X,
 } from 'lucide-react'
 
 const theme = getModuleTheme('equipe')
@@ -182,11 +180,9 @@ export default function Equipe({
   const onToast = useToast()
   const { orgId, reload, userRole } = useProject()
   const { user } = useAuth()
-  const [view, setView] = useState('organigramme')
   const [expandedRole, setExpandedRole] = useState(null)
   const [expandedLevel, setExpandedLevel] = useState('direction')
   const [selectedMember, setSelectedMember] = useState(null)
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [searchQuery, setSearchQuery] = useState('')
 
   const today = new Date().toISOString().split('T')[0]
@@ -250,16 +246,6 @@ export default function Equipe({
     [events, today]
   )
 
-  const dayTasks = useMemo(() => {
-    return (eventTasks || []).filter(t => {
-      const evt = (events || []).find(e => e.id === t.event_id)
-      if (!evt) return false
-      const eventDate = new Date(evt.date + 'T00:00:00')
-      const taskDate = new Date(eventDate.getTime() + t.hour_offset * 3600000)
-      return taskDate.toISOString().split('T')[0] === selectedDate
-    }).sort((a, b) => a.hour_offset - b.hour_offset)
-  }, [eventTasks, events, selectedDate])
-
   // KPIs
   const totalMembers = allMembers.length
   const assignedRoles = teamByRole.filter(t => t.members.length > 0).length
@@ -283,9 +269,6 @@ export default function Equipe({
     }
   }
 
-  // Helper to find member by role code
-  const getMembersByRole = (code) => allMembers.filter(m => m.roleCode === code)
-
   return (
     <div style={{ paddingBottom: 24 }}>
 
@@ -303,19 +286,142 @@ export default function Equipe({
 
       <div style={{ padding: '0 16px' }}>
 
-      {/* ─── View toggle ─── */}
-      <SubTabs
-        tabs={[
-          { id: 'organigramme', label: 'Organigramme', icon: Network },
-          { id: 'membres', label: 'Membres', icon: Users },
-          { id: 'planning', label: 'Planning', icon: CalendarDays },
-        ]}
-        active={view}
-        onChange={(id) => { setView(id); setSelectedMember(null) }}
-      />
+      {/* ─── Search bar ─── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
+        background: BASE.bgSurface, borderRadius: 12, border: `1px solid ${BASE.border}`,
+        marginBottom: 14,
+      }}>
+        {createElement(Search, { size: 16, color: BASE.textMuted })}
+        <input
+          type="text"
+          placeholder="Rechercher un membre ou un rôle..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          style={{
+            flex: 1, border: 'none', background: 'none', outline: 'none',
+            fontSize: 13, color: BASE.text,
+          }}
+        />
+        {searchQuery && (
+          <button onClick={() => setSearchQuery('')} aria-label="Effacer la recherche" style={{
+            background: 'none', border: 'none', cursor: 'pointer', padding: 2,
+          }}>
+            {createElement(X, { size: 14, color: BASE.textMuted })}
+          </button>
+        )}
+      </div>
 
-      {/* ═══ VIEW: ORGANIGRAMME (HIÉRARCHIE) ═══ */}
-      {view === 'organigramme' && (
+      {/* ═══ SEARCH RESULTS ═══ */}
+      {searchQuery.trim() ? (
+        <div>
+          {filteredMembers.length === 0 ? (
+            <div className="empty-state" style={{ padding: 40 }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>
+                {createElement(Users, { size: 48, color: BASE.border })}
+              </div>
+              <div className="empty-text">Aucun résultat</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {filteredMembers.map((m, i) => {
+                const pendingCount = m.memberTasks.filter(t => t.status !== 'done').length
+                const doneCount = m.memberTasks.filter(t => t.status === 'done').length
+                const mTotalTasks = m.memberTasks.length
+                const completionRate = mTotalTasks > 0 ? Math.round((doneCount / mTotalTasks) * 100) : 0
+                const hierInfo = m.roleCode ? getHierarchyInfo(m.roleCode) : null
+
+                return (
+                  <button key={i} onClick={() => setSelectedMember(m)} className="card" style={{
+                    display: 'flex', alignItems: 'center', gap: 14, padding: '16px',
+                    width: '100%', cursor: 'pointer', textAlign: 'left',
+                    borderLeft: m.roleConf ? `4px solid ${m.roleConf.color}` : `4px solid ${BASE.border}`,
+                  }}>
+                    <div style={{ position: 'relative' }}>
+                      <div style={{
+                        width: 50, height: 50, borderRadius: 14,
+                        background: m.roleConf ? `${m.roleConf.color}12` : BASE.bgHover,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 20, fontWeight: 900, color: m.roleConf?.color || BASE.textMuted,
+                        border: `2px solid ${m.roleConf?.color || BASE.border}25`,
+                      }}>
+                        {(m.display_name || m.pseudo || '?')[0].toUpperCase()}
+                      </div>
+                      {hierInfo && (
+                        <div style={{
+                          position: 'absolute', bottom: -3, right: -3,
+                          width: 18, height: 18, borderRadius: 6,
+                          background: hierInfo.color,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          border: '2px solid white',
+                        }}>
+                          {createElement(hierInfo.icon, { size: 10, color: 'white' })}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: BASE.text }}>
+                          {m.display_name || m.pseudo || 'Membre'}
+                        </span>
+                        {user && m.user_id === user.id && (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, color: theme.color,
+                            padding: '1px 6px', borderRadius: 4, background: `${theme.color}10`,
+                          }}>MOI</span>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                        {m.roleConf && (
+                          <span style={{ fontSize: 11, fontWeight: 700, color: m.roleConf.color }}>
+                            {m.roleConf.label}
+                          </span>
+                        )}
+                        {hierInfo && (
+                          <span style={{
+                            fontSize: 9, color: hierInfo.color, fontWeight: 600,
+                            padding: '1px 5px', borderRadius: 4, background: `${hierInfo.color}10`,
+                          }}>{hierInfo.label}</span>
+                        )}
+                      </div>
+                      {mTotalTasks > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                          <div style={{
+                            flex: 1, height: 4, borderRadius: 2, background: BASE.bgHover,
+                            maxWidth: 100,
+                          }}>
+                            <div style={{
+                              width: `${completionRate}%`, height: '100%', borderRadius: 2,
+                              background: completionRate >= 80 ? SEMANTIC.success : completionRate >= 50 ? SEMANTIC.warning : BASE.textMuted,
+                              transition: 'width 0.3s',
+                            }} />
+                          </div>
+                          <span style={{ fontSize: 10, color: BASE.textSoft, fontWeight: 600 }}>
+                            {doneCount}/{mTotalTasks}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      {pendingCount > 0 && (
+                        <div style={{
+                          fontSize: 11, fontWeight: 800, color: SEMANTIC.warning,
+                          display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end',
+                        }}>
+                          {createElement(Clock, { size: 12 })}
+                          {pendingCount}
+                        </div>
+                      )}
+                    </div>
+                    {createElement(ChevronRight, { size: 16, color: BASE.textDisabled })}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* ═══ HIERARCHY VIEW (default) ═══ */
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {Object.entries(HIERARCHY).map(([level, data]) => {
             const isExpanded = expandedLevel === level
@@ -369,7 +475,7 @@ export default function Equipe({
                   </div>
                 </button>
 
-                {/* Level content */}
+                {/* Level content — roles + members enrichis */}
                 {isExpanded && (
                   <div style={{
                     margin: '0 4px', padding: '12px',
@@ -378,7 +484,6 @@ export default function Equipe({
                     border: `1px solid ${data.color}15`,
                     borderTop: 'none',
                   }}>
-                    {/* Connection lines visual */}
                     {level !== 'direction' && (
                       <div style={{
                         textAlign: 'center', padding: '0 0 10px',
@@ -391,7 +496,7 @@ export default function Equipe({
 
                     {levelRoles.map(t => (
                       <div key={t.code} style={{ marginBottom: 10 }}>
-                        {/* Role card within level */}
+                        {/* Role card */}
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: 10,
                           padding: '12px', background: 'white', borderRadius: 12,
@@ -416,11 +521,15 @@ export default function Equipe({
                               {t.pendingTasks > 0 && ` · ${t.pendingTasks} tâche${t.pendingTasks > 1 ? 's' : ''}`}
                             </div>
                           </div>
-                          {/* Relations indicator */}
+                          {t.packTotal > 0 && (
+                            <span style={{
+                              fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
+                              background: t.packDone === t.packTotal ? `${SEMANTIC.success}10` : `${SEMANTIC.warning}10`,
+                              color: t.packDone === t.packTotal ? SEMANTIC.success : SEMANTIC.warning,
+                            }}>{t.packDone}/{t.packTotal} pack</span>
+                          )}
                           {ROLE_RELATIONS[t.code] && (
-                            <div style={{
-                              display: 'flex', alignItems: 'center', gap: 2,
-                            }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                               {createElement(Link2, { size: 12, color: BASE.textMuted })}
                               <span style={{ fontSize: 9, color: BASE.textMuted, fontWeight: 700 }}>
                                 {(ROLE_RELATIONS[t.code].collaborates || []).length}
@@ -429,37 +538,76 @@ export default function Equipe({
                           )}
                         </div>
 
-                        {/* Members under this role */}
-                        {t.members.map((m, i) => (
-                          <button key={i} onClick={() => setSelectedMember(m)} style={{
-                            display: 'flex', alignItems: 'center', gap: 10,
-                            padding: '10px 12px 10px 24px',
-                            background: 'white', borderRadius: 10,
-                            border: `1px solid ${BASE.border}20`,
-                            width: '100%', cursor: 'pointer', textAlign: 'left',
-                            marginBottom: 4, marginLeft: 16,
-                            borderLeft: `3px solid ${t.conf.color}40`,
-                          }}>
-                            <div style={{
-                              width: 32, height: 32, borderRadius: 8,
-                              background: `${t.conf.color}12`,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: 13, fontWeight: 800, color: t.conf.color,
+                        {/* Members under this role — enriched cards */}
+                        {t.members.map((m, i) => {
+                          const mPending = m.memberTasks.filter(tk => tk.status !== 'done').length
+                          const mDone = m.memberTasks.filter(tk => tk.status === 'done').length
+                          const mTotal = m.memberTasks.length
+                          const mRate = mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0
+
+                          return (
+                            <button key={i} onClick={() => setSelectedMember(m)} style={{
+                              display: 'flex', alignItems: 'center', gap: 10,
+                              padding: '10px 12px 10px 20px',
+                              background: 'white', borderRadius: 10,
+                              border: `1px solid ${BASE.border}20`,
+                              width: '100%', cursor: 'pointer', textAlign: 'left',
+                              marginBottom: 4, marginLeft: 16,
+                              borderLeft: `3px solid ${t.conf.color}40`,
                             }}>
-                              {(m.display_name || m.pseudo || '?')[0].toUpperCase()}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: BASE.text }}>
-                                {m.display_name || m.pseudo || 'Membre'}
+                              <div style={{
+                                width: 36, height: 36, borderRadius: 10,
+                                background: `${t.conf.color}12`,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 14, fontWeight: 800, color: t.conf.color,
+                              }}>
+                                {(m.display_name || m.pseudo || '?')[0].toUpperCase()}
                               </div>
-                              <div style={{ fontSize: 10, color: BASE.textSoft }}>
-                                {m.memberTasks.filter(tk => tk.status !== 'done').length} tâche{m.memberTasks.filter(tk => tk.status !== 'done').length !== 1 ? 's' : ''} en cours
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: BASE.text }}>
+                                    {m.display_name || m.pseudo || 'Membre'}
+                                  </span>
+                                  {user && m.user_id === user.id && (
+                                    <span style={{
+                                      fontSize: 8, fontWeight: 700, color: theme.color,
+                                      padding: '1px 4px', borderRadius: 3, background: `${theme.color}10`,
+                                    }}>MOI</span>
+                                  )}
+                                </div>
+                                {/* Progress bar inline */}
+                                {mTotal > 0 && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                    <div style={{ flex: 1, height: 3, borderRadius: 2, background: BASE.bgHover, maxWidth: 80 }}>
+                                      <div style={{
+                                        width: `${mRate}%`, height: '100%', borderRadius: 2,
+                                        background: mRate >= 80 ? SEMANTIC.success : mRate >= 50 ? SEMANTIC.warning : BASE.textMuted,
+                                      }} />
+                                    </div>
+                                    <span style={{ fontSize: 9, color: BASE.textSoft, fontWeight: 600 }}>
+                                      {mDone}/{mTotal}
+                                    </span>
+                                  </div>
+                                )}
+                                {mTotal === 0 && (
+                                  <div style={{ fontSize: 10, color: BASE.textMuted, marginTop: 2 }}>
+                                    Aucune tâche
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                            {user && m.user_id === user.id && <Badge color={t.conf.color}>Moi</Badge>}
-                            {createElement(ChevronRight, { size: 14, color: BASE.textMuted })}
-                          </button>
-                        ))}
+                              {mPending > 0 && (
+                                <span style={{
+                                  fontSize: 10, fontWeight: 700, color: SEMANTIC.warning,
+                                  display: 'flex', alignItems: 'center', gap: 3,
+                                }}>
+                                  {createElement(Clock, { size: 11 })}
+                                  {mPending}
+                                </span>
+                              )}
+                              {createElement(ChevronRight, { size: 14, color: BASE.textMuted })}
+                            </button>
+                          )
+                        })}
 
                         {t.members.length === 0 && (
                           <div style={{
@@ -476,316 +624,6 @@ export default function Equipe({
               </div>
             )
           })}
-        </div>
-      )}
-
-      {/* ═══ VIEW: MEMBRES (TROMBINOSCOPE) ═══ */}
-      {view === 'membres' && (
-        <div>
-          {/* Search bar */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
-            background: BASE.bgSurface, borderRadius: 12, border: `1px solid ${BASE.border}`,
-            marginBottom: 14,
-          }}>
-            {createElement(Search, { size: 16, color: BASE.textMuted })}
-            <input
-              type="text"
-              placeholder="Rechercher un membre ou un rôle..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              style={{
-                flex: 1, border: 'none', background: 'none', outline: 'none',
-                fontSize: 13, color: BASE.text,
-              }}
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery('')} aria-label="Effacer la recherche" style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: 2,
-              }}>
-                {createElement(X, { size: 14, color: BASE.textMuted })}
-              </button>
-            )}
-          </div>
-
-          {/* Members grid */}
-          {filteredMembers.length === 0 ? (
-            <div className="empty-state" style={{ padding: 40 }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>
-                {createElement(Users, { size: 48, color: BASE.border })}
-              </div>
-              <div className="empty-text">{searchQuery ? 'Aucun résultat' : 'Aucun membre dans l\'équipe'}</div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {filteredMembers.map((m, i) => {
-                const pendingCount = m.memberTasks.filter(t => t.status !== 'done').length
-                const doneCount = m.memberTasks.filter(t => t.status === 'done').length
-                const totalTasks = m.memberTasks.length
-                const completionRate = totalTasks > 0 ? Math.round((doneCount / totalTasks) * 100) : 0
-                const hierInfo = m.roleCode ? getHierarchyInfo(m.roleCode) : null
-
-                return (
-                  <button key={i} onClick={() => setSelectedMember(m)} className="card" style={{
-                    display: 'flex', alignItems: 'center', gap: 14, padding: '16px',
-                    width: '100%', cursor: 'pointer', textAlign: 'left',
-                    borderLeft: m.roleConf ? `4px solid ${m.roleConf.color}` : `4px solid ${BASE.border}`,
-                  }}>
-                    {/* Avatar */}
-                    <div style={{ position: 'relative' }}>
-                      <div style={{
-                        width: 50, height: 50, borderRadius: 14,
-                        background: m.roleConf ? `${m.roleConf.color}12` : BASE.bgHover,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 20, fontWeight: 900, color: m.roleConf?.color || BASE.textMuted,
-                        border: `2px solid ${m.roleConf?.color || BASE.border}25`,
-                      }}>
-                        {(m.display_name || m.pseudo || '?')[0].toUpperCase()}
-                      </div>
-                      {/* Hierarchy badge */}
-                      {hierInfo && (
-                        <div style={{
-                          position: 'absolute', bottom: -3, right: -3,
-                          width: 18, height: 18, borderRadius: 6,
-                          background: hierInfo.color,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          border: '2px solid white',
-                        }}>
-                          {createElement(hierInfo.icon, { size: 10, color: 'white' })}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: BASE.text }}>
-                          {m.display_name || m.pseudo || 'Membre'}
-                        </span>
-                        {user && m.user_id === user.id && (
-                          <span style={{
-                            fontSize: 9, fontWeight: 700, color: theme.color,
-                            padding: '1px 6px', borderRadius: 4, background: `${theme.color}10`,
-                          }}>MOI</span>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
-                        {m.roleConf && (
-                          <span style={{ fontSize: 11, fontWeight: 700, color: m.roleConf.color }}>
-                            {m.roleConf.label}
-                          </span>
-                        )}
-                        {hierInfo && (
-                          <span style={{
-                            fontSize: 9, color: hierInfo.color, fontWeight: 600,
-                            padding: '1px 5px', borderRadius: 4, background: `${hierInfo.color}10`,
-                          }}>{hierInfo.label}</span>
-                        )}
-                      </div>
-                      {/* Mini progress */}
-                      {totalTasks > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-                          <div style={{
-                            flex: 1, height: 4, borderRadius: 2, background: BASE.bgHover,
-                            maxWidth: 100,
-                          }}>
-                            <div style={{
-                              width: `${completionRate}%`, height: '100%', borderRadius: 2,
-                              background: completionRate >= 80 ? SEMANTIC.success : completionRate >= 50 ? SEMANTIC.warning : BASE.textMuted,
-                              transition: 'width 0.3s',
-                            }} />
-                          </div>
-                          <span style={{ fontSize: 10, color: BASE.textSoft, fontWeight: 600 }}>
-                            {doneCount}/{totalTasks}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right stats */}
-                    <div style={{ textAlign: 'right' }}>
-                      {pendingCount > 0 && (
-                        <div style={{
-                          fontSize: 11, fontWeight: 800, color: SEMANTIC.warning,
-                          display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end',
-                        }}>
-                          {createElement(Clock, { size: 12 })}
-                          {pendingCount}
-                        </div>
-                      )}
-                      {m.packing.length > 0 && (
-                        <div style={{ fontSize: 10, color: BASE.textSoft, marginTop: 2 }}>
-                          {m.packing.filter(p => p.packed).length}/{m.packing.length} pack
-                        </div>
-                      )}
-                    </div>
-
-                    {createElement(ChevronRight, { size: 16, color: BASE.textDisabled })}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ═══ VIEW: PLANNING JOURNALIER ═══ */}
-      {view === 'planning' && (
-        <div>
-          {/* Date selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <button onClick={() => {
-              const d = new Date(selectedDate)
-              d.setDate(d.getDate() - 1)
-              setSelectedDate(d.toISOString().split('T')[0])
-            }} style={{
-              width: 36, height: 36, borderRadius: 10, background: 'white',
-              border: `1px solid ${BASE.border}`, cursor: 'pointer', fontSize: 16,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }} aria-label="Jour précédent">‹</button>
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: BASE.text }}>
-                {new Date(selectedDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-              </div>
-              {selectedDate === today && (
-                <div style={{ fontSize: 10, color: SEMANTIC.success, fontWeight: 700 }}>Aujourd'hui</div>
-              )}
-            </div>
-            <button onClick={() => {
-              const d = new Date(selectedDate)
-              d.setDate(d.getDate() + 1)
-              setSelectedDate(d.toISOString().split('T')[0])
-            }} style={{
-              width: 36, height: 36, borderRadius: 10, background: 'white',
-              border: `1px solid ${BASE.border}`, cursor: 'pointer', fontSize: 16,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }} aria-label="Jour suivant">›</button>
-          </div>
-
-          {/* Quick jump to event dates */}
-          {upcomingEvents.length > 0 && (
-            <div style={{
-              display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto',
-              WebkitOverflowScrolling: 'touch', paddingBottom: 4,
-            }}>
-              {upcomingEvents.slice(0, 6).map(evt => (
-                <button key={evt.id} onClick={() => setSelectedDate(evt.date)} style={{
-                  padding: '6px 12px', borderRadius: 8, whiteSpace: 'nowrap',
-                  fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                  background: selectedDate === evt.date ? `${theme.color}10` : BASE.bgSurface,
-                  color: selectedDate === evt.date ? theme.color : BASE.textSoft,
-                  border: `1px solid ${selectedDate === evt.date ? `${theme.color}30` : BASE.border}`,
-                  flexShrink: 0,
-                }}>
-                  {new Date(evt.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Events on selected date */}
-          {upcomingEvents.filter(e => e.date === selectedDate).map(evt => (
-            <div key={evt.id} className="card" style={{
-              padding: '12px 14px', marginBottom: 12,
-              borderLeft: `4px solid ${theme.color}`,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {createElement(Calendar, { size: 16, color: theme.color })}
-                <span style={{ fontSize: 13, fontWeight: 800, color: BASE.text }}>{evt.name}</span>
-              </div>
-              {evt.lieu && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                  {createElement(MapPin, { size: 12, color: BASE.textMuted })}
-                  <span style={{ fontSize: 11, color: BASE.textMuted }}>{evt.lieu}{evt.ville ? `, ${evt.ville}` : ''}</span>
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* Tasks grouped by role */}
-          {dayTasks.length === 0 ? (
-            <div className="empty-state" style={{ padding: 32 }}>
-              <div style={{ marginBottom: 8 }}>
-                {createElement(CalendarDays, { size: 40, color: BASE.border })}
-              </div>
-              <div className="empty-text">Aucune tâche pour cette date</div>
-              <div style={{ fontSize: 11, color: BASE.textMuted, marginTop: 4 }}>
-                Utilisez le mode événement pour planifier les tâches
-              </div>
-            </div>
-          ) : (
-            <div>
-              {/* Group tasks by role */}
-              {ROLE_ORDER.filter(code =>
-                dayTasks.some(t => t.assigned_role === code)
-              ).map(code => {
-                const conf = ROLE_CONF[code] || { icon: ClipboardList, color: BASE.textMuted, label: code }
-                const roleDayTasks = dayTasks.filter(t => t.assigned_role === code)
-                const roleMember = getMembersByRole(code)
-
-                return (
-                  <div key={code} style={{ marginBottom: 14 }}>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      padding: '8px 0', marginBottom: 6,
-                    }}>
-                      {createElement(conf.icon, { size: 16, color: conf.color })}
-                      <span style={{ fontSize: 12, fontWeight: 800, color: conf.color }}>{conf.label}</span>
-                      {roleMember.length > 0 && (
-                        <span style={{ fontSize: 10, color: BASE.textMuted }}>
-                          — {roleMember.map(m => m.display_name || m.pseudo).join(', ')}
-                        </span>
-                      )}
-                      <span style={{
-                        marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                        color: BASE.textSoft, padding: '2px 6px', borderRadius: 4,
-                        background: BASE.bgHover,
-                      }}>{roleDayTasks.length}</span>
-                    </div>
-
-                    {roleDayTasks.map(task => {
-                      const statusConf = TASK_STATUS_CONF[task.status] || TASK_STATUS_CONF.pending
-                      const catColor = CATEGORY_COLORS[task.category] || BASE.textMuted
-                      const hour = task.hour_offset >= 0 ? `H+${task.hour_offset}` : `H${task.hour_offset}`
-                      return (
-                        <button key={task.id} onClick={() => handleTaskToggle(task)} className="card" style={{
-                          padding: '10px 14px', width: '100%', cursor: 'pointer', textAlign: 'left',
-                          borderLeft: `3px solid ${catColor}`,
-                          opacity: task.status === 'done' ? 0.55 : 1,
-                          marginBottom: 4,
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                            <div style={{ paddingTop: 1 }}>
-                              {createElement(statusConf.icon, { size: 16, color: statusConf.color })}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{
-                                fontSize: 12, fontWeight: 700, color: BASE.text,
-                                textDecoration: task.status === 'done' ? 'line-through' : 'none',
-                              }}>{task.title}</div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
-                                <span style={{
-                                  fontSize: 10, fontWeight: 800, color: theme.color,
-                                  padding: '1px 6px', borderRadius: 4, background: `${theme.color}08`,
-                                  fontFamily: 'monospace',
-                                }}>{hour}</span>
-                                {task.priority === 'critical' && (
-                                  <span style={{ fontSize: 9, color: SEMANTIC.danger, fontWeight: 800 }}>CRITIQUE</span>
-                                )}
-                                {task.priority === 'high' && (
-                                  <span style={{ fontSize: 9, color: SEMANTIC.warning, fontWeight: 800 }}>PRIORITÉ</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                )
-              })}
-            </div>
-          )}
         </div>
       )}
 

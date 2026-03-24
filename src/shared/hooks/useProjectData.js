@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, useRef, useLayoutEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { db, safe } from '../../lib/supabase'
 import { ROLE_CONF } from '../../config/roles'
 
@@ -36,6 +36,7 @@ export function useProjectData(user, selectedOrg, requiredTables) {
     expenses: [], sales: [], sale_items: [], cash_reports: [],
     // Achats
     suppliers: [], purchase_orders: [], purchase_order_lines: [], purchase_receipts: [],
+    supplier_documents: [], supplier_products: [],
     // Transport
     transport_providers: [], vehicles: [], transport_routes: [],
     transport_needs: [], transport_bookings: [], transport_manifests: [], transport_costs: [],

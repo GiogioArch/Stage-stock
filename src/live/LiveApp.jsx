@@ -96,7 +96,6 @@ export default function LiveApp() {
         backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         borderBottom: `1px solid ${EK.cardBorder}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative',
       }}>
         <img
           src="https://images.squarespace-cdn.com/content/6674cfe71695a578165178c4/2bae59e9-2a91-41ba-80db-8bc7f5aba758/Logo+EK25+Ce%CC%81le%CC%81bration-09.png?content-type=image%2Fpng"

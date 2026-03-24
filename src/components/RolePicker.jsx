@@ -94,8 +94,7 @@ export default function RolePicker({ roles, onRoleSelected }) {
         })
       }
     } catch (e) {
-      // Non-bloquant : le module_access sera par défaut
-      console.warn('module_access update failed:', e.message)
+      onToast('Accès modules non sauvegardé', '#E8935A')
     }
 
     onRoleSelected(selected)

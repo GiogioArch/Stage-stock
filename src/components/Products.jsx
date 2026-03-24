@@ -66,7 +66,7 @@ export default function Products({ products, families, subfamilies, stock, locat
   // Category stats for header
   const merchCount = products.filter(p => p.category === 'merch').length
   const matCount = products.filter(p => p.category === 'materiel').length
-  const consoCount = products.filter(p => p.category === 'consommable').length
+  const consoCount = products.filter(p => p.category === 'consommables').length
 
   return (
     <>

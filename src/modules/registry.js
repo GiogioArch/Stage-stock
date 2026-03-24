@@ -90,17 +90,7 @@ export const MODULES = {
     order: 50,
     tab: { id: 'finance', label: 'Finance', icon: 'coins' },
   },
-  alertes: {
-    id: 'alertes',
-    name: 'Alertes',
-    icon: 'bell',
-    color: '#D4648A',
-    description: 'Notifications de rupture, stock bas et échéances',
-    tables: {},
-    deps: ['stock'],
-    order: 60,
-    tab: { id: 'alertes', label: 'Alertes', icon: 'bell' },
-  },
+  // alertes: fusionné dans StockHub (sous-onglet) et Board (bandeau)
   timeline: {
     id: 'timeline',
     name: 'Mode Événement',
@@ -152,6 +142,8 @@ export const MODULES = {
       purchase_orders: 'order=created_at.desc',
       purchase_order_lines: '',
       purchase_receipts: '',
+      supplier_documents: 'order=doc_date.desc',
+      supplier_products: '',
     },
     deps: ['articles', 'stock'],
     order: 55,
@@ -191,7 +183,7 @@ export const MODULES = {
 
 // Modules actifs par défaut pour un nouveau compte
 export const DEFAULT_ACTIVE = [
-  'dashboard', 'tournee', 'articles', 'stock', 'equipe', 'timeline', 'alertes',
+  'dashboard', 'tournee', 'articles', 'stock', 'equipe', 'timeline', 'ventes',
 ]
 
 // ─── Helpers ───
@@ -253,7 +245,7 @@ export const TAB_GROUPS = [
   { id: 'tournee', label: 'Concert', icon: 'tent', tabIds: ['tournee', 'timeline', 'ventes'] },
   { id: 'stock-group', label: 'Stock', icon: 'package', tabIds: ['stock_hub', 'articles', 'achats', 'inventaire'] },
   { id: 'equipe', label: 'Équipe', icon: 'users', tabIds: ['equipe'] },
-  { id: 'more', label: 'Plus', icon: 'more-horizontal', tabIds: ['finance', 'forecast', 'ventes', 'transport', 'settings'] },
+  { id: 'more', label: 'Plus', icon: 'more-horizontal', tabIds: ['finance', 'forecast', 'transport', 'settings'] },
 ]
 
 // Build the tab list for active modules, sorted by order

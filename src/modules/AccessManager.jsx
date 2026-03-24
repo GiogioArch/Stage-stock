@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback, createElement } from 'react'
+import React, { useState, useEffect, useCallback, createElement, lazy, Suspense } from 'react'
 import { BarChart3, Calendar, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, Settings as SettingsGear, Box } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { ROLE_CONF } from '../config/roles'
 import { MODULES } from './registry'
 import { Modal } from '../components/UI'
 import { useToast } from '../shared/hooks'
+
+const InviteQR = lazy(() => import('../components/InviteQR'))
 
 const MOD_ICONS = {
   'bar-chart-3': BarChart3, tent: Calendar, package: Package, warehouse: Warehouse,
@@ -19,7 +21,6 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
   const [loading, setLoading] = useState(true)
   const [editingMember, setEditingMember] = useState(null)
   const [inviteMode, setInviteMode] = useState(false)
-  const [inviteEmail, setInviteEmail] = useState('')
 
   const isAdmin = membership?.is_admin
 
@@ -37,28 +38,6 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
       setLoading(false)
-    }
-  }
-
-  // ─── Invite new member ───
-  const handleInvite = async () => {
-    if (!inviteEmail.trim() || !isAdmin) return
-    try {
-      await db.insert('project_members', {
-        user_id: '00000000-0000-0000-0000-000000000000', // placeholder until user logs in
-        org_id: membership.org_id,
-        email: inviteEmail.trim(),
-        module_access: ['dashboard', 'equipe'],
-        is_admin: false,
-        status: 'invited',
-        invited_by: membership.user_id,
-      })
-      onToast('Invitation envoyée')
-      setInviteEmail('')
-      setInviteMode(false)
-      loadMembers()
-    } catch (e) {
-      onToast('Erreur: ' + e.message, '#D4648A')
     }
   }
 
@@ -244,31 +223,11 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
         </div>
       )}
 
-      {/* ─── Invite Modal ─── */}
+      {/* ─── Invite QR Modal ─── */}
       {inviteMode && (
-        <Modal title="Inviter un membre" onClose={() => setInviteMode(false)}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8' }}>Email</label>
-            <input
-              type="email"
-              value={inviteEmail}
-              onChange={e => setInviteEmail(e.target.value)}
-              placeholder="email@exemple.com"
-              autoFocus
-              style={{
-                width: '100%', padding: '12px 14px', borderRadius: 12,
-                border: '1px solid #CBD5E1', fontSize: 14, marginTop: 6,
-              }}
-            />
-          </div>
-          <button onClick={handleInvite} disabled={!inviteEmail.trim()} style={{
-            width: '100%', padding: 14, borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: inviteEmail.trim() ? '#8B6DB8' : '#CBD5E1',
-            color: 'white', border: 'none', cursor: inviteEmail.trim() ? 'pointer' : 'not-allowed',
-          }}>
-            Envoyer l'invitation
-          </button>
-        </Modal>
+        <Suspense fallback={null}>
+          <InviteQR membership={membership} onClose={() => setInviteMode(false)} />
+        </Suspense>
       )}
 
       {/* ─── Edit Member Modal ─── */}

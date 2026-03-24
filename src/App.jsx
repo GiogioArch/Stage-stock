@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from 'react'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
 import { useToast, useAuth, usePersonalData, useProjectData, ProjectProvider } from './shared/hooks'
+import { db } from './lib/supabase'
 
 // ─── Critical components (loaded immediately) ───
-import Landing from './components/Landing'
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
 
 // ─── Previously critical, now lazy-loaded for bundle size ───
@@ -16,7 +16,6 @@ const Scanner = lazy(() => import('./components/Scanner'))
 const Melodie = lazy(() => import('./components/Melodie'))
 const Products = lazy(() => import('./components/Products'))
 const Movements = lazy(() => import('./components/Movements'))
-const Alerts = lazy(() => import('./components/Alerts'))
 const Tour = lazy(() => import('./components/Tour'))
 const Equipe = lazy(() => import('./components/Equipe'))
 const Finance = lazy(() => import('./components/Finance'))
@@ -24,6 +23,7 @@ const Forecast = lazy(() => import('./components/Forecast'))
 const EventTimeline = lazy(() => import('./components/EventTimeline'))
 const Transport = lazy(() => import('./components/Transport'))
 const ConcertMode = lazy(() => import('./components/ConcertMode'))
+const SalesAnalytics = lazy(() => import('./components/SalesAnalytics'))
 const Achats = lazy(() => import('./components/Achats'))
 const Inventaire = lazy(() => import('./components/Inventaire'))
 const StockHub = lazy(() => import('./components/StockHub'))
@@ -65,10 +65,59 @@ const PERSONAL_TABS = [
   { id: 'profile', label: 'Profil', Icon: User },
 ]
 
+// ─── Ventes Module (sub-tabs: Analytics + Mode Concert) ───
+function VentesModule({ products, stock, locations, events, sales, saleItems, onNavigate }) {
+  const [subTab, setSubTab] = useState('analytics')
+  const ACCENT = '#5DAB8B'
+
+  if (subTab === 'pos') {
+    return (
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' }}>Chargement...</div>}>
+        <ConcertMode
+          products={products}
+          stock={stock}
+          locations={locations}
+          events={events}
+          onClose={() => setSubTab('analytics')}
+        />
+      </Suspense>
+    )
+  }
+
+  return (
+    <div style={{ paddingBottom: 80 }}>
+      {/* Sub-tabs */}
+      <div style={{
+        display: 'flex', gap: 6, padding: '12px 16px',
+        position: 'sticky', top: 0, zIndex: 10, background: '#F8FAFC',
+      }}>
+        {[
+          { id: 'analytics', label: 'Analyse' },
+          { id: 'pos', label: 'Mode Concert' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setSubTab(t.id)} style={{
+            padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 600,
+            background: subTab === t.id ? ACCENT : '#F1F5F9',
+            color: subTab === t.id ? 'white' : '#64748B',
+            border: 'none', cursor: 'pointer',
+          }}>{t.label}</button>
+        ))}
+      </div>
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' }}>Chargement...</div>}>
+        <SalesAnalytics
+          sales={sales}
+          saleItems={saleItems}
+          products={products}
+          events={events}
+        />
+      </Suspense>
+    </div>
+  )
+}
+
 export default function App() {
   // ─── Auth (from context) ───
   const { user, setUser, logout: authLogout } = useAuth()
-  const showToast = useToast()
   const [legalPage, setLegalPage] = useState(null) // 'cgu' | 'privacy' | null
 
   // ─── Layer navigation: 'personal' (couche 2) | 'project' (couche 3) ───
@@ -114,6 +163,47 @@ export default function App() {
     window.addEventListener('offline', off)
     return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
   }, [])
+
+  // ─── Handle invite token for already-logged-in users ───
+  useEffect(() => {
+    if (!user) return
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('invite')
+    if (!token) return
+    // Clean URL immediately
+    const url = new URL(window.location.href)
+    url.searchParams.delete('invite')
+    window.history.replaceState({}, '', url.pathname + url.search)
+    // Auto-join
+    ;(async () => {
+      try {
+        const invites = await db.get('project_invitations', `token=eq.${token}&accepted_at=is.null`)
+        if (!invites || invites.length === 0) return
+        const invite = invites[0]
+        if (invite.expires_at && new Date(invite.expires_at) < new Date()) return
+        // Check if user is already a member
+        const existing = await db.get('project_members',
+          `user_id=eq.${user.id}&org_id=eq.${invite.org_id}&status=eq.active`)
+        if (existing && existing.length > 0) {
+          // Already member — just enter the project
+          const orgs = await db.get('organizations', `id=eq.${invite.org_id}`)
+          const org = orgs?.[0] || { id: invite.org_id, name: 'Projet' }
+          enterProject({ ...existing[0], org })
+          return
+        }
+        const members = await db.insert('project_members', {
+          user_id: user.id, org_id: invite.org_id,
+          module_access: ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'finance', 'forecast'],
+          is_admin: false, status: 'active',
+        })
+        try { await db.update('project_invitations', `id=eq.${invite.id}`, { accepted_at: new Date().toISOString() }) } catch {}
+        const orgs = await db.get('organizations', `id=eq.${invite.org_id}`)
+        const org = orgs?.[0] || { id: invite.org_id, name: 'Projet' }
+        loadPersonalData()
+        enterProject({ ...members[0], org })
+      } catch { /* ignore */ }
+    })()
+  }, [user])
 
   // ─── Legal page listener (from Landing) ───
   useEffect(() => {
@@ -476,8 +566,8 @@ export default function App() {
               border: '1px solid #E2E8F0', cursor: 'pointer',
             }}><Camera size={16} color="#64748B" /></button>
           )}
-          {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('alertes') && (
-            <button onClick={() => handleTabChange('alertes')} style={{
+          {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('stock') && (
+            <button onClick={() => handleTabChange('stock_hub')} style={{
               padding: '4px 10px', borderRadius: 6, background: 'rgba(212,100,138,0.12)',
               border: '1px solid rgba(212,100,138,0.15)', color: '#D4648A', fontSize: 11, fontWeight: 500,
               animation: 'pulse 2s infinite', display: 'flex', alignItems: 'center', gap: 4,
@@ -563,8 +653,8 @@ export default function App() {
           <span>Concert</span>
         </button>
         {/* 3. Stock */}
-        <button className={`nav-tab ${['stock_hub', 'articles', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? 'active' : ''}`}
-          style={['stock_hub', 'articles', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? { color: '#5B8DB8' } : undefined}
+        <button className={`nav-tab ${['stock_hub', 'articles', 'stock', 'inventaire', 'achats'].includes(tab) ? 'active' : ''}`}
+          style={['stock_hub', 'articles', 'stock', 'inventaire', 'achats'].includes(tab) ? { color: '#5B8DB8' } : undefined}
           onClick={() => handleTabChange('stock_hub')}
           aria-label="Stock">
           <span className="nav-icon"><Package size={18} /></span>
@@ -775,21 +865,6 @@ function TabContent({
           sales={data.sales}
         />
       )
-    case 'alertes':
-      return (
-        <StockHub
-          locations={data.locations}
-          stock={filteredStock}
-          products={filteredProducts}
-          movements={filteredMovements}
-          families={data.families}
-          subfamilies={data.subfamilies}
-          alerts={alerts}
-          events={data.events}
-          onMovement={onMovement}
-          initialTab="alertes"
-        />
-      )
     case 'timeline': {
       const timelineEvent = data.events?.length > 0
         ? (data.events.find(e => e.date >= new Date().toISOString().split('T')[0]) || data.events[data.events.length - 1])
@@ -819,7 +894,10 @@ function TabContent({
           suppliers={data.suppliers}
           purchaseOrders={data.purchase_orders}
           purchaseOrderLines={data.purchase_order_lines}
+          supplierDocuments={data.supplier_documents}
+          supplierProducts={data.supplier_products}
           products={filteredProducts}
+          stock={filteredStock}
           locations={data.locations}
         />
       )
@@ -833,12 +911,14 @@ function TabContent({
       )
     case 'ventes':
       return (
-        <ConcertMode
+        <VentesModule
           products={filteredProducts}
           stock={filteredStock}
           locations={data.locations}
           events={data.events}
-          onClose={() => onNavigate('board')}
+          sales={data.sales}
+          saleItems={data.sale_items}
+          onNavigate={onNavigate}
         />
       )
     case 'transport':
@@ -860,7 +940,7 @@ function TabContent({
           activeModuleIds={activeModuleIds}
           onModulesChanged={onModulesChanged}
           roles={data.roles}
-          userProfiles={data.project_members}
+          userProfiles={data.user_profiles}
         />
       )
     default:
