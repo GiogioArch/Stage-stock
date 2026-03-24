@@ -15,7 +15,6 @@ const Scanner = lazy(() => import('./components/Scanner'))
 const Melodie = lazy(() => import('./components/Melodie'))
 const Products = lazy(() => import('./components/Products'))
 const Movements = lazy(() => import('./components/Movements'))
-const Alerts = lazy(() => import('./components/Alerts'))
 const Tour = lazy(() => import('./components/Tour'))
 const Equipe = lazy(() => import('./components/Equipe'))
 const Finance = lazy(() => import('./components/Finance'))
@@ -474,8 +473,8 @@ export default function App() {
               border: '1px solid #E2E8F0', cursor: 'pointer',
             }}><Camera size={16} color="#64748B" /></button>
           )}
-          {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('alertes') && (
-            <button onClick={() => handleTabChange('alertes')} style={{
+          {alerts.filter(a => a.level === 'rupture').length > 0 && isModuleActive('stock') && (
+            <button onClick={() => handleTabChange('stock_hub')} style={{
               padding: '4px 10px', borderRadius: 6, background: 'rgba(212,100,138,0.12)',
               border: '1px solid rgba(212,100,138,0.15)', color: '#D4648A', fontSize: 11, fontWeight: 500,
               animation: 'pulse 2s infinite', display: 'flex', alignItems: 'center', gap: 4,
@@ -561,8 +560,8 @@ export default function App() {
           <span>Concert</span>
         </button>
         {/* 3. Stock */}
-        <button className={`nav-tab ${['stock_hub', 'articles', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? 'active' : ''}`}
-          style={['stock_hub', 'articles', 'stock', 'inventaire', 'achats', 'alertes'].includes(tab) ? { color: '#5B8DB8' } : undefined}
+        <button className={`nav-tab ${['stock_hub', 'articles', 'stock', 'inventaire', 'achats'].includes(tab) ? 'active' : ''}`}
+          style={['stock_hub', 'articles', 'stock', 'inventaire', 'achats'].includes(tab) ? { color: '#5B8DB8' } : undefined}
           onClick={() => handleTabChange('stock_hub')}
           aria-label="Stock">
           <span className="nav-icon"><Package size={18} /></span>
@@ -771,21 +770,6 @@ function TabContent({
           depreciation={data.product_depreciation}
           expenses={data.expenses}
           sales={data.sales}
-        />
-      )
-    case 'alertes':
-      return (
-        <StockHub
-          locations={data.locations}
-          stock={filteredStock}
-          products={filteredProducts}
-          movements={filteredMovements}
-          families={data.families}
-          subfamilies={data.subfamilies}
-          alerts={alerts}
-          events={data.events}
-          onMovement={onMovement}
-          initialTab="alertes"
         />
       )
     case 'timeline': {

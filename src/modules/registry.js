@@ -90,17 +90,7 @@ export const MODULES = {
     order: 50,
     tab: { id: 'finance', label: 'Finance', icon: 'coins' },
   },
-  alertes: {
-    id: 'alertes',
-    name: 'Alertes',
-    icon: 'bell',
-    color: '#D4648A',
-    description: 'Notifications de rupture, stock bas et échéances',
-    tables: {},
-    deps: ['stock'],
-    order: 60,
-    tab: { id: 'alertes', label: 'Alertes', icon: 'bell' },
-  },
+  // alertes: fusionné dans StockHub (sous-onglet) et Board (bandeau)
   timeline: {
     id: 'timeline',
     name: 'Mode Événement',
@@ -193,7 +183,7 @@ export const MODULES = {
 
 // Modules actifs par défaut pour un nouveau compte
 export const DEFAULT_ACTIVE = [
-  'dashboard', 'tournee', 'articles', 'stock', 'equipe', 'timeline', 'alertes',
+  'dashboard', 'tournee', 'articles', 'stock', 'equipe', 'timeline',
 ]
 
 // ─── Helpers ───

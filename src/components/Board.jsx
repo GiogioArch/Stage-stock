@@ -349,7 +349,7 @@ export default function Board({
         {/* ═══ 2. BANDEAU ALERTES (seulement si problèmes + section visible) ═══ */}
         {sections.alerts && (criticalAlerts.length > 0 || lowAlerts.length > 0) && (
           <div
-            onClick={() => onNavigate('alertes')}
+            onClick={() => onNavigate('stock_hub')}
             style={{
               display: 'flex', alignItems: 'center', gap: SPACE.md,
               padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
