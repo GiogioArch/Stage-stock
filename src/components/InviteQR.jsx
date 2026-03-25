@@ -57,7 +57,7 @@ export default function InviteQR({ membership, onClose }) {
       expires.setDate(expires.getDate() + 30) // 30 days validity
 
       await db.insert('project_invitations', {
-        project_id: membership.org_id, // legacy column
+        project_id: membership.project_id || membership.org_id,
         org_id: membership.org_id,
         token: newToken,
         role: 'member',

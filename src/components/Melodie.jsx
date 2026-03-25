@@ -254,6 +254,7 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
       const members = await db.insert('project_members', {
         user_id: currentUser.id,
         org_id: invite.org_id,
+        project_id: invite.project_id,
         module_access: ALL_MODULES,
         is_admin: false,
         status: 'active',
