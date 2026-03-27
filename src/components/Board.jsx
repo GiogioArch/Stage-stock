@@ -405,7 +405,9 @@ export default function Board({
                 onOpenScanner && onOpenScanner()
                 return
               }
-              onNavigate(key)
+              // Map board keys to their actual tab IDs
+              const TAB_MAP = { stock: 'stock_hub' }
+              onNavigate(TAB_MAP[key] || key)
             }
             return (
               <button

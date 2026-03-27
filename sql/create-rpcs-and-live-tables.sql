@@ -199,18 +199,27 @@ CREATE POLICY live_songs_manage ON live_songs
   );
 
 -- live_reactions : tout le monde peut insérer et lire
+-- Limite : max 50 réactions par fan_id par event (anti-spam)
 DROP POLICY IF EXISTS live_reactions_insert ON live_reactions;
 CREATE POLICY live_reactions_insert ON live_reactions
-  FOR INSERT TO anon, authenticated WITH CHECK (true);
+  FOR INSERT TO anon, authenticated WITH CHECK (
+    char_length(fan_id) BETWEEN 1 AND 64
+    AND (SELECT count(*) FROM live_reactions lr
+         WHERE lr.fan_id = live_reactions.fan_id
+         AND lr.event_id = live_reactions.event_id) < 50
+  );
 
 DROP POLICY IF EXISTS live_reactions_select ON live_reactions;
 CREATE POLICY live_reactions_select ON live_reactions
   FOR SELECT TO anon, authenticated USING (true);
 
 -- live_votes : tout le monde peut insérer et lire
+-- UNIQUE(event_id, song_id, fan_id) empêche les doublons, on valide juste fan_id
 DROP POLICY IF EXISTS live_votes_insert ON live_votes;
 CREATE POLICY live_votes_insert ON live_votes
-  FOR INSERT TO anon, authenticated WITH CHECK (true);
+  FOR INSERT TO anon, authenticated WITH CHECK (
+    char_length(fan_id) BETWEEN 1 AND 64
+  );
 
 DROP POLICY IF EXISTS live_votes_select ON live_votes;
 CREATE POLICY live_votes_select ON live_votes

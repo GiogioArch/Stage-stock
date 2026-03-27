@@ -107,8 +107,8 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
       {/* Header */}
       <div className="card" style={{
         padding: '16px', marginBottom: 16,
-        background: 'linear-gradient(135deg, #8B6DB808, #8B6DB818)',
-        border: '1px solid #8B6DB825',
+        background: 'linear-gradient(135deg, #E8735A08, #E8735A18)',
+        border: '1px solid #E8735A25',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
@@ -122,7 +122,7 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
           {isAdmin && (
             <button onClick={() => setInviteMode(true)} style={{
               padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-              background: '#8B6DB8', color: 'white', border: 'none', cursor: 'pointer',
+              background: '#E8735A', color: 'white', border: 'none', cursor: 'pointer',
             }}>
               + Inviter
             </button>
@@ -262,10 +262,10 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
     )
   }
 
-  const handleSave = () => {
-    onUpdateModules(localModules)
+  const handleSave = async () => {
+    await onUpdateModules(localModules)
     if (localRoleId !== (member.role_id || '')) {
-      onUpdateRole(localRoleId || null)
+      await onUpdateRole(localRoleId || null)
     }
     onClose()
   }
@@ -393,7 +393,7 @@ function MemberEditor({ member, roles, modules, onUpdateModules, onUpdateRole, o
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleSave} style={{
             flex: 1, padding: 14, borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: '#8B6DB8', color: 'white', border: 'none', cursor: 'pointer',
+            background: '#E8735A', color: 'white', border: 'none', cursor: 'pointer',
           }}>
             Sauvegarder
           </button>

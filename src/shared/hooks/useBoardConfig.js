@@ -35,8 +35,11 @@ export function useBoardConfig() {
     // Filter: only show modules that are in the order AND not hidden
     // Also ensure all DEFAULT keys that aren't in order get appended
     const allKeys = [...new Set([...order, ...DEFAULT_BOARD_KEYS])]
-    return allKeys.filter(k => !hidden.includes(k))
-  }, [config.board_order, config.hidden])
+    return allKeys.filter(k =>
+      !hidden.includes(k) &&
+      (allowedModules.length === 0 || allowedModules.includes(k) || ['scanner', 'packing'].includes(k))
+    )
+  }, [config.board_order, config.hidden, allowedModules])
 
   // Full order including hidden (for edit mode)
   const allBoardKeys = useMemo(() => {
