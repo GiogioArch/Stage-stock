@@ -1,6 +1,6 @@
 import React, { useState, createElement } from 'react'
 import { db } from '../lib/supabase'
-import { Check, Loader2, ChevronDown, Users, Crown, ClipboardList } from 'lucide-react'
+import { Check, Loader2, ChevronDown, Users, Crown, ClipboardList, Settings, Target } from 'lucide-react'
 import { useAuth, useProject, useToast } from '../shared/hooks'
 import { ROLE_CONF, ROLE_INHERITS, ROLE_MODULES, getInheritedModules } from '../config/roles'
 

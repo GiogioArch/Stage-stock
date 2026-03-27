@@ -12,21 +12,26 @@ export default function MyProjects({ allProjects, onOpenProject, onProjectsChang
   const [editingProject, setEditingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  const [confirmName, setConfirmName] = useState('')
 
   const active = allProjects.filter(p => p.status !== 'archived')
   const archived = allProjects.filter(p => p.status === 'archived')
 
+  const projectName = deletingProject?.org?.name || ''
+  const confirmMatch = confirmName.trim().toLowerCase() === projectName.trim().toLowerCase()
+
   const handleDelete = async () => {
-    if (!deletingProject) return
+    if (!deletingProject || !confirmMatch) return
     setDeleting(true)
     try {
       const data = await db.rpc('delete_project_atomic', { p_org_id: deletingProject.org_id })
       if (data && !data.success) throw new Error(data.error)
       onToast('Projet supprimé')
       setDeletingProject(null)
+      setConfirmName('')
       onProjectsChanged()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#8B6DB8')
+      onToast('Erreur: ' + e.message, '#D4648A')
     } finally {
       setDeleting(false)
     }
@@ -56,25 +61,51 @@ export default function MyProjects({ allProjects, onOpenProject, onProjectsChang
       {deletingProject && (
         <div className="card" style={{
           padding: 20, marginBottom: 14,
-          border: '2px solid #8B6DB830', background: '#FDF0F4',
+          border: '2px solid #D4648A30', background: '#FDF0F4',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#8B6DB8', marginBottom: 8, textAlign: 'center' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#D4648A', marginBottom: 8, textAlign: 'center' }}>
             Supprimer ce projet ?
           </div>
-          <div style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
-            <strong>{deletingProject.org?.name}</strong><br />
-            Cette action est irréversible. Toutes les données du projet seront perdues.
+          <div style={{ fontSize: 12, color: '#64748B', textAlign: 'center', marginBottom: 12, lineHeight: 1.5 }}>
+            Cette action est <strong>irréversible</strong>. Toutes les données du projet
+            seront définitivement perdues (articles, stock, événements, ventes, membres...).
+          </div>
+          <div style={{
+            padding: '10px 14px', borderRadius: 10, marginBottom: 14,
+            background: 'white', border: '1px solid #E2E8F0',
+          }}>
+            <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, fontWeight: 600 }}>
+              Pour confirmer, tape le nom du projet :
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#D4648A', marginBottom: 8 }}>
+              {projectName}
+            </div>
+            <input
+              type="text"
+              value={confirmName}
+              onChange={e => setConfirmName(e.target.value)}
+              placeholder="Tape le nom ici..."
+              autoFocus
+              style={{
+                width: '100%', padding: '10px 12px', borderRadius: 8, fontSize: 13,
+                border: `1.5px solid ${confirmMatch ? '#5DAB8B' : '#E2E8F0'}`,
+                outline: 'none', background: confirmMatch ? '#5DAB8B08' : '#F8FAFC',
+              }}
+            />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => setDeletingProject(null)} style={{
+            <button onClick={() => { setDeletingProject(null); setConfirmName('') }} style={{
               flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 700,
               background: '#F1F5F9', color: '#94A3B8', cursor: 'pointer', border: '1px solid #E2E8F0',
             }}>Annuler</button>
-            <button onClick={handleDelete} disabled={deleting} style={{
+            <button onClick={handleDelete} disabled={!confirmMatch || deleting} style={{
               flex: 1, padding: 12, borderRadius: 8, fontSize: 13, fontWeight: 600,
-              background: '#8B6DB8', color: 'white', cursor: 'pointer', border: 'none',
+              background: confirmMatch ? '#D4648A' : '#E2E8F0',
+              color: confirmMatch ? 'white' : '#94A3B8',
+              cursor: confirmMatch && !deleting ? 'pointer' : 'not-allowed', border: 'none',
               opacity: deleting ? 0.6 : 1,
-            }}>{deleting ? 'Suppression...' : 'Supprimer'}</button>
+              transition: 'all 0.2s ease',
+            }}>{deleting ? 'Suppression...' : 'Supprimer définitivement'}</button>
           </div>
         </div>
       )}
@@ -203,13 +234,15 @@ function ProjectRow({ project, onOpen, onEdit, onDelete }) {
           }}>
             {createElement(Pencil, { size: 14 })} Modifier
           </button>
-          <button onClick={() => { setShowMenu(false); onDelete() }} style={{
-            display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-            padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-            background: 'none', border: 'none', cursor: 'pointer', color: '#8B6DB8',
-          }}>
-            <span></span> Supprimer
-          </button>
+          {project.is_admin && (
+            <button onClick={() => { setShowMenu(false); onDelete() }} style={{
+              display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+              padding: '10px 12px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+              background: 'none', border: 'none', cursor: 'pointer', color: '#D4648A',
+            }}>
+              Supprimer
+            </button>
+          )}
         </div>
       )}
     </div>

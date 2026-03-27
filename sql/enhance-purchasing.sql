@@ -95,7 +95,7 @@ BEGIN
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('DROP POLICY IF EXISTS %I ON %I', 'allow_auth_' || t, t);
     EXECUTE format(
-      'CREATE POLICY %I ON %I FOR ALL TO authenticated USING (true) WITH CHECK (true)',
+      'CREATE POLICY %I ON %I FOR ALL TO authenticated USING (org_id IN (SELECT get_user_org_ids(auth.uid()))) WITH CHECK (org_id IN (SELECT get_user_org_ids(auth.uid())))',
       'allow_auth_' || t, t
     );
   END LOOP;

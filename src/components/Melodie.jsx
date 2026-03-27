@@ -250,15 +250,22 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
         localStorage.removeItem('pending_invite_token')
         return false
       }
-      // Create project_members entry
-      const members = await db.insert('project_members', {
-        user_id: currentUser.id,
-        org_id: invite.org_id,
-        project_id: invite.project_id,
-        module_access: ALL_MODULES,
-        is_admin: false,
-        status: 'active',
-      })
+      // Check if already a member
+      const existing = await db.get('project_members',
+        `user_id=eq.${currentUser.id}&org_id=eq.${invite.org_id}`)
+      let members
+      if (existing && existing.length > 0) {
+        members = existing
+      } else {
+        members = await db.insert('project_members', {
+          user_id: currentUser.id,
+          org_id: invite.org_id,
+          project_id: invite.project_id,
+          module_access: ALL_MODULES,
+          is_admin: false,
+          status: 'active',
+        })
+      }
       // Mark invite as accepted
       try {
         await db.update('project_invitations', `id=eq.${invite.id}`, {

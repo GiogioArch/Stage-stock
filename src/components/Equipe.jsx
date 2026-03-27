@@ -1,4 +1,4 @@
-import React, { useState, useMemo, createElement } from 'react'
+import React, { useState, useMemo, createElement, lazy, Suspense } from 'react'
 import { ROLE_CONF } from './RolePicker'
 import { db } from '../lib/supabase'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
@@ -8,8 +8,10 @@ import {
   ChevronDown, ChevronRight, Mail, Calendar,
   CheckCircle2, Circle, Clock, AlertTriangle,
   ClipboardList, Users, Search,
-  ArrowRight, Link2, Shield, Zap, Crown, UserCheck, X,
+  ArrowRight, Link2, Shield, Zap, Crown, UserCheck, X, Settings,
 } from 'lucide-react'
+
+const AccessManager = lazy(() => import('../modules/AccessManager'))
 
 const theme = getModuleTheme('equipe')
 
@@ -178,12 +180,13 @@ export default function Equipe({
   eventTasks, checklists, userAvailability,
 }) {
   const onToast = useToast()
-  const { orgId, reload, userRole } = useProject()
+  const { orgId, reload, userRole, membership, isAdmin } = useProject()
   const { user } = useAuth()
   const [expandedRole, setExpandedRole] = useState(null)
   const [expandedLevel, setExpandedLevel] = useState('direction')
   const [selectedMember, setSelectedMember] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showAccessManager, setShowAccessManager] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -284,7 +287,39 @@ export default function Equipe({
         ]}
       />
 
+      {/* ─── Access Manager (admin) ─── */}
+      {showAccessManager && (
+        <Suspense fallback={<div style={{ textAlign: 'center', padding: 40 }}><div className="loader" /></div>}>
+          <AccessManager
+            membership={membership}
+            roles={roles}
+            userProfiles={userProfiles}
+            onReload={reload}
+          />
+          <div style={{ padding: '0 16px 12px', textAlign: 'center' }}>
+            <button onClick={() => setShowAccessManager(false)} style={{
+              padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+              background: BASE.bgSurface, border: `1px solid ${BASE.border}`,
+              color: BASE.textSoft, cursor: 'pointer',
+            }}>Fermer la gestion des accès</button>
+          </div>
+        </Suspense>
+      )}
+
       <div style={{ padding: '0 16px' }}>
+
+      {/* ─── Admin access button ─── */}
+      {isAdmin && !showAccessManager && (
+        <button onClick={() => setShowAccessManager(true)} style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          width: '100%', padding: '10px 14px', borderRadius: 12, marginBottom: 14,
+          background: `${theme.color}08`, border: `1px solid ${theme.color}25`,
+          color: theme.color, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+        }}>
+          {createElement(Settings, { size: 16 })}
+          Gérer les accès et invitations
+        </button>
+      )}
 
       {/* ─── Search bar ─── */}
       <div style={{
