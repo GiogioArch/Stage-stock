@@ -56,23 +56,20 @@ export default function Onboarding({ user, onComplete, onToast }) {
         }
         setStep(1)
       } else if (step === 1) {
-        // Create organization + membership
+        // Création atomique via RPC (org + membership en 1 transaction)
         const slug = projectName.trim().toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 30)
-        const orgs = await db.insert('organizations', {
-          name: projectName.trim(),
-          slug: slug || 'projet',
+        const uniqueSlug = `${slug || 'projet'}-${Date.now().toString(36)}`
+        const result = await db.rpc('create_project', {
+          p_name: projectName.trim(),
+          p_slug: uniqueSlug,
+          p_modules: ALL_MODULES,
         })
-        const org = orgs[0]
+        if (!result || result.error) {
+          throw new Error(result?.error || 'Création échouée')
+        }
+        const org = { id: result.org_id, name: result.org_name, slug: result.org_slug }
         setCreatedOrg(org)
-
-        const members = await db.insert('project_members', {
-          user_id: user.id,
-          org_id: org.id,
-          module_access: ALL_MODULES,
-          is_admin: true,
-          status: 'active',
-        })
-        setCreatedMembership({ ...members[0], org })
+        setCreatedMembership({ id: result.member_id, org_id: result.org_id, org })
         setStep(2)
       } else if (step === 2) {
         // Save role

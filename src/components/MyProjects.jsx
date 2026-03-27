@@ -280,22 +280,23 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
     if (!name.trim()) return
     setSaving(true)
     try {
-      const orgs = await db.insert('organizations', {
-        name: name.trim(),
-        slug: slug || 'project',
+      const uniqueSlug = `${(slug || 'projet')}-${Date.now().toString(36)}`
+      const result = await db.rpc('create_project', {
+        p_name: name.trim(),
+        p_slug: uniqueSlug,
+        p_modules: ALL_MODULES,
       })
-      const org = orgs[0]
-      await db.insert('project_members', {
-        user_id: userId,
-        org_id: org.id,
-        module_access: ALL_MODULES,
-        is_admin: true,
-        status: 'active',
-      })
+      if (!result || result.error) {
+        throw new Error(result?.error || 'Création échouée')
+      }
       onToast('Projet créé !')
       onCreated()
     } catch (e) {
-      onToast('Erreur: ' + e.message, '#7C3AED')
+      let msg = e.message || 'Erreur inconnue'
+      if (msg.includes('duplicate') || msg.includes('unique')) {
+        msg = 'Un projet avec cet identifiant existe déjà.'
+      }
+      onToast('Erreur: ' + msg, '#DC2626')
     } finally {
       setSaving(false)
     }

@@ -54,7 +54,7 @@ export default function PackingList({ event, products, stock, locations, roles, 
     setGenerating(true)
     try {
       await db.rpc('generate_packing_list', { p_event_id: event.id })
-      onToast('Packing list generee')
+      onToast('Packing list générée')
       onReload()
     } catch (e) {
       onToast('Erreur: ' + e.message, '#DC2626')

@@ -133,7 +133,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                 {roleConf.label}
               </div>
               <div style={{ fontSize: 12, color: COLOR.textSecondary, fontWeight: 600 }}>
-                {isAdmin ? 'Vue complete — tous les stocks' : `${totalProducts} produit${totalProducts > 1 ? 's' : ''} sous ta responsabilite`}
+                {isAdmin ? 'Vue complète — tous les stocks' : `${totalProducts} produit${totalProducts > 1 ? 's' : ''} sous ta responsabilité`}
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                 Mon packing — {nextEvent.name || nextEvent.lieu}
               </div>
               <div style={{ fontSize: 11, color: COLOR.textSecondary }}>
-                {packingDone}/{packingTotal} items prets
+                {packingDone}/{packingTotal} items prêts
               </div>
             </div>
             <div style={{
@@ -231,7 +231,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
       {/* ─── Quick Actions ─── */}
       <div className="section-title">Actions rapides</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
-        <QuickBtn icon={ArrowDownToLine} label="Entree" color={COLOR.success} onClick={() => onQuickAction('in')} />
+        <QuickBtn icon={ArrowDownToLine} label="Entrée" color={COLOR.success} onClick={() => onQuickAction('in')} />
         <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={COLOR.danger} onClick={() => onQuickAction('out')} />
         <QuickBtn icon={RefreshCw} label="Transfert" color={COLOR.info} onClick={() => onQuickAction('transfer')} />
       </div>
@@ -341,7 +341,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
                       background: COLOR.success,
                       height: `${Math.max(2, (d.in / maxMoveVal) * 80)}px`,
                       transition: 'height 0.3s',
-                    }} title={`Entrees: ${d.in}`} />
+                    }} title={`Entrées: ${d.in}`} />
                     <div style={{
                       flex: 1, borderRadius: '4px 4px 0 0',
                       background: COLOR.danger,
@@ -355,7 +355,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 10 }}>
               <span style={{ fontSize: 10, color: COLOR.success, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: COLOR.success, display: 'inline-block' }} /> Entrees
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: COLOR.success, display: 'inline-block' }} /> Entrées
               </span>
               <span style={{ fontSize: 10, color: COLOR.danger, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: 2, background: COLOR.danger, display: 'inline-block' }} /> Sorties

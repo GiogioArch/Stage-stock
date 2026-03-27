@@ -95,7 +95,7 @@ export function fmtDate(iso) {
 // ─── Movement config ───
 export function getMoveConf(type) {
   const conf = {
-    in: { icon: ArrowDownToLine, color: '#16A34A', label: 'Entree', bg: 'rgba(47,182,93,0.08)' },
+    in: { icon: ArrowDownToLine, color: '#16A34A', label: 'Entrée', bg: 'rgba(47,182,93,0.08)' },
     out: { icon: ArrowUpFromLine, color: '#DC2626', label: 'Sortie', bg: 'rgba(99,102,241,0.08)' },
     transfer: { icon: RefreshCw, color: '#2563EB', label: 'Transfert', bg: 'rgba(91,141,184,0.08)' },
   }

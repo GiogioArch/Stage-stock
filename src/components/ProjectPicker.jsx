@@ -184,29 +184,27 @@ function CreateProjectForm({ userId, onCreated, onCancel, onToast }) {
     setSaving(true)
     setError('')
     try {
-      // 1. Create org
-      const orgs = await db.insert('organizations', {
-        name: name.trim(),
-        slug: slug || 'project',
+      // Création atomique via RPC (org + membership en 1 transaction)
+      const uniqueSlug = `${(slug || 'projet')}-${Date.now().toString(36)}`
+      const result = await db.rpc('create_project', {
+        p_name: name.trim(),
+        p_slug: uniqueSlug,
+        p_modules: ALL_MODULES,
       })
-      if (!orgs || !orgs[0] || !orgs[0].id) {
-        throw new Error('La création du projet a échoué — vérifie que la policy org_insert existe dans Supabase')
+      if (!result || result.error) {
+        throw new Error(result?.error || 'La création du projet a échoué')
       }
-      const org = orgs[0]
-
-      // 2. Create membership as admin with all modules
-      await db.insert('project_members', {
-        user_id: userId,
-        org_id: org.id,
-        module_access: ALL_MODULES,
-        is_admin: true,
-        status: 'active',
-      })
 
       onToast('Projet créé !')
       onCreated()
     } catch (e) {
-      const msg = e.message || 'Erreur inconnue'
+      let msg = e.message || 'Erreur inconnue'
+      // Friendly message for common errors
+      if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('23505')) {
+        msg = 'Un projet avec cet identifiant existe déjà. Change le nom et réessaie.'
+      } else if (msg.includes('42501') || msg.includes('permission') || msg.includes('policy')) {
+        msg = 'Permission refusée — vérifie que tu es bien connecté.'
+      }
       setError(msg)
       onToast('Erreur: ' + msg, '#DC2626')
     } finally {

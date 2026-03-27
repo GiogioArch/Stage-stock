@@ -28,6 +28,7 @@ import PersonalDashboard from './components/PersonalDashboard'
 import MyProjects from './components/MyProjects'
 import Landing from './components/Landing'
 import Onboarding from './components/Onboarding'
+import MelodieWelcome from './components/MelodieWelcome'
 import Feedback from './components/Feedback'
 import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
@@ -76,6 +77,7 @@ export default function App() {
   const [userIncome, setUserIncome] = useState([])
   const [personalEvents, setPersonalEvents] = useState([])
   const [personalLoading, setPersonalLoading] = useState(true)
+  const [pendingInvitation, setPendingInvitation] = useState(null)
 
   // ─── Module state ───
   const [activeModuleIds, setActiveModules] = useState(getActiveModuleIds)
@@ -163,6 +165,40 @@ export default function App() {
         enriched = (memberships || []).map(m => ({ ...m, org: { name: 'Projet', slug: 'default' } }))
       }
       setAllProjects(enriched)
+
+      // Check for pending invitations by email (for newly registered users)
+      if (enriched.length === 0 && user.email) {
+        try {
+          const invites = await safe('project_members', `email=eq.${user.email}&status=eq.invited`)
+          if (invites && invites.length > 0) {
+            const inv = invites[0]
+            // Fetch org name and inviter name
+            let orgName = 'Projet'
+            let inviterName = ''
+            try {
+              const orgsData = await db.get('organizations', `id=eq.${inv.org_id}`)
+              if (orgsData && orgsData[0]) orgName = orgsData[0].name
+            } catch { /* silent */ }
+            try {
+              if (inv.invited_by) {
+                const profiles = await safe('user_details', `user_id=eq.${inv.invited_by}`)
+                if (profiles && profiles[0]?.first_name) inviterName = profiles[0].first_name
+              }
+            } catch { /* silent */ }
+            setPendingInvitation({
+              id: inv.id,
+              org_id: inv.org_id,
+              org_name: orgName,
+              invited_by_name: inviterName,
+              module_access: inv.module_access,
+            })
+          } else {
+            setPendingInvitation(null)
+          }
+        } catch { setPendingInvitation(null) }
+      } else {
+        setPendingInvitation(null)
+      }
 
       // Load user_details + gear + availability + income
       try {
@@ -432,7 +468,7 @@ export default function App() {
   if (personalLoading && allProjects.length === 0) return <SplashScreen text="Chargement..." />
 
   // ═══════════════════════════════════════════════
-  // ONBOARDING — First-time users
+  // MÉLODIE WELCOME — First-time users + invited users
   // ═══════════════════════════════════════════════
   const needsOnboarding = !personalLoading
     && allProjects.length === 0
@@ -442,8 +478,9 @@ export default function App() {
   if (needsOnboarding) {
     return (
       <>
-        <Onboarding
+        <MelodieWelcome
           user={user}
+          pendingInvitation={pendingInvitation}
           onComplete={(membership) => {
             if (membership) {
               enterProject(membership)

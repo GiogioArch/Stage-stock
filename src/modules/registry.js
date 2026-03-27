@@ -63,7 +63,7 @@ export const MODULES = {
     name: 'Gestion de stock',
     icon: 'clipboard-list',
     color: '#5DAB8B',
-    description: 'Mouvements d\'entree/sortie, transferts, inventaire et scanner',
+    description: 'Mouvements d\'entrée/sortie, transferts, inventaire et scanner',
     tables: {
       stock: '',
       movements: 'order=created_at.desc&limit=200',
@@ -77,7 +77,7 @@ export const MODULES = {
     name: 'Equipe',
     icon: 'users',
     color: '#9B7DC4',
-    description: 'Gestion de l\'equipe, roles et responsabilites',
+    description: 'Gestion de l\'équipe, rôles et responsabilités',
     tables: {
       user_profiles: 'order=display_name.asc',
       roles: 'order=code.asc',
