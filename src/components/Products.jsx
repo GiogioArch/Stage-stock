@@ -1,13 +1,15 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, lazy, Suspense } from 'react'
 import { useToast, useProject } from '../shared/hooks'
-import { Search, FileDown, Package, Plus, ChevronRight, Edit, Trash2, Filter } from 'lucide-react'
+import { Search, FileDown, Package, Plus, ChevronRight, Edit, Trash2, Filter, FileSpreadsheet } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
 import ProductDetail from './ProductDetail'
 import CSVImport from './CSVImport'
+import { PRODUCT_STATUS, getStatusConf } from '../lib/productStatus'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 
+const BulkStatusImport = lazy(() => import('./BulkStatusImport'))
 const theme = getModuleTheme('articles')
 
 export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking }) {
@@ -16,11 +18,13 @@ export default function Products({ products, families, subfamilies, stock, locat
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
   const [filterSubfam, setFilterSubfam] = useState('all')
+  const [filterStatus, setFilterStatus] = useState('active')
   const [modal, setModal] = useState(null)
   const [confirm, setConfirm] = useState(null)
 
   const filtered = useMemo(() => {
     let list = products
+    if (filterStatus !== 'all') list = list.filter(p => (p.product_status || 'active') === filterStatus)
     if (filterCat !== 'all') list = list.filter(p => p.category === filterCat)
     if (filterSubfam !== 'all') list = list.filter(p => p.subfamily_id === filterSubfam)
     if (search) {
@@ -32,7 +36,16 @@ export default function Products({ products, families, subfamilies, stock, locat
       )
     }
     return list.sort((a, b) => a.name.localeCompare(b.name))
-  }, [products, filterCat, filterSubfam, search])
+  }, [products, filterCat, filterSubfam, filterStatus, search])
+
+  // Status counts for filter pills
+  const statusCounts = useMemo(() => {
+    const counts = { all: products.length }
+    PRODUCT_STATUS.forEach(s => {
+      counts[s.id] = products.filter(p => (p.product_status || 'active') === s.id).length
+    })
+    return counts
+  }, [products])
 
   const availableSubfams = useMemo(() => {
     if (filterCat === 'all') return subfamilies
@@ -64,9 +77,11 @@ export default function Products({ products, families, subfamilies, stock, locat
   }
 
   // Category stats for header
-  const merchCount = products.filter(p => p.category === 'merch').length
-  const matCount = products.filter(p => p.category === 'materiel').length
-  const consoCount = products.filter(p => p.category === 'consommables').length
+  const activeProducts = products.filter(p => (p.product_status || 'active') === 'active')
+  const inactiveCount = products.length - activeProducts.length
+  const merchCount = activeProducts.filter(p => p.category === 'merch').length
+  const matCount = activeProducts.filter(p => p.category === 'materiel').length
+  const consoCount = activeProducts.filter(p => p.category === 'consommables').length
 
   return (
     <>
@@ -103,6 +118,7 @@ export default function Products({ products, families, subfamilies, stock, locat
           { value: merchCount, label: 'Merch' },
           { value: matCount, label: 'Matériel' },
           { value: consoCount, label: 'Conso' },
+          ...(inactiveCount > 0 ? [{ value: inactiveCount, label: 'Inactifs' }] : []),
         ]}
       />
 
@@ -144,12 +160,48 @@ export default function Products({ products, families, subfamilies, stock, locat
         />
       )}
 
+      {/* Status filter */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+        <button
+          onClick={() => setFilterStatus('all')}
+          style={{
+            padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
+            background: filterStatus === 'all' ? BASE.text : BASE.bgSurface,
+            color: filterStatus === 'all' ? 'white' : BASE.textMuted,
+            border: `1px solid ${filterStatus === 'all' ? BASE.text : BASE.border}`,
+            cursor: 'pointer',
+          }}
+        >Tous ({statusCounts.all})</button>
+        {PRODUCT_STATUS.map(st => (
+          statusCounts[st.id] > 0 || st.id === 'active' ? (
+            <button
+              key={st.id}
+              onClick={() => setFilterStatus(st.id)}
+              style={{
+                padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
+                background: filterStatus === st.id ? st.color : BASE.bgSurface,
+                color: filterStatus === st.id ? 'white' : st.color,
+                border: `1px solid ${filterStatus === st.id ? st.color : BASE.border}`,
+                cursor: 'pointer',
+              }}
+            >{st.label} ({statusCounts[st.id] || 0})</button>
+          ) : null
+        ))}
+      </div>
+
       {/* Product count + action buttons */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <span style={{ fontSize: 13, color: BASE.textMuted, fontWeight: 600 }}>
           {filtered.length} produit{filtered.length > 1 ? 's' : ''}
         </span>
         <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => setModal({ type: 'bulk_status' })} style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '8px 12px', borderRadius: RADIUS.sm, background: `${SEMANTIC.warning}12`,
+            border: `1px solid ${SEMANTIC.warning}30`, color: SEMANTIC.warning, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+          }}>
+            <FileSpreadsheet size={14} /> Statuts
+          </button>
           <button onClick={() => setModal({ type: 'csv' })} style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '8px 12px', borderRadius: RADIUS.sm, background: theme.tint08,
@@ -186,6 +238,7 @@ export default function Products({ products, families, subfamilies, stock, locat
             const qty = productStock(p.id)
             const isLow = qty <= (p.min_stock || 5)
             const isZero = qty === 0
+            const pStatus = getStatusConf(p.product_status)
             return (
               <div key={p.id} onClick={() => setModal({ type: 'detail', product: p })}
                 style={{
@@ -200,11 +253,19 @@ export default function Products({ products, families, subfamilies, stock, locat
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
                 }}>{p.image || (cat.icon && React.createElement(cat.icon, { size: 22 }))}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {p.name}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: pStatus.id !== 'active' ? BASE.textMuted : BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: pStatus.id === 'inactif' ? 'line-through' : 'none' }}>
+                      {p.name}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 11, color: BASE.textMuted, marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: BASE.textMuted, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
                     {p.sku} · <span style={{ color: cat.color }}>{cat.name}</span>
+                    {pStatus.id !== 'active' && (
+                      <span style={{
+                        padding: '1px 6px', borderRadius: 4, fontSize: 9, fontWeight: 700,
+                        background: pStatus.bg, color: pStatus.color,
+                      }}>{pStatus.label}</span>
+                    )}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -259,6 +320,17 @@ export default function Products({ products, families, subfamilies, stock, locat
         />
       )}
 
+      {/* Bulk Status Import */}
+      {modal?.type === 'bulk_status' && (
+        <Suspense fallback={null}>
+          <BulkStatusImport
+            products={products}
+            onDone={() => reload()}
+            onClose={() => setModal(null)}
+          />
+        </Suspense>
+      )}
+
       {/* Confirm dialog */}
       {confirm && (
         <Confirm
@@ -287,6 +359,7 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
   const [minStock, setMinStock] = useState(String(product?.min_stock ?? 5))
   const [variants, setVariants] = useState(product?.variants || '')
   const [image, setImage] = useState(product?.image || '')
+  const [productStatus, setProductStatus] = useState(product?.product_status || 'active')
   const [costHt, setCostHt] = useState(product?.cost_ht != null ? String(product.cost_ht) : '')
   const [purchaseDate, setPurchaseDate] = useState(product?.purchase_date || '')
   const [usefulLife, setUsefulLife] = useState(product?.useful_life_months != null ? String(product.useful_life_months) : '')
@@ -305,6 +378,7 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
       min_stock: parseInt(minStock) || 5,
       variants: variants.trim(),
       image: image || '',
+      product_status: productStatus,
       cost_ht: costHt ? parseFloat(costHt) : null,
       purchase_date: purchaseDate || null,
       useful_life_months: usefulLife ? parseInt(usefulLife) : null,
@@ -374,6 +448,16 @@ function ProductForm({ product, families, subfamilies, onClose, onSave }) {
           <label className="label">Emoji / Image</label>
           <input className="input" value={image} onChange={e => setImage(e.target.value)} placeholder="URL d'image" />
         </div>
+
+        {/* Statut */}
+        {isEdit && (
+          <div>
+            <label className="label">Statut article</label>
+            <select className="input" value={productStatus} onChange={e => setProductStatus(e.target.value)}>
+              {PRODUCT_STATUS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+            </select>
+          </div>
+        )}
 
         {/* Comptabilité */}
         <div style={{ borderTop: `1px solid ${BASE.border}`, paddingTop: 14, marginTop: 4 }}>
