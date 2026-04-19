@@ -419,7 +419,7 @@ export default function Finance({ products, stock, events, locations, depreciati
                           {d.product?.name || 'Produit inconnu'}
                         </div>
                         <div style={{ fontSize: 10, color: BASE.textMuted }}>
-                          Durée: {d.duree_amort || '?'} ans · Acquis: {d.date_acquisition ? parseDate(d.date_acquisition).toLocaleDateString('fr-FR') : '?'}
+                          Durée: {d.useful_life_months ? Math.round(d.useful_life_months / 12) : '—'} ans · Acquis: {d.purchase_date ? parseDate(d.purchase_date).toLocaleDateString('fr-FR') : '—'}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
