@@ -92,7 +92,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
       })
       const qty = eventMoves.reduce((s, m) => s + (m.quantity || 0), 0)
       if (qty > 0) {
-        const prixUnit = product.selling_price || product.cost_ht || 25
+        const prixUnit = product.sell_price_ttc || product.sale_price || product.cost_ht || 25
         result.push({ event: ev, qty, ca: Math.round(qty * prixUnit) })
       }
     })
@@ -234,9 +234,12 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               {product.cost_ht != null && product.cost_ht > 0 && (
                 <InfoRow label="Coût HT" value={`${product.cost_ht.toFixed(2)} €`} />
               )}
-              {product.selling_price != null && product.selling_price > 0 && (
-                <InfoRow label="Prix de vente" value={`${product.selling_price.toFixed(2)} €`} />
-              )}
+              {(() => {
+                const pv = product.sell_price_ttc ?? product.sale_price
+                return pv != null && pv > 0 ? (
+                  <InfoRow label="Prix de vente TTC" value={`${Number(pv).toFixed(2)} €`} />
+                ) : null
+              })()}
             </div>
 
             {/* Qui / Quoi / Où / Quand / Comment */}
@@ -502,12 +505,19 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                 <div className="card" style={{ padding: '14px 16px', marginBottom: 14 }}>
                   <InfoRow label="Coût HT unitaire" value={`${product.cost_ht.toFixed(2)} €`} />
                   <InfoRow label="Coût total" value={`${(product.cost_ht * totalQty).toFixed(2)} €`} />
-                  {product.selling_price > 0 && (
-                    <>
-                      <InfoRow label="Prix de vente" value={`${product.selling_price.toFixed(2)} €`} />
-                      <InfoRow label="Marge unitaire" value={`${(product.selling_price - product.cost_ht).toFixed(2)} € (${Math.round(((product.selling_price - product.cost_ht) / product.selling_price) * 100)}%)`} />
-                    </>
-                  )}
+                  {(() => {
+                    const pv = product.sell_price_ttc ?? product.sale_price
+                    if (!(pv > 0)) return null
+                    const pvNum = Number(pv)
+                    const margin = pvNum - product.cost_ht
+                    const marginPct = Math.round((margin / pvNum) * 100)
+                    return (
+                      <>
+                        <InfoRow label="Prix de vente TTC" value={`${pvNum.toFixed(2)} €`} />
+                        <InfoRow label="Marge unitaire" value={`${margin.toFixed(2)} € (${marginPct}%)`} />
+                      </>
+                    )
+                  })()}
                   {product.purchase_date && (
                     <InfoRow label="Date d'achat" value={parseDate(product.purchase_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })} />
                   )}
