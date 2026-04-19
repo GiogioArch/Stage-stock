@@ -35,6 +35,7 @@ const Feedback = lazy(() => import('./components/Feedback'))
 const CGU = lazy(() => import('./components/Legal').then(m => ({ default: m.CGU })))
 const Privacy = lazy(() => import('./components/Legal').then(m => ({ default: m.Privacy })))
 import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3, Clock, MoreHorizontal, Music, Radio } from 'lucide-react'
+import { LiveErrorBoundary } from './components/ErrorBoundary'
 
 // ─── EK LIVE (fan-facing, no auth) ───
 const LiveApp = lazy(() => import('./live/LiveApp'))
@@ -945,42 +946,6 @@ function TabContent({
       )
     default:
       return null
-  }
-}
-
-// ─── EK LIVE Error Boundary ───
-class LiveErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { hasError: false }
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{
-          minHeight: '100dvh',
-          background: '#FFFFFF',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexDirection: 'column', gap: 16, padding: 32, textAlign: 'center',
-          fontFamily: "'Inter', sans-serif",
-        }}>
-          <AlertTriangle size={40} color="#D4648A" />
-          <div style={{ fontSize: 18, fontWeight: 600, color: '#1E293B' }}>
-            Erreur technique
-          </div>
-          <div style={{ fontSize: 14, color: '#94A3B8', lineHeight: 1.6, maxWidth: 300 }}>
-            Recharge la page pour continuer.
-          </div>
-          <button onClick={() => window.location.reload()} className="btn-primary" style={{
-            marginTop: 8, maxWidth: 200,
-          }}>Recharger</button>
-        </div>
-      )
-    }
-    return this.props.children
   }
 }
 

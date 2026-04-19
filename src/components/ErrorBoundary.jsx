@@ -1,6 +1,43 @@
 import React, { createElement } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
+// ─── Live Error Boundary (minimaliste, pour EK LIVE fan-facing) ───
+export class LiveErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100dvh',
+          background: '#FFFFFF',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexDirection: 'column', gap: 16, padding: 32, textAlign: 'center',
+          fontFamily: "'Inter', sans-serif",
+        }}>
+          {createElement(AlertTriangle, { size: 40, color: '#D4648A' })}
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#1E293B' }}>
+            Erreur technique
+          </div>
+          <div style={{ fontSize: 14, color: '#94A3B8', lineHeight: 1.6, maxWidth: 300 }}>
+            Recharge la page pour continuer.
+          </div>
+          <button onClick={() => window.location.reload()} className="btn-primary" style={{
+            marginTop: 8, maxWidth: 200,
+          }}>Recharger</button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+// ─── Main App Error Boundary (rich : stack, component stack, state dump) ───
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
