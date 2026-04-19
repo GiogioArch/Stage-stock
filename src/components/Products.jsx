@@ -5,6 +5,10 @@ import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
 import ProductDetail from './ProductDetail'
 import CSVImport from './CSVImport'
+import BulkProductUpdate from './BulkProductUpdate'
+
+// Roles autorises a faire de la mise a jour en masse des articles
+const STOCK_MANAGER_ROLES = ['TM', 'PM', 'LOG', 'PA', 'MM']
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 
@@ -149,14 +153,27 @@ export default function Products({ products, families, subfamilies, stock, locat
         <span style={{ fontSize: 13, color: BASE.textMuted, fontWeight: 600 }}>
           {filtered.length} produit{filtered.length > 1 ? 's' : ''}
         </span>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button onClick={() => setModal({ type: 'csv' })} style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '8px 12px', borderRadius: RADIUS.sm, background: theme.tint08,
             border: `1px solid ${theme.tint15}`, color: theme.color, fontSize: 12, fontWeight: 700, cursor: 'pointer',
           }}>
-            <FileDown size={14} /> CSV
+            <FileDown size={14} /> Import CSV
           </button>
+          {STOCK_MANAGER_ROLES.includes(userRole?.code) && (
+            <button
+              onClick={() => setModal({ type: 'bulk_update' })}
+              title="Mise a jour en masse (gestionnaire stock uniquement)"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 12px', borderRadius: RADIUS.sm, background: '#7C3AED15',
+                border: '1px solid #7C3AED30', color: '#7C3AED', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              <FileDown size={14} /> Maj en masse
+            </button>
+          )}
           <button onClick={() => setModal({ type: 'add' })} style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '8px 16px', borderRadius: 8, background: theme.color,
@@ -249,11 +266,20 @@ export default function Products({ products, families, subfamilies, stock, locat
         />
       )}
 
-      {/* CSV Import */}
+      {/* CSV Import (creation d'articles) */}
       {modal?.type === 'csv' && (
         <CSVImport
           families={families}
           subfamilies={subfamilies}
+          onDone={() => { setModal(null); reload() }}
+          onClose={() => setModal(null)}
+        />
+      )}
+
+      {/* Bulk update (mise a jour en masse, gestionnaire stock uniquement) */}
+      {modal?.type === 'bulk_update' && STOCK_MANAGER_ROLES.includes(userRole?.code) && (
+        <BulkProductUpdate
+          products={products}
           onDone={() => { setModal(null); reload() }}
           onClose={() => setModal(null)}
         />

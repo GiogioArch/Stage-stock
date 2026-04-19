@@ -1,6 +1,6 @@
 // ─── Forecast business rules (single source of truth) ───
 // Taux conversion par format : concert live 10-12%, sound system 6-8%, impro 12-15%
-// Multiplicateur territoire : Martinique ×1.0, Guadeloupe ×0.85
+// Multiplicateur territoire : Martinique ×1.0, Guadeloupe ×0.85, Guyane ×0.80, Reunion ×0.75
 
 export const CONVERSION_RATES = {
   'concert live': { low: 0.10, mid: 0.11, high: 0.12 },
@@ -17,6 +17,9 @@ export const DEFAULT_RATE = { low: 0.08, mid: 0.10, high: 0.12 }
 export const TERRITORY_MULT = {
   'martinique': 1.0,
   'guadeloupe': 0.85,
+  'guyane':     0.80,
+  'reunion':    0.75,
+  'france':     0.95,
 }
 
 export const DEFAULT_TERRITORY = 0.90
