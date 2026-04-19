@@ -3,6 +3,7 @@ import { db } from '../lib/supabase'
 import { CreditCard, Smartphone, Receipt } from 'lucide-react'
 import { parseDate } from './UI'
 import { useToast, useProject, useAuth } from '../shared/hooks'
+import { logAction } from '../lib/auditLog'
 
 const PAYMENT_METHODS = [
   { id: 'cash', label: 'Espèces', icon: null },
@@ -122,7 +123,7 @@ export default function ConcertMode({
       }))
 
       // Appel atomique à la procédure stockée
-      await db.rpc('process_sale', {
+      const saleResult = await db.rpc('process_sale', {
         p_org_id: orgId,
         p_event_id: selectedEvent?.id || null,
         p_sale_number: saleNum,
@@ -131,6 +132,21 @@ export default function ConcertMode({
         p_items_count: cartCount,
         p_sold_by: user?.id,
         p_items: itemsPayload,
+      })
+
+      // Audit log — fire-and-forget
+      logAction('sale.create', {
+        userId: user?.id || null,
+        orgId,
+        targetType: 'sale',
+        targetId: saleResult?.sale_id || saleResult?.id || null,
+        details: {
+          sale_number: saleNum,
+          total_amount: cartTotal,
+          items_count: cartCount,
+          payment_method: payMethod,
+          event_id: selectedEvent?.id || null,
+        },
       })
 
       // Log + reset
