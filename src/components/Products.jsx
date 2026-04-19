@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
-import { useToast, useProject } from '../shared/hooks'
+import { useToast, useProject, useAuth } from '../shared/hooks'
+import { logAction } from '../lib/auditLog'
 import { Search, FileDown, Package, Plus, ChevronRight, Edit, Trash2, Filter } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
@@ -16,6 +17,7 @@ const theme = getModuleTheme('articles')
 
 export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking }) {
   const { orgId, reload, userRole } = useProject()
+  const { user } = useAuth()
   const onToast = useToast()
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('all')
@@ -52,6 +54,13 @@ export default function Products({ products, families, subfamilies, stock, locat
     try {
       const data = await db.rpc('delete_product_atomic', { p_product_id: product.id })
       if (data && !data.success) throw new Error(data.error)
+      logAction('product.delete', {
+        userId: user?.id || null,
+        orgId,
+        targetType: 'product',
+        targetId: product.id,
+        details: { name: product.name, sku: product.sku },
+      })
       onToast('Produit supprimé')
       setConfirm(null)
       setModal(null)
@@ -252,9 +261,24 @@ export default function Products({ products, families, subfamilies, stock, locat
             try {
               if (modal.type === 'edit') {
                 await db.update('products', `id=eq.${modal.product.id}`, data)
+                logAction('product.update', {
+                  userId: user?.id || null,
+                  orgId,
+                  targetType: 'product',
+                  targetId: modal.product.id,
+                  details: { name: data.name, sku: data.sku, category: data.category },
+                })
                 onToast('Produit modifié')
               } else {
-                await db.insert('products', { ...data, org_id: orgId })
+                const inserted = await db.insert('products', { ...data, org_id: orgId })
+                const newId = Array.isArray(inserted) ? (inserted[0]?.id || null) : (inserted?.id || null)
+                logAction('product.create', {
+                  userId: user?.id || null,
+                  orgId,
+                  targetType: 'product',
+                  targetId: newId,
+                  details: { name: data.name, sku: data.sku, category: data.category },
+                })
                 onToast('Produit ajouté')
               }
               setModal(null)

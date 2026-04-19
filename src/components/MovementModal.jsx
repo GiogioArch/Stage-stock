@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, getMoveConf, intOnly } from './UI'
-import { useToast, useProject } from '../shared/hooks'
+import { useToast, useProject, useAuth } from '../shared/hooks'
+import { logAction } from '../lib/auditLog'
 
 export default function MovementModal({ type, products, locations, stock, preselectedLocation, onClose, onDone }) {
   const onToast = useToast()
   const { orgId } = useProject()
+  const { user } = useAuth()
   const conf = getMoveConf(type)
   const [productId, setProductId] = useState('')
   const [fromLoc, setFromLoc] = useState(type === 'out' ? (preselectedLocation || '') : '')
@@ -38,6 +40,7 @@ export default function MovementModal({ type, products, locations, stock, presel
       // Signature DB : (p_product_id, p_location_id, p_variant_id, p_quantity, p_type,
       //                 p_from_location, p_to_location, p_note, p_user_id)
       const primaryLocId = type === 'in' ? toLoc : (type === 'out' ? fromLoc : fromLoc)
+      let movementId = null
 
       try {
         const result = await db.rpc('move_stock', {
@@ -54,6 +57,7 @@ export default function MovementModal({ type, products, locations, stock, presel
         if (result && result.success === false) {
           throw new Error(result.error || 'Erreur lors du mouvement')
         }
+        movementId = result?.movement_id || result?.id || null
       } catch (rpcErr) {
         // Fallback uniquement si la RPC n'existe pas (ancienne DB) — pas sur erreur metier
         const msg = String(rpcErr?.message || '')
@@ -71,7 +75,7 @@ export default function MovementModal({ type, products, locations, stock, presel
           await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, srcStock - qty), org_id: orgId })
           await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: dstStock + qty, org_id: orgId })
         }
-        await db.insert('movements', {
+        const inserted = await db.insert('movements', {
           type,
           product_id: productId,
           from_loc: type === 'in' ? null : fromLoc,
@@ -80,7 +84,24 @@ export default function MovementModal({ type, products, locations, stock, presel
           note: note.trim() || null,
           org_id: orgId,
         })
+        movementId = Array.isArray(inserted) ? (inserted[0]?.id || null) : (inserted?.id || null)
       }
+
+      // Audit log — fire-and-forget
+      logAction('movement.create', {
+        userId: user?.id || null,
+        orgId,
+        targetType: 'movement',
+        targetId: movementId,
+        details: {
+          type,
+          product_id: productId,
+          quantity: qty,
+          from_loc: type === 'in' ? null : (fromLoc || null),
+          to_loc: type === 'out' ? null : (toLoc || null),
+          note: note.trim() || null,
+        },
+      })
 
       onToast(`${conf.label} : ${qty}× ${selectedProduct?.name}`)
       setShowConfirm(false)

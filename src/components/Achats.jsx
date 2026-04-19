@@ -5,6 +5,7 @@ import { ShoppingCart, Users } from 'lucide-react'
 import { getModuleTheme, BASE, SEMANTIC, SPACE, TYPO, RADIUS, SHADOW } from '../lib/theme'
 import { GradientHeader, SubTabs } from '../design'
 import { useToast, useProject, useAuth } from '../shared/hooks'
+import { logAction } from '../lib/auditLog'
 
 const theme = getModuleTheme('achats')
 
@@ -69,6 +70,13 @@ export default function Achats({
         const updates = { status: next }
         if (next === 'received') updates.received_date = new Date().toISOString().split('T')[0]
         await db.update('purchase_orders', `id=eq.${order.id}`, updates)
+        logAction('purchase.status_change', {
+          userId: user?.id || null,
+          orgId,
+          targetType: 'purchase_order',
+          targetId: order.id,
+          details: { from: order.status, to: next },
+        })
         onToast(`Commande → ${STATUS_CONF[next].label}`)
         reload()
         setSelectedOrder(null)
@@ -375,6 +383,13 @@ function AddOrderForm({ suppliers, products, onDone }) {
         created_by: user?.id,
       })
       const orderId = result?.[0]?.id
+      logAction('purchase.create', {
+        userId: user?.id || null,
+        orgId,
+        targetType: 'purchase_order',
+        targetId: orderId || null,
+        details: { supplier_id: supplierId, total_ht: totalHT, status: 'draft' },
+      })
       if (orderId) {
         for (const l of validLines) {
           const qty = parseInt(l.quantity) || 1

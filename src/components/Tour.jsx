@@ -5,7 +5,8 @@ import EventDetail from './EventDetail'
 import { Mic, Volume2, Drama, Music, Search, Calendar, Plus, ChevronRight } from 'lucide-react'
 import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 import { MODULES, SEMANTIC, BASE, SPACE, TYPO, RADIUS, SHADOW, getModuleTheme } from '../lib/theme'
-import { useToast, useProject } from '../shared/hooks'
+import { useToast, useProject, useAuth } from '../shared/hooks'
+import { logAction } from '../lib/auditLog'
 
 const FORMAT_CONF = {
   'concert live': { Icon: Mic, color: MODULES.tournee.color },
@@ -24,6 +25,7 @@ function getFormatConf(format) {
 
 export default function Tour({ events, products, stock, locations, families, subfamilies, checklists, roles, eventPacking, userProfiles }) {
   const { orgId, selectedOrg, reload, userRole } = useProject()
+  const { user } = useAuth()
   const onToast = useToast()
   const [filter, setFilter] = useState('upcoming') // upcoming | past | all
   const [selectedEvent, setSelectedEvent] = useState(null)
@@ -336,6 +338,17 @@ export default function Tour({ events, products, stock, locations, families, sub
               await db.delete('event_packing', `event_id=eq.${confirmDelete.id}`)
               await db.delete('checklists', `event_id=eq.${confirmDelete.id}`)
               await db.delete('events', `id=eq.${confirmDelete.id}`)
+              logAction('event.delete', {
+                userId: user?.id || null,
+                orgId,
+                targetType: 'event',
+                targetId: confirmDelete.id,
+                details: {
+                  name: confirmDelete.name || null,
+                  date: confirmDelete.date || null,
+                  ville: confirmDelete.ville || null,
+                },
+              })
               onToast('Événement supprimé')
               setConfirmDelete(null)
               setSelectedEvent(null)
@@ -378,6 +391,7 @@ const TERRITOIRES = ['martinique', 'guadeloupe', 'guyane', 'reunion']
 function EventFormModal({ event, onClose, onSave }) {
   const onToast = useToast()
   const { orgId } = useProject()
+  const { user } = useAuth()
   const [name, setName] = useState(event?.name || '')
   const [date, setDate] = useState(event?.date || '')
   const [lieu, setLieu] = useState(event?.lieu || '')
@@ -409,9 +423,24 @@ function EventFormModal({ event, onClose, onSave }) {
       }
       if (event) {
         await db.update('events', `id=eq.${event.id}`, data)
+        logAction('event.update', {
+          userId: user?.id || null,
+          orgId,
+          targetType: 'event',
+          targetId: event.id,
+          details: { name: data.name, date: data.date, ville: data.ville },
+        })
         onToast('Événement modifié')
       } else {
-        await db.insert('events', data)
+        const inserted = await db.insert('events', data)
+        const newId = Array.isArray(inserted) ? (inserted[0]?.id || null) : (inserted?.id || null)
+        logAction('event.create', {
+          userId: user?.id || null,
+          orgId,
+          targetType: 'event',
+          targetId: newId,
+          details: { name: data.name, date: data.date, ville: data.ville },
+        })
         onToast('Événement ajouté')
       }
       onSave()
