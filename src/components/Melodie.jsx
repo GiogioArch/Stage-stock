@@ -10,6 +10,10 @@ import { useToast } from '../shared/hooks'
 const C = {
   accent: '#5B8DB8',
   melodie: '#8B6DB8',
+  // Premium purple gradient endpoints
+  purple: '#8B5CF6',
+  purpleDeep: '#5B21B6',
+  gradient: 'linear-gradient(135deg, #8B5CF6 0%, #5B21B6 100%)',
   text: '#1E293B',
   textSoft: '#64748B',
   textMuted: '#94A3B8',
@@ -55,7 +59,9 @@ function FadeText({ children, size = 28, color = C.text, delay = 0, sub = false 
 }
 
 // ─── Centered screen wrapper ───
-function Screen({ children, top, step, onSkip }) {
+// hideSkip: cache le bouton "Passer" (force l'utilisateur a completer le flow)
+function Screen({ children, top, step, onSkip, hideSkip }) {
+  const showSkip = step !== 'cest_parti' && step !== 'signup' && !hideSkip
   return (
     <div style={{
       minHeight: '100dvh', background: C.bg,
@@ -65,7 +71,7 @@ function Screen({ children, top, step, onSkip }) {
       gap: 16,
     }}>
       {children}
-      {step !== 'cest_parti' && (
+      {showSkip && (
         <button onClick={onSkip} style={{
           position: 'fixed', bottom: 20, fontSize: 11, color: C.textMuted,
           background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline',
@@ -73,6 +79,21 @@ function Screen({ children, top, step, onSkip }) {
           Passer
         </button>
       )}
+    </div>
+  )
+}
+
+// ─── Micro-victory inline feedback (petit ✓ vert sous un input) ───
+function MicroVictory({ show, label }) {
+  if (!show) return null
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 6,
+      fontSize: 12, color: '#5DAB8B', fontWeight: 600,
+      marginTop: 4, marginLeft: 4,
+      opacity: 0, animation: 'fadeSlideUp 0.3s ease forwards',
+    }}>
+      <Check size={13} strokeWidth={3} /> {label}
     </div>
   )
 }
@@ -402,57 +423,104 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
     )
   }
 
-  // 4. SIGNUP — Inscription avec prénom intégré
+  // 4. SIGNUP — Inscription avec prénom intégré + micro-victoires PNL
   if (step === 'signup') {
+    const nameValid = displayName.trim().length >= 2
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    const pwdStrong = password.length >= 8
+    const pwdOk = password.length >= 6
     return (
       <Screen step={step} onSkip={handleSkip}>
-        <FadeText size={20}>Crée ton compte</FadeText>
+        <FadeText size={26}>Bienvenue !</FadeText>
+        <FadeText sub delay={200}>En 30 secondes tu es operationnel</FadeText>
         <div style={{
-          width: '100%', maxWidth: 320, marginTop: 8,
+          width: '100%', maxWidth: 340, marginTop: 12,
           opacity: 0, animation: 'fadeSlideUp 0.6s ease 0.3s forwards',
         }}>
           {authError && (
             <div style={{
-              padding: '8px 12px', borderRadius: 10, marginBottom: 10,
+              padding: '10px 14px', borderRadius: 12, marginBottom: 12,
               background: `${C.danger}10`, border: `1px solid ${C.danger}20`,
               color: C.danger, fontSize: 13,
             }}>{authError}</div>
           )}
-          <div style={{ marginBottom: 10 }}>
-            <input className="input" placeholder="Ton prénom ou pseudo" value={displayName}
+
+          {/* Prenom */}
+          <div style={{ marginBottom: 12 }}>
+            <input className="input" placeholder="Ton prenom ou pseudo" value={displayName}
               onChange={e => setDisplayName(e.target.value)} autoFocus
               style={{ fontSize: 16, padding: '14px 16px', borderRadius: 14 }} />
+            <MicroVictory show={nameValid} label="Enchante !" />
           </div>
-          <div style={{ marginBottom: 10 }}>
+
+          {/* Email */}
+          <div style={{ marginBottom: 12 }}>
             <input className="input" type="email" placeholder="Email" value={email}
               onChange={e => setEmail(e.target.value)} autoComplete="email"
               style={{ fontSize: 16, padding: '14px 16px', borderRadius: 14 }} />
+            <MicroVictory show={emailValid} label="Email valide" />
           </div>
-          <div style={{ marginBottom: 14, position: 'relative' }}>
-            <input className="input" type={showPwd ? 'text' : 'password'} placeholder="Mot de passe (6 car. min)"
-              value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password"
-              onKeyDown={e => e.key === 'Enter' && handleSignup()}
-              style={{ fontSize: 16, padding: '14px 16px', paddingRight: 48, borderRadius: 14 }} />
-            <button onClick={() => setShowPwd(!showPwd)} aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} style={{
-              position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-              background: 'none', border: 'none', cursor: 'pointer', color: C.textMuted,
-            }}>
-              {createElement(showPwd ? EyeOff : Eye, { size: 18 })}
-            </button>
+
+          {/* Password */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ position: 'relative' }}>
+              <input className="input" type={showPwd ? 'text' : 'password'} placeholder="Mot de passe (6 car. min)"
+                value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password"
+                onKeyDown={e => e.key === 'Enter' && handleSignup()}
+                style={{ fontSize: 16, padding: '14px 16px', paddingRight: 48, borderRadius: 14 }} />
+              <button onClick={() => setShowPwd(!showPwd)} aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} style={{
+                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                background: 'none', border: 'none', cursor: 'pointer', color: C.textMuted,
+              }}>
+                {createElement(showPwd ? EyeOff : Eye, { size: 18 })}
+              </button>
+            </div>
+            <MicroVictory show={pwdStrong} label="Mot de passe solide" />
+            {!pwdStrong && pwdOk && (
+              <div style={{
+                fontSize: 12, color: C.textMuted, marginTop: 4, marginLeft: 4,
+              }}>
+                Astuce : 8 caracteres ou + = vraiment solide
+              </div>
+            )}
           </div>
+
+          {/* CTA premium gradient */}
           <button onClick={handleSignup} disabled={authLoading} style={{
             width: '100%', padding: '16px', borderRadius: 14,
-            background: C.accent, color: 'white', fontSize: 16, fontWeight: 600,
-            border: 'none', cursor: 'pointer', opacity: authLoading ? 0.6 : 1,
+            background: C.gradient, color: 'white', fontSize: 16, fontWeight: 700,
+            border: 'none', cursor: 'pointer', opacity: authLoading ? 0.7 : 1,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          }}>
-            {authLoading ? <>{createElement(Loader2, { size: 16, className: 'spin' })} Inscription...</> : "S'inscrire"}
+            boxShadow: '0 8px 20px rgba(124, 58, 237, 0.35)',
+            transition: 'transform 0.15s',
+          }}
+          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+            {authLoading
+              ? <>{createElement(Loader2, { size: 16, className: 'spin' })} Inscription...</>
+              : "Creer mon compte"}
           </button>
-          <button onClick={() => { setStep('login'); setAuthError('') }} style={{
-            marginTop: 10, fontSize: 13, color: C.accent, background: 'none',
-            border: 'none', cursor: 'pointer', width: '100%', textAlign: 'center',
+
+          {/* Ligne reassurance */}
+          <div style={{
+            display: 'flex', justifyContent: 'center', gap: 10, marginTop: 14,
+            fontSize: 11, color: '#64748B', flexWrap: 'wrap',
           }}>
-            Déjà un compte ? Se connecter
+            <span>Donnees chiffrees</span>
+            <span>·</span>
+            <span>Sans engagement</span>
+            <span>·</span>
+            <span>RGPD</span>
+          </div>
+
+          {/* Vers login */}
+          <button onClick={() => { setStep('login'); setAuthError('') }} style={{
+            marginTop: 14, fontSize: 13, color: C.purpleDeep, background: 'none',
+            border: 'none', cursor: 'pointer', width: '100%', textAlign: 'center',
+            fontWeight: 600,
+          }}>
+            Deja un compte ? Se connecter
           </button>
         </div>
       </Screen>
@@ -506,24 +574,25 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
   if (step === 'login') {
     return (
       <Screen step={step} onSkip={handleSkip}>
-        <FadeText size={20}>Contente de te revoir</FadeText>
+        <FadeText size={24}>Content de te revoir</FadeText>
+        <FadeText sub delay={200}>Reprends ou tu t'es arrete</FadeText>
         <div style={{
-          width: '100%', maxWidth: 320, marginTop: 8,
+          width: '100%', maxWidth: 340, marginTop: 12,
           opacity: 0, animation: 'fadeSlideUp 0.6s ease 0.3s forwards',
         }}>
           {authError && (
             <div style={{
-              padding: '8px 12px', borderRadius: 10, marginBottom: 10,
+              padding: '10px 14px', borderRadius: 12, marginBottom: 12,
               background: `${C.danger}10`, border: `1px solid ${C.danger}20`,
               color: C.danger, fontSize: 13,
             }}>{authError}</div>
           )}
-          <div style={{ marginBottom: 10 }}>
+          <div style={{ marginBottom: 12 }}>
             <input className="input" type="email" placeholder="Email" value={email}
               onChange={e => setEmail(e.target.value)} autoComplete="email" autoFocus
               style={{ fontSize: 16, padding: '14px 16px', borderRadius: 14 }} />
           </div>
-          <div style={{ marginBottom: 14, position: 'relative' }}>
+          <div style={{ marginBottom: 16, position: 'relative' }}>
             <input className="input" type={showPwd ? 'text' : 'password'} placeholder="Mot de passe"
               value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password"
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
@@ -537,18 +606,23 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
           </div>
           <button onClick={handleLogin} disabled={authLoading} style={{
             width: '100%', padding: '16px', borderRadius: 14,
-            background: C.accent, color: 'white', fontSize: 16, fontWeight: 600,
-            border: 'none', cursor: 'pointer', opacity: authLoading ? 0.6 : 1,
+            background: C.gradient, color: 'white', fontSize: 16, fontWeight: 700,
+            border: 'none', cursor: 'pointer', opacity: authLoading ? 0.7 : 1,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          }}>
+            boxShadow: '0 8px 20px rgba(124, 58, 237, 0.35)',
+            transition: 'transform 0.15s',
+          }}
+          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
             {authLoading ? <>{createElement(Loader2, { size: 16, className: 'spin' })} Connexion...</> : 'Se connecter'}
           </button>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, gap: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, gap: 8 }}>
             <button onClick={handleForgotPassword} disabled={authLoading} style={{
               fontSize: 13, color: C.textMuted, background: 'none',
               border: 'none', cursor: 'pointer', textAlign: 'left',
             }}>
-              Mot de passe oublié ?
+              Mot de passe oublie ?
             </button>
             <button onClick={handleResendVerification} disabled={authLoading} style={{
               fontSize: 13, color: C.textMuted, background: 'none',
@@ -558,10 +632,11 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
             </button>
           </div>
           <button onClick={() => { setStep('bonjour'); setAuthError('') }} style={{
-            marginTop: 6, fontSize: 13, color: C.accent, background: 'none',
+            marginTop: 10, fontSize: 13, color: C.purpleDeep, background: 'none',
             border: 'none', cursor: 'pointer', width: '100%', textAlign: 'center',
+            fontWeight: 600,
           }}>
-            Première connexion ?
+            Premiere connexion ?
           </button>
         </div>
       </Screen>

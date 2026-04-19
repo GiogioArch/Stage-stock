@@ -75,7 +75,7 @@ function VentesModule({ products, stock, locations, events, sales, saleItems, on
 
   if (subTab === 'pos') {
     return (
-      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' }}>Chargement...</div>}>
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Chargement...</div>}>
         <ConcertMode
           products={products}
           stock={stock}
@@ -106,7 +106,7 @@ function VentesModule({ products, stock, locations, events, sales, saleItems, on
           }}>{t.label}</button>
         ))}
       </div>
-      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' }}>Chargement...</div>}>
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Chargement...</div>}>
         <SalesAnalytics
           sales={sales}
           saleItems={saleItems}
@@ -524,7 +524,7 @@ export default function App() {
           <nav className="bottom-nav">
             {PERSONAL_TABS.map(t => (
               <button key={t.id} className={`nav-tab ${personalTab === t.id ? 'active' : ''}`} onClick={() => setPersonalTab(t.id)}>
-                <span className="nav-icon"><t.Icon size={18} /></span>
+                <span className="nav-icon"><t.Icon size={22} /></span>
                 <span>{t.label}</span>
               </button>
             ))}
@@ -546,7 +546,7 @@ export default function App() {
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: 24, textAlign: 'center', background: '#FFFFFF' }}>
         <AlertTriangle size={32} color="#D4648A" style={{ marginBottom: 16 }} />
         <div style={{ color: '#D4648A', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>Erreur de connexion</div>
-        <div style={{ color: '#94A3B8', fontSize: 13, marginBottom: 20 }}>{typeof error === 'string' ? error : String(error?.message || error || 'Erreur inconnue')}</div>
+        <div style={{ color: '#64748B', fontSize: 13, marginBottom: 20 }}>{typeof error === 'string' ? error : String(error?.message || error || 'Erreur inconnue')}</div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-primary" style={{ maxWidth: 200 }} onClick={loadAll}>Réessayer</button>
           <button onClick={backToPersonal} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -684,7 +684,7 @@ export default function App() {
           style={tab === 'board' ? { color: '#E8735A' } : undefined}
           onClick={() => handleTabChange('board')}
           aria-label="Board">
-          <span className="nav-icon"><BarChart3 size={18} /></span>
+          <span className="nav-icon"><BarChart3 size={22} /></span>
           <span>Board</span>
         </button>
         {/* 2. Concert / Tournée — si module actif */}
@@ -693,7 +693,7 @@ export default function App() {
             style={['tournee', 'timeline', 'ventes'].includes(tab) ? { color: '#E8735A' } : undefined}
             onClick={() => handleTabChange('tournee')}
             aria-label="Tournée">
-            <span className="nav-icon"><Music size={18} /></span>
+            <span className="nav-icon"><Music size={22} /></span>
             <span>Tournée</span>
           </button>
         )}
@@ -703,7 +703,7 @@ export default function App() {
             style={['articles', 'stock_hub', 'stock', 'inventaire', 'achats'].includes(tab) ? { color: '#8B6DB8' } : undefined}
             onClick={() => handleTabChange('articles')}
             aria-label="Articles">
-            <span className="nav-icon"><Package size={18} /></span>
+            <span className="nav-icon"><Package size={22} /></span>
             <span>Articles</span>
             {alerts.filter(a => a.level === 'rupture').length > 0 && <span className="nav-badge">{alerts.filter(a => a.level === 'rupture').length}</span>}
           </button>
@@ -714,7 +714,7 @@ export default function App() {
           style={showMore || ['equipe', 'finance', 'forecast', 'transport', 'settings'].includes(tab) ? { color: '#5B8DB8' } : undefined}
           onClick={() => setShowMore(!showMore)}
           aria-label="Plus de modules">
-          <span className="nav-icon"><MoreHorizontal size={18} /></span>
+          <span className="nav-icon"><MoreHorizontal size={22} /></span>
           <span>Plus</span>
         </button>
       </nav>
@@ -1004,7 +1004,7 @@ function SplashScreen({ text }) {
       }}><Box size={28} color="#fff" /></div>
       <div className="loader" />
       <div style={{ color: '#1E293B', fontWeight: 600, fontSize: 18 }}>BackStage</div>
-      <div style={{ color: '#94A3B8', fontSize: 13 }}>{text}</div>
+      <div style={{ color: '#64748B', fontSize: 13 }}>{text}</div>
     </div>
   )
 }

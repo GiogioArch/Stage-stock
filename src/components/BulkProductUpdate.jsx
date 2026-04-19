@@ -250,7 +250,7 @@ export default function BulkProductUpdate({ products, onDone, onClose }) {
           )}
           <button onClick={onClose} style={{
             marginTop: 20, padding: '10px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: '#6366F1', color: 'white', cursor: 'pointer', border: 'none',
+            background: '#7C3AED', color: 'white', cursor: 'pointer', border: 'none',
           }}>Fermer</button>
         </div>
       ) : (
@@ -323,7 +323,7 @@ export default function BulkProductUpdate({ products, onDone, onClose }) {
             style={{
               padding: '14px 20px', borderRadius: 8, fontSize: 14, fontWeight: 600,
               width: '100%', cursor: stats.toUpdate === 0 ? 'not-allowed' : 'pointer',
-              background: stats.toUpdate === 0 ? '#CBD5E1' : '#6366F1',
+              background: stats.toUpdate === 0 ? '#CBD5E1' : '#7C3AED',
               color: 'white', border: 'none',
               opacity: importing ? 0.5 : 1,
             }}

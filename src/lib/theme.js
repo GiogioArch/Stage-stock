@@ -30,7 +30,7 @@ export const SEMANTIC = {
 
 // ─── Palette de base ───
 export const BASE = {
-  text:         '#1E293B',
+  text:         '#0F172A',
   textSoft:     '#64748B',
   textMuted:    '#94A3B8',
   textDisabled: '#CBD5E1',
@@ -41,6 +41,18 @@ export const BASE = {
   border:       '#E2E8F0',
   borderHover:  '#CBD5E1',
   white:        '#FFFFFF',
+}
+
+// ─── Purple premium (v9.3 refonte) ───
+export const ACCENT = {
+  main:     '#7C3AED',
+  hover:    '#6D28D9',
+  light:    '#8B5CF6',
+  deep:     '#5B21B6',
+  soft:     'rgba(124,58,237,0.08)',
+  subtle:   'rgba(124,58,237,0.12)',
+  gradient: 'linear-gradient(135deg, #8B5CF6 0%, #5B21B6 100%)',
+  gold:     '#D4A843',
 }
 
 // ─── Catégories produit ───

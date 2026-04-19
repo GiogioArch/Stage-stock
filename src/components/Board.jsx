@@ -32,7 +32,11 @@ import {
   PackagePlus,
   Wallet,
   Trophy,
+  CheckCircle,
 } from 'lucide-react'
+
+// ─── Icons map for hero status banner ───
+const ICONS = { CheckCircle, AlertTriangle, Clock }
 
 // ─── Icon mapping (MODULES.icon is a string, we need actual components) ───
 const MOD_ICONS = {
@@ -175,6 +179,51 @@ export default function Board({
     ? Math.ceil((new Date(nextEvent.date) - new Date()) / 86400000)
     : null
 
+  // ─── Hero status banner (dynamic "ligne gagnante") ───
+  const heroStatus = useMemo(() => {
+    const ruptures = (alerts || []).filter(a => a.level === 'rupture').length
+    const criticalEventsList = (events || []).filter(e => {
+      const d = Math.ceil((new Date(e.date) - new Date()) / 86400000)
+      return d >= 0 && d <= 3
+    })
+    const criticalEvents = criticalEventsList.length
+    const minDays = criticalEventsList.length > 0
+      ? Math.min(...criticalEventsList.map(e => Math.ceil((new Date(e.date) - new Date()) / 86400000)))
+      : 0
+
+    if (ruptures === 0 && criticalEvents === 0) {
+      return {
+        type: 'success',
+        title: 'Tout sous contrôle',
+        subtitle: 'Aucune alerte critique, tes stocks sont healthy.',
+        icon: 'CheckCircle',
+        color: '#16A34A',
+        bg: 'linear-gradient(135deg, #10B98115, #16A34A10)',
+      }
+    } else if (ruptures > 0) {
+      return {
+        type: 'danger',
+        title: `${ruptures} rupture${ruptures > 1 ? 's' : ''} à traiter`,
+        subtitle: 'Tap pour voir les articles concernés',
+        icon: 'AlertTriangle',
+        color: '#DC2626',
+        bg: 'linear-gradient(135deg, #FEE2E2, #FECACA)',
+        onClick: () => onNavigate?.('alertes'),
+      }
+    } else if (criticalEvents > 0) {
+      return {
+        type: 'warning',
+        title: `Concert dans ${minDays} jour${minDays > 1 ? 's' : ''}`,
+        subtitle: `${criticalEvents} concert${criticalEvents > 1 ? 's' : ''} imminent${criticalEvents > 1 ? 's' : ''}`,
+        icon: 'Clock',
+        color: '#D97706',
+        bg: 'linear-gradient(135deg, #FEF3C7, #FDE68A)',
+      }
+    }
+    return null
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alerts, events])
+
   // Packing progress for next event
   const myPacking = userRole && nextEvent
     ? eventPacking.filter(ep => ep.role_code === userRole.code && ep.event_id === nextEvent.id)
@@ -282,6 +331,7 @@ export default function Board({
           {nextEvent ? (
             <div
               onClick={() => setSelectedEvent(nextEvent)}
+              className="card-hover"
               style={{
                 display: 'flex', alignItems: 'center', gap: SPACE.md,
                 padding: `${SPACE.md}px ${SPACE.md + 2}px`, borderRadius: RADIUS.lg,
@@ -324,6 +374,43 @@ export default function Board({
             </div>
           )}
         </div>
+
+        {/* ═══ HERO STATUS BANNER (ligne gagnante dynamique) ═══ */}
+        {heroStatus && (
+          <div
+            onClick={heroStatus.onClick}
+            className="card-hover fade-count-up"
+            style={{
+              margin: `0 0 ${SPACE.lg}px`,
+              padding: '16px 20px',
+              borderRadius: 16,
+              background: heroStatus.bg,
+              cursor: heroStatus.onClick ? 'pointer' : 'default',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              border: `1px solid ${heroStatus.color}20`,
+            }}
+          >
+            <div style={{
+              width: 40, height: 40, borderRadius: 12,
+              background: heroStatus.color, color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              {createElement(ICONS[heroStatus.icon], { size: 20 })}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: heroStatus.color }}>
+                {heroStatus.title}
+              </div>
+              <div style={{ fontSize: 12, color: '#64748B' }}>
+                {heroStatus.subtitle}
+              </div>
+            </div>
+            {heroStatus.onClick && createElement(ChevronRight, { size: 18, style: { color: heroStatus.color, flexShrink: 0 } })}
+          </div>
+        )}
 
         {/* ═══ BANDEAU PREMIERE CONNEXION ═══ */}
         {firstLoginBanner && (
@@ -486,6 +573,7 @@ export default function Board({
         {sections.alerts && (criticalAlerts.length > 0 || lowAlerts.length > 0) && (
           <div
             onClick={() => onNavigate('stock_hub')}
+            className={criticalAlerts.length > 0 ? 'pulse-alert card-hover' : 'card-hover'}
             style={{
               display: 'flex', alignItems: 'center', gap: SPACE.md,
               padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
@@ -549,6 +637,7 @@ export default function Board({
               <button
                 key={key}
                 onClick={handleClick}
+                className="card-hover"
                 style={{
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center',
@@ -658,6 +747,7 @@ export default function Board({
           return (
             <div
               onClick={() => onNavigate('forecast')}
+              className="card-hover"
               style={{
                 padding: `${SPACE.md + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
                 background: BASE.white, border: `1px solid ${BASE.border}`,
@@ -708,6 +798,7 @@ export default function Board({
             label="Valeur stock"
             value={fmtEuro(stockValue)}
             sub="cout achat"
+            delay={0}
           />
           <KpiCard
             icon={TrendingUp}
@@ -715,6 +806,7 @@ export default function Board({
             label="CA potentiel"
             value={fmtEuro(caPotentiel)}
             sub="si tout vendu"
+            delay={50}
           />
           <KpiCard
             icon={RefreshCw}
@@ -722,6 +814,7 @@ export default function Board({
             label="Rotation 30j"
             value={`x${rotation}`}
             sub="sorties / stock moyen"
+            delay={100}
           />
           <KpiCard
             icon={ShoppingCart}
@@ -730,6 +823,7 @@ export default function Board({
             value={commandesEnCours}
             sub="en cours"
             onClick={() => onNavigate && onNavigate('achats')}
+            delay={150}
           />
         </div>
 
@@ -744,6 +838,7 @@ export default function Board({
             value={dormants}
             sub=">90j"
             compact
+            delay={200}
           />
           <KpiCard
             icon={AlertTriangle}
@@ -752,6 +847,7 @@ export default function Board({
             value={morts}
             sub=">180j"
             compact
+            delay={250}
           />
           <KpiCard
             icon={PackagePlus}
@@ -760,6 +856,7 @@ export default function Board({
             value={surstock}
             sub=">3x min"
             compact
+            delay={300}
           />
         </div>
 
@@ -821,6 +918,7 @@ export default function Board({
                   <div
                     key={ev.id}
                     onClick={() => setSelectedEvent(ev)}
+                    className="card-hover"
                     style={{
                       display: 'flex', alignItems: 'center', gap: SPACE.md - 2, padding: `${SPACE.md - 2}px ${SPACE.md}px`,
                       borderRadius: RADIUS.md, background: BASE.white, border: `1px solid ${BASE.border}`,
@@ -881,10 +979,11 @@ function editBtnStyle(disabled) {
 }
 
 // ─── KPI card (Stock metrics) ───
-function KpiCard({ icon, color, label, value, sub, compact, onClick }) {
+function KpiCard({ icon, color, label, value, sub, compact, onClick, delay = 0 }) {
   return (
     <div
       onClick={onClick}
+      className={`fade-count-up${onClick ? ' card-hover' : ''}`}
       style={{
         padding: compact ? `${SPACE.sm + 2}px ${SPACE.sm}px` : `${SPACE.md}px ${SPACE.md}px`,
         borderRadius: RADIUS.lg,
@@ -894,6 +993,7 @@ function KpiCard({ icon, color, label, value, sub, compact, onClick }) {
         cursor: onClick ? 'pointer' : 'default',
         display: 'flex', flexDirection: 'column', gap: 4,
         minHeight: compact ? 70 : 86,
+        animationDelay: `${delay}ms`,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
