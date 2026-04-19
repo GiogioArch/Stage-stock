@@ -82,9 +82,11 @@ export default function Alerts({ alerts, events, products, stock, locations, use
     return list.sort((a, b) => (priority[a.type] ?? 5) - (priority[b.type] ?? 5))
   }, [filter, eventAlerts, stockAlerts])
 
-  const ruptures = stockAlerts.filter(a => a.level === 'rupture').length
-  const alertes = stockAlerts.filter(a => a.level === 'alerte').length
-  const evtCount = eventAlerts.length
+  const { ruptures, alertes, evtCount } = useMemo(() => ({
+    ruptures: stockAlerts.filter(a => a.level === 'rupture').length,
+    alertes: stockAlerts.filter(a => a.level === 'alerte').length,
+    evtCount: eventAlerts.length,
+  }), [stockAlerts, eventAlerts])
 
   const filterItems = [
     { id: 'all', label: `Tout (${allNotifs.length})`, color: COLORS.textPrimary },
@@ -141,7 +143,7 @@ export default function Alerts({ alerts, events, products, stock, locations, use
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {allNotifs.map((n, i) => (
-            <div key={i} className="card" style={{
+            <div key={`${n.type}-${n.label}-${i}`} className="card" style={{
               padding: '12px 14px',
               borderLeft: `4px solid ${n.color}`,
               borderRadius: 12,

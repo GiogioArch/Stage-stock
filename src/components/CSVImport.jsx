@@ -222,7 +222,7 @@ export default function CSVImport({ families, subfamilies, orgId, onDone, onClos
               </thead>
               <tbody>
                 {rows.slice(0, 3).map((r, i) => (
-                  <tr key={i}>{headers.map(h => <td key={h} style={{ padding: '4px 6px', borderBottom: '1px solid #F1F5F9', color: '#1E293B' }}>{r[h]}</td>)}</tr>
+                  <tr key={`row-${i}-${r[headers[0]] || ''}`}>{headers.map(h => <td key={h} style={{ padding: '4px 6px', borderBottom: '1px solid #F1F5F9', color: '#1E293B' }}>{r[h]}</td>)}</tr>
                 ))}
               </tbody>
             </table>

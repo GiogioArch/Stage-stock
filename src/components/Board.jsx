@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { getCat, CATEGORIES, fmtDate, getMoveConf, Badge, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
 import EventDetail from './EventDetail'
+import { useApp } from '../contexts/AppContext'
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -34,7 +35,13 @@ const COLOR = {
   info: '#2563EB',
 }
 
-export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole, onQuickAction, onNavigate, onReload, onToast }) {
+export default function Board({ products, locations, stock, movements, alerts, events, families, subfamilies, checklists, roles, eventPacking, userProfiles, userRole: userRoleProp, onQuickAction, onNavigate, onReload: onReloadProp, onToast: onToastProp }) {
+  // Context with prop fallback for backward compatibility
+  const app = useApp()
+  const userRole = userRoleProp !== undefined ? userRoleProp : app.userRole
+  const onReload = onReloadProp || app.loadAll
+  const onToast = onToastProp || app.showToast
+
   const [selectedEvent, setSelectedEvent] = useState(null)
 
   // ─── Role config ───
@@ -43,46 +50,49 @@ export default function Board({ products, locations, stock, movements, alerts, e
 
   // ─── KPI calculations ───
   const totalProducts = products.length
-  const totalStock = stock.reduce((sum, s) => sum + (s.quantity || 0), 0)
+  const totalStock = useMemo(() => stock.reduce((sum, s) => sum + (s.quantity || 0), 0), [stock])
   const totalAlerts = alerts.length
-  const criticalAlerts = alerts.filter(a => a.level === 'rupture')
+  const criticalAlerts = useMemo(() => alerts.filter(a => a.level === 'rupture'), [alerts])
 
   // Stock by category
-  const stockByCategory = CATEGORIES.map(cat => {
+  const stockByCategory = useMemo(() => CATEGORIES.map(cat => {
     const catProducts = products.filter(p => p.category === cat.id)
     const catProductIds = new Set(catProducts.map(p => p.id))
     const qty = stock.filter(s => catProductIds.has(s.product_id)).reduce((sum, s) => sum + (s.quantity || 0), 0)
     return { ...cat, qty, count: catProducts.length }
-  })
+  }), [products, stock])
 
   // Stock by location
-  const stockByLocation = locations.map(loc => {
+  const stockByLocation = useMemo(() => locations.map(loc => {
     const qty = stock.filter(s => s.location_id === loc.id).reduce((sum, s) => sum + (s.quantity || 0), 0)
     const nbProducts = new Set(stock.filter(s => s.location_id === loc.id && s.quantity > 0).map(s => s.product_id)).size
     return { ...loc, qty, nbProducts }
-  })
+  }), [locations, stock])
 
   // Last 5 movements
-  const recentMoves = movements.slice(0, 5)
+  const recentMoves = useMemo(() => movements.slice(0, 5), [movements])
 
   // Upcoming events
   const now = new Date().toISOString().split('T')[0]
-  const upcomingEvents = events.filter(e => e.date >= now)
+  const upcomingEvents = useMemo(() => events.filter(e => e.date >= now), [events, now])
   const nextEvent = upcomingEvents[0]
 
   // ─── Role-specific packing stats ───
-  const myPackingItems = userRole
-    ? eventPacking.filter(ep => ep.role_code === userRole.code)
-    : []
-  const nextEventPacking = nextEvent
-    ? myPackingItems.filter(ep => ep.event_id === nextEvent.id)
-    : []
-  const packingDone = nextEventPacking.filter(ep => ep.packed).length
-  const packingTotal = nextEventPacking.length
-  const packingPct = packingTotal > 0 ? Math.round((packingDone / packingTotal) * 100) : 0
+  const { myPackingItems, nextEventPacking, packingDone, packingTotal, packingPct } = useMemo(() => {
+    const myItems = userRole
+      ? eventPacking.filter(ep => ep.role_code === userRole.code)
+      : []
+    const nextPacking = nextEvent
+      ? myItems.filter(ep => ep.event_id === nextEvent.id)
+      : []
+    const done = nextPacking.filter(ep => ep.packed).length
+    const total = nextPacking.length
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0
+    return { myPackingItems: myItems, nextEventPacking: nextPacking, packingDone: done, packingTotal: total, packingPct: pct }
+  }, [userRole, eventPacking, nextEvent])
 
   // ─── Low stock items for my role ───
-  const myLowStock = alerts.slice(0, 5)
+  const myLowStock = useMemo(() => alerts.slice(0, 5), [alerts])
 
   // ─── Movement trends (last 7 days) ───
   const moveTrend = useMemo(() => {
@@ -184,7 +194,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
           </div>
           {/* Show first unpacked items */}
           {nextEventPacking.filter(ep => !ep.packed).slice(0, 3).map((ep, i) => (
-            <div key={i} style={{
+            <div key={ep.product_id || `packing-${i}`} style={{
               display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
               fontSize: 12, color: COLOR.textSecondary,
             }}>
@@ -266,7 +276,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
             {myLowStock.map((a, i) => (
-              <div key={i} className="card" style={{
+              <div key={a.id || `alert-${a.name}-${i}`} className="card" style={{
                 padding: '10px 14px',
                 borderLeft: `3px solid ${a.level === 'rupture' ? COLOR.danger : COLOR.warning}`,
                 background: COLOR.bgSurface,
@@ -334,7 +344,7 @@ export default function Board({ products, locations, stock, movements, alerts, e
           <div className="card" style={{ padding: '14px 16px', marginBottom: 20, background: COLOR.bgSurface, borderRadius: 12, border: `1px solid ${COLOR.border}` }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 100 }}>
               {moveTrend.map((d, i) => (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <div key={d.key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                   <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 80, width: '100%' }}>
                     <div style={{
                       flex: 1, borderRadius: '4px 4px 0 0',

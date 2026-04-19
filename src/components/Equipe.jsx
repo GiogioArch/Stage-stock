@@ -154,7 +154,7 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
                       </div>
                     ) : (
                       t.members.map((m, i) => (
-                        <div key={i} style={{
+                        <div key={m.id || `member-${i}`} style={{
                           display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
                           borderBottom: i < t.members.length - 1 ? '1px solid #F1F5F9' : 'none',
                         }}>
@@ -196,7 +196,7 @@ export default function Equipe({ roles, userProfiles, eventPacking, events, user
             </div>
           ) : (
             allMembers.map((m, i) => (
-              <div key={i} className="card" style={{
+              <div key={m.id || `member-${i}`} className="card" style={{
                 display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
                 borderLeft: m.roleConf ? `4px solid ${m.roleConf.color}` : '4px solid #CBD5E1',
               }}>

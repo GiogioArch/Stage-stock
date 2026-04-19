@@ -324,12 +324,12 @@ function LocationForm({ location, orgId, onDone, onCancel, onToast }) {
         <div>
           <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 4 }}>Icône</div>
           <div style={{ display: 'flex', gap: 4 }}>
-            {ICONS.map(i => (
-              <button key={i} onClick={() => setIcon(i)} style={{
+            {ICONS.map(ic => (
+              <button key={ic} onClick={() => setIcon(ic)} style={{
                 width: 32, height: 32, borderRadius: 8, fontSize: 16,
-                border: icon === i ? '2px solid #2563EB' : '1px solid #CBD5E1',
-                background: icon === i ? '#2563EB12' : 'white', cursor: 'pointer',
-              }}>{i}</button>
+                border: icon === ic ? '2px solid #2563EB' : '1px solid #CBD5E1',
+                background: icon === ic ? '#2563EB12' : 'white', cursor: 'pointer',
+              }}>{ic}</button>
             ))}
           </div>
         </div>

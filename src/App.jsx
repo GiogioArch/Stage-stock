@@ -1,42 +1,56 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense, lazy } from 'react'
 import { auth, db, safe } from './lib/supabase'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
 
-// ─── Components ───
+// ─── Essential components (always loaded) ───
 import Auth from './components/Auth'
-import Board from './components/Board'
-import Products from './components/Products'
-import Stocks from './components/Stocks'
-import Checklists from './components/Checklists'
-import Movements from './components/Movements'
-import Alerts from './components/Alerts'
 import Scanner from './components/Scanner'
 import MovementModal from './components/MovementModal'
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
-import Tour from './components/Tour'
-import Depots from './components/Depots'
-import Equipe from './components/Equipe'
-import Finance from './components/Finance'
-import Forecast from './components/Forecast'
-import Transport from './components/Transport'
-import ConcertMode from './components/ConcertMode'
-import Achats from './components/Achats'
-import Inventaire from './components/Inventaire'
-import Settings from './modules/Settings'
-import ProfilePage from './components/ProfilePage'
-import PersonalDashboard from './components/PersonalDashboard'
-import MyProjects from './components/MyProjects'
 import Landing from './components/Landing'
 import Onboarding from './components/Onboarding'
 import MelodieWelcome from './components/MelodieWelcome'
-import Feedback from './components/Feedback'
-import { CGU, Privacy } from './components/Legal'
 import { Toast } from './components/UI'
+import { ModuleBoundary } from './components/ErrorBoundary'
+import { AppProvider } from './contexts/AppContext'
+
+// ─── Lazy-loaded modules (code-split) ───
+const Board = lazy(() => import('./components/Board'))
+const Products = lazy(() => import('./components/Products'))
+const Stocks = lazy(() => import('./components/Stocks'))
+const Checklists = lazy(() => import('./components/Checklists'))
+const Movements = lazy(() => import('./components/Movements'))
+const Alerts = lazy(() => import('./components/Alerts'))
+const Tour = lazy(() => import('./components/Tour'))
+const Depots = lazy(() => import('./components/Depots'))
+const Equipe = lazy(() => import('./components/Equipe'))
+const Finance = lazy(() => import('./components/Finance'))
+const Forecast = lazy(() => import('./components/Forecast'))
+const Transport = lazy(() => import('./components/Transport'))
+const ConcertMode = lazy(() => import('./components/ConcertMode'))
+const Achats = lazy(() => import('./components/Achats'))
+const Inventaire = lazy(() => import('./components/Inventaire'))
+const Settings = lazy(() => import('./modules/Settings'))
+const ProfilePage = lazy(() => import('./components/ProfilePage'))
+const PersonalDashboard = lazy(() => import('./components/PersonalDashboard'))
+const MyProjects = lazy(() => import('./components/MyProjects'))
+const Feedback = lazy(() => import('./components/Feedback'))
+const CGU = lazy(() => import('./components/Legal').then(m => ({ default: m.CGU })))
+const Privacy = lazy(() => import('./components/Legal').then(m => ({ default: m.Privacy })))
 import { Home, FolderOpen, Calendar, User, LogOut, Camera, AlertTriangle, ChevronLeft, Settings as SettingsIcon, WifiOff, Box, Package, Warehouse, ClipboardList, Users, Coins, Bell, TrendingUp, ShoppingCart, ShoppingBag, ClipboardCheck, Truck, BarChart3 } from 'lucide-react'
 
 // ─── EK LIVE (fan-facing, no auth) ───
 import LiveApp from './live/LiveApp'
 import LiveDisplay from './live/LiveDisplay'
+
+// Lazy loading fallback
+function LazyFallback() {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '48px 0' }}>
+      <div className="loader" />
+    </div>
+  )
+}
 
 // Admin role codes that see everything
 const ADMIN_CODES = ['TM', 'PM', 'LOG', 'PA']
@@ -92,7 +106,9 @@ export default function App() {
   const [userProfile, setUserProfile] = useState(null)
 
   // ─── Data state (flat store — modules pull what they need) ───
-  const [data, setData] = useState({
+  // Empty shape used for initial state AND for resets on project switch
+  // (P0-9: data leak — without reset, loadAll() merges new projet onto old)
+  const EMPTY_DATA = useMemo(() => ({
     products: [], families: [], subfamilies: [],
     locations: [],
     stock: [], movements: [],
@@ -100,9 +116,18 @@ export default function App() {
     user_profiles: [], roles: [],
     product_depreciation: [],
     project_members: [],
-  })
+    suppliers: [], purchase_orders: [], purchase_order_lines: [],
+    expenses: [], sales: [],
+    transport_providers: [], vehicles: [], transport_routes: [],
+    transport_needs: [], transport_bookings: [], transport_manifests: [],
+    transport_costs: [],
+  }), [])
+  const [data, setData] = useState(EMPTY_DATA)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  // Switching flag: true while we're transitioning between projects.
+  // Prevents the previous project's data from flashing through before loadAll() resolves.
+  const [switching, setSwitching] = useState(false)
 
   // ─── Scanner & modal state ───
   const [showScanner, setShowScanner] = useState(false)
@@ -200,23 +225,21 @@ export default function App() {
         setPendingInvitation(null)
       }
 
-      // Load user_details + gear + availability + income
-      try {
-        const detailsRows = await safe('user_details', `user_id=eq.${user.id}`)
-        setUserDetails(detailsRows && detailsRows.length > 0 ? detailsRows[0] : null)
-      } catch { setUserDetails(null) }
-      try { setUserGear(await safe('user_gear', `user_id=eq.${user.id}&order=created_at.desc`)) } catch { setUserGear([]) }
-      try { setUserAvailability(await safe('user_availability', `user_id=eq.${user.id}`)) } catch { setUserAvailability([]) }
-      try { setUserIncome(await safe('user_income', `user_id=eq.${user.id}&order=date.desc`)) } catch { setUserIncome([]) }
-
-      // Load events across all user's projects for personal calendar
-      try {
-        const orgIds = enriched.map(m => m.org_id).filter(Boolean)
-        if (orgIds.length > 0) {
-          const evts = await safe('events', `org_id=in.(${orgIds.join(',')})&order=date.asc`)
-          setPersonalEvents(evts || [])
-        } else { setPersonalEvents([]) }
-      } catch { setPersonalEvents([]) }
+      // Load user_details + gear + availability + income + events in parallel
+      const orgIds = enriched.map(m => m.org_id).filter(Boolean)
+      const [detailsRes, gearRes, availRes, incomeRes, eventsRes] = await Promise.allSettled([
+        safe('user_details', `user_id=eq.${user.id}`),
+        safe('user_gear', `user_id=eq.${user.id}&order=created_at.desc`),
+        safe('user_availability', `user_id=eq.${user.id}`),
+        safe('user_income', `user_id=eq.${user.id}&order=date.desc`),
+        orgIds.length > 0 ? safe('events', `org_id=in.(${orgIds.join(',')})&order=date.asc`) : Promise.resolve([]),
+      ])
+      const val = (r, fallback) => r.status === 'fulfilled' ? r.value : fallback
+      setUserDetails(val(detailsRes, null)?.[0] || null)
+      setUserGear(val(gearRes, []) || [])
+      setUserAvailability(val(availRes, []) || [])
+      setUserIncome(val(incomeRes, []) || [])
+      setPersonalEvents(val(eventsRes, []) || [])
     } catch {
       setAllProjects([])
       setUserDetails(null)
@@ -343,6 +366,7 @@ export default function App() {
       setError(e.message)
     } finally {
       setLoading(false)
+      setSwitching(false)
     }
   }, [user, selectedOrg, requiredTables, loadUserProfile])
 
@@ -350,13 +374,31 @@ export default function App() {
     if (user && selectedOrg) loadAll()
   }, [user, selectedOrg, loadAll])
 
-  // Auto-refresh every 30 seconds (project layer only)
+  // Smart refresh: reload data when user returns to the app (focus/visibility)
+  // Replaces dumb 30s polling — saves bandwidth, avoids overlapping requests
   useEffect(() => {
     if (!user || layer !== 'project') return
-    const interval = setInterval(() => {
-      if (!moveModal && !showScanner) loadAll()
-    }, 30000)
-    return () => clearInterval(interval)
+    let lastRefresh = Date.now()
+    const REFRESH_COOLDOWN = 30000 // min 30s between refreshes
+
+    const handleRefresh = () => {
+      if (moveModal || showScanner) return
+      if (Date.now() - lastRefresh < REFRESH_COOLDOWN) return
+      lastRefresh = Date.now()
+      loadAll()
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') handleRefresh()
+    }
+    const onFocus = () => handleRefresh()
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('focus', onFocus)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('focus', onFocus)
+    }
   }, [user, layer, loadAll, moveModal, showScanner])
 
   // ─── Filtered data based on user role ───
@@ -386,7 +428,7 @@ export default function App() {
 
   // ─── Alerts ───
   const alerts = useMemo(() =>
-    filteredProducts.map(p => {
+    filteredProducts.filter(p => p.active !== false).map(p => {
       const totalStock = filteredStock.filter(s => s.product_id === p.id).reduce((sum, s) => sum + (s.quantity || 0), 0)
       const minStock = p.min_stock || 5
       if (totalStock <= 0) return { ...p, currentStock: totalStock, minStock, level: 'rupture' }
@@ -408,25 +450,39 @@ export default function App() {
   )
 
   // ─── Enter a project (couche 2 → couche 3) ───
+  // P0-9 fix: reset `data` to empty BEFORE switching selectedOrg, otherwise the
+  // previous project's products/events/stock flash through until loadAll() resolves,
+  // and modules disabled in the new project keep showing stale data indefinitely.
   const enterProject = useCallback((projectMembership) => {
+    setSwitching(true)
+    setData(EMPTY_DATA)
+    setError(null)
+    setUserProfile(null)
     setMembership(projectMembership)
     setSelectedOrg(projectMembership.org)
     setLayer('project')
     setTab('board')
     setUserRole(undefined) // will be loaded by loadAll
-  }, [])
+    scrollPositions.current = {}
+  }, [EMPTY_DATA])
 
   // ─── Return to personal layer (couche 3 → couche 2) ───
   const backToPersonal = useCallback(() => {
+    // P0-9 fix: clear project data so a future project switch doesn't inherit it
+    setData(EMPTY_DATA)
+    setError(null)
+    setUserProfile(null)
+    setUserRole(undefined)
     setLayer('personal')
     setSelectedOrg(null)
     setMembership(undefined)
     setShowScanner(false)
     setMoveModal(null)
+    scrollPositions.current = {}
     window.scrollTo(0, 0)
     // Refresh personal data
     loadPersonalData()
-  }, [loadPersonalData])
+  }, [loadPersonalData, EMPTY_DATA])
 
   // ─── Logout ───
   const handleLogout = useCallback(() => {
@@ -439,9 +495,10 @@ export default function App() {
     setSelectedOrg(null)
     setAllProjects([])
     setPersonalEvents([])
+    setData(EMPTY_DATA)
     setLayer('personal')
     setPersonalTab('home')
-  }, [])
+  }, [EMPTY_DATA])
 
   // ═══════════════════════════════════════════════
   // ROUTING
@@ -500,6 +557,7 @@ export default function App() {
   if (layer === 'personal') {
     return (
       <div style={{ minHeight: '100dvh', background: '#FFFFFF', paddingBottom: 72 }}>
+        <a href="#main-content" className="sr-only-focusable">Aller au contenu</a>
         {/* Header */}
         <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -530,24 +588,30 @@ export default function App() {
         </header>
 
         {/* Personal tab content */}
+        <main id="main-content">
+        <Suspense fallback={<LazyFallback />}>
         {personalTab === 'home' && (
-          <PersonalDashboard
-            user={user}
-            userDetails={userDetails}
-            allProjects={allProjects}
-            onOpenProject={enterProject}
-            onNavigate={setPersonalTab}
-            onToast={showToast}
-          />
+          <ModuleBoundary name="Accueil" resetKey="home">
+            <PersonalDashboard
+              user={user}
+              userDetails={userDetails}
+              allProjects={allProjects}
+              onOpenProject={enterProject}
+              onNavigate={setPersonalTab}
+              onToast={showToast}
+            />
+          </ModuleBoundary>
         )}
         {personalTab === 'projects' && (
-          <MyProjects
-            userId={user.id}
-            allProjects={allProjects}
-            onOpenProject={enterProject}
-            onProjectsChanged={loadPersonalData}
-            onToast={showToast}
-          />
+          <ModuleBoundary name="Projets" resetKey="projects">
+            <MyProjects
+              userId={user.id}
+              allProjects={allProjects}
+              onOpenProject={enterProject}
+              onProjectsChanged={loadPersonalData}
+              onToast={showToast}
+            />
+          </ModuleBoundary>
         )}
         {personalTab === 'calendar' && (
           <div style={{ padding: '0 16px' }}>
@@ -567,6 +631,12 @@ export default function App() {
           </div>
         )}
         {personalTab === 'profile' && (
+          <AppProvider value={{
+            user, userRole, userProfile, isAdmin,
+            membership, selectedOrg,
+            showToast, loadAll: loadPersonalData,
+          }}>
+          <ModuleBoundary name="Profil" resetKey="profile">
           <ProfilePage
             user={user}
             userProfile={userProfile}
@@ -587,13 +657,17 @@ export default function App() {
             onSwitchProject={() => setPersonalTab('projects')}
             onOpenProject={enterProject}
           />
+          </ModuleBoundary>
+          </AppProvider>
         )}
+        </Suspense>
+        </main>
 
         {/* Personal bottom nav */}
         {personalTab !== 'profile' && (
           <nav className="bottom-nav">
             {PERSONAL_TABS.map(t => (
-              <button key={t.id} className={`nav-tab ${personalTab === t.id ? 'active' : ''}`} onClick={() => setPersonalTab(t.id)}>
+              <button key={t.id} className={`nav-tab ${personalTab === t.id ? 'active' : ''}`} onClick={() => setPersonalTab(t.id)} aria-label={t.label} aria-current={personalTab === t.id ? 'page' : undefined}>
                 <span className="nav-icon"><t.Icon size={18} /></span>
                 <span>{t.label}</span>
               </button>
@@ -611,7 +685,9 @@ export default function App() {
   // COUCHE 3 — Projet
   // ═══════════════════════════════════════════════
 
-  if (loading && data.products.length === 0) return <SplashScreen text="Chargement des modules..." />
+  // Show splash during initial load OR during a project switch (P0-9: prevents
+  // the previous project's UI from flashing with stale data before loadAll resolves)
+  if (switching || (loading && data.products.length === 0)) return <SplashScreen text="Chargement des modules..." />
 
   if (error && data.products.length === 0) {
     return (
@@ -643,8 +719,16 @@ export default function App() {
 
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { icon: null, color: '#94A3B8', label: userRole.name }) : null
 
+  const appContextValue = {
+    user, userRole, userProfile, isAdmin,
+    membership, selectedOrg,
+    showToast, loadAll,
+  }
+
   return (
+    <AppProvider value={appContextValue}>
     <div style={{ minHeight: '100dvh', background: '#FFFFFF', paddingBottom: 72 }}>
+      <a href="#main-content" className="sr-only-focusable">Aller au contenu</a>
       {/* ─── Header (Couche 3) ─── */}
       <header style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -722,28 +806,35 @@ export default function App() {
       )}
 
       {/* ─── Tab Content (module-driven) ─── */}
-      <TabContent
-        tab={tab}
-        activeModuleIds={activeModuleIds}
-        data={data}
-        filteredProducts={filteredProducts}
-        filteredStock={filteredStock}
-        filteredMovements={filteredMovements}
-        alerts={alerts}
-        user={user}
-        userRole={userRole}
-        userProfile={userProfile}
-        isAdmin={isAdmin}
-        membership={membership}
-        orgId={selectedOrg?.id}
-        selectedOrg={selectedOrg}
-        onNavigate={handleTabChange}
-        onReload={loadAll}
-        onToast={showToast}
-        onQuickAction={(type) => setMoveModal({ type })}
-        onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
-        onModulesChanged={handleModulesChanged}
-      />
+      <main id="main-content">
+      <Suspense fallback={<LazyFallback />}>
+      <ModuleBoundary name={tab} resetKey={`${selectedOrg?.id || 'none'}:${tab}`}>
+        <TabContent
+          key={`${selectedOrg?.id || 'none'}:${tab}`}
+          tab={tab}
+          activeModuleIds={activeModuleIds}
+          data={data}
+          filteredProducts={filteredProducts}
+          filteredStock={filteredStock}
+          filteredMovements={filteredMovements}
+          alerts={alerts}
+          user={user}
+          userRole={userRole}
+          userProfile={userProfile}
+          isAdmin={isAdmin}
+          membership={membership}
+          orgId={selectedOrg?.id}
+          selectedOrg={selectedOrg}
+          onNavigate={handleTabChange}
+          onReload={loadAll}
+          onToast={showToast}
+          onQuickAction={(type) => setMoveModal({ type })}
+          onMovement={(type, locId) => setMoveModal({ type, preselectedLocation: locId })}
+          onModulesChanged={handleModulesChanged}
+        />
+      </ModuleBoundary>
+      </Suspense>
+      </main>
 
       {/* ─── Bottom Nav (Couche 3 — grouped) ─── */}
       <nav className="bottom-nav">
@@ -753,6 +844,8 @@ export default function App() {
           return (
             <button key={g.id}
               className={`nav-tab ${isActive ? 'active' : ''}`}
+              aria-label={g.label}
+              aria-current={isActive ? 'page' : undefined}
               onClick={() => {
                 if (!isActive) handleTabChange(g.groupTabs[0].id)
               }}>
@@ -799,6 +892,7 @@ export default function App() {
       {/* ─── Toast ─── */}
       {toast && <Toast message={toast.message} color={toast.color} onDone={() => setToast(null)} />}
     </div>
+    </AppProvider>
   )
 }
 
@@ -891,6 +985,7 @@ function TabContent({
           locations={data.locations}
           stock={filteredStock}
           movements={filteredMovements}
+          setMovements={newMoves => setData(prev => ({ ...prev, movements: typeof newMoves === 'function' ? newMoves(prev.movements) : newMoves }))}
           orgId={orgId}
           onReload={onReload}
           onToast={onToast}
@@ -951,6 +1046,7 @@ function TabContent({
           purchaseOrderLines={data.purchase_order_lines}
           products={filteredProducts}
           locations={data.locations}
+          stock={data.stock}
           orgId={orgId}
           userId={user?.id}
           onReload={onReload}
@@ -1015,7 +1111,7 @@ function TabContent({
 }
 
 // ─── Stock Module (combines Stock view + Movements with sub-tabs) ───
-function StockModule({ products, locations, stock, movements, orgId, onReload, onToast, onMovement }) {
+function StockModule({ products, locations, stock, movements, setMovements, orgId, onReload, onToast, onMovement }) {
   const [subTab, setSubTab] = useState('stock') // stock | mouvements
 
   return (
@@ -1050,8 +1146,12 @@ function StockModule({ products, locations, stock, movements, orgId, onReload, o
       {subTab === 'mouvements' && (
         <Movements
           movements={movements}
+          setMovements={setMovements}
           products={products}
           locations={locations}
+          stock={stock}
+          orgId={orgId}
+          onReload={onReload}
           onToast={onToast}
         />
       )}

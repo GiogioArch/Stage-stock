@@ -1,13 +1,38 @@
 import React, { useState, useMemo } from 'react'
-import { getMoveConf, fmtDate, Badge } from './UI'
-import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, Search, X, Filter, ClipboardList } from 'lucide-react'
+import { getMoveConf, fmtDate, Badge, Confirm } from './UI'
+import { db } from '../lib/supabase'
+import { logAction } from '../lib/auditLog'
+import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, Search, X, Filter, ClipboardList, RotateCcw, Download, ChevronDown } from 'lucide-react'
+import { exportCSV, todayISO } from '../lib/csvExport'
 
-export default function Movements({ movements, products, locations, onToast }) {
+const PAGE_SIZE = 200
+
+export default function Movements({ movements, setMovements, products, locations, stock, orgId, onReload, onToast }) {
   const [typeFilter, setTypeFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [undoTarget, setUndoTarget] = useState(null)
+  const [undoLoading, setUndoLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const hasMore = movements.length > 0 && movements.length % PAGE_SIZE === 0
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return
+    setLoadingMore(true)
+    try {
+      const offset = movements.length
+      const more = await db.get('movements', `org_id=eq.${orgId}&order=created_at.desc&limit=${PAGE_SIZE}&offset=${offset}`)
+      if (more && more.length > 0 && setMovements) {
+        setMovements(prev => [...prev, ...more])
+      }
+    } catch (e) {
+      if (onToast) onToast('Erreur chargement: ' + e.message, '#DC2626')
+    } finally {
+      setLoadingMore(false)
+    }
+  }
 
   const pName = (id) => products.find(p => p.id === id)?.name || '?'
   const lName = (id) => locations.find(l => l.id === id)?.name || '?'
@@ -29,9 +54,11 @@ export default function Movements({ movements, products, locations, onToast }) {
     return list
   }, [movements, typeFilter, search, dateFrom, dateTo])
 
-  const totalIn = filtered.filter(m => m.type === 'in').reduce((s, m) => s + (m.quantity || 0), 0)
-  const totalOut = filtered.filter(m => m.type === 'out').reduce((s, m) => s + (m.quantity || 0), 0)
-  const totalTransfer = filtered.filter(m => m.type === 'transfer').reduce((s, m) => s + (m.quantity || 0), 0)
+  const { totalIn, totalOut, totalTransfer } = useMemo(() => ({
+    totalIn: filtered.filter(m => m.type === 'in').reduce((s, m) => s + (m.quantity || 0), 0),
+    totalOut: filtered.filter(m => m.type === 'out').reduce((s, m) => s + (m.quantity || 0), 0),
+    totalTransfer: filtered.filter(m => m.type === 'transfer').reduce((s, m) => s + (m.quantity || 0), 0),
+  }), [filtered])
 
   const grouped = useMemo(() => {
     const groups = {}
@@ -54,12 +81,111 @@ export default function Movements({ movements, products, locations, onToast }) {
 
   const MOVE_ICONS = { in: ArrowDownToLine, out: ArrowUpFromLine, transfer: RefreshCw }
 
+  // Tolère "[Annulé]" (accent) ou "[Annule]" (sans accent — selon ce que la RPC écrit)
+  const isUndoneNote = (note) => !!note && (note.startsWith('[Annulé]') || note.startsWith('[Annule]'))
+
+  const canUndo = (m) => {
+    if (!m.created_at) return false
+    if (isUndoneNote(m.note)) return false
+    if (m.note && m.note.startsWith('Annulation:')) return false
+    const age = Date.now() - new Date(m.created_at).getTime()
+    return age < 24 * 60 * 60 * 1000
+  }
+
+  // Fallback client-side undo (non-atomic) — used only if the RPC is unavailable
+  const handleUndoFallback = async (m) => {
+    // 1. Create reverse stock movement
+    if (m.type === 'in') {
+      // Reverse an "in" = take stock out from to_loc
+      try { await db.rpc('move_stock', { p_product_id: m.product_id, p_location_id: m.to_loc, p_delta: -m.quantity }) }
+      catch {
+        const cur = stock.find(s => s.product_id === m.product_id && s.location_id === m.to_loc)?.quantity || 0
+        await db.upsert('stock', { product_id: m.product_id, location_id: m.to_loc, quantity: Math.max(0, cur - m.quantity), org_id: orgId })
+      }
+    } else if (m.type === 'out') {
+      // Reverse an "out" = put stock back in from_loc
+      try { await db.rpc('move_stock', { p_product_id: m.product_id, p_location_id: m.from_loc, p_delta: m.quantity }) }
+      catch {
+        const cur = stock.find(s => s.product_id === m.product_id && s.location_id === m.from_loc)?.quantity || 0
+        await db.upsert('stock', { product_id: m.product_id, location_id: m.from_loc, quantity: cur + m.quantity, org_id: orgId })
+      }
+    } else if (m.type === 'transfer') {
+      // Reverse transfer = swap from/to
+      try {
+        await db.rpc('move_stock', { p_product_id: m.product_id, p_location_id: m.to_loc, p_delta: -m.quantity })
+        await db.rpc('move_stock', { p_product_id: m.product_id, p_location_id: m.from_loc, p_delta: m.quantity })
+      } catch {
+        const srcStock = stock.find(s => s.product_id === m.product_id && s.location_id === m.to_loc)?.quantity || 0
+        const dstStock = stock.find(s => s.product_id === m.product_id && s.location_id === m.from_loc)?.quantity || 0
+        await db.upsert('stock', { product_id: m.product_id, location_id: m.to_loc, quantity: Math.max(0, srcStock - m.quantity), org_id: orgId })
+        await db.upsert('stock', { product_id: m.product_id, location_id: m.from_loc, quantity: dstStock + m.quantity, org_id: orgId })
+      }
+    }
+
+    // 2. Record reverse movement
+    const reverseType = m.type === 'in' ? 'out' : m.type === 'out' ? 'in' : 'transfer'
+    await db.insert('movements', {
+      type: reverseType,
+      product_id: m.product_id,
+      from_loc: m.type === 'transfer' ? m.to_loc : m.type === 'out' ? null : m.from_loc,
+      to_loc: m.type === 'transfer' ? m.from_loc : m.type === 'in' ? null : m.to_loc,
+      quantity: m.quantity,
+      note: `Annulation: ${m.note || 'mouvement'}`,
+      org_id: orgId,
+    })
+
+    // 3. Mark original as undone
+    await db.update('movements', `id=eq.${m.id}`, {
+      note: `[Annulé] ${m.note || ''}`.trim(),
+    })
+  }
+
+  const handleUndo = async (m) => {
+    setUndoLoading(true)
+    try {
+      // Primary path: atomic RPC (transaction en DB — stock + reverse movement + marquage)
+      let usedFallback = false
+      try {
+        const result = await db.rpc('undo_movement', { p_movement_id: m.id })
+        // La RPC renvoie JSON — peut contenir { error: ... } ou { success: true, ... }
+        if (result && typeof result === 'object' && result.error) {
+          throw new Error(result.error)
+        }
+      } catch (rpcErr) {
+        // Si la RPC n'est pas dispo (404 / fonction inexistante) → fallback client-side
+        const msg = String(rpcErr?.message || '')
+        const rpcMissing = msg.includes('PGRST202') || msg.includes('not find') || msg.includes('does not exist') || msg.includes('404')
+        if (!rpcMissing) throw rpcErr
+        usedFallback = true
+        await handleUndoFallback(m)
+      }
+
+      logAction('movement.undo', {
+        orgId,
+        targetType: 'movement',
+        targetId: m.id,
+        details: { original_type: m.type, product_id: m.product_id, quantity: m.quantity, fallback: usedFallback },
+      })
+
+      onToast('Mouvement annulé', '#16A34A')
+      setUndoTarget(null)
+      if (onReload) onReload()
+    } catch (e) {
+      onToast('Erreur annulation : ' + e.message, '#DC2626')
+    } finally {
+      setUndoLoading(false)
+    }
+  }
+
   return (
     <div style={{ padding: '0 16px 24px' }}>
       {/* Header stats */}
       <div className="card" style={{ marginBottom: 16, padding: '16px' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B', marginBottom: 10 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#1E293B', marginBottom: 4 }}>
           Historique ({filtered.length} mouvement{filtered.length > 1 ? 's' : ''})
+        </div>
+        <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 8 }}>
+          Affichage de {movements.length} mouvement{movements.length > 1 ? 's' : ''}{hasMore ? ' (plus disponibles)' : ''}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <StatPill Icon={ArrowDownToLine} value={totalIn} label="Entrées" color="#16A34A" />
@@ -79,6 +205,26 @@ export default function Movements({ movements, products, locations, onToast }) {
             placeholder="Rechercher produit, lieu..."
           />
         </div>
+        <button onClick={() => {
+          const TYPE_LABELS = { in: 'Entrée', out: 'Sortie', transfer: 'Transfert' }
+          exportCSV(filtered, `mouvements-${todayISO()}.csv`, [
+            { key: row => row.created_at ? new Date(row.created_at).toLocaleDateString('fr-FR') : '', label: 'Date' },
+            { key: row => TYPE_LABELS[row.type] || row.type, label: 'Type' },
+            { key: row => pName(row.product_id), label: 'Produit' },
+            { key: 'quantity', label: 'Quantité' },
+            { key: row => row.from_loc ? lName(row.from_loc) : '', label: 'De' },
+            { key: row => row.to_loc ? lName(row.to_loc) : '', label: 'Vers' },
+            { key: 'note', label: 'Note' },
+          ])
+          if (onToast) onToast('Export CSV mouvements téléchargé')
+        }} style={{
+          width: 40, height: 40, borderRadius: 6,
+          background: 'rgba(22,163,106,0.08)',
+          border: '1px solid rgba(22,163,106,0.2)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+        }} title="Exporter CSV">
+          <Download size={16} color="#16A34A" />
+        </button>
         <button onClick={() => setShowFilters(!showFilters)} style={{
           width: 40, height: 40, borderRadius: 6,
           background: showFilters ? 'rgba(99,102,241,0.12)' : '#F8FAFC',
@@ -153,18 +299,26 @@ export default function Movements({ movements, products, locations, onToast }) {
               {moves.map(m => {
                 const conf = getMoveConf(m.type)
                 const MoveIcon = MOVE_ICONS[m.type] || RefreshCw
+                const isUndone = isUndoneNote(m.note)
                 return (
-                  <div key={m.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px' }}>
+                  <div key={m.id} className="card" style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
+                    opacity: isUndone ? 0.45 : 1,
+                  }}>
                     <div style={{
                       width: 36, height: 36, borderRadius: 8, background: conf.bg,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       flexShrink: 0,
                     }}><MoveIcon size={16} color={conf.color} /></div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1E293B' }}>
+                      <div style={{
+                        fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        color: '#1E293B',
+                        textDecoration: isUndone ? 'line-through' : 'none',
+                      }}>
                         {pName(m.product_id)}
                       </div>
-                      <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                      <div style={{ fontSize: 11, color: '#94A3B8', textDecoration: isUndone ? 'line-through' : 'none' }}>
                         {m.type === 'transfer'
                           ? `${lName(m.from_loc)} → ${lName(m.to_loc)}`
                           : m.type === 'in'
@@ -178,12 +332,28 @@ export default function Movements({ movements, products, locations, onToast }) {
                         </div>
                       )}
                     </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: conf.color }}>
-                        {m.type === 'out' ? '−' : '+'}{m.quantity}
-                      </div>
-                      <div style={{ fontSize: 10, color: '#CBD5E1' }}>
-                        {m.created_at ? new Date(m.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                      {canUndo(m) && (
+                        <button
+                          onClick={() => setUndoTarget(m)}
+                          title="Annuler ce mouvement"
+                          style={{
+                            width: 30, height: 30, borderRadius: 6,
+                            background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.15)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', padding: 0,
+                          }}
+                        >
+                          <RotateCcw size={14} color="#DC2626" />
+                        </button>
+                      )}
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: conf.color, textDecoration: isUndone ? 'line-through' : 'none' }}>
+                          {m.type === 'out' ? '−' : '+'}{m.quantity}
+                        </div>
+                        <div style={{ fontSize: 10, color: '#CBD5E1' }}>
+                          {m.created_at ? new Date(m.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -192,6 +362,39 @@ export default function Movements({ movements, products, locations, onToast }) {
             </div>
           </div>
         ))
+      )}
+
+      {/* Load more button */}
+      {hasMore && (
+        <button
+          onClick={loadMore}
+          disabled={loadingMore}
+          style={{
+            width: '100%', padding: '12px', marginTop: 8, marginBottom: 8,
+            borderRadius: 10, border: '1.5px solid #E2E8F0', background: '#FFFFFF',
+            color: '#64748B', fontSize: 13, fontWeight: 600, cursor: loadingMore ? 'wait' : 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            opacity: loadingMore ? 0.6 : 1,
+          }}
+        >
+          {loadingMore ? (
+            <><div className="loader" style={{ width: 16, height: 16, borderWidth: 2 }} /> Chargement...</>
+          ) : (
+            <><ChevronDown size={16} /> Charger plus</>
+          )}
+        </button>
+      )}
+
+      {/* Undo confirmation dialog */}
+      {undoTarget && (
+        <Confirm
+          message="Annuler ce mouvement ?"
+          detail={`${undoTarget.quantity}× ${pName(undoTarget.product_id)} — ${getMoveConf(undoTarget.type).label}`}
+          confirmLabel={undoLoading ? 'Annulation...' : 'Annuler le mouvement'}
+          confirmColor="#DC2626"
+          onConfirm={() => handleUndo(undoTarget)}
+          onCancel={() => setUndoTarget(null)}
+        />
       )}
     </div>
   )

@@ -68,17 +68,23 @@ export default function LiveShop({ eventId, fanId }) {
     try {
       const pickupCode = String(Math.floor(1000 + Math.random() * 9000))
       const orders = await db.insert('live_orders', {
-        event_id: eventId, fan_id: fanId,
+        event_id: eventId,
         fan_name: firstName.trim(),
         fan_phone: phone.replace(/[^0-9+]/g, ''),
         pickup_code: pickupCode, total: cartTotal, status: 'pending',
       })
       const order = orders[0]
       for (const item of cart) {
+        const variantLabel = item.variant
+          ? (item.variant.label || item.variant.size || item.variant.name || null)
+          : null
         await db.insert('live_order_items', {
-          order_id: order.id, product_id: item.product.id,
-          variant_id: item.variant?.id || null,
-          quantity: item.qty, unit_price: item.product.price || 0,
+          order_id: order.id,
+          product_id: item.product.id,
+          product_name: item.product.name,
+          variant: variantLabel,
+          quantity: item.qty,
+          unit_price: item.product.price || 0,
         })
       }
       setConfirmation({ pickupCode })
@@ -213,7 +219,7 @@ export default function LiveShop({ eventId, fanId }) {
             Panier ({cartCount} article{cartCount > 1 ? 's' : ''})
           </div>
           {cart.map((c, i) => (
-            <div key={i} style={{
+            <div key={`${c.product.id}-${c.variant?.id || 'no-variant'}`} style={{
               display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
               padding: '8px 0', borderBottom: `1px solid ${EK.cardBorder}`,
             }}>

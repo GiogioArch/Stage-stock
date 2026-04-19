@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
+import { logAction } from '../lib/auditLog'
 import { Modal, Confirm, getCat, getMoveConf, intOnly } from './UI'
 
 export default function MovementModal({ type, products, locations, stock, preselectedLocation, orgId, onClose, onDone, onToast }) {
@@ -11,21 +12,38 @@ export default function MovementModal({ type, products, locations, stock, presel
   const [note, setNote] = useState('')
   const [loading, setLoading] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [errors, setErrors] = useState({})
+
+  function clearError(field) {
+    setErrors(prev => { const next = { ...prev }; delete next[field]; return next })
+  }
 
   // Available stock for selected product + location (for out/transfer)
   const availableStock = useMemo(() => {
     if (!productId || type === 'in') return Infinity
-    const locId = type === 'transfer' ? fromLoc : fromLoc
-    if (!locId) return 0
-    const s = stock.find(st => st.product_id === productId && st.location_id === locId)
+    if (!fromLoc) return 0
+    const s = stock.find(st => st.product_id === productId && st.location_id === fromLoc)
     return s?.quantity || 0
   }, [productId, fromLoc, type, stock])
 
   const qty = parseInt(quantity) || 0
-  const isOverStock = type !== 'in' && qty > availableStock
+  const isOverStock = (type === 'out' || type === 'transfer') && qty > availableStock
   const canSubmit = productId && qty > 0 && !isOverStock && (type === 'in' ? toLoc : type === 'out' ? fromLoc : (fromLoc && toLoc && fromLoc !== toLoc))
 
   const selectedProduct = products.find(p => p.id === productId)
+
+  function handleValidateAndConfirm() {
+    const errs = {}
+    if (!productId) errs.product = 'Sélectionne un produit'
+    if (qty <= 0) errs.quantity = 'Quantité obligatoire'
+    if ((type === 'out' || type === 'transfer') && qty > availableStock) errs.quantity = `Stock insuffisant au lieu source (max: ${availableStock})`
+    if (type !== 'in' && !fromLoc) errs.fromLoc = 'Lieu obligatoire'
+    if (type !== 'out' && !toLoc) errs.toLoc = 'Lieu obligatoire'
+    if (type === 'transfer' && fromLoc && toLoc && fromLoc === toLoc) errs.toLoc = 'Destination identique'
+    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    setErrors({})
+    setShowConfirm(true)
+  }
 
   const handleSubmit = async () => {
     if (!canSubmit) return
@@ -62,6 +80,13 @@ export default function MovementModal({ type, products, locations, stock, presel
         org_id: orgId,
       })
 
+      logAction('movement.create', {
+        orgId,
+        targetType: 'product',
+        targetId: productId,
+        details: { type, quantity: qty, from_loc: fromLoc || null, to_loc: toLoc || null, product_name: selectedProduct?.name },
+      })
+
       onToast(`${conf.label} : ${qty}× ${selectedProduct?.name}`)
       setShowConfirm(false)
       onDone()
@@ -79,22 +104,24 @@ export default function MovementModal({ type, products, locations, stock, presel
           {/* Product select */}
           <div>
             <label className="label">Produit *</label>
-            <select className="input" value={productId} onChange={e => setProductId(e.target.value)}>
+            <select className="input" value={productId} onChange={e => { setProductId(e.target.value); clearError('product') }} style={errors.product ? { borderColor: '#DC2626' } : {}}>
               <option value="">Sélectionner un produit</option>
               {products.sort((a, b) => a.name.localeCompare(b.name)).map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
+            {errors.product && <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 3 }}>{errors.product}</div>}
           </div>
 
           {/* Source location (out, transfer) */}
           {type !== 'in' && (
             <div>
               <label className="label">{type === 'transfer' ? 'Depuis' : 'Lieu'} *</label>
-              <select className="input" value={fromLoc} onChange={e => setFromLoc(e.target.value)}>
+              <select className="input" value={fromLoc} onChange={e => { setFromLoc(e.target.value); clearError('fromLoc') }} style={errors.fromLoc ? { borderColor: '#DC2626' } : {}}>
                 <option value="">Sélectionner</option>
                 {locations.map(l => <option key={l.id} value={l.id}>{l.icon} {l.name}</option>)}
               </select>
+              {errors.fromLoc && <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 3 }}>{errors.fromLoc}</div>}
               {productId && fromLoc && (
                 <div style={{ fontSize: 12, color: availableStock === 0 ? '#DC2626' : '#94A3B8', marginTop: 4 }}>
                   Stock disponible: <strong>{availableStock}</strong>
@@ -107,10 +134,11 @@ export default function MovementModal({ type, products, locations, stock, presel
           {type !== 'out' && (
             <div>
               <label className="label">{type === 'transfer' ? 'Vers' : 'Lieu'} *</label>
-              <select className="input" value={toLoc} onChange={e => setToLoc(e.target.value)}>
+              <select className="input" value={toLoc} onChange={e => { setToLoc(e.target.value); clearError('toLoc') }} style={errors.toLoc ? { borderColor: '#DC2626' } : {}}>
                 <option value="">Sélectionner</option>
                 {locations.filter(l => l.id !== fromLoc).map(l => <option key={l.id} value={l.id}>{l.icon} {l.name}</option>)}
               </select>
+              {errors.toLoc && <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 3 }}>{errors.toLoc}</div>}
             </div>
           )}
 
@@ -123,14 +151,17 @@ export default function MovementModal({ type, products, locations, stock, presel
               min="1"
               step="1"
               value={quantity}
-              onChange={e => setQuantity(intOnly(e.target.value))}
+              onChange={e => { setQuantity(intOnly(e.target.value)); clearError('quantity') }}
               placeholder="0"
-              style={isOverStock ? { borderColor: '#DC2626', color: '#DC2626' } : {}}
+              style={isOverStock || errors.quantity ? { borderColor: '#DC2626', color: '#DC2626' } : {}}
             />
             {isOverStock && (
-              <div style={{ fontSize: 12, color: '#DC2626', fontWeight: 700, marginTop: 4 }}>
-                ! Stock insuffisant (max: {availableStock})
+              <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 3 }}>
+                {type === 'transfer' ? `Stock insuffisant au lieu source (max: ${availableStock})` : `Stock insuffisant (max: ${availableStock})`}
               </div>
+            )}
+            {errors.quantity && !isOverStock && (
+              <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 3 }}>{errors.quantity}</div>
             )}
           </div>
 
@@ -143,8 +174,8 @@ export default function MovementModal({ type, products, locations, stock, presel
           {/* Submit */}
           <button className="btn-primary"
             style={{ background: conf.color }}
-            disabled={!canSubmit || loading}
-            onClick={() => setShowConfirm(true)}>
+            disabled={loading}
+            onClick={handleValidateAndConfirm}>
             {loading ? 'Chargement...' : `Valider ${conf.label.toLowerCase()}`}
           </button>
         </div>

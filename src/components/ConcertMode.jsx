@@ -101,60 +101,115 @@ export default function ConcertMode({
   const clearCart = useCallback(() => setCart([]), [])
 
   // ─── Process sale ───
+  // Atomic path: use process_sale RPC (DB-side insert sale + sale_items + decrement stock
+  // in a single transaction, avoiding race conditions between concurrent POS devices).
+  // Fallback: client-side read-modify-write only if RPC unavailable (best-effort).
   const processSale = async () => {
     if (cart.length === 0) return
     setSaving(true)
     try {
-      // 1. Create sale record
       const saleNum = `V${Date.now().toString(36).toUpperCase()}`
-      const saleData = {
-        org_id: orgId,
-        event_id: selectedEvent?.id || null,
-        sale_number: saleNum,
-        payment_method: payMethod,
-        total_amount: cartTotal,
-        items_count: cartCount,
-        sold_by: userId,
-      }
-      const saleResult = await db.insert('sales', saleData)
-      const saleId = saleResult?.[0]?.id
+      let saleId = null
 
-      if (!saleId) throw new Error('Vente non créée')
+      // 1. Try atomic RPC first
+      const rpcItems = cart.map(item => ({
+        product_id: item.productId,
+        variant: item.variant,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        line_total: item.lineTotal,
+      }))
 
-      // 2. Create sale items
-      for (const item of cart) {
-        try {
-          await db.insert('sale_items', {
-            org_id: orgId,
-            sale_id: saleId,
-            product_id: item.productId,
-            variant: item.variant,
-            quantity: item.quantity,
-            unit_price: item.unitPrice,
-            line_total: item.lineTotal,
-          })
-        } catch (e) {
-          console.error('Sale item error:', e)
+      try {
+        const rpcResult = await db.rpc('process_sale', {
+          p_org_id: orgId,
+          p_event_id: selectedEvent?.id || null,
+          p_sale_number: saleNum,
+          p_payment_method: payMethod,
+          p_total_amount: cartTotal,
+          p_items_count: cartCount,
+          p_sold_by: userId,
+          p_items: rpcItems,
+        })
+        // RPC returns the new sale uuid (scalar or wrapped)
+        saleId = typeof rpcResult === 'string' ? rpcResult : (rpcResult?.id || rpcResult?.[0]?.id || rpcResult)
+      } catch (rpcErr) {
+        console.warn('process_sale RPC failed, falling back:', rpcErr?.message)
+        // Fallback path: insert sale + sale_items, then decrement stock via move_stock per item.
+        const saleResult = await db.insert('sales', {
+          org_id: orgId,
+          event_id: selectedEvent?.id || null,
+          sale_number: saleNum,
+          payment_method: payMethod,
+          total_amount: cartTotal,
+          items_count: cartCount,
+          sold_by: userId,
+        })
+        saleId = saleResult?.[0]?.id
+        if (!saleId) throw new Error('Vente non créée')
+
+        for (const item of cart) {
+          try {
+            await db.insert('sale_items', {
+              org_id: orgId,
+              sale_id: saleId,
+              product_id: item.productId,
+              variant: item.variant,
+              quantity: item.quantity,
+              unit_price: item.unitPrice,
+              line_total: item.lineTotal,
+            })
+          } catch (e) {
+            console.error('Sale item error:', e)
+          }
+        }
+
+        // Decrement stock: try atomic move_stock per item; otherwise best-effort RMW.
+        for (const item of cart) {
+          try {
+            const productStock = (stock || [])
+              .filter(s => s.product_id === item.productId && s.quantity > 0)
+              .sort((a, b) => b.quantity - a.quantity)
+            if (productStock.length === 0) continue
+            const loc = productStock[0]
+            try {
+              await db.rpc('move_stock', {
+                p_product_id: item.productId,
+                p_location_id: loc.location_id,
+                p_delta: -item.quantity,
+              })
+            } catch {
+              const newQty = Math.max(0, loc.quantity - item.quantity)
+              await db.update('stock', `id=eq.${loc.id}`, { quantity: newQty })
+            }
+          } catch (e) {
+            console.error('Stock decrement error:', e)
+          }
         }
       }
 
-      // 3. Decrement stock (find first location with stock for each product)
+      // 2. Record a movement row per item to trace the sale in the movement history
       for (const item of cart) {
         try {
           const productStock = (stock || [])
-            .filter(s => s.product_id === item.productId && s.quantity > 0)
+            .filter(s => s.product_id === item.productId)
             .sort((a, b) => b.quantity - a.quantity)
-          if (productStock.length > 0) {
-            const loc = productStock[0]
-            const newQty = Math.max(0, loc.quantity - item.quantity)
-            await db.update('stock', `id=eq.${loc.id}`, { quantity: newQty })
-          }
+          const fromLocId = productStock[0]?.location_id || null
+          await db.insert('movements', {
+            type: 'out',
+            product_id: item.productId,
+            from_loc: fromLocId,
+            to_loc: null,
+            quantity: item.quantity,
+            note: `Vente ${saleNum}${item.variant ? ` (${item.variant})` : ''}`,
+            org_id: orgId,
+          })
         } catch (e) {
-          console.error('Stock decrement error:', e)
+          console.error('Movement trace error:', e)
         }
       }
 
-      // 4. Log + reset
+      // 3. Log + reset
       setSalesLog(prev => [{
         num: saleNum,
         total: cartTotal,
@@ -255,7 +310,7 @@ export default function ConcertMode({
           <div style={{ background: '#2A2530', borderRadius: 8, padding: '12px 14px', textAlign: 'left', border: '1px solid #3A3540' }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 8 }}>DÉTAIL DES VENTES</div>
             {salesLog.map((l, i) => (
-              <div key={i} style={{
+              <div key={l.num} style={{
                 display: 'flex', justifyContent: 'space-between', padding: '4px 0',
                 borderBottom: i < salesLog.length - 1 ? '1px solid #3A3540' : 'none', fontSize: 12,
               }}>

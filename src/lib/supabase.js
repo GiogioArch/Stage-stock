@@ -191,11 +191,22 @@ export const db = {
   },
 
   async delete(table, match) {
-    const res = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/${table}?${match}`, {
+    const url = `${SUPABASE_URL}/rest/v1/${table}?${match}`
+    const doFetch = () => fetchWithRetry(url, {
       method: 'DELETE',
       headers: headers(),
     })
-    return res.ok
+    let res = await doFetch()
+    if (res.status === 401) {
+      const refreshed = await auth.refresh()
+      if (!refreshed) throw new Error('Non authentifié')
+      res = await doFetch()
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      throw new Error(text || `Erreur ${res.status}`)
+    }
+    return true
   },
 
   async rpc(fn, params = {}) {

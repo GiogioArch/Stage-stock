@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react'
-import { MapPin, Factory, Truck, Tent, Plane, Package, Home, ArrowDownToLine, ArrowUpFromLine, Trash2, ChevronDown, ChevronRight, Plus } from 'lucide-react'
+import { MapPin, Factory, Truck, Tent, Plane, Package, Home, ArrowDownToLine, ArrowUpFromLine, Trash2, ChevronDown, ChevronRight, Plus, Download } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge } from './UI'
+import { exportCSV, todayISO } from '../lib/csvExport'
 
 const ICON_MAP = {
   '📍': MapPin,
@@ -46,7 +47,7 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
       const locStock = stock.filter(s => s.location_id === loc.id && s.quantity > 0)
       let items = locStock.map(s => {
         const product = products.find(p => p.id === s.product_id)
-        if (!product) return null
+        if (!product || product.active === false) return null
         return { ...s, product }
       }).filter(Boolean)
 
@@ -86,9 +87,34 @@ export default function Stocks({ products, locations, stock, orgId, onReload, on
           <div style={{ fontSize: 11, fontWeight: 700, color: PALETTE.textTertiary, textTransform: 'uppercase', letterSpacing: 1 }}>Stock total</div>
           <div style={{ fontSize: 28, fontWeight: 600, color: PALETTE.accent }}>{globalTotal}</div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>{locations.length} lieu{locations.length > 1 ? 'x' : ''}</div>
-          <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>{products.length} produits</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>{locations.length} lieu{locations.length > 1 ? 'x' : ''}</div>
+            <div style={{ fontSize: 11, color: PALETTE.textTertiary }}>{products.length} produits</div>
+          </div>
+          <button onClick={() => {
+            const rows = []
+            locationData.forEach(loc => {
+              loc.items.forEach(item => {
+                rows.push({ product: item.product.name, sku: item.product.sku, location: loc.name, quantity: item.quantity })
+              })
+            })
+            exportCSV(rows, `stock-${todayISO()}.csv`, [
+              { key: 'product', label: 'Produit' },
+              { key: 'sku', label: 'SKU' },
+              { key: 'location', label: 'Lieu' },
+              { key: 'quantity', label: 'Quantité' },
+            ])
+            if (onToast) onToast('Export CSV stock téléchargé')
+          }} style={{
+            width: 36, height: 36, borderRadius: 8,
+            background: 'rgba(22,163,106,0.08)',
+            border: '1px solid rgba(22,163,106,0.2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            padding: 0, flexShrink: 0,
+          }} title="Exporter CSV">
+            <Download size={16} color="#16A34A" />
+          </button>
         </div>
       </div>
 

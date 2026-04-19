@@ -14,6 +14,25 @@ import {
 const MELODIE_COLOR = '#8B5CF6'
 const MELODIE_BG = '#F5F3FF'
 
+// UUID v4 detector — backward compatibility: if selectedRole.id is already a UUID, use it as-is
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// Resolve role UUID from either a UUID or a role code (TM, PM, etc.)
+// Returns null if lookup fails — caller must handle gracefully.
+async function resolveRoleId(selectedRole) {
+  if (!selectedRole) return null
+  // If .id is already a UUID, trust it
+  if (selectedRole.id && UUID_RE.test(selectedRole.id)) return selectedRole.id
+  // Otherwise, look up by code
+  const code = selectedRole.code
+  if (!code) return null
+  try {
+    const rows = await db.get('roles', `code=eq.${encodeURIComponent(code)}`)
+    if (rows && rows.length > 0 && rows[0].id) return rows[0].id
+  } catch { /* fallthrough */ }
+  return null
+}
+
 function MelodieAvatar({ size = 56 }) {
   return (
     <div style={{
@@ -56,7 +75,7 @@ function StepDots({ total, current, color }) {
   return (
     <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 28 }}>
       {Array.from({ length: total }).map((_, i) => (
-        <div key={i} style={{
+        <div key={`dot-${i}`} style={{
           width: i === current ? 28 : 8, height: 8, borderRadius: 4,
           background: i <= current ? color : '#E2E8F0',
           transition: 'all 0.3s ease',
@@ -95,12 +114,21 @@ export default function MelodieWelcome({
       if (!selectedRole) return
       setSaving(true)
       try {
-        // 1. Save display name
+        // 1. Save display name — upsert, fallback insert, surface errors if both fail
+        const detailsPayload = { user_id: user.id, first_name: displayName.trim() }
         try {
-          await db.upsert('user_details', { user_id: user.id, first_name: displayName.trim() })
-        } catch {
-          try { await db.insert('user_details', { user_id: user.id, first_name: displayName.trim() }) }
-          catch { /* silent */ }
+          await db.upsert('user_details', detailsPayload)
+        } catch (upsertErr) {
+          try {
+            await db.insert('user_details', detailsPayload)
+          } catch (insertErr) {
+            console.error('[MelodieWelcome] Echec user_details (invited):', upsertErr, insertErr)
+            const msg = insertErr?.message || upsertErr?.message || 'erreur inconnue'
+            if (onToast) onToast('Profil non enregistre : ' + msg, '#DC2626')
+            else window.alert('Profil non enregistre : ' + msg)
+            setSaving(false)
+            return // stop the flow — do not mark onboarding complete
+          }
         }
 
         // 2. Claim the invitation — update placeholder to real user
@@ -109,23 +137,37 @@ export default function MelodieWelcome({
           status: 'active',
         })
 
-        // 3. Save role
+        // 3. Save role — resolve UUID from code first (role_id is a UUID FK to roles.id)
+        const roleUuid = await resolveRoleId(selectedRole)
+        if (!roleUuid) {
+          console.error('[MelodieWelcome] Echec resolution role_id (invited):', selectedRole)
+          const msg = 'Role introuvable : ' + (selectedRole?.code || 'inconnu')
+          if (onToast) onToast(msg, '#DC2626')
+          else window.alert(msg)
+          setSaving(false)
+          return // stop the flow
+        }
+        const profilePayload = {
+          user_id: user.id,
+          role_id: roleUuid,
+          org_id: pendingInvitation.org_id,
+        }
         try {
-          await db.upsert('user_profiles', {
-            user_id: user.id,
-            role_id: selectedRole.code,
-            org_id: pendingInvitation.org_id,
-          })
-        } catch {
+          await db.upsert('user_profiles', profilePayload)
+        } catch (upsertErr) {
           try {
-            await db.insert('user_profiles', {
-              user_id: user.id,
-              role_id: selectedRole.code,
-              org_id: pendingInvitation.org_id,
-            })
-          } catch { /* silent */ }
+            await db.insert('user_profiles', profilePayload)
+          } catch (insertErr) {
+            console.error('[MelodieWelcome] Echec user_profiles (invited):', upsertErr, insertErr)
+            const msg = insertErr?.message || upsertErr?.message || 'erreur inconnue'
+            if (onToast) onToast('Role non enregistre : ' + msg, '#DC2626')
+            else window.alert('Role non enregistre : ' + msg)
+            setSaving(false)
+            return // stop the flow — do not mark onboarding complete
+          }
         }
 
+        // Only mark onboarding complete after BOTH inserts succeeded
         localStorage.setItem('onboarding_complete', 'true')
         setStep(2) // Show "done" briefly
         setTimeout(() => onComplete({
@@ -133,7 +175,9 @@ export default function MelodieWelcome({
           org: { name: pendingInvitation.org_name },
         }), 1500)
       } catch (e) {
-        onToast?.('Erreur: ' + e.message, '#DC2626')
+        console.error('[MelodieWelcome] Erreur inattendue (invited):', e)
+        if (onToast) onToast('Erreur: ' + e.message, '#DC2626')
+        else window.alert('Erreur: ' + e.message)
       } finally {
         setSaving(false)
       }
@@ -312,13 +356,22 @@ export default function MelodieWelcome({
     setSaving(true)
     try {
       if (step === 0) {
-        // Save display name
+        // Save display name — upsert, fallback insert, surface errors if both fail
         if (!displayName.trim()) return
+        const detailsPayload = { user_id: user.id, first_name: displayName.trim() }
         try {
-          await db.upsert('user_details', { user_id: user.id, first_name: displayName.trim() })
-        } catch {
-          try { await db.insert('user_details', { user_id: user.id, first_name: displayName.trim() }) }
-          catch { /* silent */ }
+          await db.upsert('user_details', detailsPayload)
+        } catch (upsertErr) {
+          try {
+            await db.insert('user_details', detailsPayload)
+          } catch (insertErr) {
+            console.error('[MelodieWelcome] Echec user_details (new):', upsertErr, insertErr)
+            const msg = insertErr?.message || upsertErr?.message || 'erreur inconnue'
+            if (onToast) onToast('Profil non enregistre : ' + msg, '#DC2626')
+            else window.alert('Profil non enregistre : ' + msg)
+            setSaving(false)
+            return // stop the flow — do not advance step
+          }
         }
         setStep(1)
       } else if (step === 1) {
@@ -337,23 +390,37 @@ export default function MelodieWelcome({
         setCreatedOrg({ id: result.org_id, name: result.org_name })
         setStep(2)
       } else if (step === 2) {
-        // Save role
+        // Save role — resolve UUID from code first (role_id is a UUID FK to roles.id)
         if (!selectedRole || !createdOrg) return
-        try {
-          await db.upsert('user_profiles', {
-            user_id: user.id,
-            role_id: selectedRole.code,
-            org_id: createdOrg.id,
-          })
-        } catch {
-          try {
-            await db.insert('user_profiles', {
-              user_id: user.id,
-              role_id: selectedRole.code,
-              org_id: createdOrg.id,
-            })
-          } catch { /* silent */ }
+        const roleUuid = await resolveRoleId(selectedRole)
+        if (!roleUuid) {
+          console.error('[MelodieWelcome] Echec resolution role_id (new):', selectedRole)
+          const msg = 'Role introuvable : ' + (selectedRole?.code || 'inconnu')
+          if (onToast) onToast(msg, '#DC2626')
+          else window.alert(msg)
+          setSaving(false)
+          return // stop the flow
         }
+        const profilePayload = {
+          user_id: user.id,
+          role_id: roleUuid,
+          org_id: createdOrg.id,
+        }
+        try {
+          await db.upsert('user_profiles', profilePayload)
+        } catch (upsertErr) {
+          try {
+            await db.insert('user_profiles', profilePayload)
+          } catch (insertErr) {
+            console.error('[MelodieWelcome] Echec user_profiles (new):', upsertErr, insertErr)
+            const msg = insertErr?.message || upsertErr?.message || 'erreur inconnue'
+            if (onToast) onToast('Role non enregistre : ' + msg, '#DC2626')
+            else window.alert('Role non enregistre : ' + msg)
+            setSaving(false)
+            return // stop the flow — do not mark onboarding complete
+          }
+        }
+        // Only mark onboarding complete after role has been saved successfully
         localStorage.setItem('onboarding_complete', 'true')
         setStep(3)
         setTimeout(() => onComplete({
@@ -362,7 +429,9 @@ export default function MelodieWelcome({
         }), 1500)
       }
     } catch (e) {
-      onToast?.('Erreur: ' + e.message, '#DC2626')
+      console.error('[MelodieWelcome] Erreur inattendue (new):', e)
+      if (onToast) onToast('Erreur: ' + e.message, '#DC2626')
+      else window.alert('Erreur: ' + e.message)
     } finally {
       setSaving(false)
     }

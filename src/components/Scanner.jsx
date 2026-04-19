@@ -267,7 +267,7 @@ export default function Scanner({ products, locations, stock, onMovement, onClos
                   <div style={{ fontSize: 13, color: '#DC2626', fontWeight: 700 }}> Aucun stock disponible</div>
                 ) : (
                   productStock.map((ps, i) => (
-                    <div key={i} style={{
+                    <div key={ps.location_id || `stock-${i}`} style={{
                       display: 'flex', justifyContent: 'space-between', padding: '6px 0',
                       borderBottom: i < productStock.length - 1 ? '1px solid #F1F5F9' : 'none',
                     }}>

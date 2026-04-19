@@ -34,9 +34,11 @@ export default function Transport({
     [transportCosts]
   )
 
-  const pendingNeeds = (transportNeeds || []).filter(n => n.status === 'pending').length
-  const bookedNeeds = (transportNeeds || []).filter(n => n.status === 'booked' || n.status === 'in_transit').length
-  const deliveredNeeds = (transportNeeds || []).filter(n => n.status === 'delivered').length
+  const { pendingNeeds, bookedNeeds, deliveredNeeds } = useMemo(() => ({
+    pendingNeeds: (transportNeeds || []).filter(n => n.status === 'pending').length,
+    bookedNeeds: (transportNeeds || []).filter(n => n.status === 'booked' || n.status === 'in_transit').length,
+    deliveredNeeds: (transportNeeds || []).filter(n => n.status === 'delivered').length,
+  }), [transportNeeds])
 
   const SECTIONS = [
     { id: 'overview', label: 'Vue globale', icon: '' },

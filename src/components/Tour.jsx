@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
+import { logAction } from '../lib/auditLog'
 import { Modal, Confirm, Badge, intOnly, parseDate } from './UI'
 import EventDetail from './EventDetail'
-import { Mic, Volume2, Drama, Music, Search, Calendar, Plus, ChevronRight } from 'lucide-react'
+import { Mic, Volume2, Drama, Music, Search, Calendar, Plus, ChevronRight, Copy } from 'lucide-react'
 
 const FORMAT_CONF = {
   'concert live': { Icon: Mic, color: '#6366F1' },
@@ -25,6 +26,15 @@ export default function Tour({ events, products, stock, locations, families, sub
   const [search, setSearch] = useState('')
   const [eventModal, setEventModal] = useState(null) // null | {type:'add'} | {type:'edit', event}
   const [confirmDelete, setConfirmDelete] = useState(null)
+
+  const handleDuplicate = (ev) => {
+    const { id, created_at, updated_at, ...rest } = ev
+    setSelectedEvent(null)
+    setEventModal({
+      type: 'add',
+      defaultValues: { ...rest, name: 'Copie - ' + (ev.name || ev.lieu), date: '' },
+    })
+  }
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -51,9 +61,12 @@ export default function Tour({ events, products, stock, locations, families, sub
 
   // Stats
   const totalEvents = events.length
-  const upcomingCount = events.filter(e => e.date >= today).length
-  const pastCount = events.filter(e => e.date < today).length
-  const nextEvent = events.filter(e => e.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0]
+  const { upcomingCount, pastCount, nextEvent } = useMemo(() => {
+    const upcoming = events.filter(e => e.date >= today)
+    const past = events.filter(e => e.date < today)
+    const next = upcoming.sort((a, b) => a.date.localeCompare(b.date))[0]
+    return { upcomingCount: upcoming.length, pastCount: past.length, nextEvent: next }
+  }, [events, today])
 
   // Group by month
   const groupedByMonth = useMemo(() => {
@@ -92,6 +105,7 @@ export default function Tour({ events, products, stock, locations, families, sub
         onToast={onToast}
         onNavigateEvent={(ev) => setSelectedEvent(ev)}
         onEdit={(ev) => { setSelectedEvent(null); setEventModal({ type: 'edit', event: ev }) }}
+        onDuplicate={handleDuplicate}
         onDelete={(ev) => setConfirmDelete(ev)}
       />
     )
@@ -320,8 +334,20 @@ export default function Tour({ events, products, stock, locations, families, sub
                           )}
                         </div>
 
-                        {/* Arrow */}
-                        <div style={{ display: 'flex', alignItems: 'center', color: '#CBD5E1' }}><ChevronRight size={16} /></div>
+                        {/* Duplicate + Arrow */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDuplicate(ev) }}
+                            title="Dupliquer"
+                            style={{
+                              width: 28, height: 28, borderRadius: 6, border: '1px solid #E2E8F0',
+                              background: 'rgba(99,102,241,0.06)', cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              color: '#6366F1', padding: 0,
+                            }}
+                          ><Copy size={12} /></button>
+                          <ChevronRight size={16} color="#CBD5E1" />
+                        </div>
                       </div>
                     </button>
                   </div>
@@ -335,6 +361,7 @@ export default function Tour({ events, products, stock, locations, families, sub
       {eventModal && (
         <EventFormModal
           event={eventModal.type === 'edit' ? eventModal.event : null}
+          defaultValues={eventModal.defaultValues || null}
           orgId={orgId}
           onClose={() => setEventModal(null)}
           onSave={() => { setEventModal(null); onReload() }}
@@ -354,6 +381,12 @@ export default function Tour({ events, products, stock, locations, families, sub
               await db.delete('event_packing', `event_id=eq.${confirmDelete.id}`)
               await db.delete('checklists', `event_id=eq.${confirmDelete.id}`)
               await db.delete('events', `id=eq.${confirmDelete.id}`)
+              logAction('event.delete', {
+                orgId,
+                targetType: 'event',
+                targetId: confirmDelete.id,
+                details: { name: confirmDelete.name || confirmDelete.lieu, date: confirmDelete.date },
+              })
               onToast('Événement supprimé')
               setConfirmDelete(null)
               setSelectedEvent(null)
@@ -404,16 +437,17 @@ function ProgressMini({ label, done, total, color }) {
 const FORMATS = ['concert live', 'sound system', 'impro', 'festival', 'showcase']
 const TERRITOIRES = ['martinique', 'guadeloupe', 'guyane', 'reunion']
 
-function EventFormModal({ event, orgId, onClose, onSave, onToast }) {
-  const [name, setName] = useState(event?.name || '')
-  const [date, setDate] = useState(event?.date || '')
-  const [lieu, setLieu] = useState(event?.lieu || '')
-  const [ville, setVille] = useState(event?.ville || '')
-  const [territoire, setTerritoire] = useState(event?.territoire || 'martinique')
-  const [format, setFormat] = useState(event?.format || 'concert live')
-  const [capacite, setCapacite] = useState(event?.capacite?.toString() || '')
-  const [transport, setTransport] = useState(event?.transport_inter_iles || false)
-  const [notes, setNotes] = useState(event?.notes || '')
+function EventFormModal({ event, defaultValues, orgId, onClose, onSave, onToast }) {
+  const src = event || defaultValues
+  const [name, setName] = useState(src?.name || '')
+  const [date, setDate] = useState(src?.date || '')
+  const [lieu, setLieu] = useState(src?.lieu || '')
+  const [ville, setVille] = useState(src?.ville || '')
+  const [territoire, setTerritoire] = useState(src?.territoire || 'martinique')
+  const [format, setFormat] = useState(src?.format || 'concert live')
+  const [capacite, setCapacite] = useState(src?.capacite?.toString() || '')
+  const [transport, setTransport] = useState(src?.transport_inter_iles || false)
+  const [notes, setNotes] = useState(src?.notes || '')
   const [saving, setSaving] = useState(false)
 
   const canSave = name.trim() && date && lieu.trim() && ville.trim()
@@ -436,9 +470,21 @@ function EventFormModal({ event, orgId, onClose, onSave, onToast }) {
       }
       if (event) {
         await db.update('events', `id=eq.${event.id}`, data)
+        logAction('event.update', {
+          orgId,
+          targetType: 'event',
+          targetId: event.id,
+          details: { name: data.name, date: data.date, lieu: data.lieu },
+        })
         onToast('Événement modifié')
       } else {
-        await db.insert('events', data)
+        const result = await db.insert('events', data)
+        logAction('event.create', {
+          orgId,
+          targetType: 'event',
+          targetId: result?.[0]?.id || null,
+          details: { name: data.name, date: data.date, lieu: data.lieu },
+        })
         onToast('Événement ajouté')
       }
       onSave()

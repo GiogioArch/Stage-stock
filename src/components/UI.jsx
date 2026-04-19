@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { Shirt, Guitar, Battery, ArrowDownToLine, ArrowUpFromLine, RefreshCw, X, Package, AlertTriangle, CheckCircle, Info, ChevronLeft } from 'lucide-react'
 
 // ─── Date helper: parse "2026-03-20" as local date (not UTC) ───
@@ -13,18 +13,26 @@ export function parseDate(d) {
 
 // ─── Bottom Sheet Modal ───
 export function Modal({ onClose, title, children }) {
+  const closeRef = useRef(null)
+
   useEffect(() => {
     document.body.style.overflow = 'hidden'
+    // Focus the close button when modal opens
+    if (closeRef.current) closeRef.current.focus()
     return () => { document.body.style.overflow = '' }
   }, [])
 
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'Escape') onClose()
+  }, [onClose])
+
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} onKeyDown={handleKeyDown}>
+      <div className="modal-sheet" role="dialog" aria-modal="true" aria-label={title || undefined} onClick={e => e.stopPropagation()}>
         {title && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1E293B' }}>{title}</h3>
-            <button onClick={onClose} style={{ color: '#94A3B8', padding: 4, display: 'flex', alignItems: 'center' }}>
+            <button ref={closeRef} onClick={onClose} aria-label="Fermer" style={{ color: '#94A3B8', padding: 4, display: 'flex', alignItems: 'center' }}>
               <X size={20} />
             </button>
           </div>
@@ -39,9 +47,10 @@ export function Modal({ onClose, title, children }) {
 export function Confirm({ message, detail, onConfirm, onCancel, confirmLabel = 'Confirmer', confirmColor = '#6366F1' }) {
   return (
     <div className="confirm-dialog">
-      <div className="confirm-box">
+      <div className="confirm-box" role="alertdialog" aria-modal="true" aria-describedby="confirm-desc">
         <div style={{ fontSize: 15, fontWeight: 600, color: '#1E293B', marginBottom: 8 }}>{message}</div>
-        {detail && <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 20, lineHeight: 1.5 }}>{detail}</div>}
+        {detail && <div id="confirm-desc" style={{ fontSize: 13, color: '#94A3B8', marginBottom: 20, lineHeight: 1.5 }}>{detail}</div>}
+        {!detail && <span id="confirm-desc" className="sr-only">{message}</span>}
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn-secondary" style={{ flex: 1 }} onClick={onCancel}>Annuler</button>
           <button className="btn-primary" style={{ flex: 1, background: confirmColor }} onClick={onConfirm}>{confirmLabel}</button>

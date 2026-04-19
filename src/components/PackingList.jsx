@@ -352,12 +352,12 @@ export default function PackingList({ event, products, stock, locations, roles, 
             {shortageItems.length} produit{shortageItems.length > 1 ? 's' : ''} en quantite insuffisante ({totalShortage} unites manquantes)
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-            {shortageItems.slice(0, 5).map((i, idx) => (
-              <span key={idx} style={{
+            {shortageItems.slice(0, 5).map((item, idx) => (
+              <span key={item.product_id || `shortage-${idx}`} style={{
                 fontSize: 10, padding: '2px 8px', borderRadius: 6,
                 background: '#DC262615', color: '#DC2626', fontWeight: 700,
               }}>
-                {i.product?.name || '?'} (-{i.shortage})
+                {item.product?.name || '?'} (-{item.shortage})
               </span>
             ))}
             {shortageItems.length > 5 && (

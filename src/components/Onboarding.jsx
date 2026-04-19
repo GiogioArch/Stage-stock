@@ -5,6 +5,22 @@ import { Rocket, FolderPlus, UserCheck, ArrowRight, ArrowLeft, Loader2, Sparkles
 
 const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'depots', 'stock', 'tournee', 'alertes', 'finance', 'forecast']
 
+// UUID v4 detector — backward compatibility: if selectedRole.id is already a UUID, use it as-is
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// Resolve role UUID from either a UUID or a role code (TM, PM, etc.)
+async function resolveRoleId(selectedRole) {
+  if (!selectedRole) return null
+  if (selectedRole.id && UUID_RE.test(selectedRole.id)) return selectedRole.id
+  const code = selectedRole.code
+  if (!code) return null
+  try {
+    const rows = await db.get('roles', `code=eq.${encodeURIComponent(code)}`)
+    if (rows && rows.length > 0 && rows[0].id) return rows[0].id
+  } catch { /* fallthrough */ }
+  return null
+}
+
 const STEPS = [
   { id: 'welcome', icon: Rocket, color: '#6366F1', title: 'Bienvenue sur Stage Stock' },
   { id: 'project', icon: FolderPlus, color: '#2563EB', title: 'Ton premier projet' },
@@ -72,21 +88,25 @@ export default function Onboarding({ user, onComplete, onToast }) {
         setCreatedMembership({ id: result.member_id, org_id: result.org_id, org })
         setStep(2)
       } else if (step === 2) {
-        // Save role
-        try {
-          await db.upsert('user_profiles', {
-            user_id: user.id,
-            role_id: selectedRole.id,
-            org_id: createdOrg.id,
-          })
-        } catch {
+        // Save role — resolve UUID from code first (role_id is a UUID FK to roles.id).
+        // In this component, selectedRole is built as { code, id: code, ...conf } so id == code.
+        const roleUuid = await resolveRoleId(selectedRole)
+        if (roleUuid) {
           try {
-            await db.insert('user_profiles', {
+            await db.upsert('user_profiles', {
               user_id: user.id,
-              role_id: selectedRole.id,
+              role_id: roleUuid,
               org_id: createdOrg.id,
             })
-          } catch { /* silent */ }
+          } catch {
+            try {
+              await db.insert('user_profiles', {
+                user_id: user.id,
+                role_id: roleUuid,
+                org_id: createdOrg.id,
+              })
+            } catch { /* silent */ }
+          }
         }
 
         // Mark onboarding complete

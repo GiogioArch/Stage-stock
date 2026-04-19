@@ -12,18 +12,36 @@ const MOD_ICONS = {
   'clipboard-check': ClipboardCheck, truck: Truck, settings: SettingsGear,
 }
 
+const DEFAULT_ROLE = 'viewer'
+
 export default function AccessManager({ membership, roles, userProfiles, onReload, onToast }) {
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingMember, setEditingMember] = useState(null)
   const [inviteMode, setInviteMode] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteRoleId, setInviteRoleId] = useState('')
+  const [inviting, setInviting] = useState(false)
 
   const isAdmin = membership?.is_admin
 
   useEffect(() => {
     loadMembers()
   }, [membership])
+
+  // ─── Resolve the project_id for the current org ───
+  // project_members may have project_id=null for legacy rows, so fall back
+  // to the first project attached to this org.
+  const resolveProjectId = async () => {
+    if (membership?.project_id) return membership.project_id
+    if (!membership?.org_id) return null
+    try {
+      const projects = await db.get('projects', `org_id=eq.${membership.org_id}&select=id&limit=1`)
+      return projects?.[0]?.id || null
+    } catch {
+      return null
+    }
+  }
 
   const loadMembers = async () => {
     if (!membership?.org_id) return
@@ -38,25 +56,39 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
     }
   }
 
-  // ─── Invite new member ───
+  // ─── Invite new member (via invite_member RPC) ───
+  // Defense-in-depth: UI guards with isAdmin, but the RPC also enforces
+  // admin/manager permission server-side via SECURITY DEFINER.
   const handleInvite = async () => {
-    if (!inviteEmail.trim() || !isAdmin) return
+    if (!inviteEmail.trim() || !isAdmin || inviting) return
+    setInviting(true)
     try {
-      await db.insert('project_members', {
-        user_id: '00000000-0000-0000-0000-000000000000', // placeholder until user logs in
-        org_id: membership.org_id,
-        email: inviteEmail.trim(),
-        module_access: ['dashboard', 'equipe'],
-        is_admin: false,
-        status: 'invited',
-        invited_by: membership.user_id,
+      const projectId = await resolveProjectId()
+      if (!projectId) {
+        onToast('Aucun projet associé à cette organisation', '#DC2626')
+        return
+      }
+      const selectedRole = roles.find(r => r.id === inviteRoleId)
+      const result = await db.rpc('invite_member', {
+        p_project_id: projectId,
+        p_email: inviteEmail.trim().toLowerCase(),
+        p_role: selectedRole?.code || DEFAULT_ROLE,
       })
-      onToast('Invitation envoyée')
+      // RPC returns { success, error?, message?, token?, already_user? }
+      const payload = Array.isArray(result) ? result[0] : result
+      if (payload && payload.success === false) {
+        throw new Error(payload.error || 'Invitation refusée')
+      }
+      onToast(payload?.message || 'Invitation envoyée')
       setInviteEmail('')
+      setInviteRoleId('')
       setInviteMode(false)
       loadMembers()
+      if (onReload) onReload()
     } catch (e) {
       onToast('Erreur: ' + e.message, '#DC2626')
+    } finally {
+      setInviting(false)
     }
   }
 
@@ -259,12 +291,36 @@ export default function AccessManager({ membership, roles, userProfiles, onReloa
               }}
             />
           </div>
-          <button onClick={handleInvite} disabled={!inviteEmail.trim()} style={{
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8', marginBottom: 6, display: 'block' }}>
+              Rôle
+            </label>
+            <select
+              value={inviteRoleId}
+              onChange={e => setInviteRoleId(e.target.value)}
+              style={{
+                width: '100%', padding: '10px 12px', borderRadius: 12,
+                border: '1px solid #CBD5E1', fontSize: 13, background: '#F1F5F9',
+              }}
+            >
+              <option value="">Viewer (par défaut)</option>
+              {roles.map(r => {
+                const rc = ROLE_CONF[r.code]
+                return (
+                  <option key={r.id} value={r.id}>
+                    {rc?.label || r.name} ({r.code})
+                  </option>
+                )
+              })}
+            </select>
+          </div>
+          <button onClick={handleInvite} disabled={!inviteEmail.trim() || inviting} style={{
             width: '100%', padding: 14, borderRadius: 8, fontSize: 14, fontWeight: 600,
-            background: inviteEmail.trim() ? '#7C3AED' : '#CBD5E1',
-            color: 'white', border: 'none', cursor: inviteEmail.trim() ? 'pointer' : 'not-allowed',
+            background: inviteEmail.trim() && !inviting ? '#7C3AED' : '#CBD5E1',
+            color: 'white', border: 'none',
+            cursor: inviteEmail.trim() && !inviting ? 'pointer' : 'not-allowed',
           }}>
-            Envoyer l'invitation
+            {inviting ? 'Envoi…' : "Envoyer l'invitation"}
           </button>
         </Modal>
       )}

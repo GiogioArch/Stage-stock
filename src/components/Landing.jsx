@@ -56,7 +56,7 @@ export default function Landing({ onGetStarted }) {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           {FEATURES.map((f, i) => (
-            <div key={i} style={{
+            <div key={f.title} style={{
               padding: '16px 14px', borderRadius: 12, background: '#F8FAFC',
               border: '1px solid #E2E8F0',
             }}>
@@ -76,7 +76,7 @@ export default function Landing({ onGetStarted }) {
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {STEPS.map((s, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div key={s.num} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <div style={{
                   width: 40, height: 40, borderRadius: 10, flexShrink: 0,
                   background: 'rgba(99,102,241,0.12)',
@@ -167,7 +167,7 @@ export default function Landing({ onGetStarted }) {
             {[
               { quote: 'Retour terrain bientôt disponible', role: 'Tour Manager — EK TOUR 25 ANS', initials: 'EK' },
             ].map((t, i) => (
-              <div key={i} style={{
+              <div key={t.initials} style={{
                 padding: '20px 16px', borderRadius: 12, background: '#FFFFFF',
                 border: '1px solid #E2E8F0', textAlign: 'left',
               }}>

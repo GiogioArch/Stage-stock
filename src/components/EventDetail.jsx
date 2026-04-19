@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
-import { ClipboardList, Users, CheckSquare, Package, TrendingUp, Volume2, Lightbulb, Guitar, Drama, Shirt, Truck, Battery, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, Ship, AlertTriangle, AlertCircle, Check, Plus } from 'lucide-react'
+import { ClipboardList, Users, CheckSquare, Package, TrendingUp, Volume2, Lightbulb, Guitar, Drama, Shirt, Truck, Battery, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, Ship, AlertTriangle, AlertCircle, Check, Plus, Copy } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Badge, CATEGORIES, fmtDate, parseDate } from './UI'
 import { ROLE_CONF } from './RolePicker'
@@ -48,7 +48,7 @@ const SECTIONS = [
 export default function EventDetail({
   event, events, products, stock, locations, families, subfamilies,
   checklists, roles, eventPacking, userProfiles, userRole, orgId,
-  onClose, onReload, onToast, onNavigateEvent, onEdit, onDelete,
+  onClose, onReload, onToast, onNavigateEvent, onEdit, onDuplicate, onDelete,
 }) {
   const [section, setSection] = useState('resume')
 
@@ -122,6 +122,13 @@ export default function EventDetail({
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', border: '1px solid rgba(99,102,241,0.15)', color: '#6366F1',
           }}><Pencil size={14} /></button>
+        )}
+        {onDuplicate && (
+          <button onClick={() => onDuplicate(event)} title="Dupliquer" style={{
+            width: 36, height: 36, borderRadius: 8, background: 'rgba(99,102,241,0.08)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', border: '1px solid rgba(99,102,241,0.15)', color: '#6366F1',
+          }}><Copy size={14} /></button>
         )}
         {onDelete && (
           <button onClick={() => onDelete(event)} style={{
@@ -262,7 +269,7 @@ export default function EventDetail({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // RÉSUMÉ
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function ResumeSection({ event, products, stock, locations, subfamilies, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload, onToast }) {
+function ResumeSection({ event, products, stock, locations, subfamilies, eventPacking, checkDone, checkTotal, packDone, packTotal, daysUntil, onSectionChange, onReload, onToast }) {
 
   // Stock by category
   const catStats = CATEGORIES.map(cat => {
@@ -326,6 +333,9 @@ function ResumeSection({ event, products, stock, locations, subfamilies, checkDo
 
       {/* Résultats réels — Saisie post-concert */}
       <ResultsSection event={event} onReload={onReload} onToast={onToast} />
+
+      {/* Bilan Merch — comptage départ/retour */}
+      <BilanMerch event={event} products={products} eventPacking={eventPacking} onToast={onToast} />
 
       {/* Progression checklist & packing */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
@@ -452,7 +462,7 @@ function EquipeSection({ event, roles, userProfiles, eventPacking }) {
                 {t.users.length > 0 ? (
                   <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {t.users.map((u, i) => (
-                      <span key={i} style={{
+                      <span key={u.id || `user-${i}`} style={{
                         padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
                         background: `${t.conf.color}12`, color: t.conf.color,
                         border: `1px solid ${t.conf.color}20`,
@@ -794,6 +804,196 @@ function KpiCell({ label, value, color }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Résultats réels post-concert
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// BILAN MERCH — comptage départ/retour concert
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function BilanMerch({ event, products, eventPacking, onToast }) {
+  const [open, setOpen] = useState(false)
+  const storageKey = `bilan_merch_${event.id}`
+
+  // Packing items for this event (merch products with quantity_packed > 0)
+  const packingItems = useMemo(() => {
+    const items = (eventPacking || []).filter(ep => ep.event_id === event.id && ep.quantity_packed > 0)
+    return items.map(ep => {
+      const product = (products || []).find(p => p.id === ep.product_id)
+      return { ...ep, product }
+    }).filter(i => i.product)
+  }, [eventPacking, event.id, products])
+
+  // Load retour values from localStorage
+  const [retourValues, setRetourValues] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey)
+      return saved ? JSON.parse(saved) : {}
+    } catch { return {} }
+  })
+
+  // Save retour to localStorage whenever it changes
+  const updateRetour = useCallback((itemId, val) => {
+    const cleaned = String(val).replace(/[^0-9]/g, '')
+    setRetourValues(prev => {
+      const next = { ...prev, [itemId]: cleaned }
+      try { localStorage.setItem(storageKey, JSON.stringify(next)) } catch {}
+      return next
+    })
+  }, [storageKey])
+
+  // Computed bilan
+  const bilanLines = useMemo(() => {
+    return packingItems.map(item => {
+      const depart = item.quantity_packed || 0
+      const retour = parseInt(retourValues[item.id]) || 0
+      const vendus = Math.max(0, depart - retour)
+      const prix = item.product?.sale_price || 0
+      const costHt = item.product?.cost_ht || 0
+      const ca = vendus * prix
+      const marge = vendus * (prix - costHt)
+      return {
+        id: item.id,
+        name: item.product?.name || '?',
+        image: item.product?.image || '',
+        depart,
+        retour,
+        vendus,
+        prix,
+        ca,
+        marge,
+      }
+    })
+  }, [packingItems, retourValues])
+
+  const totalVendus = bilanLines.reduce((s, l) => s + l.vendus, 0)
+  const totalCA = bilanLines.reduce((s, l) => s + l.ca, 0)
+  const totalMarge = bilanLines.reduce((s, l) => s + l.marge, 0)
+  const hasRetour = Object.values(retourValues).some(v => v !== '' && v !== '0')
+
+  // Don't show if no packing items
+  if (packingItems.length === 0) return null
+
+  return (
+    <div className="card" style={{
+      padding: '14px 16px', marginBottom: 12,
+      borderLeft: '4px solid #7C3AED',
+      background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12,
+    }}>
+      <button onClick={() => setOpen(!open)} style={{
+        width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Shirt size={16} style={{ color: '#7C3AED' }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1 }}>
+            Bilan Merch
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {hasRetour && (
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#16A34A' }}>{totalCA}€</span>
+          )}
+          <span style={{ fontSize: 14, color: '#94A3B8', transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>
+            <ChevronRight size={16} />
+          </span>
+        </div>
+      </button>
+
+      {open && (
+        <div style={{ marginTop: 12 }}>
+          {/* Summary KPIs */}
+          {hasRetour && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
+              <KpiCell label="Vendus" value={totalVendus} color="#7C3AED" />
+              <KpiCell label="CA" value={`${Math.round(totalCA)}€`} color="#16A34A" />
+              <KpiCell label="Marge" value={`${Math.round(totalMarge)}€`} color="#6366F1" />
+            </div>
+          )}
+
+          {/* Product lines */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 6, display: 'grid', gridTemplateColumns: '1fr 52px 52px 40px 50px', gap: 4, paddingRight: 2 }}>
+            <span>Produit</span>
+            <span style={{ textAlign: 'center' }}>Dep.</span>
+            <span style={{ textAlign: 'center' }}>Ret.</span>
+            <span style={{ textAlign: 'center' }}>Vend.</span>
+            <span style={{ textAlign: 'right' }}>CA</span>
+          </div>
+
+          {bilanLines.map(line => (
+            <div key={line.id} style={{
+              display: 'grid', gridTemplateColumns: '1fr 52px 52px 40px 50px', gap: 4,
+              alignItems: 'center', padding: '6px 0',
+              borderBottom: '1px solid #F1F5F9',
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {line.image ? <span style={{ marginRight: 4 }}>{line.image}</span> : null}
+                {line.name}
+              </div>
+              <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#64748B' }}>
+                {line.depart}
+              </div>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={retourValues[line.id] ?? ''}
+                onChange={e => updateRetour(line.id, e.target.value)}
+                placeholder="0"
+                style={{
+                  width: '100%', textAlign: 'center', padding: '4px 2px',
+                  fontSize: 13, fontWeight: 700, borderRadius: 6,
+                  border: '1.5px solid #E2E8F0', background: '#FFF',
+                  color: '#1E293B', outline: 'none',
+                }}
+              />
+              <div style={{
+                textAlign: 'center', fontSize: 13, fontWeight: 700,
+                color: line.vendus > 0 ? '#16A34A' : '#94A3B8',
+              }}>
+                {line.vendus}
+              </div>
+              <div style={{
+                textAlign: 'right', fontSize: 12, fontWeight: 700,
+                color: line.ca > 0 ? '#16A34A' : '#94A3B8',
+              }}>
+                {line.ca > 0 ? `${Math.round(line.ca)}€` : '—'}
+              </div>
+            </div>
+          ))}
+
+          {/* Total row */}
+          {hasRetour && (
+            <div style={{
+              display: 'grid', gridTemplateColumns: '1fr 52px 52px 40px 50px', gap: 4,
+              alignItems: 'center', padding: '8px 0 4px',
+              borderTop: '2px solid #E2E8F0', marginTop: 4,
+            }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>Total</div>
+              <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#64748B' }}>
+                {bilanLines.reduce((s, l) => s + l.depart, 0)}
+              </div>
+              <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#64748B' }}>
+                {bilanLines.reduce((s, l) => s + l.retour, 0)}
+              </div>
+              <div style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#16A34A' }}>
+                {totalVendus}
+              </div>
+              <div style={{ textAlign: 'right', fontSize: 13, fontWeight: 700, color: '#16A34A' }}>
+                {Math.round(totalCA)}€
+              </div>
+            </div>
+          )}
+
+          {/* Info note */}
+          <div style={{
+            marginTop: 10, padding: '8px 10px', borderRadius: 8,
+            background: 'rgba(124,58,237,0.06)', fontSize: 10, color: '#7C3AED', lineHeight: 1.5,
+          }}>
+            Dep. = stock emporte au concert (depuis packing) | Ret. = stock ramene apres concert | Vend. = difference = ventes.
+            {!hasRetour && ' Saisissez les retours pour calculer le bilan.'}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ResultsSection({ event, onReload, onToast }) {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)

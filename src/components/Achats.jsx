@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { db } from '../lib/supabase'
-import { Badge, fmtDate } from './UI'
+import { logAction } from '../lib/auditLog'
+import { Badge, Modal, fmtDate } from './UI'
 
 const STATUS_CONF = {
   draft:     { label: 'Brouillon', color: '#94A3B8' },
@@ -13,14 +14,15 @@ const STATUS_CONF = {
 
 export default function Achats({
   suppliers, purchaseOrders, purchaseOrderLines, products,
-  locations, orgId, userId, onReload, onToast,
+  locations, stock, orgId, userId, onReload, onToast,
 }) {
   const [section, setSection] = useState('orders')
   const [showAddSupplier, setShowAddSupplier] = useState(false)
   const [showAddOrder, setShowAddOrder] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [showReception, setShowReception] = useState(false)
 
-  const activeSuppliers = (suppliers || []).filter(s => s.active)
+  const activeSuppliers = useMemo(() => (suppliers || []).filter(s => s.active), [suppliers])
 
   // ─── Stats ───
   const ordersByStatus = useMemo(() => {
@@ -36,7 +38,7 @@ export default function Achats({
     [purchaseOrders]
   )
 
-  const pendingOrders = (purchaseOrders || []).filter(o => !['received', 'cancelled'].includes(o.status))
+  const pendingOrders = useMemo(() => (purchaseOrders || []).filter(o => !['received', 'cancelled'].includes(o.status)), [purchaseOrders])
 
   const SECTIONS = [
     { id: 'orders', label: 'Commandes', icon: '' },
@@ -55,10 +57,13 @@ export default function Achats({
       const idx = statusFlow.indexOf(order.status)
       if (idx >= statusFlow.length - 1) return
       const next = statusFlow[idx + 1]
+      // If advancing to "received", open reception modal instead
+      if (next === 'received') {
+        setShowReception(true)
+        return
+      }
       try {
-        const updates = { status: next }
-        if (next === 'received') updates.received_date = new Date().toISOString().split('T')[0]
-        await db.update('purchase_orders', `id=eq.${order.id}`, updates)
+        await db.update('purchase_orders', `id=eq.${order.id}`, { status: next })
         onToast(`Commande → ${STATUS_CONF[next].label}`)
         onReload()
         setSelectedOrder(null)
@@ -129,6 +134,26 @@ export default function Achats({
           <button onClick={advanceStatus} className="btn-primary" style={{ marginTop: 16 }}>
             Passer à : {STATUS_CONF[statusFlow[statusFlow.indexOf(order.status) + 1]]?.label}
           </button>
+        )}
+
+        {/* Reception modal */}
+        {showReception && (
+          <ReceptionModal
+            order={order}
+            lines={lines}
+            products={products}
+            locations={locations}
+            stock={stock}
+            orgId={orgId}
+            userId={userId}
+            onClose={() => setShowReception(false)}
+            onDone={() => {
+              setShowReception(false)
+              onReload()
+              setSelectedOrder(null)
+            }}
+            onToast={onToast}
+          />
         )}
       </div>
     )
@@ -425,7 +450,7 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
 
       <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>ARTICLES</div>
       {lines.map((l, i) => (
-        <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 8, alignItems: 'center' }}>
+        <div key={`line-${i}-${l.productId || 'empty'}`} style={{ display: 'flex', gap: 6, marginBottom: 8, alignItems: 'center' }}>
           <select className="input" value={l.productId} onChange={e => {
             updateLine(i, 'productId', e.target.value)
             const p = (products || []).find(pr => pr.id === e.target.value)
@@ -460,6 +485,223 @@ function AddOrderForm({ suppliers, products, orgId, userId, onDone, onToast }) {
         {saving ? 'Création...' : 'Créer la commande'}
       </button>
     </div>
+  )
+}
+
+// ─── Reception Modal ───
+
+function ReceptionModal({ order, lines, products, locations, stock, orgId, userId, onClose, onDone, onToast }) {
+  const [locationId, setLocationId] = useState(locations[0]?.id || '')
+  const [received, setReceived] = useState(() =>
+    lines.reduce((acc, l) => {
+      acc[l.id] = String(l.quantity - (l.quantity_received || 0))
+      return acc
+    }, {})
+  )
+  const [saving, setSaving] = useState(false)
+
+  const totalReceiving = lines.reduce((s, l) => s + (parseInt(received[l.id]) || 0), 0)
+  const hasAny = totalReceiving > 0
+
+  const handleReceive = async () => {
+    if (!locationId || !hasAny) return
+    setSaving(true)
+    try {
+      let allFullyReceived = true
+
+      for (const line of lines) {
+        const qtyReceived = parseInt(received[line.id]) || 0
+        if (qtyReceived <= 0) {
+          // Check if this line was already fully received before
+          if ((line.quantity_received || 0) < line.quantity) allFullyReceived = false
+          continue
+        }
+
+        const newTotalReceived = (line.quantity_received || 0) + qtyReceived
+        if (newTotalReceived < line.quantity) allFullyReceived = false
+
+        // 1. Update purchase_order_lines.quantity_received
+        try {
+          await db.update('purchase_order_lines', `id=eq.${line.id}`, {
+            quantity_received: newTotalReceived,
+          })
+        } catch (e) {
+          console.error('Line update error:', e)
+        }
+
+        // 2. Update stock via RPC with fallback (same pattern as MovementModal)
+        try {
+          await db.rpc('move_stock', {
+            p_product_id: line.product_id,
+            p_location_id: locationId,
+            p_delta: qtyReceived,
+          })
+        } catch {
+          const existing = (stock || []).find(
+            s => s.product_id === line.product_id && s.location_id === locationId
+          )
+          const currentQty = existing?.quantity || 0
+          await db.upsert('stock', {
+            product_id: line.product_id,
+            location_id: locationId,
+            quantity: currentQty + qtyReceived,
+            org_id: orgId,
+          })
+        }
+
+        // 3. Insert movement record
+        try {
+          await db.insert('movements', {
+            type: 'in',
+            product_id: line.product_id,
+            from_loc: null,
+            to_loc: locationId,
+            quantity: qtyReceived,
+            note: `Reception BC ${order.order_number || ''}`.trim(),
+            org_id: orgId,
+          })
+        } catch (e) {
+          console.error('Movement insert error:', e)
+        }
+      }
+
+      // 4. Update PO status + received_date
+      const newStatus = allFullyReceived ? 'received' : 'shipped'
+      const updates = { status: newStatus }
+      if (allFullyReceived) updates.received_date = new Date().toISOString().split('T')[0]
+      try {
+        await db.update('purchase_orders', `id=eq.${order.id}`, updates)
+      } catch (e) {
+        console.error('PO status update error:', e)
+      }
+
+      // 5. Audit log
+      logAction('purchase.received', {
+        userId,
+        orgId,
+        targetType: 'purchase_order',
+        targetId: order.id,
+        details: {
+          order_number: order.order_number,
+          location_id: locationId,
+          total_received: totalReceiving,
+          full: allFullyReceived,
+        },
+      })
+
+      onToast(
+        allFullyReceived
+          ? `Commande ${order.order_number} entierement recue`
+          : `Reception partielle — ${totalReceiving} article(s)`
+      )
+      onDone()
+    } catch (e) {
+      onToast('Erreur : ' + e.message, '#DC2626')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal title={`Reception — ${order.order_number || 'Commande'}`} onClose={onClose}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {/* Location selector */}
+        <div>
+          <label className="label">Depot de reception *</label>
+          <select
+            className="input"
+            value={locationId}
+            onChange={e => setLocationId(e.target.value)}
+          >
+            <option value="">-- Selectionner un depot --</option>
+            {locations.map(l => (
+              <option key={l.id} value={l.id}>{l.icon} {l.name}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Lines */}
+        <div style={{
+          fontSize: 11, fontWeight: 600, color: '#94A3B8',
+          textTransform: 'uppercase', letterSpacing: 1,
+        }}>
+          Articles a recevoir ({lines.length})
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {lines.map(l => {
+            const p = (products || []).find(pr => pr.id === l.product_id)
+            const remaining = l.quantity - (l.quantity_received || 0)
+            const val = received[l.id] || '0'
+            const qtyVal = parseInt(val) || 0
+            const isOver = qtyVal > remaining
+
+            return (
+              <div key={l.id} className="card" style={{ padding: '10px 12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <span style={{ fontSize: 14 }}>{p?.image || ''}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1E293B' }}>
+                      {l.description || p?.name || '?'}
+                    </div>
+                    <div style={{ fontSize: 10, color: '#94A3B8' }}>
+                      Commande: {l.quantity}
+                      {(l.quantity_received || 0) > 0 && ` · Deja recu: ${l.quantity_received}`}
+                      {` · Reste: ${remaining}`}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, color: '#94A3B8', whiteSpace: 'nowrap' }}>Qte recue :</span>
+                  <input
+                    className="input"
+                    type="number"
+                    min="0"
+                    max={remaining}
+                    value={val}
+                    onChange={e => {
+                      const v = e.target.value.replace(/[^0-9]/g, '')
+                      setReceived(prev => ({ ...prev, [l.id]: v }))
+                    }}
+                    style={{
+                      flex: 1, textAlign: 'center', fontWeight: 600,
+                      ...(isOver ? { borderColor: '#DC2626', color: '#DC2626' } : {}),
+                    }}
+                  />
+                  <span style={{ fontSize: 11, color: '#94A3B8' }}>/ {remaining}</span>
+                </div>
+                {isOver && (
+                  <div style={{ fontSize: 10, color: '#DC2626', fontWeight: 600, marginTop: 4 }}>
+                    Depasse la quantite restante
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Summary */}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '10px 12px', background: '#F1F5F9', borderRadius: 10,
+        }}>
+          <span style={{ fontSize: 12, color: '#94A3B8' }}>Total a recevoir :</span>
+          <span style={{ fontSize: 18, fontWeight: 600, color: hasAny ? '#16A34A' : '#94A3B8' }}>
+            {totalReceiving} article{totalReceiving > 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {/* Submit */}
+        <button
+          className="btn-primary"
+          style={{ background: '#16A34A' }}
+          disabled={!locationId || !hasAny || saving}
+          onClick={handleReceive}
+        >
+          {saving ? 'Traitement...' : 'Valider la reception'}
+        </button>
+      </div>
+    </Modal>
   )
 }
 

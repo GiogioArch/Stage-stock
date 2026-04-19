@@ -50,9 +50,12 @@ export default function Checklists({ checklists, events, orgId, onReload, onToas
   }, [filtered])
 
   // Stats
-  const total = filtered.length
-  const checked = filtered.filter(c => c.checked).length
-  const pct = total > 0 ? Math.round((checked / total) * 100) : 0
+  const { total, checked, pct } = useMemo(() => {
+    const t = filtered.length
+    const c = filtered.filter(item => item.checked).length
+    const p = t > 0 ? Math.round((c / t) * 100) : 0
+    return { total: t, checked: c, pct: p }
+  }, [filtered])
 
   // Categories present
   const categories = useMemo(() => [...new Set(checklists.map(c => c.category))].sort(), [checklists])

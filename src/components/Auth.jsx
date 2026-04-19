@@ -9,10 +9,20 @@ export default function Auth({ onAuth, onBack }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
+
+  function clearFieldError(field) {
+    setFieldErrors(prev => { const next = { ...prev }; delete next[field]; return next })
+  }
 
   const handleSubmit = async () => {
+    const errs = {}
+    if (email && !email.includes('@')) errs.email = 'Email invalide'
+    if (!email) errs.email = 'Email invalide'
+
     if (mode === 'forgot') {
-      if (!email) return setError('Email requis')
+      if (Object.keys(errs).length > 0) { setFieldErrors(errs); return }
+      setFieldErrors({})
       setLoading(true)
       setError('')
       setSuccess('')
@@ -27,8 +37,17 @@ export default function Auth({ onAuth, onBack }) {
       return
     }
 
-    if (!email || !password) return setError('Email et mot de passe requis')
-    if (password.length < 6) return setError('Mot de passe : 6 caractères minimum')
+    if (mode !== 'forgot') {
+      if (password.length < 8) {
+        errs.password = '8 caractères minimum'
+      } else if (mode === 'signup' && !/[a-zA-Z]/.test(password)) {
+        errs.password = 'Au moins une lettre requise'
+      } else if (mode === 'signup' && !/[0-9]/.test(password)) {
+        errs.password = 'Au moins un chiffre requis'
+      }
+    }
+    if (Object.keys(errs).length > 0) { setFieldErrors(errs); return }
+    setFieldErrors({})
 
     setLoading(true)
     setError('')
@@ -101,29 +120,35 @@ export default function Auth({ onAuth, onBack }) {
           )}
 
           <div style={{ marginBottom: 14 }}>
-            <label className="label">Email</label>
+            <label className="label" htmlFor="auth-email">Email</label>
             <input
+              id="auth-email"
               className="input"
               type="email"
               placeholder="ton@email.com"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={e => { setEmail(e.target.value); clearFieldError('email') }}
               autoComplete="email"
+              style={fieldErrors.email ? { borderColor: '#DC2626' } : {}}
             />
+            {fieldErrors.email && <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 3 }}>{fieldErrors.email}</div>}
           </div>
 
           {mode !== 'forgot' && (
             <div style={{ marginBottom: 20 }}>
-              <label className="label">Mot de passe</label>
+              <label className="label" htmlFor="auth-password">Mot de passe</label>
               <input
+                id="auth-password"
                 className="input"
                 type="password"
-                placeholder="6 caractères minimum"
+                placeholder={mode === 'signup' ? '8 caractères, lettre + chiffre' : '8 caractères minimum'}
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={e => { setPassword(e.target.value); clearFieldError('password') }}
                 onKeyDown={e => e.key === 'Enter' && handleSubmit()}
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                style={fieldErrors.password ? { borderColor: '#DC2626' } : {}}
               />
+              {fieldErrors.password && <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 3 }}>{fieldErrors.password}</div>}
             </div>
           )}
 
@@ -134,14 +159,14 @@ export default function Auth({ onAuth, onBack }) {
           <div style={{ textAlign: 'center', marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {mode === 'login' && (
               <button
-                onClick={() => { setMode('forgot'); setError(''); setSuccess('') }}
+                onClick={() => { setMode('forgot'); setError(''); setSuccess(''); setFieldErrors({}) }}
                 style={{ fontSize: 12, color: '#94A3B8', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 Mot de passe oublié ?
               </button>
             )}
             <button
-              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess('') }}
+              onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setSuccess(''); setFieldErrors({}) }}
               style={{ fontSize: 13, color: '#6366F1', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
             >
               {mode === 'forgot' ? 'Retour à la connexion' : mode === 'login' ? 'Pas encore de compte ? Créer' : 'Déjà un compte ? Se connecter'}

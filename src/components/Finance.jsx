@@ -24,18 +24,20 @@ export default function Finance({ products, stock, events, locations, depreciati
     return (depreciation || []).map(d => {
       const product = (products || []).find(p => p.id === d.product_id)
       return { ...d, product }
-    }).sort((a, b) => (b.valeur_nette || 0) - (a.valeur_nette || 0))
+    }).sort((a, b) => (b.net_book_value || 0) - (a.net_book_value || 0))
   }, [depreciation, products])
 
-  const totalBrut = depreciationItems.reduce((s, d) => s + (d.prix_achat_ht || 0), 0)
-  const totalAmorti = depreciationItems.reduce((s, d) => s + (d.amortissement_cumule || 0), 0)
-  const totalNet = depreciationItems.reduce((s, d) => s + (d.valeur_nette || 0), 0)
+  const { totalBrut, totalAmorti, totalNet } = useMemo(() => ({
+    totalBrut: depreciationItems.reduce((s, d) => s + (d.cost_ht || 0), 0),
+    totalAmorti: depreciationItems.reduce((s, d) => s + (d.cumulative_depreciation || 0), 0),
+    totalNet: depreciationItems.reduce((s, d) => s + (d.net_book_value || 0), 0),
+  }), [depreciationItems])
 
   // ─── Stock valuation (rough) ───
   const stockValue = useMemo(() => {
     return (products || []).reduce((total, p) => {
       const qty = (stock || []).filter(s => s.product_id === p.id).reduce((s, st) => s + (st.quantity || 0), 0)
-      const unitPrice = p.prix_achat_ht || p.prix_vente || 0
+      const unitPrice = p.cost_ht || p.sell_price_ttc || p.sale_price || 0
       return total + qty * unitPrice
     }, 0)
   }, [products, stock])
@@ -425,9 +427,13 @@ export default function Finance({ products, stock, events, locations, depreciati
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {depreciationItems.map((d, i) => {
-                const pct = d.prix_achat_ht > 0 ? Math.round((d.amortissement_cumule / d.prix_achat_ht) * 100) : 0
+                const costHt = d.cost_ht || 0
+                const cumAmort = d.cumulative_depreciation || 0
+                const pct = costHt > 0 ? Math.round((cumAmort / costHt) * 100) : 0
+                const dureeAnnees = d.useful_life_months ? Math.round(d.useful_life_months / 12) : null
+                const netValue = d.net_book_value
                 return (
-                  <div key={i} className="card" style={{ padding: '12px 14px' }}>
+                  <div key={d.product_id || `depreciation-${i}`} className="card" style={{ padding: '12px 14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                       <span style={{ fontSize: 16 }}>{d.product?.image || ''}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -435,17 +441,19 @@ export default function Finance({ products, stock, events, locations, depreciati
                           {d.product?.name || 'Produit inconnu'}
                         </div>
                         <div style={{ fontSize: 10, color: '#94A3B8' }}>
-                          Durée: {d.duree_amort || '?'} ans · Acquis: {d.date_acquisition ? parseDate(d.date_acquisition).toLocaleDateString('fr-FR') : '?'}
+                          Durée: {dureeAnnees ? `${dureeAnnees} ans` : '—'} · Acquis: {d.purchase_date ? parseDate(d.purchase_date).toLocaleDateString('fr-FR') : '—'}
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#16A34A' }}>{Math.round(d.valeur_nette || 0)}€</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#16A34A' }}>
+                          {netValue != null ? `${Math.round(netValue)}€` : '—'}
+                        </div>
                         <div style={{ fontSize: 9, color: '#94A3B8' }}>net</div>
                       </div>
                     </div>
                     {/* Progress */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 10, color: '#94A3B8' }}>Brut: {Math.round(d.prix_achat_ht || 0)}€</span>
+                      <span style={{ fontSize: 10, color: '#94A3B8' }}>Brut: {costHt > 0 ? `${Math.round(costHt)}€` : '—'}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, color: '#6366F1' }}>{pct}% amorti</span>
                     </div>
                     <div style={{ height: 4, borderRadius: 2, background: '#F1F5F9', overflow: 'hidden' }}>

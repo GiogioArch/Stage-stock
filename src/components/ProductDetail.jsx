@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react'
+import { Copy } from 'lucide-react'
 import { Badge, getCat, fmtDate, getMoveConf, parseDate } from './UI'
+import { generateBarcodeSVG } from '../lib/qrcode'
 
 // ─── Forecast helpers (same logic as Forecast.jsx) ───
 const CONV_RATES = {
@@ -252,10 +254,61 @@ export default function ProductDetail({ product, stock, locations, movements, ev
               {product.cost_ht != null && product.cost_ht > 0 && (
                 <InfoRow label="Coût HT" value={`${product.cost_ht.toFixed(2)} €`} />
               )}
-              {product.selling_price != null && product.selling_price > 0 && (
+              {product.sell_price_ttc != null && product.sell_price_ttc > 0 && (
+                <InfoRow label="Prix de vente TTC" value={`${Number(product.sell_price_ttc).toFixed(2)} €`} />
+              )}
+              {product.sell_price_ttc > 0 && product.cost_ht > 0 && (() => {
+                const margin = product.sell_price_ttc - product.cost_ht
+                const pct = ((margin / product.sell_price_ttc) * 100).toFixed(0)
+                return <InfoRow label="Marge brute" value={`${margin.toFixed(2)} € (${pct}%)`} />
+              })()}
+              {product.selling_price != null && product.selling_price > 0 && !product.sell_price_ttc && (
                 <InfoRow label="Prix de vente" value={`${product.selling_price.toFixed(2)} €`} />
               )}
             </div>
+
+            {/* Code-barres */}
+            {(product.barcode || product.sku) && (() => {
+              const barcodeText = product.barcode || product.sku
+              const svgStr = generateBarcodeSVG(barcodeText, { width: 260, height: 90 })
+              return (
+                <>
+                  <SectionLabel>Code-barres</SectionLabel>
+                  <div className="card" style={{ marginBottom: 14, padding: '16px', textAlign: 'center' }}>
+                    {svgStr && (
+                      <div
+                        style={{ display: 'inline-block', background: 'white', borderRadius: 8, padding: '12px 16px', border: '1px solid #F1F5F9' }}
+                        dangerouslySetInnerHTML={{ __html: svgStr }}
+                      />
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', fontFamily: 'monospace' }}>
+                        {barcodeText}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          try {
+                            navigator.clipboard.writeText(barcodeText)
+                            if (onToast) onToast('Code copié !')
+                          } catch (err) {
+                            if (onToast) onToast('Erreur copie', '#DC2626')
+                          }
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700,
+                          background: 'rgba(99,102,241,0.08)', color: '#6366F1',
+                          border: '1px solid rgba(99,102,241,0.2)', cursor: 'pointer',
+                        }}
+                      >
+                        <Copy size={12} /> Copier
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )
+            })()}
 
             {/* Qui / Quoi / Où / Quand / Comment */}
             <SectionLabel>Fiche opérationnelle</SectionLabel>
@@ -274,7 +327,7 @@ export default function ProductDetail({ product, stock, locations, movements, ev
                 <SectionLabel>CA par concert</SectionLabel>
                 <div className="card" style={{ marginBottom: 14, padding: '14px 16px' }}>
                   {caPerConcert.map((c, i) => (
-                    <div key={i} style={{
+                    <div key={c.event?.id || `concert-${i}`} style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       padding: '8px 0', borderBottom: i < caPerConcert.length - 1 ? '1px solid #F1F5F9' : 'none',
                     }}>
