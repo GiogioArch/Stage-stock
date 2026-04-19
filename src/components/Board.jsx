@@ -1,4 +1,4 @@
-import React, { useState, createElement } from 'react'
+import React, { useState, useMemo, createElement } from 'react'
 import { useToast, useProject, useBoardConfig } from '../shared/hooks'
 import { parseDate, Badge, Confirm } from './UI'
 import { db } from '../lib/supabase'
@@ -28,6 +28,10 @@ import {
   RotateCcw,
   X,
   TrendingUp,
+  Clock,
+  PackagePlus,
+  Wallet,
+  Trophy,
 } from 'lucide-react'
 
 // ─── Icon mapping (MODULES.icon is a string, we need actual components) ───
@@ -53,9 +57,17 @@ const MOD_LABELS = {
 export default function Board({
   products, locations, stock, movements, alerts, events,
   families, subfamilies, checklists, roles, eventPacking,
-  userProfiles, onQuickAction, onNavigate,
+  userProfiles, purchaseOrders, onQuickAction, onNavigate,
   onOpenScanner,
 }) {
+  const [showAllTopVentes, setShowAllTopVentes] = useState(false)
+  const [firstLoginBanner, setFirstLoginBanner] = useState(() => {
+    return localStorage.getItem('first_login_shown') === '0'
+  })
+  const dismissFirstLogin = () => {
+    localStorage.setItem('first_login_shown', '1')
+    setFirstLoginBanner(false)
+  }
   const onToast = useToast()
   const { userRole } = useProject()
   const {
@@ -73,6 +85,88 @@ export default function Board({
   const totalStock = stock.reduce((sum, s) => sum + (s.quantity || 0), 0)
   const criticalAlerts = alerts.filter(a => a.level === 'rupture')
   const lowAlerts = alerts.filter(a => a.level !== 'rupture')
+
+  // ─── KPIs Stock ───
+  const stockValue = useMemo(() => {
+    return (stock || []).reduce((sum, s) => {
+      const p = (products || []).find(pr => pr.id === s.product_id)
+      if (!p) return sum
+      return sum + (s.quantity || 0) * (p.cost_ht || 0)
+    }, 0)
+  }, [stock, products])
+
+  const caPotentiel = useMemo(() => {
+    return (stock || []).reduce((sum, s) => {
+      const p = (products || []).find(pr => pr.id === s.product_id)
+      return sum + (s.quantity || 0) * (p?.sell_price_ttc || 0)
+    }, 0)
+  }, [stock, products])
+
+  const rotation = useMemo(() => {
+    const cutoff = Date.now() - 30 * 86400000
+    const out30d = (movements || [])
+      .filter(m => m.type === 'out' && new Date(m.created_at) > new Date(cutoff))
+      .reduce((s, m) => s + (m.quantity || 0), 0)
+    const stockMoyen = totalStock / 2
+    return stockMoyen > 0 ? (out30d / stockMoyen).toFixed(2) : '0.00'
+  }, [movements, totalStock])
+
+  const dormants = useMemo(() => {
+    return (products || []).filter(p => {
+      const lastMove = (movements || [])
+        .filter(m => m.product_id === p.id)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+      if (!lastMove) return true
+      const days = (Date.now() - new Date(lastMove.created_at)) / 86400000
+      return days > 90
+    }).length
+  }, [products, movements])
+
+  const morts = useMemo(() => {
+    return (products || []).filter(p => {
+      const qty = (stock || []).filter(s => s.product_id === p.id).reduce((t, s) => t + (s.quantity || 0), 0)
+      if (qty === 0) return false
+      const lastOut = (movements || [])
+        .filter(m => m.product_id === p.id && m.type === 'out')
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+      if (!lastOut) return true
+      return (Date.now() - new Date(lastOut.created_at)) / 86400000 > 180
+    }).length
+  }, [products, stock, movements])
+
+  const surstock = useMemo(() => {
+    return (products || []).filter(p => {
+      const qty = (stock || []).filter(s => s.product_id === p.id).reduce((t, s) => t + (s.quantity || 0), 0)
+      return qty > (p.min_stock || 5) * 3
+    }).length
+  }, [products, stock])
+
+  const topVentes = useMemo(() => {
+    const salesByProduct = {}
+    ;(movements || []).filter(m => m.type === 'out').forEach(m => {
+      if (!salesByProduct[m.product_id]) salesByProduct[m.product_id] = 0
+      salesByProduct[m.product_id] += (m.quantity || 0)
+    })
+    return Object.entries(salesByProduct)
+      .map(([pid, qty]) => ({
+        product: (products || []).find(p => p.id === pid),
+        qty,
+      }))
+      .filter(x => x.product)
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 10)
+  }, [movements, products])
+
+  const commandesEnCours = useMemo(() => {
+    return (purchaseOrders || []).filter(po =>
+      !['received', 'cancelled'].includes(po.status)
+    ).length
+  }, [purchaseOrders])
+
+  const fmtEuro = (v) => {
+    const n = Math.round((v || 0) * 100) / 100
+    return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '€'
+  }
 
   const now = new Date().toISOString().split('T')[0]
   const upcomingEvents = events.filter(e => e.date >= now)
@@ -230,6 +324,48 @@ export default function Board({
             </div>
           )}
         </div>
+
+        {/* ═══ BANDEAU PREMIERE CONNEXION ═══ */}
+        {firstLoginBanner && (
+          <div style={{
+            padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
+            background: `linear-gradient(135deg, ${SEMANTIC.success}15, ${SEMANTIC.info}10)`,
+            border: `1px solid ${SEMANTIC.success}30`,
+            position: 'relative',
+          }}>
+            <button
+              onClick={dismissFirstLogin}
+              aria-label="Fermer"
+              style={{
+                position: 'absolute', top: 8, right: 8,
+                width: 24, height: 24, borderRadius: 12,
+                background: 'rgba(0,0,0,0.05)', border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: BASE.textMuted,
+              }}
+            >
+              {createElement(X, { size: 14 })}
+            </button>
+            <div style={{ fontSize: 14, fontWeight: 700, color: BASE.text, marginBottom: 4 }}>
+              Bienvenue sur BackStage !
+            </div>
+            <div style={{ fontSize: 12, color: BASE.textSoft, marginBottom: SPACE.sm, lineHeight: 1.5 }}>
+              Tu peux commencer par ajouter des articles dans l'onglet <strong>Articles</strong>,
+              ou créer ton premier concert dans <strong>Tournée</strong>.
+              Tout est accessible en 3 clics max.
+            </div>
+            <button
+              onClick={dismissFirstLogin}
+              style={{
+                padding: '6px 14px', borderRadius: RADIUS.md,
+                background: SEMANTIC.success, color: BASE.white,
+                fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
+              }}
+            >
+              OK, c'est parti
+            </button>
+          </div>
+        )}
 
         {/* ═══ MODE ÉDITION ═══ */}
         {isEditing && (
@@ -557,6 +693,121 @@ export default function Board({
           )
         })()}
 
+        {/* ═══ 5c. KPIs STOCK (8 metriques cles) ═══ */}
+        <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm, marginTop: SPACE.sm }}>
+          KPIs Stock
+        </div>
+
+        {/* 4 cards principales */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.sm,
+        }}>
+          <KpiCard
+            icon={Wallet}
+            color={SEMANTIC.info}
+            label="Valeur stock"
+            value={fmtEuro(stockValue)}
+            sub="cout achat"
+          />
+          <KpiCard
+            icon={TrendingUp}
+            color={SEMANTIC.success}
+            label="CA potentiel"
+            value={fmtEuro(caPotentiel)}
+            sub="si tout vendu"
+          />
+          <KpiCard
+            icon={RefreshCw}
+            color={MODULES.tournee?.color || SEMANTIC.info}
+            label="Rotation 30j"
+            value={`x${rotation}`}
+            sub="sorties / stock moyen"
+          />
+          <KpiCard
+            icon={ShoppingCart}
+            color={MODULES.achats?.color || SEMANTIC.warning}
+            label="Commandes"
+            value={commandesEnCours}
+            sub="en cours"
+            onClick={() => onNavigate && onNavigate('achats')}
+          />
+        </div>
+
+        {/* 3 cards alertes */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.lg,
+        }}>
+          <KpiCard
+            icon={Clock}
+            color={SEMANTIC.warning}
+            label="Dormant"
+            value={dormants}
+            sub=">90j"
+            compact
+          />
+          <KpiCard
+            icon={AlertTriangle}
+            color={SEMANTIC.danger}
+            label="Mort"
+            value={morts}
+            sub=">180j"
+            compact
+          />
+          <KpiCard
+            icon={PackagePlus}
+            color={SEMANTIC.info}
+            label="Surstock"
+            value={surstock}
+            sub=">3x min"
+            compact
+          />
+        </div>
+
+        {/* Top 10 ventes */}
+        {topVentes.length > 0 && (
+          <div style={{
+            padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
+            background: BASE.white, border: `1px solid ${BASE.border}`, boxShadow: SHADOW.sm,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm, marginBottom: SPACE.sm }}>
+              {createElement(Trophy, { size: 16, style: { color: SEMANTIC.warning } })}
+              <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>Top ventes</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {(showAllTopVentes ? topVentes : topVentes.slice(0, 3)).map((tv, idx) => (
+                <div key={tv.product.id} style={{
+                  display: 'flex', alignItems: 'center', gap: SPACE.sm,
+                  padding: `${SPACE.xs + 2}px ${SPACE.sm}px`, borderRadius: RADIUS.sm,
+                  background: idx < 3 ? `${SEMANTIC.warning}08` : BASE.bgHover,
+                }}>
+                  <div style={{
+                    width: 22, height: 22, borderRadius: 11,
+                    background: idx === 0 ? '#FFD700' : idx === 1 ? '#C0C0C0' : idx === 2 ? '#CD7F32' : BASE.bgHover,
+                    color: idx < 3 ? BASE.white : BASE.textMuted,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 11, fontWeight: 700, flexShrink: 0,
+                  }}>{idx + 1}</div>
+                  <div style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 500, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {tv.product.name || tv.product.sku}
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: SEMANTIC.success, flexShrink: 0 }}>
+                    {tv.qty}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {topVentes.length > 3 && (
+              <button onClick={() => setShowAllTopVentes(!showAllTopVentes)} style={{
+                marginTop: SPACE.sm, width: '100%', padding: '6px',
+                background: 'none', border: 'none', color: SEMANTIC.info,
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
+              }}>
+                {showAllTopVentes ? 'Voir moins' : `Voir + (${topVentes.length - 3})`}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* ═══ 6. PROCHAINS ÉVÉNEMENTS (compact) ═══ */}
         {sections.upcoming && upcomingEvents.length > 1 && (
           <>
@@ -627,6 +878,46 @@ function editBtnStyle(disabled) {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     padding: 0, flexShrink: 0,
   }
+}
+
+// ─── KPI card (Stock metrics) ───
+function KpiCard({ icon, color, label, value, sub, compact, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        padding: compact ? `${SPACE.sm + 2}px ${SPACE.sm}px` : `${SPACE.md}px ${SPACE.md}px`,
+        borderRadius: RADIUS.lg,
+        background: BASE.white,
+        border: `1px solid ${BASE.border}`,
+        boxShadow: SHADOW.sm,
+        cursor: onClick ? 'pointer' : 'default',
+        display: 'flex', flexDirection: 'column', gap: 4,
+        minHeight: compact ? 70 : 86,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{
+          width: compact ? 22 : 26, height: compact ? 22 : 26, borderRadius: RADIUS.sm,
+          background: `${color}15`, color,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>
+          {createElement(icon, { size: compact ? 12 : 14 })}
+        </div>
+        <div style={{ fontSize: compact ? 10 : 11, fontWeight: 600, color: BASE.textSoft, textTransform: 'uppercase', letterSpacing: 0.3 }}>
+          {label}
+        </div>
+      </div>
+      <div style={{ fontSize: compact ? 18 : 20, fontWeight: 700, color: BASE.text, lineHeight: 1.1 }}>
+        {value}
+      </div>
+      {sub && (
+        <div style={{ fontSize: 10, color: BASE.textMuted }}>
+          {sub}
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ─── Quick action button (compact) ───

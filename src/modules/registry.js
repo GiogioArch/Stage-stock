@@ -35,11 +35,17 @@ export const MODULES = {
     name: 'Articles',
     icon: 'package',
     color: '#8B6DB8',
-    description: 'Catalogue produits, familles et sous-familles',
+    description: 'Catalogue produits, stock multi-lieux et mouvements',
+    // v9.3 : Articles inclut désormais Stock + Mouvements (sous-vues internes)
+    // donc on charge directement locations / stock / movements ici
+    // pour éviter une dépendance circulaire avec le module `stock`
     tables: {
       products: 'order=name.asc',
       families: 'order=name.asc',
       subfamilies: 'order=name.asc',
+      locations: 'order=name.asc',
+      stock: '',
+      movements: 'order=created_at.desc&limit=200',
     },
     deps: [],
     order: 10,
@@ -181,8 +187,11 @@ export const MODULES = {
 }
 
 // Modules actifs par défaut pour un nouveau compte
+// v9.3 — focus "merch pour tournée" : 3 onglets de nav max
+// Stock + Mouvements sont intégrés dans Articles (sous-vues)
+// Les autres modules restent dans le registry et peuvent être réactivés via Settings
 export const DEFAULT_ACTIVE = [
-  'dashboard', 'tournee', 'articles', 'stock', 'equipe', 'timeline', 'ventes',
+  'dashboard', 'tournee', 'articles',
 ]
 
 // ─── Helpers ───

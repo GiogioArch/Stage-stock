@@ -52,7 +52,9 @@ const TAB_ICONS = {
 }
 
 // Bottom sheet "Plus" menu items
+// v9.3 — Équipe ajouté ici (sorti de la nav principale pour focus 3 onglets)
 const MORE_ITEMS = [
+  { id: 'equipe', label: 'Équipe', icon: Users, color: '#E8735A' },
   { id: 'finance', label: 'Finance', icon: Coins, color: '#E8935A' },
   { id: 'forecast', label: 'Prévisions', icon: TrendingUp, color: '#E8935A' },
   { id: 'transport', label: 'Transport', icon: Truck, color: '#E8735A' },
@@ -388,6 +390,44 @@ export default function App() {
     && !localStorage.getItem('onboarding_complete')
     && layer === 'personal'
 
+  // ─── Auto-bootstrap : skip Melodie role/project picker for fresh signups ───
+  // Detect a "fresh signup" via flag set by Melodie.handleLogin / signup flow
+  const autoBootstrap = needsOnboarding && localStorage.getItem('auto_bootstrap_pending') === '1'
+
+  if (autoBootstrap && !window.__bootstrapping) {
+    window.__bootstrapping = true
+    ;(async () => {
+      try {
+        const slug = ('mon-projet-' + Date.now()).slice(0, 30)
+        const orgs = await db.insert('organizations', { name: 'Mon Premier Projet', slug })
+        const org = orgs[0]
+        const ALL_MODULES = ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'finance', 'forecast']
+        const members = await db.insert('project_members', {
+          user_id: user.id, org_id: org.id,
+          module_access: ALL_MODULES, is_admin: true, status: 'active',
+        })
+        // Default role: Tour Manager (TM)
+        try {
+          const tmRole = (data.roles || []).find(r => r.code === 'TM')
+          if (tmRole) {
+            try { await db.upsert('user_profiles', { user_id: user.id, role_id: tmRole.id, org_id: org.id }) }
+            catch { try { await db.insert('user_profiles', { user_id: user.id, role_id: tmRole.id, org_id: org.id }) } catch {} }
+          }
+        } catch { /* non-critical */ }
+        localStorage.setItem('onboarding_complete', 'true')
+        localStorage.setItem('first_login_shown', '0') // banner pending
+        localStorage.removeItem('auto_bootstrap_pending')
+        loadPersonalData()
+        enterProject({ ...members[0], org })
+      } catch (e) {
+        // On error, fallback to manual onboarding
+        localStorage.removeItem('auto_bootstrap_pending')
+        window.__bootstrapping = false
+      }
+    })()
+    return <SplashScreen text="Préparation de ton espace..." />
+  }
+
   if (needsOnboarding) {
     return (
       <>
@@ -635,9 +675,11 @@ export default function App() {
       />
       </Suspense>
 
-      {/* ─── Bottom Nav (Couche 3 — 5 onglets) ─── */}
+      {/* ─── Bottom Nav dynamique (filtre selon modules actifs) ─── */}
+      {/* v9.3 — focus merch tournée : par défaut, 3 onglets (Board + Concert + Articles) */}
+      {/* L'onglet "Plus" apparaît dès qu'il y a au moins un module additionnel activé */}
       <nav className="bottom-nav">
-        {/* 1. Board */}
+        {/* 1. Board — toujours visible (alwaysActive) */}
         <button className={`nav-tab ${tab === 'board' ? 'active' : ''}`}
           style={tab === 'board' ? { color: '#E8735A' } : undefined}
           onClick={() => handleTabChange('board')}
@@ -645,34 +687,31 @@ export default function App() {
           <span className="nav-icon"><BarChart3 size={18} /></span>
           <span>Board</span>
         </button>
-        {/* 2. Concert */}
-        <button className={`nav-tab ${['tournee', 'timeline', 'ventes'].includes(tab) ? 'active' : ''}`}
-          style={['tournee', 'timeline', 'ventes'].includes(tab) ? { color: '#E8735A' } : undefined}
-          onClick={() => handleTabChange('tournee')}
-          aria-label="Concert">
-          <span className="nav-icon"><Music size={18} /></span>
-          <span>Concert</span>
-        </button>
-        {/* 3. Stock */}
-        <button className={`nav-tab ${['stock_hub', 'articles', 'stock', 'inventaire', 'achats'].includes(tab) ? 'active' : ''}`}
-          style={['stock_hub', 'articles', 'stock', 'inventaire', 'achats'].includes(tab) ? { color: '#5B8DB8' } : undefined}
-          onClick={() => handleTabChange('stock_hub')}
-          aria-label="Stock">
-          <span className="nav-icon"><Package size={18} /></span>
-          <span>Stock</span>
-          {alerts.filter(a => a.level === 'rupture').length > 0 && <span className="nav-badge">{alerts.filter(a => a.level === 'rupture').length}</span>}
-        </button>
-        {/* 4. Équipe */}
-        <button className={`nav-tab ${tab === 'equipe' ? 'active' : ''}`}
-          style={tab === 'equipe' ? { color: '#E8735A' } : undefined}
-          onClick={() => handleTabChange('equipe')}
-          aria-label="Équipe">
-          <span className="nav-icon"><Users size={18} /></span>
-          <span>Équipe</span>
-        </button>
-        {/* 5. Plus */}
-        <button className={`nav-tab ${showMore || ['finance', 'forecast', 'transport', 'settings'].includes(tab) ? 'active' : ''}`}
-          style={showMore || ['finance', 'forecast', 'transport', 'settings'].includes(tab) ? { color: '#5B8DB8' } : undefined}
+        {/* 2. Concert / Tournée — si module actif */}
+        {isModuleActive('tournee') && (
+          <button className={`nav-tab ${['tournee', 'timeline', 'ventes'].includes(tab) ? 'active' : ''}`}
+            style={['tournee', 'timeline', 'ventes'].includes(tab) ? { color: '#E8735A' } : undefined}
+            onClick={() => handleTabChange('tournee')}
+            aria-label="Tournée">
+            <span className="nav-icon"><Music size={18} /></span>
+            <span>Tournée</span>
+          </button>
+        )}
+        {/* 3. Articles (catalogue + stock + mouvements en sous-vues) */}
+        {isModuleActive('articles') && (
+          <button className={`nav-tab ${['articles', 'stock_hub', 'stock', 'inventaire', 'achats'].includes(tab) ? 'active' : ''}`}
+            style={['articles', 'stock_hub', 'stock', 'inventaire', 'achats'].includes(tab) ? { color: '#8B6DB8' } : undefined}
+            onClick={() => handleTabChange('articles')}
+            aria-label="Articles">
+            <span className="nav-icon"><Package size={18} /></span>
+            <span>Articles</span>
+            {alerts.filter(a => a.level === 'rupture').length > 0 && <span className="nav-badge">{alerts.filter(a => a.level === 'rupture').length}</span>}
+          </button>
+        )}
+        {/* v9.3 — Équipe retiré de la nav (toujours alwaysActive en interne, accessible via Plus) */}
+        {/* 4. Plus — bottom sheet pour Équipe / Finance / Prévisions / Transport / EK Live */}
+        <button className={`nav-tab ${showMore || ['equipe', 'finance', 'forecast', 'transport', 'settings'].includes(tab) ? 'active' : ''}`}
+          style={showMore || ['equipe', 'finance', 'forecast', 'transport', 'settings'].includes(tab) ? { color: '#5B8DB8' } : undefined}
           onClick={() => setShowMore(!showMore)}
           aria-label="Plus de modules">
           <span className="nav-icon"><MoreHorizontal size={18} /></span>
@@ -795,6 +834,7 @@ function TabContent({
           roles={data.roles}
           eventPacking={data.event_packing}
           userProfiles={data.user_profiles}
+          purchaseOrders={data.purchase_orders}
           onQuickAction={onQuickAction}
           onNavigate={onNavigate}
           onOpenScanner={onOpenScanner}
@@ -826,6 +866,7 @@ function TabContent({
           movements={filteredMovements}
           events={data.events}
           eventPacking={data.event_packing}
+          onMovement={onMovement}
         />
       )
     case 'stock_hub':

@@ -222,6 +222,11 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
             return
           }
         }
+        // Pas d'invitation : signaler a App.jsx de bootstrapper auto un projet par defaut
+        // (skip role/project picker → 3 clics max)
+        if (!localStorage.getItem('onboarding_complete')) {
+          localStorage.setItem('auto_bootstrap_pending', '1')
+        }
         onAuth(u)
       } else if (!data.error) {
         setAuthError('Connexion échouée. Vérifie tes identifiants.')

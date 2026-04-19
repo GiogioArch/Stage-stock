@@ -1,12 +1,16 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, lazy, Suspense } from 'react'
 import { useToast, useProject, useAuth } from '../shared/hooks'
 import { logAction } from '../lib/auditLog'
-import { Search, FileDown, Package, Plus, ChevronRight, Edit, Trash2, Filter } from 'lucide-react'
+import { Search, FileDown, Package, Plus, ChevronRight, Edit, Trash2, Filter, Warehouse, ArrowLeftRight } from 'lucide-react'
 import { db } from '../lib/supabase'
 import { Modal, Confirm, getCat, CATEGORIES, Badge, intOnly } from './UI'
 import ProductDetail from './ProductDetail'
 import CSVImport from './CSVImport'
 import BulkProductUpdate from './BulkProductUpdate'
+
+// v9.3 — Stock + Mouvements intégrés dans Articles (sous-vues)
+const Depots = lazy(() => import('./Depots'))
+const Movements = lazy(() => import('./Movements'))
 
 // Roles autorises a faire de la mise a jour en masse des articles
 const STOCK_MANAGER_ROLES = ['TM', 'PM', 'LOG', 'PA', 'MM']
@@ -15,7 +19,92 @@ import { GradientHeader, FilterPills, FloatingDetail } from '../design'
 
 const theme = getModuleTheme('articles')
 
-export default function Products({ products, families, subfamilies, stock, locations, movements, events, eventPacking }) {
+// ─── Wrapper module : Catalogue / Stock / Mouvements ───
+// Bandeau de sous-vues en haut, contenu dynamique en dessous
+export default function ArticlesModule(props) {
+  const { products = [], stock = [], movements = [] } = props
+  const [view, setView] = useState('catalogue') // 'catalogue' | 'stock' | 'movements'
+
+  const totalStock = useMemo(
+    () => stock.reduce((sum, s) => sum + (s.quantity || 0), 0),
+    [stock]
+  )
+
+  const VIEWS = [
+    { id: 'catalogue', label: 'Catalogue', icon: Package, count: products.length },
+    { id: 'stock', label: 'Stock', icon: Warehouse, count: totalStock },
+    { id: 'movements', label: 'Mouvements', icon: ArrowLeftRight, count: movements.length },
+  ]
+
+  return (
+    <div>
+      {/* Sub-tabs : 3 vues switchables */}
+      <div style={{
+        display: 'flex', gap: 6, padding: '12px 16px 8px',
+        overflowX: 'auto', WebkitOverflowScrolling: 'touch',
+        scrollbarWidth: 'none', position: 'sticky', top: 0, zIndex: 10,
+        background: '#FFFFFF',
+      }}>
+        {VIEWS.map(v => {
+          const isActive = view === v.id
+          const Icon = v.icon
+          return (
+            <button
+              key={v.id}
+              onClick={() => setView(v.id)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 14px', borderRadius: 20,
+                fontSize: 13, fontWeight: isActive ? 700 : 500,
+                cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                background: isActive ? theme.color : '#F1F5F9',
+                color: isActive ? '#FFFFFF' : '#64748B',
+                border: 'none',
+                boxShadow: isActive ? `0 2px 8px ${theme.color}40` : 'none',
+                transition: 'all 0.2s ease',
+              }}>
+              <Icon size={14} />
+              <span>{v.label}</span>
+              <span style={{
+                fontSize: 11, fontWeight: 700, opacity: 0.85,
+                padding: '1px 6px', borderRadius: 10,
+                background: isActive ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.06)',
+              }}>{v.count}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {view === 'catalogue' && <Catalogue {...props} />}
+
+      {view === 'stock' && (
+        <Suspense fallback={<div style={{ padding: 32, textAlign: 'center' }}><div className="loader" /></div>}>
+          <Depots
+            locations={props.locations}
+            stock={props.stock}
+            products={props.products}
+            movements={props.movements}
+            families={props.families}
+            subfamilies={props.subfamilies}
+            onMovement={props.onMovement}
+          />
+        </Suspense>
+      )}
+
+      {view === 'movements' && (
+        <Suspense fallback={<div style={{ padding: 32, textAlign: 'center' }}><div className="loader" /></div>}>
+          <Movements
+            movements={props.movements}
+            products={props.products}
+            locations={props.locations}
+          />
+        </Suspense>
+      )}
+    </div>
+  )
+}
+
+function Catalogue({ products, families, subfamilies, stock, locations, movements, events, eventPacking }) {
   const { orgId, reload, userRole } = useProject()
   const { user } = useAuth()
   const onToast = useToast()
