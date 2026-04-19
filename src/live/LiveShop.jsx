@@ -67,18 +67,23 @@ export default function LiveShop({ eventId, fanId }) {
     setSaving(true)
     try {
       const pickupCode = String(Math.floor(1000 + Math.random() * 9000))
+      // P0-12 : live_orders n'a pas de colonne fan_id, et live_order_items a variant (text), pas variant_id
       const orders = await db.insert('live_orders', {
-        event_id: eventId, fan_id: fanId,
+        event_id: eventId,
         fan_name: firstName.trim(),
         fan_phone: phone.replace(/[^0-9+]/g, ''),
         pickup_code: pickupCode, total: cartTotal, status: 'pending',
       })
       const order = orders[0]
       for (const item of cart) {
+        const variantLabel = item.variant?.label || item.variant?.size || item.variant?.name || null
         await db.insert('live_order_items', {
-          order_id: order.id, product_id: item.product.id,
-          variant_id: item.variant?.id || null,
-          quantity: item.qty, unit_price: item.product.price || 0,
+          order_id: order.id,
+          product_id: item.product.id,
+          product_name: item.product.name,
+          variant: variantLabel,
+          quantity: item.qty,
+          unit_price: item.product.price || 0,
         })
       }
       setConfirmation({ pickupCode })
