@@ -20,6 +20,74 @@ export const ROLE_CONF = {
 }
 
 // ═══════════════════════════════════════════════
+// FICHES MÉTIER — tagline, recommended, filière
+// Utilisé par l'entonnoir d'onboarding (Melodie.jsx)
+// ═══════════════════════════════════════════════
+// filiere : 'direction' | 'technique' | 'operationnel'
+export const ROLE_PROFILES = {
+  TM: {
+    filiere: 'direction',
+    tagline: 'Tu supervises toute la tournée — décisions, budgets, équipe.',
+    recommended: 'tu signes les chèques et tu prends les décisions finales.',
+  },
+  PM: {
+    filiere: 'direction',
+    tagline: 'Tu orchestres la production — planning, équipes techniques, faisabilité.',
+    recommended: 'tu fais tourner la machine entre artistes, techniciens et lieux.',
+  },
+  PA: {
+    filiere: 'direction',
+    tagline: 'Tu épaules la prod au quotidien — logistique, suivi, coordination.',
+    recommended: 'tu gères le détail qui fait que tout roule.',
+  },
+  TD: {
+    filiere: 'technique',
+    tagline: 'Tu pilotes toute la technique — son, lumière, scène, régie.',
+    recommended: 'tu es le chef d\'orchestre technique de la tournée.',
+  },
+  SE: {
+    filiere: 'technique',
+    tagline: 'Tu gères le son — façade, retours, balances, micros.',
+    recommended: 'tu fais sonner l\'artiste soir après soir.',
+  },
+  LD: {
+    filiere: 'technique',
+    tagline: 'Tu crées les ambiances lumière — conduite, projecteurs, effets.',
+    recommended: 'tu habilles le show en lumière et en couleurs.',
+  },
+  SM: {
+    filiere: 'technique',
+    tagline: 'Tu tiens la scène — plateau, montage, changements, timing.',
+    recommended: 'tu donnes le top du rideau à la fin du show.',
+  },
+  BL: {
+    filiere: 'technique',
+    tagline: 'Tu prépares les instruments — guitares, claviers, batterie, accordages.',
+    recommended: 'tu veilles sur les instruments comme sur tes bébés.',
+  },
+  MM: {
+    filiere: 'operationnel',
+    tagline: 'Tu gères le merch — stocks, ventes, réassort, caisse.',
+    recommended: 'tu transformes les fans en clients et tu comptes la caisse.',
+  },
+  LOG: {
+    filiere: 'operationnel',
+    tagline: 'Tu gères la logistique — transport, flight cases, chargements.',
+    recommended: 'tu sais où est chaque carton à chaque instant.',
+  },
+  AA: {
+    filiere: 'operationnel',
+    tagline: 'Tu accompagnes l\'artiste — loge, planning, besoins perso.',
+    recommended: 'tu es l\'ombre de l\'artiste, du réveil au bis final.',
+  },
+  SAFE: {
+    filiere: 'operationnel',
+    tagline: 'Tu assures la sécurité — public, artiste, équipe, matériel.',
+    recommended: 'tu anticipes les risques avant qu\'ils arrivent.',
+  },
+}
+
+// ═══════════════════════════════════════════════
 // HIÉRARCHIE DES RÔLES
 // Un rôle senior hérite automatiquement des accès
 // de tous ses sous-rôles (récursif)
@@ -53,6 +121,29 @@ export const ROLE_MODULES = {
   SAFE: ['dashboard', 'equipe', 'tournee', 'timeline'],
   AA:   ['dashboard', 'equipe', 'tournee', 'timeline'],
   PA:   ['dashboard', 'equipe', 'articles', 'stock', 'tournee', 'achats', 'inventaire'],
+}
+
+// ═══════════════════════════════════════════════
+// ROLES — tableau consolidé
+// Sert aux composants (RolePicker, Onboarding, ProfilePage).
+// Chaque entrée = union de ROLE_CONF + ROLE_PROFILES + modules.
+// ═══════════════════════════════════════════════
+export const ROLES = Object.keys(ROLE_CONF).map(code => ({
+  code,
+  label: ROLE_CONF[code].label,
+  icon: ROLE_CONF[code].icon,
+  color: ROLE_CONF[code].color,
+  filiere: ROLE_PROFILES[code]?.filiere || 'operationnel',
+  tagline: ROLE_PROFILES[code]?.tagline || '',
+  recommended: ROLE_PROFILES[code]?.recommended || '',
+  modules: ROLE_MODULES[code] || [],
+}))
+
+// Rôles groupés par filière (ordre d'affichage recommandé)
+export const ROLES_BY_FILIERE = {
+  direction:    ['TM', 'PM', 'PA'],
+  technique:    ['TD', 'SE', 'LD', 'SM', 'BL'],
+  operationnel: ['MM', 'LOG', 'AA', 'SAFE'],
 }
 
 // Calcule tous les modules accessibles = propres + hérités (récursif, sans doublons)

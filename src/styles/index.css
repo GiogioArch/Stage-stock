@@ -198,6 +198,15 @@ button { cursor: pointer; border: none; background: none; }
 .pulse-alert { animation: pulse-alert 2s ease-in-out infinite; }
 .slide-in-right { animation: slide-in-right 0.3s ease-out both; }
 
+/* ─── Board saved toast (fade in, hold, fade out) ─── */
+@keyframes saved-pop {
+  0% { opacity: 0; transform: translateY(-4px) scale(0.9); }
+  15% { opacity: 1; transform: translateY(0) scale(1); }
+  75% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(0) scale(1); }
+}
+.saved-pop { animation: saved-pop 1.4s ease-out forwards; }
+
 /* ─── Hover lift for cards ─── */
 .card-hover {
   transition: transform 0.2s ease, box-shadow 0.2s ease;

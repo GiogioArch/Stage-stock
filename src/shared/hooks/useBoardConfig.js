@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useRef } from 'react'
 import { db } from '../../lib/supabase'
 import { useProject } from './useProject'
 import { useToast } from './useToast'
+import { buildBoardConfigFromRoles } from '../../config/boardPresets'
 
 const DEFAULT_BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance', 'achats']
 
@@ -15,7 +16,7 @@ const DEFAULT_BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance',
  *   const { boardKeys, isEditing, setEditing, moveUp, moveDown, toggleModule, resetBoard } = useBoardConfig()
  */
 export function useBoardConfig() {
-  const { membership, reload } = useProject()
+  const { membership, reload, userRole } = useProject()
   const onToast = useToast()
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -114,6 +115,16 @@ export function useBoardConfig() {
     saveConfig({ board_order: DEFAULT_BOARD_KEYS, hidden: [], sections: {} })
   }, [saveConfig])
 
+  // ─── Applique le preset métier (recalcule depuis userRole) ───
+  const applyRolePreset = useCallback(() => {
+    const codes = userRole?.code ? [userRole.code] : []
+    const preset = buildBoardConfigFromRoles(codes)
+    saveConfig({
+      board_order: preset.board_order,
+      hidden: preset.hidden,
+    })
+  }, [userRole, saveConfig])
+
   return {
     boardKeys,
     allBoardKeys,
@@ -127,6 +138,7 @@ export function useBoardConfig() {
     toggleModule,
     toggleSection,
     resetBoard,
+    applyRolePreset,
     DEFAULT_BOARD_KEYS,
   }
 }

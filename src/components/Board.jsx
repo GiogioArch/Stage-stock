@@ -1,4 +1,4 @@
-import React, { useState, useMemo, createElement } from 'react'
+import React, { useState, useMemo, useEffect, useRef, createElement } from 'react'
 import { useToast, useProject, useBoardConfig } from '../shared/hooks'
 import { parseDate, Badge, Confirm } from './UI'
 import { db } from '../lib/supabase'
@@ -33,6 +33,8 @@ import {
   Wallet,
   Trophy,
   CheckCircle,
+  Check,
+  Sparkles,
 } from 'lucide-react'
 
 // ─── Icons map for hero status banner ───
@@ -72,17 +74,40 @@ export default function Board({
     localStorage.setItem('first_login_shown', '1')
     setFirstLoginBanner(false)
   }
+  // M.4 — Hint tooltip "Personnaliser" au 1er passage
+  const [showBoardHint, setShowBoardHint] = useState(() => {
+    return localStorage.getItem('backstage_board_hint_shown') !== '1'
+  })
+  const dismissBoardHint = () => {
+    localStorage.setItem('backstage_board_hint_shown', '1')
+    setShowBoardHint(false)
+  }
+  // M.4 — Indicateur "Enregistré" qui fade
+  const [savedTick, setSavedTick] = useState(0)
+  const savedTimerRef = useRef(null)
   const onToast = useToast()
   const { userRole } = useProject()
   const {
     boardKeys, allBoardKeys, hiddenKeys, sections,
     isEditing, setEditing, saving,
-    moveUp, moveDown, toggleModule, toggleSection, resetBoard,
+    moveUp, moveDown, toggleModule, toggleSection, resetBoard, applyRolePreset,
   } = useBoardConfig()
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [eventDetailSection, setEventDetailSection] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
   const { reload } = useProject()
+
+  // M.4 — Quand saving retombe a false et qu'on est en edition, afficher "Enregistre"
+  const wasSavingRef = useRef(false)
+  useEffect(() => {
+    if (wasSavingRef.current && !saving && isEditing) {
+      setSavedTick(t => t + 1)
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current)
+      savedTimerRef.current = setTimeout(() => setSavedTick(0), 1400)
+    }
+    wasSavingRef.current = saving
+  }, [saving, isEditing])
+  useEffect(() => () => { if (savedTimerRef.current) clearTimeout(savedTimerRef.current) }, [])
 
   // ─── Data calculations ───
   const roleConf = userRole ? (ROLE_CONF[userRole.code] || { label: userRole.name }) : null
@@ -311,21 +336,82 @@ export default function Board({
                 </div>
               )}
             </div>
-            {/* Bouton personnaliser */}
-            <button
-              onClick={() => setEditing(!isEditing)}
-              aria-label="Personnaliser le board"
-              style={{
-                width: 36, height: 36, borderRadius: RADIUS.md,
-                background: isEditing ? SEMANTIC.info : BASE.white,
-                border: `1px solid ${isEditing ? SEMANTIC.info : BASE.border}`,
-                color: isEditing ? BASE.white : BASE.textMuted,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: SHADOW.sm, flexShrink: 0,
-              }}
-            >
-              {createElement(isEditing ? X : Settings, { size: 18 })}
-            </button>
+            {/* Bouton personnaliser (M.4 — pill purple + label + hint) */}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <button
+                onClick={() => {
+                  if (showBoardHint) dismissBoardHint()
+                  setEditing(!isEditing)
+                }}
+                aria-label={isEditing ? 'Terminer l\'edition' : 'Personnaliser le board'}
+                className="customize-pill"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '7px 12px', borderRadius: 12,
+                  background: isEditing ? '#7C3AED' : 'rgba(124,58,237,0.08)',
+                  border: `1px solid ${isEditing ? '#7C3AED' : 'rgba(124,58,237,0.25)'}`,
+                  color: isEditing ? '#FFFFFF' : '#7C3AED',
+                  fontSize: 12, fontWeight: 600,
+                  cursor: 'pointer', whiteSpace: 'nowrap',
+                  transition: 'background 160ms ease, color 160ms ease, border-color 160ms ease',
+                  boxShadow: isEditing ? '0 2px 6px rgba(124,58,237,0.25)' : 'none',
+                }}
+                onMouseEnter={e => {
+                  if (!isEditing) e.currentTarget.style.background = 'rgba(124,58,237,0.15)'
+                }}
+                onMouseLeave={e => {
+                  if (!isEditing) e.currentTarget.style.background = 'rgba(124,58,237,0.08)'
+                }}
+              >
+                {createElement(isEditing ? Check : Settings, { size: 18 })}
+                <span>{isEditing ? 'Terminer' : 'Personnaliser'}</span>
+              </button>
+
+              {/* Hint callout 1er passage */}
+              {showBoardHint && !isEditing && (
+                <div
+                  className="fade-in"
+                  style={{
+                    position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+                    width: 240, zIndex: 10,
+                    padding: '10px 12px', borderRadius: 12,
+                    background: '#FFFFFF',
+                    border: '1px solid rgba(124,58,237,0.35)',
+                    boxShadow: '0 8px 24px rgba(124,58,237,0.18)',
+                    fontSize: 12, color: BASE.text, lineHeight: 1.4,
+                  }}
+                  role="tooltip"
+                >
+                  {/* Fleche vers le bouton */}
+                  <div style={{
+                    position: 'absolute', top: -6, right: 20,
+                    width: 10, height: 10,
+                    background: '#FFFFFF',
+                    borderLeft: '1px solid rgba(124,58,237,0.35)',
+                    borderTop: '1px solid rgba(124,58,237,0.35)',
+                    transform: 'rotate(45deg)',
+                  }} />
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 8 }}>
+                    {createElement(Sparkles, { size: 14, style: { color: '#7C3AED', flexShrink: 0, marginTop: 1 } })}
+                    <div>
+                      Masque ce qui ne te sert pas, reorganise a ton gout.
+                    </div>
+                  </div>
+                  <button
+                    onClick={dismissBoardHint}
+                    style={{
+                      padding: '4px 10px', borderRadius: 8,
+                      background: '#7C3AED', color: '#FFFFFF',
+                      fontSize: 11, fontWeight: 600,
+                      border: 'none', cursor: 'pointer',
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                    }}
+                  >
+                    Compris {createElement(Check, { size: 12 })}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {nextEvent ? (
@@ -458,22 +544,39 @@ export default function Board({
         {isEditing && (
           <div style={{
             padding: SPACE.lg, borderRadius: RADIUS.xl, marginBottom: SPACE.lg,
-            background: BASE.white, border: `2px solid ${SEMANTIC.info}40`,
-            boxShadow: SHADOW.card,
+            background: BASE.white, border: `2px solid rgba(124,58,237,0.35)`,
+            boxShadow: SHADOW.card, position: 'relative',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.md }}>
-              <div style={{ ...TYPO.bodyBold, color: BASE.text }}>Personnaliser le Board</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.md, gap: SPACE.sm }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                <div style={{ ...TYPO.bodyBold, color: '#7C3AED' }}>Mode edition</div>
+                {savedTick > 0 && (
+                  <div
+                    key={savedTick}
+                    className="saved-pop"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 3,
+                      padding: '2px 8px', borderRadius: 10,
+                      background: 'rgba(93,171,139,0.12)',
+                      color: '#16A34A', fontSize: 11, fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {createElement(Check, { size: 11 })} Enregistre
+                  </div>
+                )}
+              </div>
               <button onClick={resetBoard} style={{
                 display: 'flex', alignItems: 'center', gap: 4,
                 padding: '4px 10px', borderRadius: RADIUS.sm, fontSize: 12,
                 background: 'none', border: `1px solid ${BASE.border}`,
-                color: BASE.textSoft, cursor: 'pointer',
+                color: BASE.textSoft, cursor: 'pointer', flexShrink: 0,
               }}>
-                {createElement(RotateCcw, { size: 12 })} Réinitialiser
+                {createElement(RotateCcw, { size: 12 })} Reinitialiser
               </button>
             </div>
             <div style={{ ...TYPO.micro, color: BASE.textSoft, marginBottom: SPACE.md }}>
-              Réordonne et masque les modules de ton Board
+              Glisse, masque, reorganise — tout est enregistre automatiquement.
             </div>
 
             {/* Module list */}
@@ -561,9 +664,34 @@ export default function Board({
               </div>
             </div>
 
-            {saving && (
-              <div style={{ marginTop: SPACE.sm, fontSize: 12, color: SEMANTIC.info, textAlign: 'center' }}>
+            {saving && savedTick === 0 && (
+              <div style={{ marginTop: SPACE.sm, fontSize: 11, color: '#7C3AED', textAlign: 'center', opacity: 0.7 }}>
                 Sauvegarde...
+              </div>
+            )}
+
+            {/* Appliquer le preset metier */}
+            {userRole?.code && (
+              <div style={{ marginTop: SPACE.md, paddingTop: SPACE.md, borderTop: `1px solid ${BASE.border}` }}>
+                <button
+                  onClick={() => {
+                    if (!applyRolePreset) return
+                    if (window.confirm('Remplacer par le préréglage métier ?')) {
+                      applyRolePreset()
+                      onToast && onToast('Preset métier appliqué', SEMANTIC.success)
+                    }
+                  }}
+                  disabled={saving}
+                  style={{
+                    width: '100%', padding: '8px 12px', borderRadius: RADIUS.md,
+                    background: 'none', border: `1px dashed ${SEMANTIC.melodie}60`,
+                    color: SEMANTIC.melodie, fontSize: 12, fontWeight: 600,
+                    cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.6 : 1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}
+                >
+                  Recommandé pour mon métier
+                </button>
               </div>
             )}
           </div>
@@ -644,10 +772,12 @@ export default function Board({
                   padding: `${SPACE.xxl - 2}px ${SPACE.md}px ${SPACE.xl - 2}px`,
                   borderRadius: RADIUS.xl,
                   background: mod.bg,
-                  border: `1.5px solid ${mod.color}18`,
+                  border: isEditing
+                    ? `1.5px dashed rgba(124,58,237,0.55)`
+                    : `1.5px solid ${mod.color}18`,
                   cursor: 'pointer',
                   position: 'relative',
-                  transition: 'transform 0.15s, box-shadow 0.15s',
+                  transition: 'transform 0.15s, box-shadow 0.15s, border-color 160ms ease',
                   boxShadow: SHADOW.sm,
                 }}
                 onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.97)' }}
