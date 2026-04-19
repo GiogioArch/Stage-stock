@@ -34,54 +34,53 @@ export default function MovementModal({ type, products, locations, stock, presel
     if (!canSubmit) return
     setLoading(true)
     try {
-      // Use RPC for atomic operation
-      if (type === 'in') {
-        try { await db.rpc('move_stock', { p_product_id: productId, p_location_id: toLoc, p_delta: qty }) }
-        catch { await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: availableStock + qty, org_id: orgId }) }
-      } else if (type === 'out') {
-        try { await db.rpc('move_stock', { p_product_id: productId, p_location_id: fromLoc, p_delta: -qty }) }
-        catch { await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, availableStock - qty), org_id: orgId }) }
-      } else {
-        // Transfer = out from source + in to destination (atomic: rollback source if dest fails)
-        let useRpc = true
-        try {
-          await db.rpc('move_stock', { p_product_id: productId, p_location_id: fromLoc, p_delta: -qty })
-        } catch {
-          useRpc = false
-          const srcStock = stock.find(s => s.product_id === productId && s.location_id === fromLoc)?.quantity || 0
-          await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, srcStock - qty), org_id: orgId })
-        }
-        try {
-          if (useRpc) {
-            await db.rpc('move_stock', { p_product_id: productId, p_location_id: toLoc, p_delta: qty })
-          } else {
-            const dstStock = stock.find(s => s.product_id === productId && s.location_id === toLoc)?.quantity || 0
-            await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: dstStock + qty, org_id: orgId })
-          }
-        } catch (transferErr) {
-          // Rollback source: re-add the quantity we just removed
-          try {
-            if (useRpc) {
-              await db.rpc('move_stock', { p_product_id: productId, p_location_id: fromLoc, p_delta: qty })
-            } else {
-              const srcStock = stock.find(s => s.product_id === productId && s.location_id === fromLoc)?.quantity || 0
-              await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: srcStock + qty, org_id: orgId })
-            }
-          } catch { /* rollback best-effort */ }
-          throw new Error('Échec du transfert vers la destination — opération annulée')
-        }
-      }
+      // Primary path : RPC atomique move_stock (9 params, fait aussi l'insert dans movements)
+      // Signature DB : (p_product_id, p_location_id, p_variant_id, p_quantity, p_type,
+      //                 p_from_location, p_to_location, p_note, p_user_id)
+      const primaryLocId = type === 'in' ? toLoc : (type === 'out' ? fromLoc : fromLoc)
 
-      // Record movement
-      await db.insert('movements', {
-        type,
-        product_id: productId,
-        from_loc: type === 'in' ? null : fromLoc,
-        to_loc: type === 'out' ? null : toLoc,
-        quantity: qty,
-        note: note.trim() || null,
-        org_id: orgId,
-      })
+      try {
+        const result = await db.rpc('move_stock', {
+          p_product_id: productId,
+          p_location_id: primaryLocId,
+          p_variant_id: null,
+          p_quantity: qty,
+          p_type: type,
+          p_from_location: type === 'in' ? null : fromLoc,
+          p_to_location: type === 'out' ? null : toLoc,
+          p_note: note.trim() || '',
+          p_user_id: null,
+        })
+        if (result && result.success === false) {
+          throw new Error(result.error || 'Erreur lors du mouvement')
+        }
+      } catch (rpcErr) {
+        // Fallback uniquement si la RPC n'existe pas (ancienne DB) — pas sur erreur metier
+        const msg = String(rpcErr?.message || '')
+        const isRpcMissing = /PGRST202|not find|does not exist|404|function.*not.*exist/i.test(msg)
+        if (!isRpcMissing) throw rpcErr
+
+        // Fallback non-atomique : upsert stock + insert movement manuel
+        if (type === 'in') {
+          await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: availableStock + qty, org_id: orgId })
+        } else if (type === 'out') {
+          await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, availableStock - qty), org_id: orgId })
+        } else {
+          const srcStock = stock.find(s => s.product_id === productId && s.location_id === fromLoc)?.quantity || 0
+          const dstStock = stock.find(s => s.product_id === productId && s.location_id === toLoc)?.quantity || 0
+          await db.upsert('stock', { product_id: productId, location_id: fromLoc, quantity: Math.max(0, srcStock - qty), org_id: orgId })
+          await db.upsert('stock', { product_id: productId, location_id: toLoc, quantity: dstStock + qty, org_id: orgId })
+        }
+        await db.insert('movements', {
+          type,
+          product_id: productId,
+          from_loc: type === 'in' ? null : fromLoc,
+          to_loc: type === 'out' ? null : toLoc,
+          quantity: qty,
+          note: note.trim() || null,
+          org_id: orgId,
+        })
+      }
 
       onToast(`${conf.label} : ${qty}× ${selectedProduct?.name}`)
       setShowConfirm(false)

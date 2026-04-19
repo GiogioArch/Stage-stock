@@ -29,13 +29,11 @@ export function useProjectData(user, selectedOrg, requiredTables) {
     user_profiles: [], roles: [],
     product_depreciation: [],
     project_members: [],
-    event_tasks: [],
-    event_task_templates: [],
     user_availability: [],
     // Finance & Ventes
     expenses: [], sales: [], sale_items: [], cash_reports: [],
     // Achats
-    suppliers: [], purchase_orders: [], purchase_order_lines: [], purchase_receipts: [],
+    suppliers: [], purchase_orders: [], purchase_order_lines: [],
     supplier_documents: [], supplier_products: [],
     // Transport
     transport_providers: [], vehicles: [], transport_routes: [],
