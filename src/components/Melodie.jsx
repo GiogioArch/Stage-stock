@@ -1,8 +1,10 @@
 import React, { useState, useEffect, createElement, useCallback } from 'react'
 import { auth, db } from '../lib/supabase'
 import { ROLE_CONF, getInheritedModules } from './RolePicker'
+import { ROLES_BY_FILIERE, ROLE_PROFILES } from '../config/roles'
+import { buildBoardConfigFromRoles } from '../config/boardPresets'
 import {
-  Loader2, Eye, EyeOff, Check, Package, Mail,
+  Loader2, Eye, EyeOff, Check, Package, Mail, ChevronLeft, Lightbulb,
 } from 'lucide-react'
 import { useToast } from '../shared/hooks'
 
@@ -103,7 +105,10 @@ function MicroVictory({ show, label }) {
 // ═══════════════════════════════════════════════
 export default function Melodie({ onAuth, onComplete, roles, existingUser, startStep }) {
   const onToast = useToast()
-  const [step, setStep] = useState(startStep || 'splash')
+  // startStep 'select_roles' est redirigé vers le nouvel entonnoir 3 écrans (M.1)
+  const [step, setStep] = useState(
+    startStep === 'select_roles' ? 'funnel_universe' : (startStep || 'splash')
+  )
   const [user, setUser] = useState(existingUser || null)
 
   // Form state
@@ -114,6 +119,11 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState('')
   const [selectedRoles, setSelectedRoles] = useState([])
+  // Funnel state (M.1) — univers + filière choisis pour orienter la sélection de rôles
+  const [universe, setUniverse] = useState(null)   // 'music' | 'theater' | 'festival' | 'other'
+  const [filiere, setFiliere] = useState(null)      // 'direction' | 'technique' | 'operationnel' | 'discover'
+  const [quizAnswers, setQuizAnswers] = useState({ q1: null, q2: null, q3: null })
+  const [quizStep, setQuizStep] = useState(0)        // 0-2 pour les 3 questions, 3 = résultat
   const [projectName, setProjectName] = useState('')
   const [saving, setSaving] = useState(false)
   const [createdOrg, setCreatedOrg] = useState(null)
@@ -327,9 +337,12 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
       setCreatedOrg(org)
       const primaryRole = selectedRoles[0] || null
       const moduleAccess = primaryRole ? getInheritedModules(primaryRole) : ALL_MODULES
+      // Preset Board métier depuis les rôles sélectionnés à l'étape SELECT_ROLES
+      const boardConfig = buildBoardConfigFromRoles(selectedRoles)
       const members = await db.insert('project_members', {
         user_id: user.id, org_id: org.id,
         module_access: moduleAccess, is_admin: true, status: 'active',
+        board_config: boardConfig,
       })
       setCreatedMembership({ ...members[0], org })
       if (primaryRole) {
@@ -643,55 +656,323 @@ export default function Melodie({ onAuth, onComplete, roles, existingUser, start
     )
   }
 
-  // 7. ROLES — sélection métier (directement après login pour nouveaux users)
-  if (step === 'select_roles') {
+  // ═══════════════════════════════════════════════
+  // M.1 — ENTONNOIR 3 ÉCRANS (+ mini quiz)
+  // 7a. funnel_universe — univers d'activité
+  // 7b. funnel_filiere  — filière / famille de métier
+  // 7c. funnel_quiz     — mini quiz "Je découvre"
+  // 7d. funnel_roles    — fiches métier de la filière choisie
+  // L'ancienne étape 'select_roles' est redirigée vers funnel_universe.
+  // ═══════════════════════════════════════════════
+
+  // Helper — bouton "retour" en haut à gauche
+  const BackBtn = ({ onClick }) => (
+    <button onClick={onClick} aria-label="Retour" style={{
+      position: 'absolute', top: 16, left: 16,
+      background: 'none', border: 'none', cursor: 'pointer',
+      color: C.textMuted, display: 'flex', alignItems: 'center',
+      gap: 4, fontSize: 13, padding: 8,
+    }}>
+      {createElement(ChevronLeft, { size: 18 })} Retour
+    </button>
+  )
+
+  // 7a. FUNNEL_UNIVERSE — "C'est quoi ton univers ?"
+  if (step === 'funnel_universe') {
+    const UNIVERSES = [
+      { code: 'music',    emoji: '🎤', label: 'Musique / Tournée' },
+      { code: 'theater',  emoji: '🎭', label: 'Théâtre / Spectacle vivant' },
+      { code: 'festival', emoji: '🎪', label: 'Festival / Événementiel' },
+      { code: 'other',    emoji: '🎬', label: 'Autre (audiovisuel, corporate)' },
+    ]
     return (
       <Screen step={step} onSkip={handleSkip} top>
-        <FadeText size={18}>Quel est ton métier ?</FadeText>
-        <FadeText sub delay={200}>Tu peux en choisir plusieurs</FadeText>
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
-          width: '100%', maxWidth: 360, marginTop: 4,
+        <FadeText size={22}>C'est quoi ton univers ?</FadeText>
+        <FadeText sub delay={200}>Pour mieux t'orienter dans l'app</FadeText>
+        <div role="radiogroup" aria-label="Choisis ton univers" style={{
+          display: 'flex', flexDirection: 'column', gap: 10,
+          width: '100%', maxWidth: 360, marginTop: 12,
           opacity: 0, animation: 'fadeSlideUp 0.5s ease 0.3s forwards',
         }}>
-          {['TM', 'PM', 'TD', 'SE', 'LD', 'SM', 'BL', 'MM', 'LOG', 'SAFE', 'AA', 'PA'].map(code => {
+          {UNIVERSES.map(u => {
+            const sel = universe === u.code
+            return (
+              <button key={u.code} role="radio" aria-checked={sel}
+                aria-label={u.label}
+                onClick={() => { setUniverse(u.code); setStep('funnel_filiere') }}
+                style={{
+                  minHeight: 56, padding: '14px 16px', borderRadius: 14,
+                  border: `2px solid ${sel ? C.purple : C.border}`,
+                  background: sel ? 'rgba(124,58,237,0.08)' : 'white',
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  cursor: 'pointer', transition: 'all 0.15s',
+                  textAlign: 'left',
+                }}>
+                <span style={{ fontSize: 24 }}>{u.emoji}</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{u.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </Screen>
+    )
+  }
+
+  // 7b. FUNNEL_FILIERE — "Plutôt côté..."
+  if (step === 'funnel_filiere') {
+    const FILIERES = [
+      { code: 'direction',    emoji: '👔', label: 'Direction / Organisation', hint: 'TM, PM, PA' },
+      { code: 'technique',    emoji: '🎛️', label: 'Technique / Régie',        hint: 'TD, SE, LD, SM, BL' },
+      { code: 'operationnel', emoji: '💼', label: 'Opérationnel / Terrain',    hint: 'MM, LOG, AA, SAFE' },
+      { code: 'discover',     emoji: '🤔', label: 'Je découvre, aide-moi',     hint: '3 questions rapides' },
+    ]
+    return (
+      <Screen step={step} onSkip={handleSkip} top>
+        <BackBtn onClick={() => setStep('funnel_universe')} />
+        <FadeText size={22}>Plutôt côté...</FadeText>
+        <FadeText sub delay={200}>Choisis la famille qui te ressemble</FadeText>
+        <div role="radiogroup" aria-label="Choisis ta filière" style={{
+          display: 'flex', flexDirection: 'column', gap: 10,
+          width: '100%', maxWidth: 360, marginTop: 12,
+          opacity: 0, animation: 'fadeSlideUp 0.5s ease 0.3s forwards',
+        }}>
+          {FILIERES.map(f => {
+            const sel = filiere === f.code
+            return (
+              <button key={f.code} role="radio" aria-checked={sel}
+                aria-label={f.label}
+                onClick={() => {
+                  setFiliere(f.code)
+                  if (f.code === 'discover') {
+                    setQuizStep(0)
+                    setQuizAnswers({ q1: null, q2: null, q3: null })
+                    setStep('funnel_quiz')
+                  } else {
+                    setStep('funnel_roles')
+                  }
+                }}
+                style={{
+                  minHeight: 64, padding: '14px 16px', borderRadius: 14,
+                  border: `2px solid ${sel ? C.purple : C.border}`,
+                  background: sel ? 'rgba(124,58,237,0.08)' : 'white',
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  cursor: 'pointer', transition: 'all 0.15s',
+                  textAlign: 'left',
+                }}>
+                <span style={{ fontSize: 24 }}>{f.emoji}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{f.label}</span>
+                  <span style={{ fontSize: 12, color: C.textMuted }}>{f.hint}</span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </Screen>
+    )
+  }
+
+  // 7c. FUNNEL_QUIZ — mini quiz "Je découvre" (3 questions oui/non)
+  if (step === 'funnel_quiz') {
+    const QUESTIONS = [
+      { key: 'q1', text: 'Tu décides des budgets et du planning global ?' },
+      { key: 'q2', text: 'Tu manipules des équipements techniques (son, lumière, instruments) ?' },
+      { key: 'q3', text: 'Tu es proche de l\'artiste ou de la production au quotidien ?' },
+    ]
+
+    // Logique de suggestion basée sur les réponses
+    const computeSuggestion = (ans) => {
+      if (ans.q1 === true) return { role: 'TM', filiere: 'direction' }
+      if (ans.q2 === true) return { role: null, filiere: 'technique' }
+      if (ans.q3 === true) return { role: 'AA', filiere: 'operationnel' }
+      return { role: 'MM', filiere: 'operationnel' }
+    }
+
+    // Résultat du quiz (quizStep dépasse le nombre de questions)
+    if (quizStep >= QUESTIONS.length) {
+      const suggestion = computeSuggestion(quizAnswers)
+      const suggestedRole = suggestion.role
+      const suggestedLabel = suggestedRole ? ROLE_CONF[suggestedRole]?.label : null
+      return (
+        <Screen step={step} onSkip={handleSkip} top>
+          <BackBtn onClick={() => setQuizStep(QUESTIONS.length - 1)} />
+          <div style={{
+            width: 56, height: 56, borderRadius: 28,
+            background: 'rgba(124,58,237,0.1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            opacity: 0, animation: 'fadeSlideUp 0.5s ease forwards',
+          }}>
+            {createElement(Lightbulb, { size: 26, color: C.purple })}
+          </div>
+          <FadeText size={20} delay={150}>
+            {suggestedLabel ? `On te suggère ${suggestedLabel}` : 'On te propose la filière Technique'}
+          </FadeText>
+          <FadeText sub delay={350}>Tu peux changer à l'écran suivant</FadeText>
+          <div style={{
+            width: '100%', maxWidth: 360, marginTop: 16,
+            opacity: 0, animation: 'fadeSlideUp 0.5s ease 0.5s forwards',
+            display: 'flex', flexDirection: 'column', gap: 10,
+          }}>
+            <button onClick={() => {
+              if (suggestedRole) setSelectedRoles([suggestedRole])
+              setFiliere(suggestion.filiere)
+              setStep('funnel_roles')
+            }} style={{
+              width: '100%', minHeight: 52, padding: '14px', borderRadius: 14,
+              background: C.gradient, color: 'white', fontSize: 16, fontWeight: 700,
+              border: 'none', cursor: 'pointer',
+              boxShadow: '0 8px 20px rgba(124,58,237,0.35)',
+            }}>
+              Valider
+            </button>
+            <button onClick={() => {
+              setQuizStep(0)
+              setQuizAnswers({ q1: null, q2: null, q3: null })
+            }} style={{
+              width: '100%', minHeight: 44, padding: '10px', borderRadius: 14,
+              background: 'none', color: C.textMuted, fontSize: 13,
+              border: 'none', cursor: 'pointer',
+            }}>
+              Refaire le quiz
+            </button>
+          </div>
+        </Screen>
+      )
+    }
+
+    const q = QUESTIONS[quizStep]
+    const answerQuestion = (value) => {
+      const next = { ...quizAnswers, [q.key]: value }
+      setQuizAnswers(next)
+      setQuizStep(quizStep + 1)
+    }
+    return (
+      <Screen step={step} onSkip={handleSkip} top>
+        <BackBtn onClick={() => {
+          if (quizStep === 0) setStep('funnel_filiere')
+          else setQuizStep(quizStep - 1)
+        }} />
+        <div style={{ fontSize: 12, color: C.textMuted, fontWeight: 600 }}>
+          Question {quizStep + 1} / {QUESTIONS.length}
+        </div>
+        <FadeText size={20}>{q.text}</FadeText>
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: 10,
+          width: '100%', maxWidth: 360, marginTop: 16,
+          opacity: 0, animation: 'fadeSlideUp 0.5s ease 0.2s forwards',
+        }}>
+          <button onClick={() => answerQuestion(true)} style={{
+            width: '100%', minHeight: 52, padding: '14px', borderRadius: 14,
+            background: 'white', color: C.text, fontSize: 16, fontWeight: 600,
+            border: `2px solid ${C.border}`, cursor: 'pointer',
+            transition: 'all 0.15s',
+          }}>
+            Oui
+          </button>
+          <button onClick={() => answerQuestion(false)} style={{
+            width: '100%', minHeight: 52, padding: '14px', borderRadius: 14,
+            background: 'white', color: C.text, fontSize: 16, fontWeight: 600,
+            border: `2px solid ${C.border}`, cursor: 'pointer',
+            transition: 'all 0.15s',
+          }}>
+            Non
+          </button>
+        </div>
+      </Screen>
+    )
+  }
+
+  // 7d. FUNNEL_ROLES — fiches métier filtrées par filière (choix multiple)
+  if (step === 'funnel_roles') {
+    const codes = filiere && filiere !== 'discover'
+      ? (ROLES_BY_FILIERE[filiere] || [])
+      : ROLES_BY_FILIERE.operationnel
+    const MODULE_LABELS = {
+      dashboard: 'Tableau', equipe: 'Équipe', articles: 'Articles',
+      stock: 'Stock', tournee: 'Tournée', finance: 'Finance',
+      forecast: 'Prévisions', ventes: 'Ventes', achats: 'Achats',
+      inventaire: 'Inventaire', transport: 'Transport', timeline: 'Timeline',
+    }
+    return (
+      <Screen step={step} onSkip={handleSkip} top>
+        <BackBtn onClick={() => setStep(filiere === 'discover' ? 'funnel_quiz' : 'funnel_filiere')} />
+        <FadeText size={22}>Ton rôle précis</FadeText>
+        <FadeText sub delay={200}>Tu peux en cumuler plusieurs</FadeText>
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: 10,
+          width: '100%', maxWidth: 420, marginTop: 12,
+          opacity: 0, animation: 'fadeSlideUp 0.5s ease 0.3s forwards',
+        }}>
+          {codes.map(code => {
             const conf = ROLE_CONF[code]
+            const profile = ROLE_PROFILES[code] || {}
             if (!conf) return null
             const sel = selectedRoles.includes(code)
+            const modules = (getInheritedModules(code) || []).slice(0, 6)
             return (
-              <button key={code} onClick={() => {
-                setSelectedRoles(prev => prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code])
-              }} style={{
-                padding: '10px 8px', borderRadius: 12, cursor: 'pointer',
-                border: `2px solid ${sel ? conf.color : C.border}`,
-                background: sel ? `${conf.color}10` : 'white',
-                display: 'flex', alignItems: 'center', gap: 8,
-                transition: 'all 0.15s', position: 'relative',
-              }}>
+              <button key={code} role="checkbox" aria-checked={sel}
+                aria-label={`${conf.label} — ${profile.tagline || ''}`}
+                onClick={() => {
+                  setSelectedRoles(prev => prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code])
+                }}
+                style={{
+                  width: '100%', padding: '14px 16px', borderRadius: 14,
+                  border: `2px solid ${sel ? '#7C3AED' : C.border}`,
+                  background: sel ? 'rgba(124,58,237,0.08)' : 'white',
+                  display: 'flex', flexDirection: 'column', gap: 8,
+                  cursor: 'pointer', transition: 'all 0.15s',
+                  textAlign: 'left', position: 'relative',
+                }}>
                 {sel && (
                   <div style={{
-                    position: 'absolute', top: 4, right: 4, width: 16, height: 16, borderRadius: 8,
-                    background: conf.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>{createElement(Check, { size: 10, color: 'white', strokeWidth: 3 })}</div>
+                    position: 'absolute', top: 10, right: 10,
+                    width: 20, height: 20, borderRadius: 10,
+                    background: '#7C3AED', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {createElement(Check, { size: 12, color: 'white', strokeWidth: 3 })}
+                  </div>
                 )}
-                <div style={{
-                  width: 32, height: 32, borderRadius: 8, background: `${conf.color}15`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}>
-                  {createElement(conf.icon, { size: 16, color: sel ? conf.color : C.textMuted })}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 10,
+                    background: `${conf.color}15`, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    {createElement(conf.icon, { size: 18, color: conf.color })}
+                  </div>
+                  <span style={{ fontSize: 16, fontWeight: 700, color: C.text }}>{conf.label}</span>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: sel ? conf.color : C.text, textAlign: 'left' }}>
-                  {conf.label}
-                </span>
+                {profile.tagline && (
+                  <div style={{ fontSize: 13, color: C.text, lineHeight: 1.4 }}>
+                    {profile.tagline}
+                  </div>
+                )}
+                {modules.length > 0 && (
+                  <div style={{ fontSize: 12, color: C.textSoft, lineHeight: 1.4 }}>
+                    🔓 {modules.map(m => MODULE_LABELS[m] || m).join(' · ')}
+                  </div>
+                )}
+                {profile.recommended && (
+                  <div style={{
+                    fontSize: 12, color: C.textMuted, lineHeight: 1.4,
+                    fontStyle: 'italic',
+                  }}>
+                    💡 Recommandé si {profile.recommended}
+                  </div>
+                )}
               </button>
             )
           })}
         </div>
         {selectedRoles.length > 0 && (
           <button onClick={handleRolesConfirm} style={{
-            marginTop: 12, width: '100%', maxWidth: 360, padding: '14px',
-            borderRadius: 14, background: C.accent, color: 'white',
-            fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer',
+            position: 'sticky', bottom: 16,
+            marginTop: 16, width: '100%', maxWidth: 420,
+            minHeight: 52, padding: '14px',
+            borderRadius: 14, background: C.gradient, color: 'white',
+            fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer',
+            boxShadow: '0 8px 20px rgba(124,58,237,0.35)',
           }}>
             Valider ({selectedRoles.length})
           </button>
