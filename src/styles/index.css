@@ -11,16 +11,20 @@
   --bg-active: #E2E8F0;
 
   /* ─── Text ─── */
-  --text-primary: #1E293B;
+  --text-primary: #0F172A;
   --text-secondary: #64748B;
   --text-tertiary: #94A3B8;
   --text-disabled: #CBD5E1;
 
-  /* ─── Accent (Bleu BackStage) ─── */
-  --accent: #5B8DB8;
-  --accent-hover: #4A7DA8;
-  --accent-subtle: rgba(91,141,184,0.10);
-  --accent-text: #4A7DA8;
+  /* ─── Accent (Purple BackStage — v9.3 premium) ─── */
+  --accent: #7C3AED;
+  --accent-hover: #6D28D9;
+  --accent-light: #8B5CF6;
+  --accent-soft: rgba(124,58,237,0.08);
+  --accent-subtle: rgba(124,58,237,0.12);
+  --accent-text: #6D28D9;
+  --accent-gradient: linear-gradient(135deg, #8B5CF6 0%, #5B21B6 100%);
+  --gold: #D4A843;
 
   /* ─── Semantic ─── */
   --success: #5DAB8B;
@@ -124,7 +128,7 @@ input, select, textarea, button {
 
 button { cursor: pointer; border: none; background: none; }
 
-::selection { background: rgba(99,102,241,0.2); color: #1E293B; }
+::selection { background: rgba(124,58,237,0.2); color: #0F172A; }
 
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 4px; }
@@ -171,10 +175,37 @@ button { cursor: pointer; border: none; background: none; }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-alert {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 /* ─── Utility ─── */
 .fade-in { animation: fadeIn 0.15s ease-out; }
 .slide-up { animation: slideUp 0.25s ease-out; }
 .spin { animation: spin 0.8s linear infinite; }
+.fade-count-up { animation: count-up 0.4s ease-out both; }
+.pulse-alert { animation: pulse-alert 2s ease-in-out infinite; }
+.slide-in-right { animation: slide-in-right 0.3s ease-out both; }
+
+/* ─── Hover lift for cards ─── */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.1);
+}
 
 /* ─── Card ─── */
 .card {
@@ -368,7 +399,7 @@ button { cursor: pointer; border: none; background: none; }
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-around;
-  padding: 4px 0 max(4px, env(safe-area-inset-bottom));
+  padding: 6px 0 max(6px, env(safe-area-inset-bottom));
   z-index: 50;
 }
 
@@ -376,13 +407,13 @@ button { cursor: pointer; border: none; background: none; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 4px 6px;
-  border-radius: 8px;
-  font-size: 10px;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  font-size: 12px;
   font-weight: 500;
-  color: var(--text-tertiary);
-  transition: color 0.15s;
+  color: var(--text-secondary);
+  transition: background 0.15s, color 0.15s;
   position: relative;
   background: none;
   border: none;
@@ -390,8 +421,8 @@ button { cursor: pointer; border: none; background: none; }
   flex: 1;
   min-width: 0;
 }
-.nav-tab.active { color: var(--accent); }
-.nav-tab .nav-icon { font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.nav-tab.active { color: var(--accent); background: var(--accent-soft); }
+.nav-tab .nav-icon { font-size: 22px; display: flex; align-items: center; justify-content: center; }
 .nav-tab .nav-badge {
   position: absolute;
   top: 0;
