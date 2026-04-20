@@ -10,6 +10,7 @@ import { getMidRate, getTerritoryMult } from '../lib/forecast'
 import {
   caLastDays, caTrendPct, salesToday, avgBasket,
   topProduct, salesCount, bestConcert, uniqueBuyers,
+  concertsCoverage,
 } from '../lib/salesKpis'
 import {
   Package,
@@ -45,6 +46,7 @@ import {
   Star,
   Users,
   BarChart3,
+  Info,
 } from 'lucide-react'
 
 // ─── Icons map for hero status banner ───
@@ -207,6 +209,7 @@ export default function Board({
   const salesKpis = useMemo(() => {
     const safeSales = sales || []
     if (safeSales.length === 0) return null
+    const hasIndividual = safeSales.some(s => !s.is_aggregate)
     return {
       ca30: caLastDays(safeSales, 30),
       trendPct: caTrendPct(safeSales, 30),
@@ -216,8 +219,15 @@ export default function Board({
       txCount: salesCount(safeSales, 30),
       best: bestConcert(safeSales, events || [], 30),
       buyers: uniqueBuyers(safeSales, 30),
+      hasIndividual,
     }
   }, [sales, saleItems, products, events])
+
+  // ─── Couverture data concerts (bandeau info) ───
+  const coverage = useMemo(
+    () => concertsCoverage(sales || [], events || []),
+    [sales, events]
+  )
 
   const oldestSaleDate = useMemo(() => {
     if (!sales || sales.length === 0) return null
@@ -999,6 +1009,26 @@ export default function Board({
               </div>
             ) : (
               <>
+                {/* Bandeau info couverture concerts */}
+                {coverage.total > 0 && coverage.covered < coverage.total && (
+                  <div
+                    style={{
+                      display: 'flex', alignItems: 'flex-start', gap: 8,
+                      padding: 12, borderRadius: 10,
+                      background: 'rgba(234, 179, 8, 0.08)',
+                      border: '1px solid rgba(234, 179, 8, 0.18)',
+                      marginBottom: SPACE.sm,
+                      fontSize: 13, lineHeight: 1.45, color: '#854D0E',
+                    }}
+                  >
+                    {createElement(Info, { size: 16, style: { color: '#854D0E', flexShrink: 0, marginTop: 1 } })}
+                    <div>
+                      Données basées sur {coverage.covered}/{coverage.total} concerts terminés.
+                      {' '}{coverage.missing} à saisir.
+                    </div>
+                  </div>
+                )}
+
                 {/* 3 x 2 = 6 cartes KPIs ventes */}
                 <div style={{
                   display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.sm,
@@ -1027,8 +1057,8 @@ export default function Board({
                     icon={TrendingUp}
                     color={SEMANTIC.success}
                     label="Panier moyen"
-                    value={fmtEuro(salesKpis.basket)}
-                    sub="30 derniers jours"
+                    value={salesKpis.hasIndividual ? fmtEuro(salesKpis.basket) : '—'}
+                    sub={salesKpis.hasIndividual ? '30 derniers jours' : 'tickets individuels à venir'}
                     delay={100}
                   />
                   <KpiCard

@@ -5,16 +5,21 @@
 // Elles prennent en entrée les données déjà chargées dans App
 // state (pas de requête Supabase interne).
 //
-// Schéma sales (cf. sql/create-sales-pos.sql) :
+// Schéma sales (cf. sql/create-sales-pos.sql + migration N.0b) :
 //   id, org_id, event_id, sale_number, payment_method,
-//   total_amount, items_count, notes, sold_by, created_at
+//   total_amount, items_count, notes, sold_by, created_at,
+//   customer_id, is_aggregate, sale_date
 //
 // Schéma sale_items :
 //   id, org_id, sale_id, product_id, variant,
 //   quantity, unit_price, line_total, created_at
 //
-// Pas de colonne `buyer_id` → uniqueBuyers tombe en fallback
-// sur le compteur de transactions (comptes distincts sale.id).
+// Règle is_aggregate :
+//   - is_aggregate = true  → bilan de concert (pas un ticket réel)
+//   - is_aggregate = false/undefined → ticket individuel
+//   Les KPIs "par ticket" (panier moyen, nb transactions, acheteurs
+//   uniques) DOIVENT filtrer !is_aggregate pour ne pas être faussés.
+//   Les KPIs de CA total (caLastDays, bestConcert…) gardent tout.
 // ============================================================
 
 const DAY_MS = 86400000
@@ -28,7 +33,14 @@ function filterByWindow(sales, fromMs, toMs) {
   })
 }
 
+// Helper — exclut les ventes agrégées (bilans concerts)
+// undefined/null → traité comme false (pas agrégé par défaut)
+function onlyIndividual(sales) {
+  return (sales || []).filter(s => !s.is_aggregate)
+}
+
 // ── CA total sur les N derniers jours ──
+// Garde les agrégées : c'est le CA total réel (détaillé + bilans).
 export function caLastDays(sales, days = 30) {
   const now = Date.now()
   const from = now - days * DAY_MS
@@ -37,7 +49,7 @@ export function caLastDays(sales, days = 30) {
 }
 
 // ── Évolution % vs période précédente ──
-// Compare J-N..J-0 à J-2N..J-N. Retourne un nombre (peut être null si pas de base).
+// Garde les agrégées : comparaison de CA total.
 export function caTrendPct(sales, days = 30) {
   const now = Date.now()
   const curFrom = now - days * DAY_MS
@@ -50,29 +62,33 @@ export function caTrendPct(sales, days = 30) {
   return Math.round(((cur - prev) / prev) * 100)
 }
 
-// ── Ventes aujourd'hui (count + total €) ──
+// ── Ventes aujourd'hui ──
+// Count : exclut les agrégées (on veut nb tickets individuels).
+// Total : garde tout (CA total du jour).
 export function salesToday(sales) {
   const now = new Date()
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
   const end = start + DAY_MS
   const today = filterByWindow(sales, start, end)
   return {
-    count: today.length,
+    count: today.filter(s => !s.is_aggregate).length,
     total: today.reduce((a, s) => a + Number(s.total_amount || 0), 0),
   }
 }
 
 // ── Panier moyen sur N jours ──
+// Exclut les agrégées : un bilan de concert n'est pas un ticket.
 export function avgBasket(sales, days = 30) {
   const now = Date.now()
   const from = now - days * DAY_MS
-  const win = filterByWindow(sales, from, now + 1)
+  const win = onlyIndividual(filterByWindow(sales, from, now + 1))
   if (win.length === 0) return 0
   const total = win.reduce((a, s) => a + Number(s.total_amount || 0), 0)
   return total / win.length
 }
 
 // ── Top produit sur N jours (nom + quantité + CA) ──
+// Garde les agrégées : les items d'un bilan concert sont des items réels.
 // saleItems est filtré par appartenance à une vente de la fenêtre.
 export function topProduct(saleItems, products, days = 30, sales) {
   if (!Array.isArray(saleItems) || saleItems.length === 0) {
@@ -108,14 +124,15 @@ export function topProduct(saleItems, products, days = 30, sales) {
 }
 
 // ── Nombre de transactions sur N jours ──
+// Exclut les agrégées : une vente agrégée n'est pas une transaction.
 export function salesCount(sales, days = 30) {
   const now = Date.now()
   const from = now - days * DAY_MS
-  return filterByWindow(sales, from, now + 1).length
+  return onlyIndividual(filterByWindow(sales, from, now + 1)).length
 }
 
 // ── Meilleur concert sur N jours ──
-// Retourne l'event (rattaché via event_id) avec le plus gros CA.
+// Garde les agrégées : on veut le concert qui a rapporté le plus (agrégé ou pas).
 export function bestConcert(sales, events, days = 30) {
   const now = Date.now()
   const from = now - days * DAY_MS
@@ -139,12 +156,13 @@ export function bestConcert(sales, events, days = 30) {
 }
 
 // ── Acheteurs uniques ──
+// Exclut les agrégées : on veut compter des clients réels.
 // `buyer_id` n'existe pas dans le schéma actuel → on retombe
 // sur `sold_by` si dispo (distinct), sinon sur le nb de transactions.
 export function uniqueBuyers(sales, days = 30) {
   const now = Date.now()
   const from = now - days * DAY_MS
-  const win = filterByWindow(sales, from, now + 1)
+  const win = onlyIndividual(filterByWindow(sales, from, now + 1))
   if (win.length === 0) return 0
   // Si au moins une vente a un champ buyer_id / sold_by non nul, on l'utilise.
   const hasBuyer = win.some(s => s.buyer_id || s.sold_by)
@@ -158,4 +176,22 @@ export function uniqueBuyers(sales, days = 30) {
   }
   // Fallback : 1 vente = 1 client distinct (approximation panier)
   return win.length
+}
+
+// ── Couverture data concerts ──
+// Compte les concerts "Terminé" (date passée) qui ont au moins une sale
+// vs ceux qui n'en ont pas. Sert à afficher un bandeau "N/M concerts saisis".
+export function concertsCoverage(sales, events) {
+  const now = new Date()
+  const terminated = (events || []).filter(e =>
+    e.statut === 'Terminé' && new Date(e.date) <= now
+  )
+  const withSales = new Set(
+    (sales || []).map(s => s.event_id).filter(Boolean)
+  )
+  return {
+    total: terminated.length,
+    covered: terminated.filter(e => withSales.has(e.id)).length,
+    missing: terminated.filter(e => !withSales.has(e.id)).length,
+  }
 }
