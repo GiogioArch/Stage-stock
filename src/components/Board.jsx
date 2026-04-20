@@ -1,4 +1,25 @@
 import React, { useState, useMemo, useEffect, useRef, createElement } from 'react'
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
+  restrictToVerticalAxis,
+  restrictToParentElement,
+} from '@dnd-kit/modifiers'
 import { useToast, useProject, useBoardConfig } from '../shared/hooks'
 import { parseDate, Badge, Confirm } from './UI'
 import { db } from '../lib/supabase'
@@ -12,6 +33,7 @@ import {
   topProduct, salesCount, bestConcert, uniqueBuyers,
   concertsCoverage,
 } from '../lib/salesKpis'
+import { useKpiSheet } from './kpiSheets'
 import {
   Package,
   Calendar,
@@ -26,8 +48,6 @@ import {
   ArrowUpFromLine,
   RefreshCw,
   Settings,
-  ChevronUp,
-  ChevronDown,
   Eye,
   EyeOff,
   RotateCcw,
@@ -102,9 +122,36 @@ export default function Board({
   const { userRole } = useProject()
   const {
     boardKeys, allBoardKeys, hiddenKeys, sections,
+    widgetOrder, reorderWidgets,
     isEditing, setEditing, saving,
-    moveUp, moveDown, toggleModule, toggleSection, resetBoard, applyRolePreset,
+    toggleModule, toggleSection, resetBoard, applyRolePreset,
   } = useBoardConfig()
+
+  // Fiches KPI détaillées (bottom sheet)
+  const { openSheet, SheetRenderer } = useKpiSheet()
+
+  // ─── Drag & Drop sensors (long-press mobile + desktop drag + keyboard) ───
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
+  const handleDragStart = () => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try { navigator.vibrate(30) } catch (_) { /* noop */ }
+    }
+  }
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = widgetOrder.indexOf(active.id)
+    const newIndex = widgetOrder.indexOf(over.id)
+    if (oldIndex < 0 || newIndex < 0) return
+    const next = arrayMove(widgetOrder, oldIndex, newIndex)
+    reorderWidgets(next)
+  }
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [eventDetailSection, setEventDetailSection] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -311,6 +358,581 @@ export default function Board({
     finance: null,
     achats: null,
   }
+
+  // ─── Widget blocks (top-level, draggables) ───
+  // Chaque entree : { id, visible, render() }
+  const widgetDefs = {
+    ventes_kpis: {
+      visible: !!sections.ventes,
+      render: () => (
+        <>
+          <div style={{
+            display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+            marginTop: SPACE.sm, marginBottom: SPACE.sm, gap: SPACE.sm,
+          }}>
+            <div style={{ ...TYPO.label, color: BASE.textSoft }}>
+              Ventes
+            </div>
+            {salesKpis && (
+              <div style={{ fontSize: 10, color: BASE.textMuted }}>
+                {sales.length} vente{sales.length > 1 ? 's' : ''}
+                {oldestSaleDate ? ` · depuis ${new Date(oldestSaleDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}` : ''}
+              </div>
+            )}
+          </div>
+
+          {!salesKpis ? (
+            <div
+              className="fade-count-up"
+              style={{
+                padding: `${SPACE.lg}px ${SPACE.lg}px`,
+                borderRadius: RADIUS.lg,
+                background: `linear-gradient(135deg, ${SEMANTIC.success}10, ${SEMANTIC.success}06)`,
+                border: `1px solid ${SEMANTIC.success}25`,
+                marginBottom: SPACE.lg,
+                display: 'flex', alignItems: 'center', gap: SPACE.md,
+              }}
+            >
+              <div style={{
+                width: 44, height: 44, borderRadius: RADIUS.md,
+                background: BASE.white,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, boxShadow: SHADOW.sm,
+              }}>
+                {createElement(BarChart3, { size: 22, style: { color: SEMANTIC.success } })}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text, marginBottom: 2 }}>
+                  Pas encore de ventes enregistrées
+                </div>
+                <div style={{ fontSize: 11, color: BASE.textSoft, lineHeight: 1.4 }}>
+                  Les KPIs apparaîtront dès le premier concert importé.
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              {coverage.total > 0 && coverage.covered < coverage.total && (
+                <div
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 8,
+                    padding: 12, borderRadius: 10,
+                    background: 'rgba(234, 179, 8, 0.08)',
+                    border: '1px solid rgba(234, 179, 8, 0.18)',
+                    marginBottom: SPACE.sm,
+                    fontSize: 13, lineHeight: 1.45, color: '#854D0E',
+                  }}
+                >
+                  {createElement(Info, { size: 16, style: { color: '#854D0E', flexShrink: 0, marginTop: 1 } })}
+                  <div>
+                    Données basées sur {coverage.covered}/{coverage.total} concerts terminés.
+                    {' '}{coverage.missing} à saisir.
+                  </div>
+                </div>
+              )}
+
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.sm,
+              }}>
+                <KpiCard
+                  icon={Euro}
+                  color={SEMANTIC.success}
+                  label="CA 30 jours"
+                  value={fmtEuro(salesKpis.ca30)}
+                  sub={
+                    salesKpis.trendPct === null
+                      ? 'vs J-60'
+                      : `${salesKpis.trendPct >= 0 ? '↑' : '↓'} ${Math.abs(salesKpis.trendPct)}% vs J-60`
+                  }
+                  onClick={() => openSheet('ca30')}
+                  delay={0}
+                />
+                <KpiCard
+                  icon={ShoppingCart}
+                  color={SEMANTIC.success}
+                  label="Ventes aujourd'hui"
+                  value={salesKpis.today.count}
+                  sub={fmtEuro(salesKpis.today.total)}
+                  onClick={() => openSheet('salesToday')}
+                  delay={50}
+                />
+                <KpiCard
+                  icon={TrendingUp}
+                  color={SEMANTIC.success}
+                  label="Panier moyen"
+                  value={salesKpis.hasIndividual ? fmtEuro(salesKpis.basket) : '—'}
+                  sub={salesKpis.hasIndividual ? '30 derniers jours' : 'tickets individuels à venir'}
+                  onClick={() => openSheet('panier')}
+                  delay={100}
+                />
+                <KpiCard
+                  icon={Award}
+                  color={SEMANTIC.success}
+                  label="Top produit 30j"
+                  value={
+                    salesKpis.top.name
+                      ? (salesKpis.top.name.length > 14
+                          ? salesKpis.top.name.slice(0, 13) + '…'
+                          : salesKpis.top.name)
+                      : '—'
+                  }
+                  sub={salesKpis.top.qty > 0 ? `${salesKpis.top.qty} u.` : 'Aucune vente'}
+                  onClick={() => openSheet('topProduct')}
+                  delay={150}
+                />
+                <KpiCard
+                  icon={Star}
+                  color={SEMANTIC.success}
+                  label="Meilleur concert"
+                  value={
+                    salesKpis.best.name
+                      ? (salesKpis.best.name.length > 14
+                          ? salesKpis.best.name.slice(0, 13) + '…'
+                          : salesKpis.best.name)
+                      : '—'
+                  }
+                  sub={salesKpis.best.total > 0 ? fmtEuro(salesKpis.best.total) : 'Aucune vente rattachée'}
+                  onClick={() => openSheet('bestConcert')}
+                  delay={200}
+                />
+                <KpiCard
+                  icon={Users}
+                  color={SEMANTIC.success}
+                  label="Transactions 30j"
+                  value={salesKpis.txCount}
+                  sub={`${salesKpis.buyers} acheteur${salesKpis.buyers > 1 ? 's' : ''}`}
+                  onClick={() => openSheet('transactions')}
+                  delay={250}
+                />
+              </div>
+              <div style={{ height: SPACE.md }} />
+            </>
+          )}
+        </>
+      ),
+    },
+
+    stock_kpis: {
+      visible: true,
+      render: () => (
+        <>
+          <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm, marginTop: SPACE.sm }}>
+            KPIs Stock
+          </div>
+
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.sm,
+          }}>
+            <KpiCard
+              icon={Wallet}
+              color={SEMANTIC.info}
+              label="Valeur stock"
+              value={fmtEuro(stockValue)}
+              sub="cout achat"
+              onClick={() => openSheet('stockValue')}
+              delay={0}
+            />
+            <KpiCard
+              icon={TrendingUp}
+              color={SEMANTIC.success}
+              label="CA potentiel"
+              value={fmtEuro(caPotentiel)}
+              sub="si tout vendu"
+              onClick={() => openSheet('caPotentiel')}
+              delay={50}
+            />
+            <KpiCard
+              icon={RefreshCw}
+              color={MODULES.tournee?.color || SEMANTIC.info}
+              label="Rotation 30j"
+              value={`x${rotation}`}
+              sub="sorties / stock moyen"
+              onClick={() => openSheet('rotation')}
+              delay={100}
+            />
+            <KpiCard
+              icon={ShoppingCart}
+              color={MODULES.achats?.color || SEMANTIC.warning}
+              label="Commandes"
+              value={commandesEnCours}
+              sub="en cours"
+              onClick={() => openSheet('ordersInProgress')}
+              delay={150}
+            />
+          </div>
+
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.lg,
+          }}>
+            <KpiCard
+              icon={Clock}
+              color={SEMANTIC.warning}
+              label="Dormant"
+              value={dormants}
+              sub=">90j"
+              compact
+              onClick={() => openSheet('stockHealth')}
+              delay={200}
+            />
+            <KpiCard
+              icon={AlertTriangle}
+              color={SEMANTIC.danger}
+              label="Mort"
+              value={morts}
+              sub=">180j"
+              compact
+              onClick={() => openSheet('stockHealth')}
+              delay={250}
+            />
+            <KpiCard
+              icon={PackagePlus}
+              color={SEMANTIC.info}
+              label="Surstock"
+              value={surstock}
+              sub=">3x min"
+              compact
+              onClick={() => openSheet('stockHealth')}
+              delay={300}
+            />
+          </div>
+        </>
+      ),
+    },
+
+    alerts: {
+      visible: !!sections.alerts && (criticalAlerts.length > 0 || lowAlerts.length > 0),
+      render: () => (
+        <div
+          onClick={() => onNavigate('stock_hub')}
+          className={criticalAlerts.length > 0 ? 'pulse-alert card-hover' : 'card-hover'}
+          style={{
+            display: 'flex', alignItems: 'center', gap: SPACE.md,
+            padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
+            background: criticalAlerts.length > 0 ? 'rgba(212,100,138,0.08)' : 'rgba(232,147,90,0.08)',
+            border: `1px solid ${criticalAlerts.length > 0 ? 'rgba(212,100,138,0.2)' : 'rgba(232,147,90,0.2)'}`,
+            cursor: 'pointer',
+          }}
+        >
+          {createElement(criticalAlerts.length > 0 ? AlertOctagon : AlertTriangle, {
+            size: 20,
+            style: { color: criticalAlerts.length > 0 ? SEMANTIC.danger : SEMANTIC.warning, flexShrink: 0 },
+          })}
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>
+              {criticalAlerts.length > 0
+                ? `${criticalAlerts.length} rupture${criticalAlerts.length > 1 ? 's' : ''}`
+                : `${lowAlerts.length} alerte${lowAlerts.length > 1 ? 's' : ''} stock`
+              }
+              {criticalAlerts.length > 0 && lowAlerts.length > 0 && (
+                <span style={{ fontWeight: 400, color: BASE.textSoft }}>
+                  {' '}+ {lowAlerts.length} alerte{lowAlerts.length > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+          </div>
+          {createElement(ChevronRight, { size: 16, style: { color: BASE.textMuted } })}
+        </div>
+      ),
+    },
+
+    modules_grid: {
+      visible: true,
+      render: () => (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: SPACE.md,
+          marginBottom: SPACE.xl,
+        }}>
+          {boardKeys.map(key => {
+            const mod = MODULES[key]
+            const Icon = MOD_ICONS[key]
+            if (!mod || !Icon) return null
+            const handleClick = () => {
+              if (key === 'packing') {
+                if (nextEvent) {
+                  setEventDetailSection('packing')
+                  setSelectedEvent(nextEvent)
+                } else {
+                  onNavigate('tournee')
+                  onToast && onToast('Sélectionne un concert pour accéder au packing', 'info')
+                }
+                return
+              }
+              if (key === 'scanner') {
+                onOpenScanner && onOpenScanner()
+                return
+              }
+              const TAB_MAP = { stock: 'stock_hub' }
+              onNavigate(TAB_MAP[key] || key)
+            }
+            return (
+              <button
+                key={key}
+                onClick={handleClick}
+                className="card-hover"
+                style={{
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center',
+                  padding: `${SPACE.xxl - 2}px ${SPACE.md}px ${SPACE.xl - 2}px`,
+                  borderRadius: RADIUS.xl,
+                  background: mod.bg,
+                  border: isEditing
+                    ? `1.5px dashed rgba(124,58,237,0.55)`
+                    : `1.5px solid ${mod.color}18`,
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'transform 0.15s, box-shadow 0.15s, border-color 160ms ease',
+                  boxShadow: SHADOW.sm,
+                }}
+                onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.97)' }}
+                onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
+                onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+              >
+                {badges[key] && (
+                  <div style={{
+                    position: 'absolute', top: SPACE.sm, right: SPACE.md - 2,
+                    ...TYPO.label, fontSize: 10,
+                    color: mod.color, background: BASE.white,
+                    padding: '2px 7px', borderRadius: RADIUS.md,
+                    boxShadow: SHADOW.sm,
+                  }}>
+                    {badges[key]}
+                  </div>
+                )}
+
+                <div style={{
+                  width: 52, height: 52, borderRadius: RADIUS.md + 4,
+                  background: BASE.white,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: SPACE.md - 2,
+                  boxShadow: SHADOW.card,
+                }}>
+                  {createElement(Icon, { size: 26, style: { color: mod.color } })}
+                </div>
+                <div style={{
+                  ...TYPO.bodyBold, color: mod.color,
+                  letterSpacing: 0.2,
+                }}>
+                  {MOD_LABELS[key] || mod.label}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      ),
+    },
+
+    forecast: {
+      visible: upcomingEvents.length > 0 && products.filter(p => p.category === 'merch').length > 0,
+      render: () => {
+        const merchProducts = products.filter(p => p.category === 'merch')
+        const totalMerchStock = merchProducts.reduce((sum, p) =>
+          sum + stock.filter(s => s.product_id === p.id).reduce((s2, st) => s2 + (st.quantity || 0), 0), 0)
+        const totalForecast = upcomingEvents.slice(0, 5).reduce((sum, ev) => {
+          const rate = getMidRate(ev.format)
+          const mult = getTerritoryMult(ev.territoire)
+          return sum + Math.round((ev.capacite || 300) * rate * mult)
+        }, 0)
+        const fcCoverage = totalForecast > 0 ? Math.round((totalMerchStock / totalForecast) * 100) : 100
+        if (totalForecast === 0) return null
+        return (
+          <div
+            onClick={() => onNavigate('forecast')}
+            className="card-hover"
+            style={{
+              padding: `${SPACE.md + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
+              background: BASE.white, border: `1px solid ${BASE.border}`,
+              boxShadow: SHADOW.sm, cursor: 'pointer',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.sm }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm }}>
+                {createElement(TrendingUp, { size: 16, style: { color: MODULES.forecast?.color || SEMANTIC.warning } })}
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>Prévisions merch</div>
+                  <div style={{ ...TYPO.micro, color: BASE.textSoft }}>
+                    {totalMerchStock} en stock · ~{totalForecast} prévus ({upcomingEvents.slice(0, 5).length} dates)
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                fontSize: 16, fontWeight: 700,
+                color: fcCoverage >= 100 ? SEMANTIC.success : fcCoverage >= 60 ? SEMANTIC.warning : SEMANTIC.danger,
+              }}>{fcCoverage}%</div>
+            </div>
+            <div style={{ height: 4, borderRadius: 2, background: BASE.bgHover, overflow: 'hidden' }}>
+              <div style={{
+                width: `${Math.min(100, fcCoverage)}%`, height: '100%', borderRadius: 2,
+                background: fcCoverage >= 100 ? SEMANTIC.success : fcCoverage >= 60 ? SEMANTIC.warning : SEMANTIC.danger,
+                transition: 'width 0.3s',
+              }} />
+            </div>
+            <div style={{ ...TYPO.label, color: SEMANTIC.info, marginTop: SPACE.sm, textAlign: 'right' }}>
+              Voir les prévisions {createElement(ChevronRight, { size: 10, style: { verticalAlign: 'middle' } })}
+            </div>
+          </div>
+        )
+      },
+    },
+
+    quick_actions: {
+      visible: !!sections.quick_actions,
+      render: () => (
+        <>
+          <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
+            Actions rapides
+          </div>
+          <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.xl }}>
+            <QuickBtn icon={ArrowDownToLine} label="Entrée" color={SEMANTIC.success} onClick={() => onQuickAction('in')} />
+            <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={SEMANTIC.danger} onClick={() => onQuickAction('out')} />
+            <QuickBtn icon={RefreshCw} label="Transfert" color={SEMANTIC.info} onClick={() => onQuickAction('transfer')} />
+          </div>
+        </>
+      ),
+    },
+
+    packing_progress: {
+      visible: !!sections.packing && packingTotal > 0 && !!nextEvent,
+      render: () => (
+        <div style={{
+          padding: `${SPACE.md + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
+          background: BASE.white, border: `1px solid ${BASE.border}`,
+          boxShadow: SHADOW.sm,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.sm }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>
+                Mon packing — {nextEvent.name || nextEvent.lieu}
+              </div>
+              <div style={{ ...TYPO.micro, color: BASE.textSoft }}>
+                {packingDone}/{packingTotal} items prêts
+              </div>
+            </div>
+            <div style={{
+              fontSize: 20, fontWeight: 700,
+              color: packingPct === 100 ? SEMANTIC.success : packingPct >= 50 ? SEMANTIC.warning : SEMANTIC.danger,
+            }}>{packingPct}%</div>
+          </div>
+          <div style={{ height: 6, borderRadius: 3, background: BASE.bgHover, overflow: 'hidden' }}>
+            <div style={{
+              width: `${packingPct}%`, height: '100%', borderRadius: 3,
+              background: packingPct === 100 ? SEMANTIC.success : MODULES.packing.color,
+              transition: 'width 0.3s',
+            }} />
+          </div>
+        </div>
+      ),
+    },
+
+    top_ventes: {
+      visible: topVentes.length > 0,
+      render: () => (
+        <div style={{
+          padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
+          background: BASE.white, border: `1px solid ${BASE.border}`, boxShadow: SHADOW.sm,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm, marginBottom: SPACE.sm }}>
+            {createElement(Trophy, { size: 16, style: { color: SEMANTIC.warning } })}
+            <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>Top ventes</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {(showAllTopVentes ? topVentes : topVentes.slice(0, 3)).map((tv, idx) => (
+              <div key={tv.product.id} style={{
+                display: 'flex', alignItems: 'center', gap: SPACE.sm,
+                padding: `${SPACE.xs + 2}px ${SPACE.sm}px`, borderRadius: RADIUS.sm,
+                background: idx < 3 ? `${SEMANTIC.warning}08` : BASE.bgHover,
+              }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: 11,
+                  background: idx === 0 ? '#FFD700' : idx === 1 ? '#C0C0C0' : idx === 2 ? '#CD7F32' : BASE.bgHover,
+                  color: idx < 3 ? BASE.white : BASE.textMuted,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, flexShrink: 0,
+                }}>{idx + 1}</div>
+                <div style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 500, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {tv.product.name || tv.product.sku}
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: SEMANTIC.success, flexShrink: 0 }}>
+                  {tv.qty}
+                </div>
+              </div>
+            ))}
+          </div>
+          {topVentes.length > 3 && (
+            <button onClick={() => setShowAllTopVentes(!showAllTopVentes)} style={{
+              marginTop: SPACE.sm, width: '100%', padding: '6px',
+              background: 'none', border: 'none', color: SEMANTIC.info,
+              fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            }}>
+              {showAllTopVentes ? 'Voir moins' : `Voir + (${topVentes.length - 3})`}
+            </button>
+          )}
+        </div>
+      ),
+    },
+
+    upcoming_events: {
+      visible: !!sections.upcoming && upcomingEvents.length > 1,
+      render: () => (
+        <>
+          <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
+            Prochains événements
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: SPACE.sm }}>
+            {upcomingEvents.slice(1, 4).map(ev => {
+              const d = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
+              return (
+                <div
+                  key={ev.id}
+                  onClick={() => setSelectedEvent(ev)}
+                  className="card-hover"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: SPACE.md - 2, padding: `${SPACE.md - 2}px ${SPACE.md}px`,
+                    borderRadius: RADIUS.md, background: BASE.white, border: `1px solid ${BASE.border}`,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{
+                    width: 36, height: 36, borderRadius: RADIUS.sm,
+                    background: MODULES.tournee.bg, color: MODULES.tournee.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 10, fontWeight: 700, lineHeight: 1.1, textAlign: 'center', flexShrink: 0,
+                  }}>
+                    {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {ev.name || ev.lieu}
+                    </div>
+                    <div style={{ ...TYPO.micro, color: BASE.textSoft }}>{ev.ville}</div>
+                  </div>
+                  <Badge color={d <= 7 ? SEMANTIC.warning : SEMANTIC.info}>J-{d}</Badge>
+                </div>
+              )
+            })}
+          </div>
+          {upcomingEvents.length > 4 && (
+            <button
+              onClick={() => onNavigate('tournee')}
+              style={{
+                width: '100%', padding: SPACE.md - 2, borderRadius: RADIUS.md,
+                background: 'none', border: `1px dashed ${BASE.border}`,
+                ...TYPO.caption, color: SEMANTIC.info,
+                cursor: 'pointer', textAlign: 'center',
+              }}
+            >
+              Voir les {upcomingEvents.length} dates
+              {createElement(ChevronRight, { size: 12, style: { verticalAlign: 'middle', marginLeft: SPACE.xs } })}
+            </button>
+          )}
+        </>
+      ),
+    },
+  }
+
+  // Liste des ids de widgets visibles dans l'ordre sauvegarde (pour le SortableContext)
+  const visibleWidgetIds = widgetOrder.filter(id => widgetDefs[id]?.visible)
 
   return (
     <>
@@ -621,7 +1243,7 @@ export default function Board({
               </button>
             </div>
             <div style={{ ...TYPO.micro, color: BASE.textSoft, marginBottom: SPACE.md }}>
-              Glisse, masque, reorganise — tout est enregistre automatiquement.
+              Appui long sur une carte pour la deplacer. Masque, reorganise — tout est enregistre automatiquement.
             </div>
 
             {/* Module list */}
@@ -657,16 +1279,6 @@ export default function Board({
                     }}>
                       {MOD_LABELS[key] || mod.label || key}
                     </div>
-
-                    {/* Move buttons */}
-                    <button onClick={() => moveUp(key)} disabled={idx === 0 || saving}
-                      aria-label="Monter" style={editBtnStyle(idx === 0)}>
-                      {createElement(ChevronUp, { size: 16 })}
-                    </button>
-                    <button onClick={() => moveDown(key)} disabled={idx === allBoardKeys.length - 1 || saving}
-                      aria-label="Descendre" style={editBtnStyle(idx === allBoardKeys.length - 1)}>
-                      {createElement(ChevronDown, { size: 16 })}
-                    </button>
 
                     {/* Toggle visibility */}
                     <button onClick={() => toggleModule(key)} disabled={saving}
@@ -743,546 +1355,36 @@ export default function Board({
           </div>
         )}
 
-        {/* ═══ 2. BANDEAU ALERTES (seulement si problèmes + section visible) ═══ */}
-        {sections.alerts && (criticalAlerts.length > 0 || lowAlerts.length > 0) && (
-          <div
-            onClick={() => onNavigate('stock_hub')}
-            className={criticalAlerts.length > 0 ? 'pulse-alert card-hover' : 'card-hover'}
-            style={{
-              display: 'flex', alignItems: 'center', gap: SPACE.md,
-              padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
-              background: criticalAlerts.length > 0 ? 'rgba(212,100,138,0.08)' : 'rgba(232,147,90,0.08)',
-              border: `1px solid ${criticalAlerts.length > 0 ? 'rgba(212,100,138,0.2)' : 'rgba(232,147,90,0.2)'}`,
-              cursor: 'pointer',
-            }}
-          >
-            {createElement(criticalAlerts.length > 0 ? AlertOctagon : AlertTriangle, {
-              size: 20,
-              style: { color: criticalAlerts.length > 0 ? SEMANTIC.danger : SEMANTIC.warning, flexShrink: 0 },
-            })}
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>
-                {criticalAlerts.length > 0
-                  ? `${criticalAlerts.length} rupture${criticalAlerts.length > 1 ? 's' : ''}`
-                  : `${lowAlerts.length} alerte${lowAlerts.length > 1 ? 's' : ''} stock`
-                }
-                {criticalAlerts.length > 0 && lowAlerts.length > 0 && (
-                  <span style={{ fontWeight: 400, color: BASE.textSoft }}>
-                    {' '}+ {lowAlerts.length} alerte{lowAlerts.length > 1 ? 's' : ''}
-                  </span>
-                )}
-              </div>
-            </div>
-            {createElement(ChevronRight, { size: 16, style: { color: BASE.textMuted } })}
-          </div>
-        )}
-
-        {/* ═══ 3. GRILLE MODULES (dynamique) ═══ */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: SPACE.md,
-          marginBottom: SPACE.xl,
-        }}>
-          {boardKeys.map(key => {
-            const mod = MODULES[key]
-            const Icon = MOD_ICONS[key]
-            if (!mod || !Icon) return null
-            const handleClick = () => {
-              if (key === 'packing') {
-                if (nextEvent) {
-                  setEventDetailSection('packing')
-                  setSelectedEvent(nextEvent)
-                } else {
-                  onNavigate('tournee')
-                  onToast && onToast('Sélectionne un concert pour accéder au packing', 'info')
-                }
-                return
-              }
-              if (key === 'scanner') {
-                onOpenScanner && onOpenScanner()
-                return
-              }
-              // Map board keys to their actual tab IDs
-              const TAB_MAP = { stock: 'stock_hub' }
-              onNavigate(TAB_MAP[key] || key)
-            }
-            return (
-              <button
-                key={key}
-                onClick={handleClick}
-                className="card-hover"
-                style={{
-                  display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center',
-                  padding: `${SPACE.xxl - 2}px ${SPACE.md}px ${SPACE.xl - 2}px`,
-                  borderRadius: RADIUS.xl,
-                  background: mod.bg,
-                  border: isEditing
-                    ? `1.5px dashed rgba(124,58,237,0.55)`
-                    : `1.5px solid ${mod.color}18`,
-                  cursor: 'pointer',
-                  position: 'relative',
-                  transition: 'transform 0.15s, box-shadow 0.15s, border-color 160ms ease',
-                  boxShadow: SHADOW.sm,
-                }}
-                onPointerDown={e => { e.currentTarget.style.transform = 'scale(0.97)' }}
-                onPointerUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
-                onPointerLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+        {/* ═══ WIDGETS DRAGGABLES (ventes, stock, alertes, modules, forecast, quick, packing, top, upcoming) ═══ */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={visibleWidgetIds} strategy={verticalListSortingStrategy}>
+            {visibleWidgetIds.map(id => (
+              <SortableWidget
+                key={id}
+                id={id}
+                isEditing={isEditing}
+                ariaLabel={`Déplacer la carte ${WIDGET_LABELS[id] || id}`}
               >
-                {/* Badge */}
-                {badges[key] && (
-                  <div style={{
-                    position: 'absolute', top: SPACE.sm, right: SPACE.md - 2,
-                    ...TYPO.label, fontSize: 10,
-                    color: mod.color, background: BASE.white,
-                    padding: '2px 7px', borderRadius: RADIUS.md,
-                    boxShadow: SHADOW.sm,
-                  }}>
-                    {badges[key]}
-                  </div>
-                )}
+                {widgetDefs[id].render()}
+              </SortableWidget>
+            ))}
+          </SortableContext>
+        </DndContext>
 
-                <div style={{
-                  width: 52, height: 52, borderRadius: RADIUS.md + 4,
-                  background: BASE.white,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  marginBottom: SPACE.md - 2,
-                  boxShadow: SHADOW.card,
-                }}>
-                  {createElement(Icon, { size: 26, style: { color: mod.color } })}
-                </div>
-                <div style={{
-                  ...TYPO.bodyBold, color: mod.color,
-                  letterSpacing: 0.2,
-                }}>
-                  {MOD_LABELS[key] || mod.label}
-                </div>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* ═══ 4. ACTIONS RAPIDES (petit format) ═══ */}
-        {sections.quick_actions && (
-          <>
-            <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
-              Actions rapides
-            </div>
-            <div style={{ display: 'flex', gap: SPACE.sm, marginBottom: SPACE.xl }}>
-              <QuickBtn icon={ArrowDownToLine} label="Entrée" color={SEMANTIC.success} onClick={() => onQuickAction('in')} />
-              <QuickBtn icon={ArrowUpFromLine} label="Sortie" color={SEMANTIC.danger} onClick={() => onQuickAction('out')} />
-              <QuickBtn icon={RefreshCw} label="Transfert" color={SEMANTIC.info} onClick={() => onQuickAction('transfer')} />
-            </div>
-          </>
-        )}
-
-        {/* ═══ 5. PACKING PROGRESS (si applicable) ═══ */}
-        {sections.packing && packingTotal > 0 && nextEvent && (
-          <div style={{
-            padding: `${SPACE.md + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
-            background: BASE.white, border: `1px solid ${BASE.border}`,
-            boxShadow: SHADOW.sm,
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.sm }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>
-                  Mon packing — {nextEvent.name || nextEvent.lieu}
-                </div>
-                <div style={{ ...TYPO.micro, color: BASE.textSoft }}>
-                  {packingDone}/{packingTotal} items prêts
-                </div>
-              </div>
-              <div style={{
-                fontSize: 20, fontWeight: 700,
-                color: packingPct === 100 ? SEMANTIC.success : packingPct >= 50 ? SEMANTIC.warning : SEMANTIC.danger,
-              }}>{packingPct}%</div>
-            </div>
-            <div style={{ height: 6, borderRadius: 3, background: BASE.bgHover, overflow: 'hidden' }}>
-              <div style={{
-                width: `${packingPct}%`, height: '100%', borderRadius: 3,
-                background: packingPct === 100 ? SEMANTIC.success : MODULES.packing.color,
-                transition: 'width 0.3s',
-              }} />
-            </div>
-          </div>
-        )}
-
-        {/* ═══ 5b. FORECAST RÉSUMÉ (merch prévisions prochains events) ═══ */}
-        {upcomingEvents.length > 0 && products.filter(p => p.category === 'merch').length > 0 && (() => {
-          const merchProducts = products.filter(p => p.category === 'merch')
-          const totalMerchStock = merchProducts.reduce((sum, p) =>
-            sum + stock.filter(s => s.product_id === p.id).reduce((s2, st) => s2 + (st.quantity || 0), 0), 0)
-          const totalForecast = upcomingEvents.slice(0, 5).reduce((sum, ev) => {
-            const rate = getMidRate(ev.format)
-            const mult = getTerritoryMult(ev.territoire)
-            return sum + Math.round((ev.capacite || 300) * rate * mult)
-          }, 0)
-          const coverage = totalForecast > 0 ? Math.round((totalMerchStock / totalForecast) * 100) : 100
-          if (totalForecast === 0) return null
-          return (
-            <div
-              onClick={() => onNavigate('forecast')}
-              className="card-hover"
-              style={{
-                padding: `${SPACE.md + 2}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
-                background: BASE.white, border: `1px solid ${BASE.border}`,
-                boxShadow: SHADOW.sm, cursor: 'pointer',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACE.sm }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm }}>
-                  {createElement(TrendingUp, { size: 16, style: { color: MODULES.forecast?.color || SEMANTIC.warning } })}
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>Prévisions merch</div>
-                    <div style={{ ...TYPO.micro, color: BASE.textSoft }}>
-                      {totalMerchStock} en stock · ~{totalForecast} prévus ({upcomingEvents.slice(0, 5).length} dates)
-                    </div>
-                  </div>
-                </div>
-                <div style={{
-                  fontSize: 16, fontWeight: 700,
-                  color: coverage >= 100 ? SEMANTIC.success : coverage >= 60 ? SEMANTIC.warning : SEMANTIC.danger,
-                }}>{coverage}%</div>
-              </div>
-              <div style={{ height: 4, borderRadius: 2, background: BASE.bgHover, overflow: 'hidden' }}>
-                <div style={{
-                  width: `${Math.min(100, coverage)}%`, height: '100%', borderRadius: 2,
-                  background: coverage >= 100 ? SEMANTIC.success : coverage >= 60 ? SEMANTIC.warning : SEMANTIC.danger,
-                  transition: 'width 0.3s',
-                }} />
-              </div>
-              <div style={{ ...TYPO.label, color: SEMANTIC.info, marginTop: SPACE.sm, textAlign: 'right' }}>
-                Voir les prévisions {createElement(ChevronRight, { size: 10, style: { verticalAlign: 'middle' } })}
-              </div>
-            </div>
-          )
-        })()}
-
-        {/* ═══ 5b-bis. KPIs VENTES (au-dessus des KPIs Stock) ═══ */}
-        {sections.ventes && (
-          <>
-            <div style={{
-              display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
-              marginTop: SPACE.sm, marginBottom: SPACE.sm, gap: SPACE.sm,
-            }}>
-              <div style={{ ...TYPO.label, color: BASE.textSoft }}>
-                Ventes
-              </div>
-              {salesKpis && (
-                <div style={{ fontSize: 10, color: BASE.textMuted }}>
-                  {sales.length} vente{sales.length > 1 ? 's' : ''}
-                  {oldestSaleDate ? ` · depuis ${new Date(oldestSaleDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}` : ''}
-                </div>
-              )}
-            </div>
-
-            {!salesKpis ? (
-              /* Cas vide — carte unique élégante */
-              <div
-                className="fade-count-up"
-                style={{
-                  padding: `${SPACE.lg}px ${SPACE.lg}px`,
-                  borderRadius: RADIUS.lg,
-                  background: `linear-gradient(135deg, ${SEMANTIC.success}10, ${SEMANTIC.success}06)`,
-                  border: `1px solid ${SEMANTIC.success}25`,
-                  marginBottom: SPACE.lg,
-                  display: 'flex', alignItems: 'center', gap: SPACE.md,
-                }}
-              >
-                <div style={{
-                  width: 44, height: 44, borderRadius: RADIUS.md,
-                  background: BASE.white,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0, boxShadow: SHADOW.sm,
-                }}>
-                  {createElement(BarChart3, { size: 22, style: { color: SEMANTIC.success } })}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text, marginBottom: 2 }}>
-                    Pas encore de ventes enregistrées
-                  </div>
-                  <div style={{ fontSize: 11, color: BASE.textSoft, lineHeight: 1.4 }}>
-                    Les KPIs apparaîtront dès le premier concert importé.
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Bandeau info couverture concerts */}
-                {coverage.total > 0 && coverage.covered < coverage.total && (
-                  <div
-                    style={{
-                      display: 'flex', alignItems: 'flex-start', gap: 8,
-                      padding: 12, borderRadius: 10,
-                      background: 'rgba(234, 179, 8, 0.08)',
-                      border: '1px solid rgba(234, 179, 8, 0.18)',
-                      marginBottom: SPACE.sm,
-                      fontSize: 13, lineHeight: 1.45, color: '#854D0E',
-                    }}
-                  >
-                    {createElement(Info, { size: 16, style: { color: '#854D0E', flexShrink: 0, marginTop: 1 } })}
-                    <div>
-                      Données basées sur {coverage.covered}/{coverage.total} concerts terminés.
-                      {' '}{coverage.missing} à saisir.
-                    </div>
-                  </div>
-                )}
-
-                {/* 3 x 2 = 6 cartes KPIs ventes */}
-                <div style={{
-                  display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.sm,
-                }}>
-                  <KpiCard
-                    icon={Euro}
-                    color={SEMANTIC.success}
-                    label="CA 30 jours"
-                    value={fmtEuro(salesKpis.ca30)}
-                    sub={
-                      salesKpis.trendPct === null
-                        ? 'vs J-60'
-                        : `${salesKpis.trendPct >= 0 ? '↑' : '↓'} ${Math.abs(salesKpis.trendPct)}% vs J-60`
-                    }
-                    delay={0}
-                  />
-                  <KpiCard
-                    icon={ShoppingCart}
-                    color={SEMANTIC.success}
-                    label="Ventes aujourd'hui"
-                    value={salesKpis.today.count}
-                    sub={fmtEuro(salesKpis.today.total)}
-                    delay={50}
-                  />
-                  <KpiCard
-                    icon={TrendingUp}
-                    color={SEMANTIC.success}
-                    label="Panier moyen"
-                    value={salesKpis.hasIndividual ? fmtEuro(salesKpis.basket) : '—'}
-                    sub={salesKpis.hasIndividual ? '30 derniers jours' : 'tickets individuels à venir'}
-                    delay={100}
-                  />
-                  <KpiCard
-                    icon={Award}
-                    color={SEMANTIC.success}
-                    label="Top produit 30j"
-                    value={
-                      salesKpis.top.name
-                        ? (salesKpis.top.name.length > 14
-                            ? salesKpis.top.name.slice(0, 13) + '…'
-                            : salesKpis.top.name)
-                        : '—'
-                    }
-                    sub={salesKpis.top.qty > 0 ? `${salesKpis.top.qty} u.` : 'Aucune vente'}
-                    delay={150}
-                  />
-                  <KpiCard
-                    icon={Star}
-                    color={SEMANTIC.success}
-                    label="Meilleur concert"
-                    value={
-                      salesKpis.best.name
-                        ? (salesKpis.best.name.length > 14
-                            ? salesKpis.best.name.slice(0, 13) + '…'
-                            : salesKpis.best.name)
-                        : '—'
-                    }
-                    sub={salesKpis.best.total > 0 ? fmtEuro(salesKpis.best.total) : 'Aucune vente rattachée'}
-                    delay={200}
-                  />
-                  <KpiCard
-                    icon={Users}
-                    color={SEMANTIC.success}
-                    label="Transactions 30j"
-                    value={salesKpis.txCount}
-                    sub={`${salesKpis.buyers} acheteur${salesKpis.buyers > 1 ? 's' : ''}`}
-                    delay={250}
-                  />
-                </div>
-                <div style={{ height: SPACE.md }} />
-              </>
-            )}
-          </>
-        )}
-
-        {/* ═══ 5c. KPIs STOCK (8 metriques cles) ═══ */}
-        <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm, marginTop: SPACE.sm }}>
-          KPIs Stock
-        </div>
-
-        {/* 4 cards principales */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.sm,
-        }}>
-          <KpiCard
-            icon={Wallet}
-            color={SEMANTIC.info}
-            label="Valeur stock"
-            value={fmtEuro(stockValue)}
-            sub="cout achat"
-            delay={0}
-          />
-          <KpiCard
-            icon={TrendingUp}
-            color={SEMANTIC.success}
-            label="CA potentiel"
-            value={fmtEuro(caPotentiel)}
-            sub="si tout vendu"
-            delay={50}
-          />
-          <KpiCard
-            icon={RefreshCw}
-            color={MODULES.tournee?.color || SEMANTIC.info}
-            label="Rotation 30j"
-            value={`x${rotation}`}
-            sub="sorties / stock moyen"
-            delay={100}
-          />
-          <KpiCard
-            icon={ShoppingCart}
-            color={MODULES.achats?.color || SEMANTIC.warning}
-            label="Commandes"
-            value={commandesEnCours}
-            sub="en cours"
-            onClick={() => onNavigate && onNavigate('achats')}
-            delay={150}
-          />
-        </div>
-
-        {/* 3 cards alertes */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.lg,
-        }}>
-          <KpiCard
-            icon={Clock}
-            color={SEMANTIC.warning}
-            label="Dormant"
-            value={dormants}
-            sub=">90j"
-            compact
-            delay={200}
-          />
-          <KpiCard
-            icon={AlertTriangle}
-            color={SEMANTIC.danger}
-            label="Mort"
-            value={morts}
-            sub=">180j"
-            compact
-            delay={250}
-          />
-          <KpiCard
-            icon={PackagePlus}
-            color={SEMANTIC.info}
-            label="Surstock"
-            value={surstock}
-            sub=">3x min"
-            compact
-            delay={300}
-          />
-        </div>
-
-        {/* Top 10 ventes */}
-        {topVentes.length > 0 && (
-          <div style={{
-            padding: `${SPACE.md}px ${SPACE.lg}px`, borderRadius: RADIUS.lg, marginBottom: SPACE.lg,
-            background: BASE.white, border: `1px solid ${BASE.border}`, boxShadow: SHADOW.sm,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: SPACE.sm, marginBottom: SPACE.sm }}>
-              {createElement(Trophy, { size: 16, style: { color: SEMANTIC.warning } })}
-              <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text }}>Top ventes</div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {(showAllTopVentes ? topVentes : topVentes.slice(0, 3)).map((tv, idx) => (
-                <div key={tv.product.id} style={{
-                  display: 'flex', alignItems: 'center', gap: SPACE.sm,
-                  padding: `${SPACE.xs + 2}px ${SPACE.sm}px`, borderRadius: RADIUS.sm,
-                  background: idx < 3 ? `${SEMANTIC.warning}08` : BASE.bgHover,
-                }}>
-                  <div style={{
-                    width: 22, height: 22, borderRadius: 11,
-                    background: idx === 0 ? '#FFD700' : idx === 1 ? '#C0C0C0' : idx === 2 ? '#CD7F32' : BASE.bgHover,
-                    color: idx < 3 ? BASE.white : BASE.textMuted,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 11, fontWeight: 700, flexShrink: 0,
-                  }}>{idx + 1}</div>
-                  <div style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 500, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {tv.product.name || tv.product.sku}
-                  </div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: SEMANTIC.success, flexShrink: 0 }}>
-                    {tv.qty}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {topVentes.length > 3 && (
-              <button onClick={() => setShowAllTopVentes(!showAllTopVentes)} style={{
-                marginTop: SPACE.sm, width: '100%', padding: '6px',
-                background: 'none', border: 'none', color: SEMANTIC.info,
-                fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              }}>
-                {showAllTopVentes ? 'Voir moins' : `Voir + (${topVentes.length - 3})`}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* ═══ 6. PROCHAINS ÉVÉNEMENTS (compact) ═══ */}
-        {sections.upcoming && upcomingEvents.length > 1 && (
-          <>
-            <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm }}>
-              Prochains événements
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: SPACE.sm }}>
-              {upcomingEvents.slice(1, 4).map(ev => {
-                const d = Math.ceil((new Date(ev.date) - new Date()) / 86400000)
-                return (
-                  <div
-                    key={ev.id}
-                    onClick={() => setSelectedEvent(ev)}
-                    className="card-hover"
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: SPACE.md - 2, padding: `${SPACE.md - 2}px ${SPACE.md}px`,
-                      borderRadius: RADIUS.md, background: BASE.white, border: `1px solid ${BASE.border}`,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <div style={{
-                      width: 36, height: 36, borderRadius: RADIUS.sm,
-                      background: MODULES.tournee.bg, color: MODULES.tournee.color,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, fontWeight: 700, lineHeight: 1.1, textAlign: 'center', flexShrink: 0,
-                    }}>
-                      {parseDate(ev.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: BASE.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {ev.name || ev.lieu}
-                      </div>
-                      <div style={{ ...TYPO.micro, color: BASE.textSoft }}>{ev.ville}</div>
-                    </div>
-                    <Badge color={d <= 7 ? SEMANTIC.warning : SEMANTIC.info}>J-{d}</Badge>
-                  </div>
-                )
-              })}
-            </div>
-            {upcomingEvents.length > 4 && (
-              <button
-                onClick={() => onNavigate('tournee')}
-                style={{
-                  width: '100%', padding: SPACE.md - 2, borderRadius: RADIUS.md,
-                  background: 'none', border: `1px dashed ${BASE.border}`,
-                  ...TYPO.caption, color: SEMANTIC.info,
-                  cursor: 'pointer', textAlign: 'center',
-                }}
-              >
-                Voir les {upcomingEvents.length} dates
-                {createElement(ChevronRight, { size: 12, style: { verticalAlign: 'middle', marginLeft: SPACE.xs } })}
-              </button>
-            )}
-          </>
-        )}
 
       </div>
+
+      {/* Fiches KPI détaillées (bottom sheet) */}
+      <SheetRenderer data={{
+        sales, saleItems, events, products, stock, locations,
+        movements, purchaseOrders, suppliers: [],
+      }} />
     </>
   )
 }
@@ -1354,5 +1456,63 @@ function QuickBtn({ icon, label, color, onClick }) {
       {createElement(icon, { size: 16 })}
       {label}
     </button>
+  )
+}
+
+// ─── Labels widgets (aria / hint) ───
+const WIDGET_LABELS = {
+  ventes_kpis: 'KPIs Ventes',
+  stock_kpis: 'KPIs Stock',
+  alerts: 'Alertes',
+  modules_grid: 'Modules',
+  forecast: 'Prévisions merch',
+  quick_actions: 'Actions rapides',
+  packing_progress: 'Packing en cours',
+  top_ventes: 'Top ventes',
+  upcoming_events: 'Prochains événements',
+}
+
+// ─── Wrapper Sortable pour chaque widget top-level du Board ───
+function SortableWidget({ id, isEditing, ariaLabel, children }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, disabled: !isEditing })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition || 'transform 160ms ease',
+    opacity: isDragging ? 0.92 : 1,
+    zIndex: isDragging ? 50 : 'auto',
+    boxShadow: isDragging ? '0 10px 30px rgba(124,58,237,0.15)' : 'none',
+    borderRadius: isDragging ? 16 : 0,
+    scale: isDragging ? '1.02' : '1',
+    rotate: isDragging ? '1deg' : '0deg',
+    // Zone de drag confortable pour le touch
+    touchAction: isEditing ? 'none' : 'auto',
+    cursor: isEditing ? (isDragging ? 'grabbing' : 'grab') : 'default',
+    outline: isDragging ? '2px solid rgba(124,58,237,0.45)' : 'none',
+    outlineOffset: isDragging ? 2 : 0,
+    position: 'relative',
+  }
+
+  // Handle listeners only when editing (sinon les clicks descendants fonctionnent normalement)
+  const dragHandlers = isEditing ? { ...listeners, ...attributes } : {}
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      role={isEditing ? 'button' : undefined}
+      aria-label={isEditing ? ariaLabel : undefined}
+      aria-roledescription={isEditing ? 'carte déplaçable' : undefined}
+      {...dragHandlers}
+    >
+      {children}
+    </div>
   )
 }

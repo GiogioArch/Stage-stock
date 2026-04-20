@@ -6,6 +6,20 @@ import { buildBoardConfigFromRoles } from '../../config/boardPresets'
 
 const DEFAULT_BOARD_KEYS = ['stock', 'tournee', 'packing', 'scanner', 'finance', 'achats']
 
+// Widgets = blocs top-level du Board (draggables par l'utilisateur)
+// Ordre par defaut : les KPIs business (ventes, stock) remontent juste apres l'en-tete
+export const DEFAULT_WIDGET_ORDER = [
+  'ventes_kpis',
+  'stock_kpis',
+  'alerts',
+  'modules_grid',
+  'forecast',
+  'quick_actions',
+  'packing_progress',
+  'top_ventes',
+  'upcoming_events',
+]
+
 /**
  * useBoardConfig — Gère l'ordre et la visibilité des modules Board
  *
@@ -64,6 +78,15 @@ export function useBoardConfig() {
     ...config.sections,
   }), [config.sections])
 
+  // Widget order (top-level Board blocks) — drag & drop target
+  const widgetOrder = useMemo(() => {
+    const saved = Array.isArray(config.widget_order) && config.widget_order.length > 0
+      ? config.widget_order
+      : DEFAULT_WIDGET_ORDER
+    // Merge: keep saved order, append any new widgets that didn't exist when the user saved
+    return [...new Set([...saved, ...DEFAULT_WIDGET_ORDER])]
+  }, [config.widget_order])
+
   // Save to Supabase
   const saveConfig = useCallback(async (newConfig) => {
     if (!membership?.id) return
@@ -113,7 +136,13 @@ export function useBoardConfig() {
   }, [sections, saveConfig])
 
   const resetBoard = useCallback(() => {
-    saveConfig({ board_order: DEFAULT_BOARD_KEYS, hidden: [], sections: {} })
+    saveConfig({ board_order: DEFAULT_BOARD_KEYS, hidden: [], sections: {}, widget_order: DEFAULT_WIDGET_ORDER })
+  }, [saveConfig])
+
+  // Réordonne les widgets top-level (drag & drop)
+  const reorderWidgets = useCallback((newOrder) => {
+    if (!Array.isArray(newOrder) || newOrder.length === 0) return
+    saveConfig({ widget_order: newOrder })
   }, [saveConfig])
 
   // ─── Applique le preset métier (recalcule depuis userRole) ───
@@ -123,6 +152,7 @@ export function useBoardConfig() {
     saveConfig({
       board_order: preset.board_order,
       hidden: preset.hidden,
+      widget_order: preset.widget_order || DEFAULT_WIDGET_ORDER,
     })
   }, [userRole, saveConfig])
 
@@ -131,6 +161,8 @@ export function useBoardConfig() {
     allBoardKeys,
     hiddenKeys,
     sections,
+    widgetOrder,
+    reorderWidgets,
     isEditing: editing,
     setEditing,
     saving,
@@ -141,5 +173,6 @@ export function useBoardConfig() {
     resetBoard,
     applyRolePreset,
     DEFAULT_BOARD_KEYS,
+    DEFAULT_WIDGET_ORDER,
   }
 }
