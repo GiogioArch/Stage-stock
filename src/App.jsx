@@ -835,6 +835,8 @@ function TabContent({
           eventPacking={data.event_packing}
           userProfiles={data.user_profiles}
           purchaseOrders={data.purchase_orders}
+          sales={data.sales}
+          saleItems={data.sale_items}
           onQuickAction={onQuickAction}
           onNavigate={onNavigate}
           onOpenScanner={onOpenScanner}

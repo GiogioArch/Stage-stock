@@ -60,6 +60,7 @@ export function useBoardConfig() {
     quick_actions: true,
     packing: true,
     upcoming: true,
+    ventes: true,
     ...config.sections,
   }), [config.sections])
 

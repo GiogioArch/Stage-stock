@@ -8,6 +8,10 @@ import { FloatingDetail } from '../design'
 import { MODULES, BASE, SEMANTIC, SHADOW, SPACE, RADIUS, TYPO } from '../lib/theme'
 import { getMidRate, getTerritoryMult } from '../lib/forecast'
 import {
+  caLastDays, caTrendPct, salesToday, avgBasket,
+  topProduct, salesCount, bestConcert, uniqueBuyers,
+} from '../lib/salesKpis'
+import {
   Package,
   Calendar,
   ClipboardCheck,
@@ -28,6 +32,7 @@ import {
   RotateCcw,
   X,
   TrendingUp,
+  TrendingDown,
   Clock,
   PackagePlus,
   Wallet,
@@ -35,6 +40,11 @@ import {
   CheckCircle,
   Check,
   Sparkles,
+  Euro,
+  Award,
+  Star,
+  Users,
+  BarChart3,
 } from 'lucide-react'
 
 // ─── Icons map for hero status banner ───
@@ -63,7 +73,8 @@ const MOD_LABELS = {
 export default function Board({
   products, locations, stock, movements, alerts, events,
   families, subfamilies, checklists, roles, eventPacking,
-  userProfiles, purchaseOrders, onQuickAction, onNavigate,
+  userProfiles, purchaseOrders, sales = [], saleItems = [],
+  onQuickAction, onNavigate,
   onOpenScanner,
 }) {
   const [showAllTopVentes, setShowAllTopVentes] = useState(false)
@@ -191,6 +202,30 @@ export default function Board({
       !['received', 'cancelled'].includes(po.status)
     ).length
   }, [purchaseOrders])
+
+  // ─── KPIs Ventes (calculés via src/lib/salesKpis.js) ───
+  const salesKpis = useMemo(() => {
+    const safeSales = sales || []
+    if (safeSales.length === 0) return null
+    return {
+      ca30: caLastDays(safeSales, 30),
+      trendPct: caTrendPct(safeSales, 30),
+      today: salesToday(safeSales),
+      basket: avgBasket(safeSales, 30),
+      top: topProduct(saleItems || [], products || [], 30, safeSales),
+      txCount: salesCount(safeSales, 30),
+      best: bestConcert(safeSales, events || [], 30),
+      buyers: uniqueBuyers(safeSales, 30),
+    }
+  }, [sales, saleItems, products, events])
+
+  const oldestSaleDate = useMemo(() => {
+    if (!sales || sales.length === 0) return null
+    return (sales || [])
+      .map(s => s.created_at)
+      .filter(Boolean)
+      .sort()[0] || null
+  }, [sales])
 
   const fmtEuro = (v) => {
     const n = Math.round((v || 0) * 100) / 100
@@ -646,6 +681,7 @@ export default function Board({
                   { id: 'quick_actions', label: 'Actions rapides' },
                   { id: 'packing', label: 'Packing' },
                   { id: 'upcoming', label: 'Prochains events' },
+                  { id: 'ventes', label: 'KPIs Ventes' },
                 ].map(s => (
                   <button
                     key={s.id}
@@ -912,6 +948,131 @@ export default function Board({
             </div>
           )
         })()}
+
+        {/* ═══ 5b-bis. KPIs VENTES (au-dessus des KPIs Stock) ═══ */}
+        {sections.ventes && (
+          <>
+            <div style={{
+              display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+              marginTop: SPACE.sm, marginBottom: SPACE.sm, gap: SPACE.sm,
+            }}>
+              <div style={{ ...TYPO.label, color: BASE.textSoft }}>
+                Ventes
+              </div>
+              {salesKpis && (
+                <div style={{ fontSize: 10, color: BASE.textMuted }}>
+                  {sales.length} vente{sales.length > 1 ? 's' : ''}
+                  {oldestSaleDate ? ` · depuis ${new Date(oldestSaleDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}` : ''}
+                </div>
+              )}
+            </div>
+
+            {!salesKpis ? (
+              /* Cas vide — carte unique élégante */
+              <div
+                className="fade-count-up"
+                style={{
+                  padding: `${SPACE.lg}px ${SPACE.lg}px`,
+                  borderRadius: RADIUS.lg,
+                  background: `linear-gradient(135deg, ${SEMANTIC.success}10, ${SEMANTIC.success}06)`,
+                  border: `1px solid ${SEMANTIC.success}25`,
+                  marginBottom: SPACE.lg,
+                  display: 'flex', alignItems: 'center', gap: SPACE.md,
+                }}
+              >
+                <div style={{
+                  width: 44, height: 44, borderRadius: RADIUS.md,
+                  background: BASE.white,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, boxShadow: SHADOW.sm,
+                }}>
+                  {createElement(BarChart3, { size: 22, style: { color: SEMANTIC.success } })}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: BASE.text, marginBottom: 2 }}>
+                    Pas encore de ventes enregistrées
+                  </div>
+                  <div style={{ fontSize: 11, color: BASE.textSoft, lineHeight: 1.4 }}>
+                    Les KPIs apparaîtront dès le premier concert importé.
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* 3 x 2 = 6 cartes KPIs ventes */}
+                <div style={{
+                  display: 'grid', gridTemplateColumns: '1fr 1fr', gap: SPACE.sm, marginBottom: SPACE.sm,
+                }}>
+                  <KpiCard
+                    icon={Euro}
+                    color={SEMANTIC.success}
+                    label="CA 30 jours"
+                    value={fmtEuro(salesKpis.ca30)}
+                    sub={
+                      salesKpis.trendPct === null
+                        ? 'vs J-60'
+                        : `${salesKpis.trendPct >= 0 ? '↑' : '↓'} ${Math.abs(salesKpis.trendPct)}% vs J-60`
+                    }
+                    delay={0}
+                  />
+                  <KpiCard
+                    icon={ShoppingCart}
+                    color={SEMANTIC.success}
+                    label="Ventes aujourd'hui"
+                    value={salesKpis.today.count}
+                    sub={fmtEuro(salesKpis.today.total)}
+                    delay={50}
+                  />
+                  <KpiCard
+                    icon={TrendingUp}
+                    color={SEMANTIC.success}
+                    label="Panier moyen"
+                    value={fmtEuro(salesKpis.basket)}
+                    sub="30 derniers jours"
+                    delay={100}
+                  />
+                  <KpiCard
+                    icon={Award}
+                    color={SEMANTIC.success}
+                    label="Top produit 30j"
+                    value={
+                      salesKpis.top.name
+                        ? (salesKpis.top.name.length > 14
+                            ? salesKpis.top.name.slice(0, 13) + '…'
+                            : salesKpis.top.name)
+                        : '—'
+                    }
+                    sub={salesKpis.top.qty > 0 ? `${salesKpis.top.qty} u.` : 'Aucune vente'}
+                    delay={150}
+                  />
+                  <KpiCard
+                    icon={Star}
+                    color={SEMANTIC.success}
+                    label="Meilleur concert"
+                    value={
+                      salesKpis.best.name
+                        ? (salesKpis.best.name.length > 14
+                            ? salesKpis.best.name.slice(0, 13) + '…'
+                            : salesKpis.best.name)
+                        : '—'
+                    }
+                    sub={salesKpis.best.total > 0 ? fmtEuro(salesKpis.best.total) : 'Aucune vente rattachée'}
+                    delay={200}
+                  />
+                  <KpiCard
+                    icon={Users}
+                    color={SEMANTIC.success}
+                    label="Transactions 30j"
+                    value={salesKpis.txCount}
+                    sub={`${salesKpis.buyers} acheteur${salesKpis.buyers > 1 ? 's' : ''}`}
+                    delay={250}
+                  />
+                </div>
+                <div style={{ height: SPACE.md }} />
+              </>
+            )}
+          </>
+        )}
 
         {/* ═══ 5c. KPIs STOCK (8 metriques cles) ═══ */}
         <div style={{ ...TYPO.label, color: BASE.textSoft, marginBottom: SPACE.sm, marginTop: SPACE.sm }}>
