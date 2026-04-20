@@ -14,7 +14,9 @@
  *   }
  */
 
-// ─── Presets par rôle (12 rôles) ───
+// ─── Presets par rôle (12 rôles) — board_order = grille MODULES (stock/tournee/...) ───
+// NB : l'ordre global des widgets top-level (ventes_kpis, stock_kpis, alerts, modules_grid, ...)
+// est géré séparément par DEFAULT_WIDGET_ORDER dans useBoardConfig.js.
 export const BOARD_PRESETS = {
   TM:   ['tournee', 'finance', 'equipe', 'achats', 'stock', 'alertes', 'forecast', 'transport'],
   PM:   ['tournee', 'finance', 'equipe', 'achats', 'stock', 'alertes', 'packing'],
@@ -28,6 +30,15 @@ export const BOARD_PRESETS = {
   SAFE: ['tournee', 'equipe'],
   AA:   ['tournee', 'equipe'],
   PA:   ['tournee', 'equipe', 'achats', 'stock', 'alertes'],
+}
+
+// ─── Ordre par défaut des widgets top-level du Board par rôle ───
+// Pour le TM (Tour Manager) : ventes + stock en priorité pour voir les KPIs business d'abord.
+export const WIDGET_ORDER_PRESETS = {
+  TM:   ['ventes_kpis', 'stock_kpis', 'alerts', 'modules_grid', 'forecast', 'quick_actions', 'packing_progress', 'top_ventes', 'upcoming_events'],
+  PM:   ['ventes_kpis', 'stock_kpis', 'alerts', 'modules_grid', 'forecast', 'quick_actions', 'packing_progress', 'top_ventes', 'upcoming_events'],
+  MM:   ['ventes_kpis', 'stock_kpis', 'alerts', 'modules_grid', 'forecast', 'top_ventes', 'quick_actions', 'packing_progress', 'upcoming_events'],
+  LOG:  ['stock_kpis', 'alerts', 'modules_grid', 'ventes_kpis', 'forecast', 'quick_actions', 'packing_progress', 'top_ventes', 'upcoming_events'],
 }
 
 // ─── Défaut si aucun rôle match (nouvel user sans rôle) ───
@@ -67,9 +78,19 @@ export function buildBoardConfigFromRoles(roleCodes = []) {
     })
   }
 
+  // Widget order: prend le premier rôle trouvé qui a un preset widget, sinon défaut
+  let widgetOrder = null
+  for (const code of roleCodes) {
+    if (WIDGET_ORDER_PRESETS[code]) {
+      widgetOrder = WIDGET_ORDER_PRESETS[code]
+      break
+    }
+  }
+
   return {
     board_order: order,
     hidden: [],
     sections: {},
+    ...(widgetOrder ? { widget_order: widgetOrder } : {}),
   }
 }
