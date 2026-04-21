@@ -223,12 +223,29 @@ export const db = {
 }
 
 // ─── Safe fetcher (tables that might not exist) ───
-// ALWAYS returns an array — never an object or undefined
+// ALWAYS returns an array — never an object or undefined.
+// Unlike a silent try/catch, logs a console.warn with table name + error
+// so that the dev can see when a real problem (RLS, missing table, auth)
+// is being masked. Do NOT use safe() for tables that MUST exist — use db.get() directly.
 export async function safe(table, query = '') {
   try {
     const result = await db.get(table, query)
     return Array.isArray(result) ? result : []
-  } catch {
+  } catch (err) {
+    // Log visible pour éviter d'absorber silencieusement des vraies erreurs
+    // (RLS cassée, table manquante, token expiré, rate limit, etc.)
+    if (typeof console !== 'undefined' && console.warn) {
+      console.warn(
+        `[safe] Table "${table}" inaccessible (${err?.status || 'no-status'}) — returning [].`,
+        {
+          table,
+          query,
+          message: err?.message || String(err),
+          status: err?.status,
+          hint: 'If this table should exist, check RLS policies, auth token, or schema.',
+        }
+      )
+    }
     return []
   }
 }
