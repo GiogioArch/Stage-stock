@@ -16,7 +16,6 @@ module.exports = {
     ecmaFeatures: { jsx: true },
   },
   settings: { react: { version: 'detect' } },
-  plugins: ['react-refresh'],
   ignorePatterns: [
     'dist',
     'node_modules',
@@ -30,7 +29,6 @@ module.exports = {
     'react/prop-types': 'off', // pas de PropTypes dans ce projet
     'react/no-unknown-property': 'off', // false positives sur cmdk-input-wrapper etc.
     'react/no-unescaped-entities': 'off', // du français courant (l'app, d'autres, etc.)
-    'react-refresh/only-export-components': 'off', // trop strict pour ce projet
 
     // JS
     'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
