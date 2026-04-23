@@ -92,14 +92,58 @@ export const auth = {
   },
 
   async resetPassword(email) {
+    // redirectTo = URL de l'app actuelle — Supabase renverra vers l'origine
+    // courante avec un hash `#access_token=xxx&type=recovery` que l'app
+    // detecte pour afficher l'ecran ResetPassword.
+    // NOTE : cette URL doit aussi etre whitelistee dans
+    //        Supabase Auth > URL Configuration > Redirect URLs
+    const redirectTo =
+      typeof window !== 'undefined' && window.location
+        ? `${window.location.origin}/`
+        : undefined
     const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify(redirectTo ? { email, redirect_to: redirectTo } : { email }),
     })
     if (!res.ok) {
       const data = await res.json()
       throw new Error(data.error_description || data.msg || 'Erreur')
+    }
+  },
+
+  // Change le mot de passe de l'utilisateur authentifie (token recovery actif).
+  // Utilise par l'ecran ResetPassword apres que Supabase a set la session recovery.
+  async updatePassword(newPassword) {
+    const token = accessToken || localStorage.getItem('sb_token')
+    if (!token) {
+      throw new Error('Session expiree. Redemande un lien de reinitialisation.')
+    }
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      method: 'PUT',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ password: newPassword }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      throw new Error(data.error_description || data.msg || 'Impossible de changer le mot de passe')
+    }
+    return data
+  },
+
+  // Hydrate la session depuis un hash d'URL (apres recovery / confirmation email).
+  // Utilise par App.jsx au mount si le hash contient access_token + type=recovery.
+  setSessionFromTokens(accessTok, refreshTok) {
+    if (accessTok) {
+      accessToken = accessTok
+      localStorage.setItem('sb_token', accessTok)
+    }
+    if (refreshTok) {
+      localStorage.setItem('sb_refresh', refreshTok)
     }
   },
 
