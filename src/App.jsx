@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from 'react'
 import { MODULES, getActiveModuleIds, setActiveModuleIds, getRequiredTables, getActiveTabs, TAB_GROUPS } from './modules/registry'
 import { useToast, useAuth, usePersonalData, useProjectData, ProjectProvider } from './shared/hooks'
-import { db } from './lib/supabase'
+import { db, auth } from './lib/supabase'
+import ResetPassword from './components/ResetPassword'
 
 // ─── Critical components (loaded immediately) ───
 import RolePicker, { ROLE_CONF } from './components/RolePicker'
@@ -122,6 +123,29 @@ export default function App() {
   // ─── Auth (from context) ───
   const { user, setUser, logout: authLogout } = useAuth()
   const [legalPage, setLegalPage] = useState(null) // 'cgu' | 'privacy' | null
+
+  // ─── Password recovery flow ───
+  // Detecte au mount si on arrive depuis un lien de reinitialisation Supabase
+  // (hash `#access_token=xxx&type=recovery&refresh_token=yyy`).
+  // Si oui : hydrate la session et force le rendu de <ResetPassword />.
+  const [inRecoveryFlow, setInRecoveryFlow] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const hash = window.location.hash || ''
+    if (!hash.includes('type=recovery')) return false
+    const params = new URLSearchParams(hash.replace(/^#/, ''))
+    const accessTok = params.get('access_token')
+    const refreshTok = params.get('refresh_token')
+    if (!accessTok) return false
+    // Hydrate la session pour que auth.updatePassword() dispose du token
+    auth.setSessionFromTokens(accessTok, refreshTok)
+    return true
+  })
+  const handleRecoveryDone = useCallback(() => {
+    setInRecoveryFlow(false)
+    // Deconnexion propre : nettoie le token recovery et force un re-login
+    authLogout()
+    if (typeof window !== 'undefined') window.location.href = '/'
+  }, [authLogout])
 
   // ─── Layer navigation: 'personal' (couche 2) | 'project' (couche 3) ───
   const [layer, setLayer] = useState('personal')
@@ -359,6 +383,11 @@ export default function App() {
   const pathname = window.location.pathname
   if (pathname.startsWith('/live')) return <LiveErrorBoundary><Suspense fallback={<SplashScreen text="Chargement..." />}><LiveApp /></Suspense></LiveErrorBoundary>
   if (pathname.startsWith('/display')) return <LiveErrorBoundary><Suspense fallback={<SplashScreen text="Chargement..." />}><LiveDisplay /></Suspense></LiveErrorBoundary>
+
+  // Reset password flow (arrive depuis un lien mail Supabase avec #type=recovery)
+  // Doit passer AVANT la verification user pour eviter de rendre le board si
+  // l'utilisateur etait deja connecte.
+  if (inRecoveryFlow) return <ResetPassword onDone={handleRecoveryDone} />
 
   if (user === undefined) return <SplashScreen text="Vérification..." />
 
